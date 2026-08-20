@@ -1,5 +1,7 @@
 {
   "catalog": "seed-ffhq-70224-actions-v4",
   "sourceFaces": 70224,
-  "searchableFaces": 70099
+  "searchableFaces": 70099,
+  "attempt": 2,
+  "fix": "node-experimental-strip-types"
 }

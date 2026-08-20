@@ -1,0 +1,4606 @@
+{
+  "schemaVersion": 3,
+  "catalogId": "seed-ffhq-70224-actions-v4",
+  "generatedAt": "2026-08-20T07:59:04.017680+00:00",
+  "totalFaces": 70224,
+  "poseStep": 3,
+  "bounds": {
+    "yawMin": -45,
+    "yawMax": 45,
+    "pitchMin": -36,
+    "pitchMax": 36
+  },
+  "outputSize": 256,
+  "cells": {
+    "-12:-12": {
+      "count": 154,
+      "shards": [
+        "seed_yaw_n012_pitch_n012_000.json"
+      ]
+    },
+    "-12:-15": {
+      "count": 112,
+      "shards": [
+        "seed_yaw_n012_pitch_n015_000.json"
+      ]
+    },
+    "-12:-18": {
+      "count": 87,
+      "shards": [
+        "seed_yaw_n012_pitch_n018_000.json"
+      ]
+    },
+    "-12:-21": {
+      "count": 60,
+      "shards": [
+        "seed_yaw_n012_pitch_n021_000.json"
+      ]
+    },
+    "-12:-24": {
+      "count": 36,
+      "shards": [
+        "seed_yaw_n012_pitch_n024_000.json"
+      ]
+    },
+    "-12:-27": {
+      "count": 25,
+      "shards": [
+        "seed_yaw_n012_pitch_n027_000.json"
+      ]
+    },
+    "-12:-3": {
+      "count": 358,
+      "shards": [
+        "seed_yaw_n012_pitch_n003_000.json"
+      ]
+    },
+    "-12:-30": {
+      "count": 12,
+      "shards": [
+        "seed_yaw_n012_pitch_n030_000.json"
+      ]
+    },
+    "-12:-33": {
+      "count": 17,
+      "shards": [
+        "seed_yaw_n012_pitch_n033_000.json"
+      ]
+    },
+    "-12:-36": {
+      "count": 13,
+      "shards": [
+        "seed_yaw_n012_pitch_n036_000.json"
+      ]
+    },
+    "-12:-6": {
+      "count": 292,
+      "shards": [
+        "seed_yaw_n012_pitch_n006_000.json"
+      ]
+    },
+    "-12:-9": {
+      "count": 209,
+      "shards": [
+        "seed_yaw_n012_pitch_n009_000.json"
+      ]
+    },
+    "-12:0": {
+      "count": 364,
+      "shards": [
+        "seed_yaw_n012_pitch_p000_000.json"
+      ]
+    },
+    "-12:12": {
+      "count": 257,
+      "shards": [
+        "seed_yaw_n012_pitch_p012_000.json"
+      ]
+    },
+    "-12:15": {
+      "count": 199,
+      "shards": [
+        "seed_yaw_n012_pitch_p015_000.json"
+      ]
+    },
+    "-12:18": {
+      "count": 136,
+      "shards": [
+        "seed_yaw_n012_pitch_p018_000.json"
+      ]
+    },
+    "-12:21": {
+      "count": 91,
+      "shards": [
+        "seed_yaw_n012_pitch_p021_000.json"
+      ]
+    },
+    "-12:24": {
+      "count": 55,
+      "shards": [
+        "seed_yaw_n012_pitch_p024_000.json"
+      ]
+    },
+    "-12:27": {
+      "count": 34,
+      "shards": [
+        "seed_yaw_n012_pitch_p027_000.json"
+      ]
+    },
+    "-12:3": {
+      "count": 394,
+      "shards": [
+        "seed_yaw_n012_pitch_p003_000.json"
+      ]
+    },
+    "-12:30": {
+      "count": 16,
+      "shards": [
+        "seed_yaw_n012_pitch_p030_000.json"
+      ]
+    },
+    "-12:33": {
+      "count": 12,
+      "shards": [
+        "seed_yaw_n012_pitch_p033_000.json"
+      ]
+    },
+    "-12:36": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_n012_pitch_p036_000.json"
+      ]
+    },
+    "-12:6": {
+      "count": 338,
+      "shards": [
+        "seed_yaw_n012_pitch_p006_000.json"
+      ]
+    },
+    "-12:9": {
+      "count": 330,
+      "shards": [
+        "seed_yaw_n012_pitch_p009_000.json"
+      ]
+    },
+    "-15:-12": {
+      "count": 126,
+      "shards": [
+        "seed_yaw_n015_pitch_n012_000.json"
+      ]
+    },
+    "-15:-15": {
+      "count": 86,
+      "shards": [
+        "seed_yaw_n015_pitch_n015_000.json"
+      ]
+    },
+    "-15:-18": {
+      "count": 62,
+      "shards": [
+        "seed_yaw_n015_pitch_n018_000.json"
+      ]
+    },
+    "-15:-21": {
+      "count": 40,
+      "shards": [
+        "seed_yaw_n015_pitch_n021_000.json"
+      ]
+    },
+    "-15:-24": {
+      "count": 19,
+      "shards": [
+        "seed_yaw_n015_pitch_n024_000.json"
+      ]
+    },
+    "-15:-27": {
+      "count": 26,
+      "shards": [
+        "seed_yaw_n015_pitch_n027_000.json"
+      ]
+    },
+    "-15:-3": {
+      "count": 254,
+      "shards": [
+        "seed_yaw_n015_pitch_n003_000.json"
+      ]
+    },
+    "-15:-30": {
+      "count": 13,
+      "shards": [
+        "seed_yaw_n015_pitch_n030_000.json"
+      ]
+    },
+    "-15:-33": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_n015_pitch_n033_000.json"
+      ]
+    },
+    "-15:-36": {
+      "count": 13,
+      "shards": [
+        "seed_yaw_n015_pitch_n036_000.json"
+      ]
+    },
+    "-15:-6": {
+      "count": 223,
+      "shards": [
+        "seed_yaw_n015_pitch_n006_000.json"
+      ]
+    },
+    "-15:-9": {
+      "count": 151,
+      "shards": [
+        "seed_yaw_n015_pitch_n009_000.json"
+      ]
+    },
+    "-15:0": {
+      "count": 287,
+      "shards": [
+        "seed_yaw_n015_pitch_p000_000.json"
+      ]
+    },
+    "-15:12": {
+      "count": 189,
+      "shards": [
+        "seed_yaw_n015_pitch_p012_000.json"
+      ]
+    },
+    "-15:15": {
+      "count": 117,
+      "shards": [
+        "seed_yaw_n015_pitch_p015_000.json"
+      ]
+    },
+    "-15:18": {
+      "count": 86,
+      "shards": [
+        "seed_yaw_n015_pitch_p018_000.json"
+      ]
+    },
+    "-15:21": {
+      "count": 75,
+      "shards": [
+        "seed_yaw_n015_pitch_p021_000.json"
+      ]
+    },
+    "-15:24": {
+      "count": 51,
+      "shards": [
+        "seed_yaw_n015_pitch_p024_000.json"
+      ]
+    },
+    "-15:27": {
+      "count": 27,
+      "shards": [
+        "seed_yaw_n015_pitch_p027_000.json"
+      ]
+    },
+    "-15:3": {
+      "count": 299,
+      "shards": [
+        "seed_yaw_n015_pitch_p003_000.json"
+      ]
+    },
+    "-15:30": {
+      "count": 17,
+      "shards": [
+        "seed_yaw_n015_pitch_p030_000.json"
+      ]
+    },
+    "-15:33": {
+      "count": 20,
+      "shards": [
+        "seed_yaw_n015_pitch_p033_000.json"
+      ]
+    },
+    "-15:36": {
+      "count": 8,
+      "shards": [
+        "seed_yaw_n015_pitch_p036_000.json"
+      ]
+    },
+    "-15:6": {
+      "count": 291,
+      "shards": [
+        "seed_yaw_n015_pitch_p006_000.json"
+      ]
+    },
+    "-15:9": {
+      "count": 279,
+      "shards": [
+        "seed_yaw_n015_pitch_p009_000.json"
+      ]
+    },
+    "-18:-12": {
+      "count": 102,
+      "shards": [
+        "seed_yaw_n018_pitch_n012_000.json"
+      ]
+    },
+    "-18:-15": {
+      "count": 85,
+      "shards": [
+        "seed_yaw_n018_pitch_n015_000.json"
+      ]
+    },
+    "-18:-18": {
+      "count": 59,
+      "shards": [
+        "seed_yaw_n018_pitch_n018_000.json"
+      ]
+    },
+    "-18:-21": {
+      "count": 28,
+      "shards": [
+        "seed_yaw_n018_pitch_n021_000.json"
+      ]
+    },
+    "-18:-24": {
+      "count": 26,
+      "shards": [
+        "seed_yaw_n018_pitch_n024_000.json"
+      ]
+    },
+    "-18:-27": {
+      "count": 21,
+      "shards": [
+        "seed_yaw_n018_pitch_n027_000.json"
+      ]
+    },
+    "-18:-3": {
+      "count": 200,
+      "shards": [
+        "seed_yaw_n018_pitch_n003_000.json"
+      ]
+    },
+    "-18:-30": {
+      "count": 18,
+      "shards": [
+        "seed_yaw_n018_pitch_n030_000.json"
+      ]
+    },
+    "-18:-33": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_n018_pitch_n033_000.json"
+      ]
+    },
+    "-18:-36": {
+      "count": 13,
+      "shards": [
+        "seed_yaw_n018_pitch_n036_000.json"
+      ]
+    },
+    "-18:-6": {
+      "count": 173,
+      "shards": [
+        "seed_yaw_n018_pitch_n006_000.json"
+      ]
+    },
+    "-18:-9": {
+      "count": 148,
+      "shards": [
+        "seed_yaw_n018_pitch_n009_000.json"
+      ]
+    },
+    "-18:0": {
+      "count": 203,
+      "shards": [
+        "seed_yaw_n018_pitch_p000_000.json"
+      ]
+    },
+    "-18:12": {
+      "count": 142,
+      "shards": [
+        "seed_yaw_n018_pitch_p012_000.json"
+      ]
+    },
+    "-18:15": {
+      "count": 97,
+      "shards": [
+        "seed_yaw_n018_pitch_p015_000.json"
+      ]
+    },
+    "-18:18": {
+      "count": 88,
+      "shards": [
+        "seed_yaw_n018_pitch_p018_000.json"
+      ]
+    },
+    "-18:21": {
+      "count": 48,
+      "shards": [
+        "seed_yaw_n018_pitch_p021_000.json"
+      ]
+    },
+    "-18:24": {
+      "count": 35,
+      "shards": [
+        "seed_yaw_n018_pitch_p024_000.json"
+      ]
+    },
+    "-18:27": {
+      "count": 21,
+      "shards": [
+        "seed_yaw_n018_pitch_p027_000.json"
+      ]
+    },
+    "-18:3": {
+      "count": 240,
+      "shards": [
+        "seed_yaw_n018_pitch_p003_000.json"
+      ]
+    },
+    "-18:30": {
+      "count": 11,
+      "shards": [
+        "seed_yaw_n018_pitch_p030_000.json"
+      ]
+    },
+    "-18:33": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_n018_pitch_p033_000.json"
+      ]
+    },
+    "-18:36": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_n018_pitch_p036_000.json"
+      ]
+    },
+    "-18:6": {
+      "count": 202,
+      "shards": [
+        "seed_yaw_n018_pitch_p006_000.json"
+      ]
+    },
+    "-18:9": {
+      "count": 206,
+      "shards": [
+        "seed_yaw_n018_pitch_p009_000.json"
+      ]
+    },
+    "-21:-12": {
+      "count": 68,
+      "shards": [
+        "seed_yaw_n021_pitch_n012_000.json"
+      ]
+    },
+    "-21:-15": {
+      "count": 73,
+      "shards": [
+        "seed_yaw_n021_pitch_n015_000.json"
+      ]
+    },
+    "-21:-18": {
+      "count": 51,
+      "shards": [
+        "seed_yaw_n021_pitch_n018_000.json"
+      ]
+    },
+    "-21:-21": {
+      "count": 28,
+      "shards": [
+        "seed_yaw_n021_pitch_n021_000.json"
+      ]
+    },
+    "-21:-24": {
+      "count": 22,
+      "shards": [
+        "seed_yaw_n021_pitch_n024_000.json"
+      ]
+    },
+    "-21:-27": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_n021_pitch_n027_000.json"
+      ]
+    },
+    "-21:-3": {
+      "count": 147,
+      "shards": [
+        "seed_yaw_n021_pitch_n003_000.json"
+      ]
+    },
+    "-21:-30": {
+      "count": 13,
+      "shards": [
+        "seed_yaw_n021_pitch_n030_000.json"
+      ]
+    },
+    "-21:-33": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_n021_pitch_n033_000.json"
+      ]
+    },
+    "-21:-36": {
+      "count": 13,
+      "shards": [
+        "seed_yaw_n021_pitch_n036_000.json"
+      ]
+    },
+    "-21:-6": {
+      "count": 141,
+      "shards": [
+        "seed_yaw_n021_pitch_n006_000.json"
+      ]
+    },
+    "-21:-9": {
+      "count": 99,
+      "shards": [
+        "seed_yaw_n021_pitch_n009_000.json"
+      ]
+    },
+    "-21:0": {
+      "count": 168,
+      "shards": [
+        "seed_yaw_n021_pitch_p000_000.json"
+      ]
+    },
+    "-21:12": {
+      "count": 111,
+      "shards": [
+        "seed_yaw_n021_pitch_p012_000.json"
+      ]
+    },
+    "-21:15": {
+      "count": 72,
+      "shards": [
+        "seed_yaw_n021_pitch_p015_000.json"
+      ]
+    },
+    "-21:18": {
+      "count": 61,
+      "shards": [
+        "seed_yaw_n021_pitch_p018_000.json"
+      ]
+    },
+    "-21:21": {
+      "count": 49,
+      "shards": [
+        "seed_yaw_n021_pitch_p021_000.json"
+      ]
+    },
+    "-21:24": {
+      "count": 26,
+      "shards": [
+        "seed_yaw_n021_pitch_p024_000.json"
+      ]
+    },
+    "-21:27": {
+      "count": 16,
+      "shards": [
+        "seed_yaw_n021_pitch_p027_000.json"
+      ]
+    },
+    "-21:3": {
+      "count": 171,
+      "shards": [
+        "seed_yaw_n021_pitch_p003_000.json"
+      ]
+    },
+    "-21:30": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_n021_pitch_p030_000.json"
+      ]
+    },
+    "-21:33": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_n021_pitch_p033_000.json"
+      ]
+    },
+    "-21:36": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_n021_pitch_p036_000.json"
+      ]
+    },
+    "-21:6": {
+      "count": 155,
+      "shards": [
+        "seed_yaw_n021_pitch_p006_000.json"
+      ]
+    },
+    "-21:9": {
+      "count": 163,
+      "shards": [
+        "seed_yaw_n021_pitch_p009_000.json"
+      ]
+    },
+    "-24:-12": {
+      "count": 87,
+      "shards": [
+        "seed_yaw_n024_pitch_n012_000.json"
+      ]
+    },
+    "-24:-15": {
+      "count": 49,
+      "shards": [
+        "seed_yaw_n024_pitch_n015_000.json"
+      ]
+    },
+    "-24:-18": {
+      "count": 41,
+      "shards": [
+        "seed_yaw_n024_pitch_n018_000.json"
+      ]
+    },
+    "-24:-21": {
+      "count": 31,
+      "shards": [
+        "seed_yaw_n024_pitch_n021_000.json"
+      ]
+    },
+    "-24:-24": {
+      "count": 19,
+      "shards": [
+        "seed_yaw_n024_pitch_n024_000.json"
+      ]
+    },
+    "-24:-27": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_n024_pitch_n027_000.json"
+      ]
+    },
+    "-24:-3": {
+      "count": 113,
+      "shards": [
+        "seed_yaw_n024_pitch_n003_000.json"
+      ]
+    },
+    "-24:-30": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n024_pitch_n030_000.json"
+      ]
+    },
+    "-24:-33": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_n024_pitch_n033_000.json"
+      ]
+    },
+    "-24:-36": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_n024_pitch_n036_000.json"
+      ]
+    },
+    "-24:-6": {
+      "count": 106,
+      "shards": [
+        "seed_yaw_n024_pitch_n006_000.json"
+      ]
+    },
+    "-24:-9": {
+      "count": 85,
+      "shards": [
+        "seed_yaw_n024_pitch_n009_000.json"
+      ]
+    },
+    "-24:0": {
+      "count": 127,
+      "shards": [
+        "seed_yaw_n024_pitch_p000_000.json"
+      ]
+    },
+    "-24:12": {
+      "count": 89,
+      "shards": [
+        "seed_yaw_n024_pitch_p012_000.json"
+      ]
+    },
+    "-24:15": {
+      "count": 71,
+      "shards": [
+        "seed_yaw_n024_pitch_p015_000.json"
+      ]
+    },
+    "-24:18": {
+      "count": 53,
+      "shards": [
+        "seed_yaw_n024_pitch_p018_000.json"
+      ]
+    },
+    "-24:21": {
+      "count": 20,
+      "shards": [
+        "seed_yaw_n024_pitch_p021_000.json"
+      ]
+    },
+    "-24:24": {
+      "count": 20,
+      "shards": [
+        "seed_yaw_n024_pitch_p024_000.json"
+      ]
+    },
+    "-24:27": {
+      "count": 22,
+      "shards": [
+        "seed_yaw_n024_pitch_p027_000.json"
+      ]
+    },
+    "-24:3": {
+      "count": 118,
+      "shards": [
+        "seed_yaw_n024_pitch_p003_000.json"
+      ]
+    },
+    "-24:30": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_n024_pitch_p030_000.json"
+      ]
+    },
+    "-24:33": {
+      "count": 6,
+      "shards": [
+        "seed_yaw_n024_pitch_p033_000.json"
+      ]
+    },
+    "-24:36": {
+      "count": 6,
+      "shards": [
+        "seed_yaw_n024_pitch_p036_000.json"
+      ]
+    },
+    "-24:6": {
+      "count": 120,
+      "shards": [
+        "seed_yaw_n024_pitch_p006_000.json"
+      ]
+    },
+    "-24:9": {
+      "count": 102,
+      "shards": [
+        "seed_yaw_n024_pitch_p009_000.json"
+      ]
+    },
+    "-27:-12": {
+      "count": 57,
+      "shards": [
+        "seed_yaw_n027_pitch_n012_000.json"
+      ]
+    },
+    "-27:-15": {
+      "count": 39,
+      "shards": [
+        "seed_yaw_n027_pitch_n015_000.json"
+      ]
+    },
+    "-27:-18": {
+      "count": 26,
+      "shards": [
+        "seed_yaw_n027_pitch_n018_000.json"
+      ]
+    },
+    "-27:-21": {
+      "count": 28,
+      "shards": [
+        "seed_yaw_n027_pitch_n021_000.json"
+      ]
+    },
+    "-27:-24": {
+      "count": 19,
+      "shards": [
+        "seed_yaw_n027_pitch_n024_000.json"
+      ]
+    },
+    "-27:-27": {
+      "count": 8,
+      "shards": [
+        "seed_yaw_n027_pitch_n027_000.json"
+      ]
+    },
+    "-27:-3": {
+      "count": 94,
+      "shards": [
+        "seed_yaw_n027_pitch_n003_000.json"
+      ]
+    },
+    "-27:-30": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n027_pitch_n030_000.json"
+      ]
+    },
+    "-27:-33": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_n027_pitch_n033_000.json"
+      ]
+    },
+    "-27:-36": {
+      "count": 6,
+      "shards": [
+        "seed_yaw_n027_pitch_n036_000.json"
+      ]
+    },
+    "-27:-6": {
+      "count": 70,
+      "shards": [
+        "seed_yaw_n027_pitch_n006_000.json"
+      ]
+    },
+    "-27:-9": {
+      "count": 61,
+      "shards": [
+        "seed_yaw_n027_pitch_n009_000.json"
+      ]
+    },
+    "-27:0": {
+      "count": 84,
+      "shards": [
+        "seed_yaw_n027_pitch_p000_000.json"
+      ]
+    },
+    "-27:12": {
+      "count": 63,
+      "shards": [
+        "seed_yaw_n027_pitch_p012_000.json"
+      ]
+    },
+    "-27:15": {
+      "count": 43,
+      "shards": [
+        "seed_yaw_n027_pitch_p015_000.json"
+      ]
+    },
+    "-27:18": {
+      "count": 34,
+      "shards": [
+        "seed_yaw_n027_pitch_p018_000.json"
+      ]
+    },
+    "-27:21": {
+      "count": 20,
+      "shards": [
+        "seed_yaw_n027_pitch_p021_000.json"
+      ]
+    },
+    "-27:24": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_n027_pitch_p024_000.json"
+      ]
+    },
+    "-27:27": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_n027_pitch_p027_000.json"
+      ]
+    },
+    "-27:3": {
+      "count": 76,
+      "shards": [
+        "seed_yaw_n027_pitch_p003_000.json"
+      ]
+    },
+    "-27:30": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n027_pitch_p030_000.json"
+      ]
+    },
+    "-27:33": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n027_pitch_p033_000.json"
+      ]
+    },
+    "-27:36": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_n027_pitch_p036_000.json"
+      ]
+    },
+    "-27:6": {
+      "count": 83,
+      "shards": [
+        "seed_yaw_n027_pitch_p006_000.json"
+      ]
+    },
+    "-27:9": {
+      "count": 82,
+      "shards": [
+        "seed_yaw_n027_pitch_p009_000.json"
+      ]
+    },
+    "-30:-12": {
+      "count": 32,
+      "shards": [
+        "seed_yaw_n030_pitch_n012_000.json"
+      ]
+    },
+    "-30:-15": {
+      "count": 27,
+      "shards": [
+        "seed_yaw_n030_pitch_n015_000.json"
+      ]
+    },
+    "-30:-18": {
+      "count": 24,
+      "shards": [
+        "seed_yaw_n030_pitch_n018_000.json"
+      ]
+    },
+    "-30:-21": {
+      "count": 19,
+      "shards": [
+        "seed_yaw_n030_pitch_n021_000.json"
+      ]
+    },
+    "-30:-24": {
+      "count": 12,
+      "shards": [
+        "seed_yaw_n030_pitch_n024_000.json"
+      ]
+    },
+    "-30:-27": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_n030_pitch_n027_000.json"
+      ]
+    },
+    "-30:-3": {
+      "count": 53,
+      "shards": [
+        "seed_yaw_n030_pitch_n003_000.json"
+      ]
+    },
+    "-30:-30": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_n030_pitch_n030_000.json"
+      ]
+    },
+    "-30:-33": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n030_pitch_n033_000.json"
+      ]
+    },
+    "-30:-36": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_n030_pitch_n036_000.json"
+      ]
+    },
+    "-30:-6": {
+      "count": 61,
+      "shards": [
+        "seed_yaw_n030_pitch_n006_000.json"
+      ]
+    },
+    "-30:-9": {
+      "count": 54,
+      "shards": [
+        "seed_yaw_n030_pitch_n009_000.json"
+      ]
+    },
+    "-30:0": {
+      "count": 74,
+      "shards": [
+        "seed_yaw_n030_pitch_p000_000.json"
+      ]
+    },
+    "-30:12": {
+      "count": 53,
+      "shards": [
+        "seed_yaw_n030_pitch_p012_000.json"
+      ]
+    },
+    "-30:15": {
+      "count": 25,
+      "shards": [
+        "seed_yaw_n030_pitch_p015_000.json"
+      ]
+    },
+    "-30:18": {
+      "count": 26,
+      "shards": [
+        "seed_yaw_n030_pitch_p018_000.json"
+      ]
+    },
+    "-30:21": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_n030_pitch_p021_000.json"
+      ]
+    },
+    "-30:24": {
+      "count": 11,
+      "shards": [
+        "seed_yaw_n030_pitch_p024_000.json"
+      ]
+    },
+    "-30:27": {
+      "count": 8,
+      "shards": [
+        "seed_yaw_n030_pitch_p027_000.json"
+      ]
+    },
+    "-30:3": {
+      "count": 58,
+      "shards": [
+        "seed_yaw_n030_pitch_p003_000.json"
+      ]
+    },
+    "-30:30": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_n030_pitch_p030_000.json"
+      ]
+    },
+    "-30:33": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_n030_pitch_p033_000.json"
+      ]
+    },
+    "-30:36": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_n030_pitch_p036_000.json"
+      ]
+    },
+    "-30:6": {
+      "count": 53,
+      "shards": [
+        "seed_yaw_n030_pitch_p006_000.json"
+      ]
+    },
+    "-30:9": {
+      "count": 45,
+      "shards": [
+        "seed_yaw_n030_pitch_p009_000.json"
+      ]
+    },
+    "-33:-12": {
+      "count": 32,
+      "shards": [
+        "seed_yaw_n033_pitch_n012_000.json"
+      ]
+    },
+    "-33:-15": {
+      "count": 24,
+      "shards": [
+        "seed_yaw_n033_pitch_n015_000.json"
+      ]
+    },
+    "-33:-18": {
+      "count": 19,
+      "shards": [
+        "seed_yaw_n033_pitch_n018_000.json"
+      ]
+    },
+    "-33:-21": {
+      "count": 14,
+      "shards": [
+        "seed_yaw_n033_pitch_n021_000.json"
+      ]
+    },
+    "-33:-24": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_n033_pitch_n024_000.json"
+      ]
+    },
+    "-33:-27": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_n033_pitch_n027_000.json"
+      ]
+    },
+    "-33:-3": {
+      "count": 49,
+      "shards": [
+        "seed_yaw_n033_pitch_n003_000.json"
+      ]
+    },
+    "-33:-30": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_n033_pitch_n030_000.json"
+      ]
+    },
+    "-33:-33": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_n033_pitch_n033_000.json"
+      ]
+    },
+    "-33:-36": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_n033_pitch_n036_000.json"
+      ]
+    },
+    "-33:-6": {
+      "count": 31,
+      "shards": [
+        "seed_yaw_n033_pitch_n006_000.json"
+      ]
+    },
+    "-33:-9": {
+      "count": 36,
+      "shards": [
+        "seed_yaw_n033_pitch_n009_000.json"
+      ]
+    },
+    "-33:0": {
+      "count": 43,
+      "shards": [
+        "seed_yaw_n033_pitch_p000_000.json"
+      ]
+    },
+    "-33:12": {
+      "count": 25,
+      "shards": [
+        "seed_yaw_n033_pitch_p012_000.json"
+      ]
+    },
+    "-33:15": {
+      "count": 18,
+      "shards": [
+        "seed_yaw_n033_pitch_p015_000.json"
+      ]
+    },
+    "-33:18": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_n033_pitch_p018_000.json"
+      ]
+    },
+    "-33:21": {
+      "count": 6,
+      "shards": [
+        "seed_yaw_n033_pitch_p021_000.json"
+      ]
+    },
+    "-33:24": {
+      "count": 6,
+      "shards": [
+        "seed_yaw_n033_pitch_p024_000.json"
+      ]
+    },
+    "-33:27": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_n033_pitch_p027_000.json"
+      ]
+    },
+    "-33:3": {
+      "count": 41,
+      "shards": [
+        "seed_yaw_n033_pitch_p003_000.json"
+      ]
+    },
+    "-33:30": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_n033_pitch_p030_000.json"
+      ]
+    },
+    "-33:33": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_n033_pitch_p033_000.json"
+      ]
+    },
+    "-33:36": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_n033_pitch_p036_000.json"
+      ]
+    },
+    "-33:6": {
+      "count": 41,
+      "shards": [
+        "seed_yaw_n033_pitch_p006_000.json"
+      ]
+    },
+    "-33:9": {
+      "count": 27,
+      "shards": [
+        "seed_yaw_n033_pitch_p009_000.json"
+      ]
+    },
+    "-36:-12": {
+      "count": 18,
+      "shards": [
+        "seed_yaw_n036_pitch_n012_000.json"
+      ]
+    },
+    "-36:-15": {
+      "count": 14,
+      "shards": [
+        "seed_yaw_n036_pitch_n015_000.json"
+      ]
+    },
+    "-36:-18": {
+      "count": 8,
+      "shards": [
+        "seed_yaw_n036_pitch_n018_000.json"
+      ]
+    },
+    "-36:-21": {
+      "count": 6,
+      "shards": [
+        "seed_yaw_n036_pitch_n021_000.json"
+      ]
+    },
+    "-36:-24": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_n036_pitch_n024_000.json"
+      ]
+    },
+    "-36:-27": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n036_pitch_n027_000.json"
+      ]
+    },
+    "-36:-3": {
+      "count": 24,
+      "shards": [
+        "seed_yaw_n036_pitch_n003_000.json"
+      ]
+    },
+    "-36:-30": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n036_pitch_n030_000.json"
+      ]
+    },
+    "-36:-36": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n036_pitch_n036_000.json"
+      ]
+    },
+    "-36:-6": {
+      "count": 26,
+      "shards": [
+        "seed_yaw_n036_pitch_n006_000.json"
+      ]
+    },
+    "-36:-9": {
+      "count": 23,
+      "shards": [
+        "seed_yaw_n036_pitch_n009_000.json"
+      ]
+    },
+    "-36:0": {
+      "count": 38,
+      "shards": [
+        "seed_yaw_n036_pitch_p000_000.json"
+      ]
+    },
+    "-36:12": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_n036_pitch_p012_000.json"
+      ]
+    },
+    "-36:15": {
+      "count": 13,
+      "shards": [
+        "seed_yaw_n036_pitch_p015_000.json"
+      ]
+    },
+    "-36:18": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_n036_pitch_p018_000.json"
+      ]
+    },
+    "-36:21": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n036_pitch_p021_000.json"
+      ]
+    },
+    "-36:24": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_n036_pitch_p024_000.json"
+      ]
+    },
+    "-36:27": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_n036_pitch_p027_000.json"
+      ]
+    },
+    "-36:3": {
+      "count": 19,
+      "shards": [
+        "seed_yaw_n036_pitch_p003_000.json"
+      ]
+    },
+    "-36:30": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n036_pitch_p030_000.json"
+      ]
+    },
+    "-36:36": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n036_pitch_p036_000.json"
+      ]
+    },
+    "-36:6": {
+      "count": 23,
+      "shards": [
+        "seed_yaw_n036_pitch_p006_000.json"
+      ]
+    },
+    "-36:9": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_n036_pitch_p009_000.json"
+      ]
+    },
+    "-39:-12": {
+      "count": 12,
+      "shards": [
+        "seed_yaw_n039_pitch_n012_000.json"
+      ]
+    },
+    "-39:-15": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_n039_pitch_n015_000.json"
+      ]
+    },
+    "-39:-18": {
+      "count": 6,
+      "shards": [
+        "seed_yaw_n039_pitch_n018_000.json"
+      ]
+    },
+    "-39:-21": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_n039_pitch_n021_000.json"
+      ]
+    },
+    "-39:-24": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_n039_pitch_n024_000.json"
+      ]
+    },
+    "-39:-27": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_n039_pitch_n027_000.json"
+      ]
+    },
+    "-39:-3": {
+      "count": 19,
+      "shards": [
+        "seed_yaw_n039_pitch_n003_000.json"
+      ]
+    },
+    "-39:-30": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n039_pitch_n030_000.json"
+      ]
+    },
+    "-39:-33": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n039_pitch_n033_000.json"
+      ]
+    },
+    "-39:-6": {
+      "count": 15,
+      "shards": [
+        "seed_yaw_n039_pitch_n006_000.json"
+      ]
+    },
+    "-39:-9": {
+      "count": 20,
+      "shards": [
+        "seed_yaw_n039_pitch_n009_000.json"
+      ]
+    },
+    "-39:0": {
+      "count": 17,
+      "shards": [
+        "seed_yaw_n039_pitch_p000_000.json"
+      ]
+    },
+    "-39:12": {
+      "count": 13,
+      "shards": [
+        "seed_yaw_n039_pitch_p012_000.json"
+      ]
+    },
+    "-39:15": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_n039_pitch_p015_000.json"
+      ]
+    },
+    "-39:18": {
+      "count": 8,
+      "shards": [
+        "seed_yaw_n039_pitch_p018_000.json"
+      ]
+    },
+    "-39:21": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_n039_pitch_p021_000.json"
+      ]
+    },
+    "-39:24": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_n039_pitch_p024_000.json"
+      ]
+    },
+    "-39:27": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n039_pitch_p027_000.json"
+      ]
+    },
+    "-39:3": {
+      "count": 15,
+      "shards": [
+        "seed_yaw_n039_pitch_p003_000.json"
+      ]
+    },
+    "-39:6": {
+      "count": 16,
+      "shards": [
+        "seed_yaw_n039_pitch_p006_000.json"
+      ]
+    },
+    "-39:9": {
+      "count": 11,
+      "shards": [
+        "seed_yaw_n039_pitch_p009_000.json"
+      ]
+    },
+    "-3:-12": {
+      "count": 289,
+      "shards": [
+        "seed_yaw_n003_pitch_n012_000.json"
+      ]
+    },
+    "-3:-15": {
+      "count": 200,
+      "shards": [
+        "seed_yaw_n003_pitch_n015_000.json"
+      ]
+    },
+    "-3:-18": {
+      "count": 130,
+      "shards": [
+        "seed_yaw_n003_pitch_n018_000.json"
+      ]
+    },
+    "-3:-21": {
+      "count": 111,
+      "shards": [
+        "seed_yaw_n003_pitch_n021_000.json"
+      ]
+    },
+    "-3:-24": {
+      "count": 61,
+      "shards": [
+        "seed_yaw_n003_pitch_n024_000.json"
+      ]
+    },
+    "-3:-27": {
+      "count": 27,
+      "shards": [
+        "seed_yaw_n003_pitch_n027_000.json"
+      ]
+    },
+    "-3:-3": {
+      "count": 661,
+      "shards": [
+        "seed_yaw_n003_pitch_n003_000.json"
+      ]
+    },
+    "-3:-30": {
+      "count": 26,
+      "shards": [
+        "seed_yaw_n003_pitch_n030_000.json"
+      ]
+    },
+    "-3:-33": {
+      "count": 15,
+      "shards": [
+        "seed_yaw_n003_pitch_n033_000.json"
+      ]
+    },
+    "-3:-36": {
+      "count": 37,
+      "shards": [
+        "seed_yaw_n003_pitch_n036_000.json"
+      ]
+    },
+    "-3:-6": {
+      "count": 497,
+      "shards": [
+        "seed_yaw_n003_pitch_n006_000.json"
+      ]
+    },
+    "-3:-9": {
+      "count": 384,
+      "shards": [
+        "seed_yaw_n003_pitch_n009_000.json"
+      ]
+    },
+    "-3:0": {
+      "count": 768,
+      "shards": [
+        "seed_yaw_n003_pitch_p000_000.json",
+        "seed_yaw_n003_pitch_p000_001.json"
+      ]
+    },
+    "-3:12": {
+      "count": 538,
+      "shards": [
+        "seed_yaw_n003_pitch_p012_000.json"
+      ]
+    },
+    "-3:15": {
+      "count": 392,
+      "shards": [
+        "seed_yaw_n003_pitch_p015_000.json"
+      ]
+    },
+    "-3:18": {
+      "count": 274,
+      "shards": [
+        "seed_yaw_n003_pitch_p018_000.json"
+      ]
+    },
+    "-3:21": {
+      "count": 187,
+      "shards": [
+        "seed_yaw_n003_pitch_p021_000.json"
+      ]
+    },
+    "-3:24": {
+      "count": 116,
+      "shards": [
+        "seed_yaw_n003_pitch_p024_000.json"
+      ]
+    },
+    "-3:27": {
+      "count": 66,
+      "shards": [
+        "seed_yaw_n003_pitch_p027_000.json"
+      ]
+    },
+    "-3:3": {
+      "count": 825,
+      "shards": [
+        "seed_yaw_n003_pitch_p003_000.json",
+        "seed_yaw_n003_pitch_p003_001.json"
+      ]
+    },
+    "-3:30": {
+      "count": 51,
+      "shards": [
+        "seed_yaw_n003_pitch_p030_000.json"
+      ]
+    },
+    "-3:33": {
+      "count": 19,
+      "shards": [
+        "seed_yaw_n003_pitch_p033_000.json"
+      ]
+    },
+    "-3:36": {
+      "count": 31,
+      "shards": [
+        "seed_yaw_n003_pitch_p036_000.json"
+      ]
+    },
+    "-3:6": {
+      "count": 761,
+      "shards": [
+        "seed_yaw_n003_pitch_p006_000.json",
+        "seed_yaw_n003_pitch_p006_001.json"
+      ]
+    },
+    "-3:9": {
+      "count": 732,
+      "shards": [
+        "seed_yaw_n003_pitch_p009_000.json",
+        "seed_yaw_n003_pitch_p009_001.json"
+      ]
+    },
+    "-42:-12": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_n042_pitch_n012_000.json"
+      ]
+    },
+    "-42:-15": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_n042_pitch_n015_000.json"
+      ]
+    },
+    "-42:-18": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_n042_pitch_n018_000.json"
+      ]
+    },
+    "-42:-21": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_n042_pitch_n021_000.json"
+      ]
+    },
+    "-42:-24": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_n042_pitch_n024_000.json"
+      ]
+    },
+    "-42:-27": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_n042_pitch_n027_000.json"
+      ]
+    },
+    "-42:-3": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_n042_pitch_n003_000.json"
+      ]
+    },
+    "-42:-30": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_n042_pitch_n030_000.json"
+      ]
+    },
+    "-42:-6": {
+      "count": 11,
+      "shards": [
+        "seed_yaw_n042_pitch_n006_000.json"
+      ]
+    },
+    "-42:-9": {
+      "count": 8,
+      "shards": [
+        "seed_yaw_n042_pitch_n009_000.json"
+      ]
+    },
+    "-42:0": {
+      "count": 15,
+      "shards": [
+        "seed_yaw_n042_pitch_p000_000.json"
+      ]
+    },
+    "-42:12": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_n042_pitch_p012_000.json"
+      ]
+    },
+    "-42:15": {
+      "count": 6,
+      "shards": [
+        "seed_yaw_n042_pitch_p015_000.json"
+      ]
+    },
+    "-42:18": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_n042_pitch_p018_000.json"
+      ]
+    },
+    "-42:21": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_n042_pitch_p021_000.json"
+      ]
+    },
+    "-42:24": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_n042_pitch_p024_000.json"
+      ]
+    },
+    "-42:3": {
+      "count": 6,
+      "shards": [
+        "seed_yaw_n042_pitch_p003_000.json"
+      ]
+    },
+    "-42:30": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_n042_pitch_p030_000.json"
+      ]
+    },
+    "-42:36": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_n042_pitch_p036_000.json"
+      ]
+    },
+    "-42:6": {
+      "count": 15,
+      "shards": [
+        "seed_yaw_n042_pitch_p006_000.json"
+      ]
+    },
+    "-42:9": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_n042_pitch_p009_000.json"
+      ]
+    },
+    "-45:-12": {
+      "count": 23,
+      "shards": [
+        "seed_yaw_n045_pitch_n012_000.json"
+      ]
+    },
+    "-45:-15": {
+      "count": 21,
+      "shards": [
+        "seed_yaw_n045_pitch_n015_000.json"
+      ]
+    },
+    "-45:-18": {
+      "count": 15,
+      "shards": [
+        "seed_yaw_n045_pitch_n018_000.json"
+      ]
+    },
+    "-45:-21": {
+      "count": 15,
+      "shards": [
+        "seed_yaw_n045_pitch_n021_000.json"
+      ]
+    },
+    "-45:-24": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_n045_pitch_n024_000.json"
+      ]
+    },
+    "-45:-27": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_n045_pitch_n027_000.json"
+      ]
+    },
+    "-45:-3": {
+      "count": 22,
+      "shards": [
+        "seed_yaw_n045_pitch_n003_000.json"
+      ]
+    },
+    "-45:-30": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_n045_pitch_n030_000.json"
+      ]
+    },
+    "-45:-33": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_n045_pitch_n033_000.json"
+      ]
+    },
+    "-45:-36": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n045_pitch_n036_000.json"
+      ]
+    },
+    "-45:-6": {
+      "count": 32,
+      "shards": [
+        "seed_yaw_n045_pitch_n006_000.json"
+      ]
+    },
+    "-45:-9": {
+      "count": 30,
+      "shards": [
+        "seed_yaw_n045_pitch_n009_000.json"
+      ]
+    },
+    "-45:0": {
+      "count": 22,
+      "shards": [
+        "seed_yaw_n045_pitch_p000_000.json"
+      ]
+    },
+    "-45:12": {
+      "count": 17,
+      "shards": [
+        "seed_yaw_n045_pitch_p012_000.json"
+      ]
+    },
+    "-45:15": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_n045_pitch_p015_000.json"
+      ]
+    },
+    "-45:18": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_n045_pitch_p018_000.json"
+      ]
+    },
+    "-45:21": {
+      "count": 8,
+      "shards": [
+        "seed_yaw_n045_pitch_p021_000.json"
+      ]
+    },
+    "-45:24": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_n045_pitch_p024_000.json"
+      ]
+    },
+    "-45:27": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_n045_pitch_p027_000.json"
+      ]
+    },
+    "-45:3": {
+      "count": 18,
+      "shards": [
+        "seed_yaw_n045_pitch_p003_000.json"
+      ]
+    },
+    "-45:30": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n045_pitch_p030_000.json"
+      ]
+    },
+    "-45:33": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_n045_pitch_p033_000.json"
+      ]
+    },
+    "-45:36": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_n045_pitch_p036_000.json"
+      ]
+    },
+    "-45:6": {
+      "count": 21,
+      "shards": [
+        "seed_yaw_n045_pitch_p006_000.json"
+      ]
+    },
+    "-45:9": {
+      "count": 13,
+      "shards": [
+        "seed_yaw_n045_pitch_p009_000.json"
+      ]
+    },
+    "-6:-12": {
+      "count": 233,
+      "shards": [
+        "seed_yaw_n006_pitch_n012_000.json"
+      ]
+    },
+    "-6:-15": {
+      "count": 170,
+      "shards": [
+        "seed_yaw_n006_pitch_n015_000.json"
+      ]
+    },
+    "-6:-18": {
+      "count": 94,
+      "shards": [
+        "seed_yaw_n006_pitch_n018_000.json"
+      ]
+    },
+    "-6:-21": {
+      "count": 68,
+      "shards": [
+        "seed_yaw_n006_pitch_n021_000.json"
+      ]
+    },
+    "-6:-24": {
+      "count": 43,
+      "shards": [
+        "seed_yaw_n006_pitch_n024_000.json"
+      ]
+    },
+    "-6:-27": {
+      "count": 24,
+      "shards": [
+        "seed_yaw_n006_pitch_n027_000.json"
+      ]
+    },
+    "-6:-3": {
+      "count": 566,
+      "shards": [
+        "seed_yaw_n006_pitch_n003_000.json"
+      ]
+    },
+    "-6:-30": {
+      "count": 14,
+      "shards": [
+        "seed_yaw_n006_pitch_n030_000.json"
+      ]
+    },
+    "-6:-33": {
+      "count": 18,
+      "shards": [
+        "seed_yaw_n006_pitch_n033_000.json"
+      ]
+    },
+    "-6:-36": {
+      "count": 30,
+      "shards": [
+        "seed_yaw_n006_pitch_n036_000.json"
+      ]
+    },
+    "-6:-6": {
+      "count": 409,
+      "shards": [
+        "seed_yaw_n006_pitch_n006_000.json"
+      ]
+    },
+    "-6:-9": {
+      "count": 334,
+      "shards": [
+        "seed_yaw_n006_pitch_n009_000.json"
+      ]
+    },
+    "-6:0": {
+      "count": 646,
+      "shards": [
+        "seed_yaw_n006_pitch_p000_000.json"
+      ]
+    },
+    "-6:12": {
+      "count": 423,
+      "shards": [
+        "seed_yaw_n006_pitch_p012_000.json"
+      ]
+    },
+    "-6:15": {
+      "count": 279,
+      "shards": [
+        "seed_yaw_n006_pitch_p015_000.json"
+      ]
+    },
+    "-6:18": {
+      "count": 189,
+      "shards": [
+        "seed_yaw_n006_pitch_p018_000.json"
+      ]
+    },
+    "-6:21": {
+      "count": 112,
+      "shards": [
+        "seed_yaw_n006_pitch_p021_000.json"
+      ]
+    },
+    "-6:24": {
+      "count": 89,
+      "shards": [
+        "seed_yaw_n006_pitch_p024_000.json"
+      ]
+    },
+    "-6:27": {
+      "count": 41,
+      "shards": [
+        "seed_yaw_n006_pitch_p027_000.json"
+      ]
+    },
+    "-6:3": {
+      "count": 658,
+      "shards": [
+        "seed_yaw_n006_pitch_p003_000.json"
+      ]
+    },
+    "-6:30": {
+      "count": 28,
+      "shards": [
+        "seed_yaw_n006_pitch_p030_000.json"
+      ]
+    },
+    "-6:33": {
+      "count": 17,
+      "shards": [
+        "seed_yaw_n006_pitch_p033_000.json"
+      ]
+    },
+    "-6:36": {
+      "count": 26,
+      "shards": [
+        "seed_yaw_n006_pitch_p036_000.json"
+      ]
+    },
+    "-6:6": {
+      "count": 606,
+      "shards": [
+        "seed_yaw_n006_pitch_p006_000.json"
+      ]
+    },
+    "-6:9": {
+      "count": 494,
+      "shards": [
+        "seed_yaw_n006_pitch_p009_000.json"
+      ]
+    },
+    "-9:-12": {
+      "count": 210,
+      "shards": [
+        "seed_yaw_n009_pitch_n012_000.json"
+      ]
+    },
+    "-9:-15": {
+      "count": 131,
+      "shards": [
+        "seed_yaw_n009_pitch_n015_000.json"
+      ]
+    },
+    "-9:-18": {
+      "count": 98,
+      "shards": [
+        "seed_yaw_n009_pitch_n018_000.json"
+      ]
+    },
+    "-9:-21": {
+      "count": 72,
+      "shards": [
+        "seed_yaw_n009_pitch_n021_000.json"
+      ]
+    },
+    "-9:-24": {
+      "count": 45,
+      "shards": [
+        "seed_yaw_n009_pitch_n024_000.json"
+      ]
+    },
+    "-9:-27": {
+      "count": 27,
+      "shards": [
+        "seed_yaw_n009_pitch_n027_000.json"
+      ]
+    },
+    "-9:-3": {
+      "count": 477,
+      "shards": [
+        "seed_yaw_n009_pitch_n003_000.json"
+      ]
+    },
+    "-9:-30": {
+      "count": 17,
+      "shards": [
+        "seed_yaw_n009_pitch_n030_000.json"
+      ]
+    },
+    "-9:-33": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_n009_pitch_n033_000.json"
+      ]
+    },
+    "-9:-36": {
+      "count": 22,
+      "shards": [
+        "seed_yaw_n009_pitch_n036_000.json"
+      ]
+    },
+    "-9:-6": {
+      "count": 354,
+      "shards": [
+        "seed_yaw_n009_pitch_n006_000.json"
+      ]
+    },
+    "-9:-9": {
+      "count": 276,
+      "shards": [
+        "seed_yaw_n009_pitch_n009_000.json"
+      ]
+    },
+    "-9:0": {
+      "count": 527,
+      "shards": [
+        "seed_yaw_n009_pitch_p000_000.json"
+      ]
+    },
+    "-9:12": {
+      "count": 318,
+      "shards": [
+        "seed_yaw_n009_pitch_p012_000.json"
+      ]
+    },
+    "-9:15": {
+      "count": 215,
+      "shards": [
+        "seed_yaw_n009_pitch_p015_000.json"
+      ]
+    },
+    "-9:18": {
+      "count": 149,
+      "shards": [
+        "seed_yaw_n009_pitch_p018_000.json"
+      ]
+    },
+    "-9:21": {
+      "count": 106,
+      "shards": [
+        "seed_yaw_n009_pitch_p021_000.json"
+      ]
+    },
+    "-9:24": {
+      "count": 56,
+      "shards": [
+        "seed_yaw_n009_pitch_p024_000.json"
+      ]
+    },
+    "-9:27": {
+      "count": 38,
+      "shards": [
+        "seed_yaw_n009_pitch_p027_000.json"
+      ]
+    },
+    "-9:3": {
+      "count": 498,
+      "shards": [
+        "seed_yaw_n009_pitch_p003_000.json"
+      ]
+    },
+    "-9:30": {
+      "count": 23,
+      "shards": [
+        "seed_yaw_n009_pitch_p030_000.json"
+      ]
+    },
+    "-9:33": {
+      "count": 12,
+      "shards": [
+        "seed_yaw_n009_pitch_p033_000.json"
+      ]
+    },
+    "-9:36": {
+      "count": 20,
+      "shards": [
+        "seed_yaw_n009_pitch_p036_000.json"
+      ]
+    },
+    "-9:6": {
+      "count": 499,
+      "shards": [
+        "seed_yaw_n009_pitch_p006_000.json"
+      ]
+    },
+    "-9:9": {
+      "count": 395,
+      "shards": [
+        "seed_yaw_n009_pitch_p009_000.json"
+      ]
+    },
+    "0:-12": {
+      "count": 321,
+      "shards": [
+        "seed_yaw_p000_pitch_n012_000.json"
+      ]
+    },
+    "0:-15": {
+      "count": 203,
+      "shards": [
+        "seed_yaw_p000_pitch_n015_000.json"
+      ]
+    },
+    "0:-18": {
+      "count": 152,
+      "shards": [
+        "seed_yaw_p000_pitch_n018_000.json"
+      ]
+    },
+    "0:-21": {
+      "count": 82,
+      "shards": [
+        "seed_yaw_p000_pitch_n021_000.json"
+      ]
+    },
+    "0:-24": {
+      "count": 66,
+      "shards": [
+        "seed_yaw_p000_pitch_n024_000.json"
+      ]
+    },
+    "0:-27": {
+      "count": 41,
+      "shards": [
+        "seed_yaw_p000_pitch_n027_000.json"
+      ]
+    },
+    "0:-3": {
+      "count": 746,
+      "shards": [
+        "seed_yaw_p000_pitch_n003_000.json",
+        "seed_yaw_p000_pitch_n003_001.json"
+      ]
+    },
+    "0:-30": {
+      "count": 23,
+      "shards": [
+        "seed_yaw_p000_pitch_n030_000.json"
+      ]
+    },
+    "0:-33": {
+      "count": 17,
+      "shards": [
+        "seed_yaw_p000_pitch_n033_000.json"
+      ]
+    },
+    "0:-36": {
+      "count": 42,
+      "shards": [
+        "seed_yaw_p000_pitch_n036_000.json"
+      ]
+    },
+    "0:-6": {
+      "count": 624,
+      "shards": [
+        "seed_yaw_p000_pitch_n006_000.json"
+      ]
+    },
+    "0:-9": {
+      "count": 457,
+      "shards": [
+        "seed_yaw_p000_pitch_n009_000.json"
+      ]
+    },
+    "0:0": {
+      "count": 855,
+      "shards": [
+        "seed_yaw_p000_pitch_p000_000.json",
+        "seed_yaw_p000_pitch_p000_001.json"
+      ]
+    },
+    "0:12": {
+      "count": 612,
+      "shards": [
+        "seed_yaw_p000_pitch_p012_000.json"
+      ]
+    },
+    "0:15": {
+      "count": 449,
+      "shards": [
+        "seed_yaw_p000_pitch_p015_000.json"
+      ]
+    },
+    "0:18": {
+      "count": 320,
+      "shards": [
+        "seed_yaw_p000_pitch_p018_000.json"
+      ]
+    },
+    "0:21": {
+      "count": 187,
+      "shards": [
+        "seed_yaw_p000_pitch_p021_000.json"
+      ]
+    },
+    "0:24": {
+      "count": 156,
+      "shards": [
+        "seed_yaw_p000_pitch_p024_000.json"
+      ]
+    },
+    "0:27": {
+      "count": 80,
+      "shards": [
+        "seed_yaw_p000_pitch_p027_000.json"
+      ]
+    },
+    "0:3": {
+      "count": 936,
+      "shards": [
+        "seed_yaw_p000_pitch_p003_000.json",
+        "seed_yaw_p000_pitch_p003_001.json"
+      ]
+    },
+    "0:30": {
+      "count": 48,
+      "shards": [
+        "seed_yaw_p000_pitch_p030_000.json"
+      ]
+    },
+    "0:33": {
+      "count": 31,
+      "shards": [
+        "seed_yaw_p000_pitch_p033_000.json"
+      ]
+    },
+    "0:36": {
+      "count": 25,
+      "shards": [
+        "seed_yaw_p000_pitch_p036_000.json"
+      ]
+    },
+    "0:6": {
+      "count": 949,
+      "shards": [
+        "seed_yaw_p000_pitch_p006_000.json",
+        "seed_yaw_p000_pitch_p006_001.json"
+      ]
+    },
+    "0:9": {
+      "count": 778,
+      "shards": [
+        "seed_yaw_p000_pitch_p009_000.json",
+        "seed_yaw_p000_pitch_p009_001.json"
+      ]
+    },
+    "12:-12": {
+      "count": 148,
+      "shards": [
+        "seed_yaw_p012_pitch_n012_000.json"
+      ]
+    },
+    "12:-15": {
+      "count": 88,
+      "shards": [
+        "seed_yaw_p012_pitch_n015_000.json"
+      ]
+    },
+    "12:-18": {
+      "count": 62,
+      "shards": [
+        "seed_yaw_p012_pitch_n018_000.json"
+      ]
+    },
+    "12:-21": {
+      "count": 49,
+      "shards": [
+        "seed_yaw_p012_pitch_n021_000.json"
+      ]
+    },
+    "12:-24": {
+      "count": 36,
+      "shards": [
+        "seed_yaw_p012_pitch_n024_000.json"
+      ]
+    },
+    "12:-27": {
+      "count": 17,
+      "shards": [
+        "seed_yaw_p012_pitch_n027_000.json"
+      ]
+    },
+    "12:-3": {
+      "count": 353,
+      "shards": [
+        "seed_yaw_p012_pitch_n003_000.json"
+      ]
+    },
+    "12:-30": {
+      "count": 17,
+      "shards": [
+        "seed_yaw_p012_pitch_n030_000.json"
+      ]
+    },
+    "12:-33": {
+      "count": 11,
+      "shards": [
+        "seed_yaw_p012_pitch_n033_000.json"
+      ]
+    },
+    "12:-36": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_p012_pitch_n036_000.json"
+      ]
+    },
+    "12:-6": {
+      "count": 249,
+      "shards": [
+        "seed_yaw_p012_pitch_n006_000.json"
+      ]
+    },
+    "12:-9": {
+      "count": 204,
+      "shards": [
+        "seed_yaw_p012_pitch_n009_000.json"
+      ]
+    },
+    "12:0": {
+      "count": 358,
+      "shards": [
+        "seed_yaw_p012_pitch_p000_000.json"
+      ]
+    },
+    "12:12": {
+      "count": 233,
+      "shards": [
+        "seed_yaw_p012_pitch_p012_000.json"
+      ]
+    },
+    "12:15": {
+      "count": 181,
+      "shards": [
+        "seed_yaw_p012_pitch_p015_000.json"
+      ]
+    },
+    "12:18": {
+      "count": 148,
+      "shards": [
+        "seed_yaw_p012_pitch_p018_000.json"
+      ]
+    },
+    "12:21": {
+      "count": 98,
+      "shards": [
+        "seed_yaw_p012_pitch_p021_000.json"
+      ]
+    },
+    "12:24": {
+      "count": 56,
+      "shards": [
+        "seed_yaw_p012_pitch_p024_000.json"
+      ]
+    },
+    "12:27": {
+      "count": 34,
+      "shards": [
+        "seed_yaw_p012_pitch_p027_000.json"
+      ]
+    },
+    "12:3": {
+      "count": 409,
+      "shards": [
+        "seed_yaw_p012_pitch_p003_000.json"
+      ]
+    },
+    "12:30": {
+      "count": 20,
+      "shards": [
+        "seed_yaw_p012_pitch_p030_000.json"
+      ]
+    },
+    "12:33": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_p012_pitch_p033_000.json"
+      ]
+    },
+    "12:36": {
+      "count": 17,
+      "shards": [
+        "seed_yaw_p012_pitch_p036_000.json"
+      ]
+    },
+    "12:6": {
+      "count": 350,
+      "shards": [
+        "seed_yaw_p012_pitch_p006_000.json"
+      ]
+    },
+    "12:9": {
+      "count": 308,
+      "shards": [
+        "seed_yaw_p012_pitch_p009_000.json"
+      ]
+    },
+    "15:-12": {
+      "count": 118,
+      "shards": [
+        "seed_yaw_p015_pitch_n012_000.json"
+      ]
+    },
+    "15:-15": {
+      "count": 94,
+      "shards": [
+        "seed_yaw_p015_pitch_n015_000.json"
+      ]
+    },
+    "15:-18": {
+      "count": 60,
+      "shards": [
+        "seed_yaw_p015_pitch_n018_000.json"
+      ]
+    },
+    "15:-21": {
+      "count": 34,
+      "shards": [
+        "seed_yaw_p015_pitch_n021_000.json"
+      ]
+    },
+    "15:-24": {
+      "count": 28,
+      "shards": [
+        "seed_yaw_p015_pitch_n024_000.json"
+      ]
+    },
+    "15:-27": {
+      "count": 27,
+      "shards": [
+        "seed_yaw_p015_pitch_n027_000.json"
+      ]
+    },
+    "15:-3": {
+      "count": 195,
+      "shards": [
+        "seed_yaw_p015_pitch_n003_000.json"
+      ]
+    },
+    "15:-30": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_p015_pitch_n030_000.json"
+      ]
+    },
+    "15:-33": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_p015_pitch_n033_000.json"
+      ]
+    },
+    "15:-36": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_p015_pitch_n036_000.json"
+      ]
+    },
+    "15:-6": {
+      "count": 214,
+      "shards": [
+        "seed_yaw_p015_pitch_n006_000.json"
+      ]
+    },
+    "15:-9": {
+      "count": 148,
+      "shards": [
+        "seed_yaw_p015_pitch_n009_000.json"
+      ]
+    },
+    "15:0": {
+      "count": 271,
+      "shards": [
+        "seed_yaw_p015_pitch_p000_000.json"
+      ]
+    },
+    "15:12": {
+      "count": 190,
+      "shards": [
+        "seed_yaw_p015_pitch_p012_000.json"
+      ]
+    },
+    "15:15": {
+      "count": 174,
+      "shards": [
+        "seed_yaw_p015_pitch_p015_000.json"
+      ]
+    },
+    "15:18": {
+      "count": 114,
+      "shards": [
+        "seed_yaw_p015_pitch_p018_000.json"
+      ]
+    },
+    "15:21": {
+      "count": 64,
+      "shards": [
+        "seed_yaw_p015_pitch_p021_000.json"
+      ]
+    },
+    "15:24": {
+      "count": 45,
+      "shards": [
+        "seed_yaw_p015_pitch_p024_000.json"
+      ]
+    },
+    "15:27": {
+      "count": 29,
+      "shards": [
+        "seed_yaw_p015_pitch_p027_000.json"
+      ]
+    },
+    "15:3": {
+      "count": 285,
+      "shards": [
+        "seed_yaw_p015_pitch_p003_000.json"
+      ]
+    },
+    "15:30": {
+      "count": 19,
+      "shards": [
+        "seed_yaw_p015_pitch_p030_000.json"
+      ]
+    },
+    "15:33": {
+      "count": 13,
+      "shards": [
+        "seed_yaw_p015_pitch_p033_000.json"
+      ]
+    },
+    "15:36": {
+      "count": 14,
+      "shards": [
+        "seed_yaw_p015_pitch_p036_000.json"
+      ]
+    },
+    "15:6": {
+      "count": 245,
+      "shards": [
+        "seed_yaw_p015_pitch_p006_000.json"
+      ]
+    },
+    "15:9": {
+      "count": 255,
+      "shards": [
+        "seed_yaw_p015_pitch_p009_000.json"
+      ]
+    },
+    "18:-12": {
+      "count": 97,
+      "shards": [
+        "seed_yaw_p018_pitch_n012_000.json"
+      ]
+    },
+    "18:-15": {
+      "count": 53,
+      "shards": [
+        "seed_yaw_p018_pitch_n015_000.json"
+      ]
+    },
+    "18:-18": {
+      "count": 41,
+      "shards": [
+        "seed_yaw_p018_pitch_n018_000.json"
+      ]
+    },
+    "18:-21": {
+      "count": 25,
+      "shards": [
+        "seed_yaw_p018_pitch_n021_000.json"
+      ]
+    },
+    "18:-24": {
+      "count": 18,
+      "shards": [
+        "seed_yaw_p018_pitch_n024_000.json"
+      ]
+    },
+    "18:-27": {
+      "count": 12,
+      "shards": [
+        "seed_yaw_p018_pitch_n027_000.json"
+      ]
+    },
+    "18:-3": {
+      "count": 163,
+      "shards": [
+        "seed_yaw_p018_pitch_n003_000.json"
+      ]
+    },
+    "18:-30": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_p018_pitch_n030_000.json"
+      ]
+    },
+    "18:-33": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_p018_pitch_n033_000.json"
+      ]
+    },
+    "18:-36": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_p018_pitch_n036_000.json"
+      ]
+    },
+    "18:-6": {
+      "count": 174,
+      "shards": [
+        "seed_yaw_p018_pitch_n006_000.json"
+      ]
+    },
+    "18:-9": {
+      "count": 136,
+      "shards": [
+        "seed_yaw_p018_pitch_n009_000.json"
+      ]
+    },
+    "18:0": {
+      "count": 208,
+      "shards": [
+        "seed_yaw_p018_pitch_p000_000.json"
+      ]
+    },
+    "18:12": {
+      "count": 153,
+      "shards": [
+        "seed_yaw_p018_pitch_p012_000.json"
+      ]
+    },
+    "18:15": {
+      "count": 128,
+      "shards": [
+        "seed_yaw_p018_pitch_p015_000.json"
+      ]
+    },
+    "18:18": {
+      "count": 68,
+      "shards": [
+        "seed_yaw_p018_pitch_p018_000.json"
+      ]
+    },
+    "18:21": {
+      "count": 52,
+      "shards": [
+        "seed_yaw_p018_pitch_p021_000.json"
+      ]
+    },
+    "18:24": {
+      "count": 19,
+      "shards": [
+        "seed_yaw_p018_pitch_p024_000.json"
+      ]
+    },
+    "18:27": {
+      "count": 15,
+      "shards": [
+        "seed_yaw_p018_pitch_p027_000.json"
+      ]
+    },
+    "18:3": {
+      "count": 182,
+      "shards": [
+        "seed_yaw_p018_pitch_p003_000.json"
+      ]
+    },
+    "18:30": {
+      "count": 16,
+      "shards": [
+        "seed_yaw_p018_pitch_p030_000.json"
+      ]
+    },
+    "18:33": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_p018_pitch_p033_000.json"
+      ]
+    },
+    "18:36": {
+      "count": 12,
+      "shards": [
+        "seed_yaw_p018_pitch_p036_000.json"
+      ]
+    },
+    "18:6": {
+      "count": 214,
+      "shards": [
+        "seed_yaw_p018_pitch_p006_000.json"
+      ]
+    },
+    "18:9": {
+      "count": 183,
+      "shards": [
+        "seed_yaw_p018_pitch_p009_000.json"
+      ]
+    },
+    "21:-12": {
+      "count": 75,
+      "shards": [
+        "seed_yaw_p021_pitch_n012_000.json"
+      ]
+    },
+    "21:-15": {
+      "count": 53,
+      "shards": [
+        "seed_yaw_p021_pitch_n015_000.json"
+      ]
+    },
+    "21:-18": {
+      "count": 35,
+      "shards": [
+        "seed_yaw_p021_pitch_n018_000.json"
+      ]
+    },
+    "21:-21": {
+      "count": 27,
+      "shards": [
+        "seed_yaw_p021_pitch_n021_000.json"
+      ]
+    },
+    "21:-24": {
+      "count": 23,
+      "shards": [
+        "seed_yaw_p021_pitch_n024_000.json"
+      ]
+    },
+    "21:-27": {
+      "count": 11,
+      "shards": [
+        "seed_yaw_p021_pitch_n027_000.json"
+      ]
+    },
+    "21:-3": {
+      "count": 134,
+      "shards": [
+        "seed_yaw_p021_pitch_n003_000.json"
+      ]
+    },
+    "21:-30": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_p021_pitch_n030_000.json"
+      ]
+    },
+    "21:-33": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_p021_pitch_n033_000.json"
+      ]
+    },
+    "21:-36": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_p021_pitch_n036_000.json"
+      ]
+    },
+    "21:-6": {
+      "count": 116,
+      "shards": [
+        "seed_yaw_p021_pitch_n006_000.json"
+      ]
+    },
+    "21:-9": {
+      "count": 93,
+      "shards": [
+        "seed_yaw_p021_pitch_n009_000.json"
+      ]
+    },
+    "21:0": {
+      "count": 162,
+      "shards": [
+        "seed_yaw_p021_pitch_p000_000.json"
+      ]
+    },
+    "21:12": {
+      "count": 126,
+      "shards": [
+        "seed_yaw_p021_pitch_p012_000.json"
+      ]
+    },
+    "21:15": {
+      "count": 86,
+      "shards": [
+        "seed_yaw_p021_pitch_p015_000.json"
+      ]
+    },
+    "21:18": {
+      "count": 43,
+      "shards": [
+        "seed_yaw_p021_pitch_p018_000.json"
+      ]
+    },
+    "21:21": {
+      "count": 35,
+      "shards": [
+        "seed_yaw_p021_pitch_p021_000.json"
+      ]
+    },
+    "21:24": {
+      "count": 18,
+      "shards": [
+        "seed_yaw_p021_pitch_p024_000.json"
+      ]
+    },
+    "21:27": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_p021_pitch_p027_000.json"
+      ]
+    },
+    "21:3": {
+      "count": 156,
+      "shards": [
+        "seed_yaw_p021_pitch_p003_000.json"
+      ]
+    },
+    "21:30": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_p021_pitch_p030_000.json"
+      ]
+    },
+    "21:33": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_p021_pitch_p033_000.json"
+      ]
+    },
+    "21:36": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_p021_pitch_p036_000.json"
+      ]
+    },
+    "21:6": {
+      "count": 149,
+      "shards": [
+        "seed_yaw_p021_pitch_p006_000.json"
+      ]
+    },
+    "21:9": {
+      "count": 151,
+      "shards": [
+        "seed_yaw_p021_pitch_p009_000.json"
+      ]
+    },
+    "24:-12": {
+      "count": 64,
+      "shards": [
+        "seed_yaw_p024_pitch_n012_000.json"
+      ]
+    },
+    "24:-15": {
+      "count": 48,
+      "shards": [
+        "seed_yaw_p024_pitch_n015_000.json"
+      ]
+    },
+    "24:-18": {
+      "count": 41,
+      "shards": [
+        "seed_yaw_p024_pitch_n018_000.json"
+      ]
+    },
+    "24:-21": {
+      "count": 26,
+      "shards": [
+        "seed_yaw_p024_pitch_n021_000.json"
+      ]
+    },
+    "24:-24": {
+      "count": 16,
+      "shards": [
+        "seed_yaw_p024_pitch_n024_000.json"
+      ]
+    },
+    "24:-27": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_p024_pitch_n027_000.json"
+      ]
+    },
+    "24:-3": {
+      "count": 121,
+      "shards": [
+        "seed_yaw_p024_pitch_n003_000.json"
+      ]
+    },
+    "24:-30": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_p024_pitch_n030_000.json"
+      ]
+    },
+    "24:-33": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p024_pitch_n033_000.json"
+      ]
+    },
+    "24:-36": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_p024_pitch_n036_000.json"
+      ]
+    },
+    "24:-6": {
+      "count": 103,
+      "shards": [
+        "seed_yaw_p024_pitch_n006_000.json"
+      ]
+    },
+    "24:-9": {
+      "count": 85,
+      "shards": [
+        "seed_yaw_p024_pitch_n009_000.json"
+      ]
+    },
+    "24:0": {
+      "count": 115,
+      "shards": [
+        "seed_yaw_p024_pitch_p000_000.json"
+      ]
+    },
+    "24:12": {
+      "count": 84,
+      "shards": [
+        "seed_yaw_p024_pitch_p012_000.json"
+      ]
+    },
+    "24:15": {
+      "count": 45,
+      "shards": [
+        "seed_yaw_p024_pitch_p015_000.json"
+      ]
+    },
+    "24:18": {
+      "count": 42,
+      "shards": [
+        "seed_yaw_p024_pitch_p018_000.json"
+      ]
+    },
+    "24:21": {
+      "count": 26,
+      "shards": [
+        "seed_yaw_p024_pitch_p021_000.json"
+      ]
+    },
+    "24:24": {
+      "count": 11,
+      "shards": [
+        "seed_yaw_p024_pitch_p024_000.json"
+      ]
+    },
+    "24:27": {
+      "count": 15,
+      "shards": [
+        "seed_yaw_p024_pitch_p027_000.json"
+      ]
+    },
+    "24:3": {
+      "count": 113,
+      "shards": [
+        "seed_yaw_p024_pitch_p003_000.json"
+      ]
+    },
+    "24:30": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_p024_pitch_p030_000.json"
+      ]
+    },
+    "24:33": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p024_pitch_p033_000.json"
+      ]
+    },
+    "24:36": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_p024_pitch_p036_000.json"
+      ]
+    },
+    "24:6": {
+      "count": 96,
+      "shards": [
+        "seed_yaw_p024_pitch_p006_000.json"
+      ]
+    },
+    "24:9": {
+      "count": 96,
+      "shards": [
+        "seed_yaw_p024_pitch_p009_000.json"
+      ]
+    },
+    "27:-12": {
+      "count": 48,
+      "shards": [
+        "seed_yaw_p027_pitch_n012_000.json"
+      ]
+    },
+    "27:-15": {
+      "count": 38,
+      "shards": [
+        "seed_yaw_p027_pitch_n015_000.json"
+      ]
+    },
+    "27:-18": {
+      "count": 22,
+      "shards": [
+        "seed_yaw_p027_pitch_n018_000.json"
+      ]
+    },
+    "27:-21": {
+      "count": 25,
+      "shards": [
+        "seed_yaw_p027_pitch_n021_000.json"
+      ]
+    },
+    "27:-24": {
+      "count": 13,
+      "shards": [
+        "seed_yaw_p027_pitch_n024_000.json"
+      ]
+    },
+    "27:-27": {
+      "count": 14,
+      "shards": [
+        "seed_yaw_p027_pitch_n027_000.json"
+      ]
+    },
+    "27:-3": {
+      "count": 98,
+      "shards": [
+        "seed_yaw_p027_pitch_n003_000.json"
+      ]
+    },
+    "27:-30": {
+      "count": 6,
+      "shards": [
+        "seed_yaw_p027_pitch_n030_000.json"
+      ]
+    },
+    "27:-33": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_p027_pitch_n033_000.json"
+      ]
+    },
+    "27:-36": {
+      "count": 6,
+      "shards": [
+        "seed_yaw_p027_pitch_n036_000.json"
+      ]
+    },
+    "27:-6": {
+      "count": 63,
+      "shards": [
+        "seed_yaw_p027_pitch_n006_000.json"
+      ]
+    },
+    "27:-9": {
+      "count": 63,
+      "shards": [
+        "seed_yaw_p027_pitch_n009_000.json"
+      ]
+    },
+    "27:0": {
+      "count": 84,
+      "shards": [
+        "seed_yaw_p027_pitch_p000_000.json"
+      ]
+    },
+    "27:12": {
+      "count": 42,
+      "shards": [
+        "seed_yaw_p027_pitch_p012_000.json"
+      ]
+    },
+    "27:15": {
+      "count": 32,
+      "shards": [
+        "seed_yaw_p027_pitch_p015_000.json"
+      ]
+    },
+    "27:18": {
+      "count": 28,
+      "shards": [
+        "seed_yaw_p027_pitch_p018_000.json"
+      ]
+    },
+    "27:21": {
+      "count": 17,
+      "shards": [
+        "seed_yaw_p027_pitch_p021_000.json"
+      ]
+    },
+    "27:24": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_p027_pitch_p024_000.json"
+      ]
+    },
+    "27:27": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_p027_pitch_p027_000.json"
+      ]
+    },
+    "27:3": {
+      "count": 88,
+      "shards": [
+        "seed_yaw_p027_pitch_p003_000.json"
+      ]
+    },
+    "27:30": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_p027_pitch_p030_000.json"
+      ]
+    },
+    "27:33": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_p027_pitch_p033_000.json"
+      ]
+    },
+    "27:36": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p027_pitch_p036_000.json"
+      ]
+    },
+    "27:6": {
+      "count": 76,
+      "shards": [
+        "seed_yaw_p027_pitch_p006_000.json"
+      ]
+    },
+    "27:9": {
+      "count": 60,
+      "shards": [
+        "seed_yaw_p027_pitch_p009_000.json"
+      ]
+    },
+    "30:-12": {
+      "count": 32,
+      "shards": [
+        "seed_yaw_p030_pitch_n012_000.json"
+      ]
+    },
+    "30:-15": {
+      "count": 25,
+      "shards": [
+        "seed_yaw_p030_pitch_n015_000.json"
+      ]
+    },
+    "30:-18": {
+      "count": 32,
+      "shards": [
+        "seed_yaw_p030_pitch_n018_000.json"
+      ]
+    },
+    "30:-21": {
+      "count": 15,
+      "shards": [
+        "seed_yaw_p030_pitch_n021_000.json"
+      ]
+    },
+    "30:-24": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_p030_pitch_n024_000.json"
+      ]
+    },
+    "30:-27": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_p030_pitch_n027_000.json"
+      ]
+    },
+    "30:-3": {
+      "count": 62,
+      "shards": [
+        "seed_yaw_p030_pitch_n003_000.json"
+      ]
+    },
+    "30:-30": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_p030_pitch_n030_000.json"
+      ]
+    },
+    "30:-33": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_p030_pitch_n033_000.json"
+      ]
+    },
+    "30:-36": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p030_pitch_n036_000.json"
+      ]
+    },
+    "30:-6": {
+      "count": 53,
+      "shards": [
+        "seed_yaw_p030_pitch_n006_000.json"
+      ]
+    },
+    "30:-9": {
+      "count": 46,
+      "shards": [
+        "seed_yaw_p030_pitch_n009_000.json"
+      ]
+    },
+    "30:0": {
+      "count": 56,
+      "shards": [
+        "seed_yaw_p030_pitch_p000_000.json"
+      ]
+    },
+    "30:12": {
+      "count": 21,
+      "shards": [
+        "seed_yaw_p030_pitch_p012_000.json"
+      ]
+    },
+    "30:15": {
+      "count": 30,
+      "shards": [
+        "seed_yaw_p030_pitch_p015_000.json"
+      ]
+    },
+    "30:18": {
+      "count": 21,
+      "shards": [
+        "seed_yaw_p030_pitch_p018_000.json"
+      ]
+    },
+    "30:21": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_p030_pitch_p021_000.json"
+      ]
+    },
+    "30:24": {
+      "count": 6,
+      "shards": [
+        "seed_yaw_p030_pitch_p024_000.json"
+      ]
+    },
+    "30:27": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p030_pitch_p027_000.json"
+      ]
+    },
+    "30:3": {
+      "count": 51,
+      "shards": [
+        "seed_yaw_p030_pitch_p003_000.json"
+      ]
+    },
+    "30:33": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p030_pitch_p033_000.json"
+      ]
+    },
+    "30:6": {
+      "count": 55,
+      "shards": [
+        "seed_yaw_p030_pitch_p006_000.json"
+      ]
+    },
+    "30:9": {
+      "count": 34,
+      "shards": [
+        "seed_yaw_p030_pitch_p009_000.json"
+      ]
+    },
+    "33:-12": {
+      "count": 32,
+      "shards": [
+        "seed_yaw_p033_pitch_n012_000.json"
+      ]
+    },
+    "33:-15": {
+      "count": 17,
+      "shards": [
+        "seed_yaw_p033_pitch_n015_000.json"
+      ]
+    },
+    "33:-18": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_p033_pitch_n018_000.json"
+      ]
+    },
+    "33:-21": {
+      "count": 12,
+      "shards": [
+        "seed_yaw_p033_pitch_n021_000.json"
+      ]
+    },
+    "33:-24": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_p033_pitch_n024_000.json"
+      ]
+    },
+    "33:-27": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_p033_pitch_n027_000.json"
+      ]
+    },
+    "33:-3": {
+      "count": 37,
+      "shards": [
+        "seed_yaw_p033_pitch_n003_000.json"
+      ]
+    },
+    "33:-30": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p033_pitch_n030_000.json"
+      ]
+    },
+    "33:-33": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_p033_pitch_n033_000.json"
+      ]
+    },
+    "33:-36": {
+      "count": 8,
+      "shards": [
+        "seed_yaw_p033_pitch_n036_000.json"
+      ]
+    },
+    "33:-6": {
+      "count": 28,
+      "shards": [
+        "seed_yaw_p033_pitch_n006_000.json"
+      ]
+    },
+    "33:-9": {
+      "count": 42,
+      "shards": [
+        "seed_yaw_p033_pitch_n009_000.json"
+      ]
+    },
+    "33:0": {
+      "count": 36,
+      "shards": [
+        "seed_yaw_p033_pitch_p000_000.json"
+      ]
+    },
+    "33:12": {
+      "count": 14,
+      "shards": [
+        "seed_yaw_p033_pitch_p012_000.json"
+      ]
+    },
+    "33:15": {
+      "count": 14,
+      "shards": [
+        "seed_yaw_p033_pitch_p015_000.json"
+      ]
+    },
+    "33:18": {
+      "count": 14,
+      "shards": [
+        "seed_yaw_p033_pitch_p018_000.json"
+      ]
+    },
+    "33:21": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_p033_pitch_p021_000.json"
+      ]
+    },
+    "33:24": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_p033_pitch_p024_000.json"
+      ]
+    },
+    "33:27": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p033_pitch_p027_000.json"
+      ]
+    },
+    "33:3": {
+      "count": 38,
+      "shards": [
+        "seed_yaw_p033_pitch_p003_000.json"
+      ]
+    },
+    "33:30": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p033_pitch_p030_000.json"
+      ]
+    },
+    "33:33": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p033_pitch_p033_000.json"
+      ]
+    },
+    "33:6": {
+      "count": 30,
+      "shards": [
+        "seed_yaw_p033_pitch_p006_000.json"
+      ]
+    },
+    "33:9": {
+      "count": 24,
+      "shards": [
+        "seed_yaw_p033_pitch_p009_000.json"
+      ]
+    },
+    "36:-12": {
+      "count": 24,
+      "shards": [
+        "seed_yaw_p036_pitch_n012_000.json"
+      ]
+    },
+    "36:-15": {
+      "count": 13,
+      "shards": [
+        "seed_yaw_p036_pitch_n015_000.json"
+      ]
+    },
+    "36:-18": {
+      "count": 11,
+      "shards": [
+        "seed_yaw_p036_pitch_n018_000.json"
+      ]
+    },
+    "36:-21": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_p036_pitch_n021_000.json"
+      ]
+    },
+    "36:-24": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_p036_pitch_n024_000.json"
+      ]
+    },
+    "36:-27": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_p036_pitch_n027_000.json"
+      ]
+    },
+    "36:-3": {
+      "count": 24,
+      "shards": [
+        "seed_yaw_p036_pitch_n003_000.json"
+      ]
+    },
+    "36:-30": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p036_pitch_n030_000.json"
+      ]
+    },
+    "36:-33": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p036_pitch_n033_000.json"
+      ]
+    },
+    "36:-36": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p036_pitch_n036_000.json"
+      ]
+    },
+    "36:-6": {
+      "count": 29,
+      "shards": [
+        "seed_yaw_p036_pitch_n006_000.json"
+      ]
+    },
+    "36:-9": {
+      "count": 13,
+      "shards": [
+        "seed_yaw_p036_pitch_n009_000.json"
+      ]
+    },
+    "36:0": {
+      "count": 23,
+      "shards": [
+        "seed_yaw_p036_pitch_p000_000.json"
+      ]
+    },
+    "36:12": {
+      "count": 12,
+      "shards": [
+        "seed_yaw_p036_pitch_p012_000.json"
+      ]
+    },
+    "36:15": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_p036_pitch_p015_000.json"
+      ]
+    },
+    "36:18": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_p036_pitch_p018_000.json"
+      ]
+    },
+    "36:21": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_p036_pitch_p021_000.json"
+      ]
+    },
+    "36:24": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p036_pitch_p024_000.json"
+      ]
+    },
+    "36:27": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p036_pitch_p027_000.json"
+      ]
+    },
+    "36:3": {
+      "count": 25,
+      "shards": [
+        "seed_yaw_p036_pitch_p003_000.json"
+      ]
+    },
+    "36:36": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_p036_pitch_p036_000.json"
+      ]
+    },
+    "36:6": {
+      "count": 27,
+      "shards": [
+        "seed_yaw_p036_pitch_p006_000.json"
+      ]
+    },
+    "36:9": {
+      "count": 17,
+      "shards": [
+        "seed_yaw_p036_pitch_p009_000.json"
+      ]
+    },
+    "39:-12": {
+      "count": 20,
+      "shards": [
+        "seed_yaw_p039_pitch_n012_000.json"
+      ]
+    },
+    "39:-15": {
+      "count": 12,
+      "shards": [
+        "seed_yaw_p039_pitch_n015_000.json"
+      ]
+    },
+    "39:-18": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_p039_pitch_n018_000.json"
+      ]
+    },
+    "39:-21": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_p039_pitch_n021_000.json"
+      ]
+    },
+    "39:-24": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p039_pitch_n024_000.json"
+      ]
+    },
+    "39:-27": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_p039_pitch_n027_000.json"
+      ]
+    },
+    "39:-3": {
+      "count": 23,
+      "shards": [
+        "seed_yaw_p039_pitch_n003_000.json"
+      ]
+    },
+    "39:-30": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_p039_pitch_n030_000.json"
+      ]
+    },
+    "39:-33": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p039_pitch_n033_000.json"
+      ]
+    },
+    "39:-36": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_p039_pitch_n036_000.json"
+      ]
+    },
+    "39:-6": {
+      "count": 25,
+      "shards": [
+        "seed_yaw_p039_pitch_n006_000.json"
+      ]
+    },
+    "39:-9": {
+      "count": 13,
+      "shards": [
+        "seed_yaw_p039_pitch_n009_000.json"
+      ]
+    },
+    "39:0": {
+      "count": 18,
+      "shards": [
+        "seed_yaw_p039_pitch_p000_000.json"
+      ]
+    },
+    "39:12": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_p039_pitch_p012_000.json"
+      ]
+    },
+    "39:15": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_p039_pitch_p015_000.json"
+      ]
+    },
+    "39:18": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p039_pitch_p018_000.json"
+      ]
+    },
+    "39:21": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_p039_pitch_p021_000.json"
+      ]
+    },
+    "39:24": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p039_pitch_p024_000.json"
+      ]
+    },
+    "39:27": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p039_pitch_p027_000.json"
+      ]
+    },
+    "39:3": {
+      "count": 18,
+      "shards": [
+        "seed_yaw_p039_pitch_p003_000.json"
+      ]
+    },
+    "39:36": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_p039_pitch_p036_000.json"
+      ]
+    },
+    "39:6": {
+      "count": 6,
+      "shards": [
+        "seed_yaw_p039_pitch_p006_000.json"
+      ]
+    },
+    "39:9": {
+      "count": 13,
+      "shards": [
+        "seed_yaw_p039_pitch_p009_000.json"
+      ]
+    },
+    "3:-12": {
+      "count": 274,
+      "shards": [
+        "seed_yaw_p003_pitch_n012_000.json"
+      ]
+    },
+    "3:-15": {
+      "count": 195,
+      "shards": [
+        "seed_yaw_p003_pitch_n015_000.json"
+      ]
+    },
+    "3:-18": {
+      "count": 110,
+      "shards": [
+        "seed_yaw_p003_pitch_n018_000.json"
+      ]
+    },
+    "3:-21": {
+      "count": 87,
+      "shards": [
+        "seed_yaw_p003_pitch_n021_000.json"
+      ]
+    },
+    "3:-24": {
+      "count": 59,
+      "shards": [
+        "seed_yaw_p003_pitch_n024_000.json"
+      ]
+    },
+    "3:-27": {
+      "count": 36,
+      "shards": [
+        "seed_yaw_p003_pitch_n027_000.json"
+      ]
+    },
+    "3:-3": {
+      "count": 621,
+      "shards": [
+        "seed_yaw_p003_pitch_n003_000.json"
+      ]
+    },
+    "3:-30": {
+      "count": 27,
+      "shards": [
+        "seed_yaw_p003_pitch_n030_000.json"
+      ]
+    },
+    "3:-33": {
+      "count": 22,
+      "shards": [
+        "seed_yaw_p003_pitch_n033_000.json"
+      ]
+    },
+    "3:-36": {
+      "count": 24,
+      "shards": [
+        "seed_yaw_p003_pitch_n036_000.json"
+      ]
+    },
+    "3:-6": {
+      "count": 494,
+      "shards": [
+        "seed_yaw_p003_pitch_n006_000.json"
+      ]
+    },
+    "3:-9": {
+      "count": 408,
+      "shards": [
+        "seed_yaw_p003_pitch_n009_000.json"
+      ]
+    },
+    "3:0": {
+      "count": 719,
+      "shards": [
+        "seed_yaw_p003_pitch_p000_000.json",
+        "seed_yaw_p003_pitch_p000_001.json"
+      ]
+    },
+    "3:12": {
+      "count": 539,
+      "shards": [
+        "seed_yaw_p003_pitch_p012_000.json"
+      ]
+    },
+    "3:15": {
+      "count": 401,
+      "shards": [
+        "seed_yaw_p003_pitch_p015_000.json"
+      ]
+    },
+    "3:18": {
+      "count": 270,
+      "shards": [
+        "seed_yaw_p003_pitch_p018_000.json"
+      ]
+    },
+    "3:21": {
+      "count": 178,
+      "shards": [
+        "seed_yaw_p003_pitch_p021_000.json"
+      ]
+    },
+    "3:24": {
+      "count": 108,
+      "shards": [
+        "seed_yaw_p003_pitch_p024_000.json"
+      ]
+    },
+    "3:27": {
+      "count": 56,
+      "shards": [
+        "seed_yaw_p003_pitch_p027_000.json"
+      ]
+    },
+    "3:3": {
+      "count": 803,
+      "shards": [
+        "seed_yaw_p003_pitch_p003_000.json",
+        "seed_yaw_p003_pitch_p003_001.json"
+      ]
+    },
+    "3:30": {
+      "count": 49,
+      "shards": [
+        "seed_yaw_p003_pitch_p030_000.json"
+      ]
+    },
+    "3:33": {
+      "count": 23,
+      "shards": [
+        "seed_yaw_p003_pitch_p033_000.json"
+      ]
+    },
+    "3:36": {
+      "count": 28,
+      "shards": [
+        "seed_yaw_p003_pitch_p036_000.json"
+      ]
+    },
+    "3:6": {
+      "count": 742,
+      "shards": [
+        "seed_yaw_p003_pitch_p006_000.json",
+        "seed_yaw_p003_pitch_p006_001.json"
+      ]
+    },
+    "3:9": {
+      "count": 676,
+      "shards": [
+        "seed_yaw_p003_pitch_p009_000.json"
+      ]
+    },
+    "42:-12": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_p042_pitch_n012_000.json"
+      ]
+    },
+    "42:-15": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p042_pitch_n015_000.json"
+      ]
+    },
+    "42:-18": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_p042_pitch_n018_000.json"
+      ]
+    },
+    "42:-21": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p042_pitch_n021_000.json"
+      ]
+    },
+    "42:-24": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p042_pitch_n024_000.json"
+      ]
+    },
+    "42:-27": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_p042_pitch_n027_000.json"
+      ]
+    },
+    "42:-3": {
+      "count": 14,
+      "shards": [
+        "seed_yaw_p042_pitch_n003_000.json"
+      ]
+    },
+    "42:-33": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_p042_pitch_n033_000.json"
+      ]
+    },
+    "42:-36": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_p042_pitch_n036_000.json"
+      ]
+    },
+    "42:-6": {
+      "count": 8,
+      "shards": [
+        "seed_yaw_p042_pitch_n006_000.json"
+      ]
+    },
+    "42:-9": {
+      "count": 11,
+      "shards": [
+        "seed_yaw_p042_pitch_n009_000.json"
+      ]
+    },
+    "42:0": {
+      "count": 11,
+      "shards": [
+        "seed_yaw_p042_pitch_p000_000.json"
+      ]
+    },
+    "42:12": {
+      "count": 6,
+      "shards": [
+        "seed_yaw_p042_pitch_p012_000.json"
+      ]
+    },
+    "42:15": {
+      "count": 8,
+      "shards": [
+        "seed_yaw_p042_pitch_p015_000.json"
+      ]
+    },
+    "42:18": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p042_pitch_p018_000.json"
+      ]
+    },
+    "42:24": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p042_pitch_p024_000.json"
+      ]
+    },
+    "42:3": {
+      "count": 14,
+      "shards": [
+        "seed_yaw_p042_pitch_p003_000.json"
+      ]
+    },
+    "42:33": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_p042_pitch_p033_000.json"
+      ]
+    },
+    "42:6": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_p042_pitch_p006_000.json"
+      ]
+    },
+    "42:9": {
+      "count": 10,
+      "shards": [
+        "seed_yaw_p042_pitch_p009_000.json"
+      ]
+    },
+    "45:-12": {
+      "count": 14,
+      "shards": [
+        "seed_yaw_p045_pitch_n012_000.json"
+      ]
+    },
+    "45:-15": {
+      "count": 9,
+      "shards": [
+        "seed_yaw_p045_pitch_n015_000.json"
+      ]
+    },
+    "45:-18": {
+      "count": 15,
+      "shards": [
+        "seed_yaw_p045_pitch_n018_000.json"
+      ]
+    },
+    "45:-21": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_p045_pitch_n021_000.json"
+      ]
+    },
+    "45:-24": {
+      "count": 5,
+      "shards": [
+        "seed_yaw_p045_pitch_n024_000.json"
+      ]
+    },
+    "45:-27": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p045_pitch_n027_000.json"
+      ]
+    },
+    "45:-3": {
+      "count": 16,
+      "shards": [
+        "seed_yaw_p045_pitch_n003_000.json"
+      ]
+    },
+    "45:-30": {
+      "count": 3,
+      "shards": [
+        "seed_yaw_p045_pitch_n030_000.json"
+      ]
+    },
+    "45:-33": {
+      "count": 4,
+      "shards": [
+        "seed_yaw_p045_pitch_n033_000.json"
+      ]
+    },
+    "45:-36": {
+      "count": 2,
+      "shards": [
+        "seed_yaw_p045_pitch_n036_000.json"
+      ]
+    },
+    "45:-6": {
+      "count": 16,
+      "shards": [
+        "seed_yaw_p045_pitch_n006_000.json"
+      ]
+    },
+    "45:-9": {
+      "count": 19,
+      "shards": [
+        "seed_yaw_p045_pitch_n009_000.json"
+      ]
+    },
+    "45:0": {
+      "count": 23,
+      "shards": [
+        "seed_yaw_p045_pitch_p000_000.json"
+      ]
+    },
+    "45:12": {
+      "count": 8,
+      "shards": [
+        "seed_yaw_p045_pitch_p012_000.json"
+      ]
+    },
+    "45:15": {
+      "count": 7,
+      "shards": [
+        "seed_yaw_p045_pitch_p015_000.json"
+      ]
+    },
+    "45:18": {
+      "count": 6,
+      "shards": [
+        "seed_yaw_p045_pitch_p018_000.json"
+      ]
+    },
+    "45:21": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_p045_pitch_p021_000.json"
+      ]
+    },
+    "45:3": {
+      "count": 11,
+      "shards": [
+        "seed_yaw_p045_pitch_p003_000.json"
+      ]
+    },
+    "45:36": {
+      "count": 1,
+      "shards": [
+        "seed_yaw_p045_pitch_p036_000.json"
+      ]
+    },
+    "45:6": {
+      "count": 18,
+      "shards": [
+        "seed_yaw_p045_pitch_p006_000.json"
+      ]
+    },
+    "45:9": {
+      "count": 16,
+      "shards": [
+        "seed_yaw_p045_pitch_p009_000.json"
+      ]
+    },
+    "6:-12": {
+      "count": 217,
+      "shards": [
+        "seed_yaw_p006_pitch_n012_000.json"
+      ]
+    },
+    "6:-15": {
+      "count": 157,
+      "shards": [
+        "seed_yaw_p006_pitch_n015_000.json"
+      ]
+    },
+    "6:-18": {
+      "count": 110,
+      "shards": [
+        "seed_yaw_p006_pitch_n018_000.json"
+      ]
+    },
+    "6:-21": {
+      "count": 82,
+      "shards": [
+        "seed_yaw_p006_pitch_n021_000.json"
+      ]
+    },
+    "6:-24": {
+      "count": 47,
+      "shards": [
+        "seed_yaw_p006_pitch_n024_000.json"
+      ]
+    },
+    "6:-27": {
+      "count": 33,
+      "shards": [
+        "seed_yaw_p006_pitch_n027_000.json"
+      ]
+    },
+    "6:-3": {
+      "count": 523,
+      "shards": [
+        "seed_yaw_p006_pitch_n003_000.json"
+      ]
+    },
+    "6:-30": {
+      "count": 19,
+      "shards": [
+        "seed_yaw_p006_pitch_n030_000.json"
+      ]
+    },
+    "6:-33": {
+      "count": 20,
+      "shards": [
+        "seed_yaw_p006_pitch_n033_000.json"
+      ]
+    },
+    "6:-36": {
+      "count": 20,
+      "shards": [
+        "seed_yaw_p006_pitch_n036_000.json"
+      ]
+    },
+    "6:-6": {
+      "count": 413,
+      "shards": [
+        "seed_yaw_p006_pitch_n006_000.json"
+      ]
+    },
+    "6:-9": {
+      "count": 304,
+      "shards": [
+        "seed_yaw_p006_pitch_n009_000.json"
+      ]
+    },
+    "6:0": {
+      "count": 616,
+      "shards": [
+        "seed_yaw_p006_pitch_p000_000.json"
+      ]
+    },
+    "6:12": {
+      "count": 400,
+      "shards": [
+        "seed_yaw_p006_pitch_p012_000.json"
+      ]
+    },
+    "6:15": {
+      "count": 261,
+      "shards": [
+        "seed_yaw_p006_pitch_p015_000.json"
+      ]
+    },
+    "6:18": {
+      "count": 203,
+      "shards": [
+        "seed_yaw_p006_pitch_p018_000.json"
+      ]
+    },
+    "6:21": {
+      "count": 128,
+      "shards": [
+        "seed_yaw_p006_pitch_p021_000.json"
+      ]
+    },
+    "6:24": {
+      "count": 73,
+      "shards": [
+        "seed_yaw_p006_pitch_p024_000.json"
+      ]
+    },
+    "6:27": {
+      "count": 54,
+      "shards": [
+        "seed_yaw_p006_pitch_p027_000.json"
+      ]
+    },
+    "6:3": {
+      "count": 606,
+      "shards": [
+        "seed_yaw_p006_pitch_p003_000.json"
+      ]
+    },
+    "6:30": {
+      "count": 36,
+      "shards": [
+        "seed_yaw_p006_pitch_p030_000.json"
+      ]
+    },
+    "6:33": {
+      "count": 15,
+      "shards": [
+        "seed_yaw_p006_pitch_p033_000.json"
+      ]
+    },
+    "6:36": {
+      "count": 15,
+      "shards": [
+        "seed_yaw_p006_pitch_p036_000.json"
+      ]
+    },
+    "6:6": {
+      "count": 600,
+      "shards": [
+        "seed_yaw_p006_pitch_p006_000.json"
+      ]
+    },
+    "6:9": {
+      "count": 491,
+      "shards": [
+        "seed_yaw_p006_pitch_p009_000.json"
+      ]
+    },
+    "9:-12": {
+      "count": 181,
+      "shards": [
+        "seed_yaw_p009_pitch_n012_000.json"
+      ]
+    },
+    "9:-15": {
+      "count": 113,
+      "shards": [
+        "seed_yaw_p009_pitch_n015_000.json"
+      ]
+    },
+    "9:-18": {
+      "count": 84,
+      "shards": [
+        "seed_yaw_p009_pitch_n018_000.json"
+      ]
+    },
+    "9:-21": {
+      "count": 45,
+      "shards": [
+        "seed_yaw_p009_pitch_n021_000.json"
+      ]
+    },
+    "9:-24": {
+      "count": 41,
+      "shards": [
+        "seed_yaw_p009_pitch_n024_000.json"
+      ]
+    },
+    "9:-27": {
+      "count": 40,
+      "shards": [
+        "seed_yaw_p009_pitch_n027_000.json"
+      ]
+    },
+    "9:-3": {
+      "count": 405,
+      "shards": [
+        "seed_yaw_p009_pitch_n003_000.json"
+      ]
+    },
+    "9:-30": {
+      "count": 14,
+      "shards": [
+        "seed_yaw_p009_pitch_n030_000.json"
+      ]
+    },
+    "9:-33": {
+      "count": 21,
+      "shards": [
+        "seed_yaw_p009_pitch_n033_000.json"
+      ]
+    },
+    "9:-36": {
+      "count": 15,
+      "shards": [
+        "seed_yaw_p009_pitch_n036_000.json"
+      ]
+    },
+    "9:-6": {
+      "count": 294,
+      "shards": [
+        "seed_yaw_p009_pitch_n006_000.json"
+      ]
+    },
+    "9:-9": {
+      "count": 254,
+      "shards": [
+        "seed_yaw_p009_pitch_n009_000.json"
+      ]
+    },
+    "9:0": {
+      "count": 439,
+      "shards": [
+        "seed_yaw_p009_pitch_p000_000.json"
+      ]
+    },
+    "9:12": {
+      "count": 346,
+      "shards": [
+        "seed_yaw_p009_pitch_p012_000.json"
+      ]
+    },
+    "9:15": {
+      "count": 224,
+      "shards": [
+        "seed_yaw_p009_pitch_p015_000.json"
+      ]
+    },
+    "9:18": {
+      "count": 170,
+      "shards": [
+        "seed_yaw_p009_pitch_p018_000.json"
+      ]
+    },
+    "9:21": {
+      "count": 108,
+      "shards": [
+        "seed_yaw_p009_pitch_p021_000.json"
+      ]
+    },
+    "9:24": {
+      "count": 69,
+      "shards": [
+        "seed_yaw_p009_pitch_p024_000.json"
+      ]
+    },
+    "9:27": {
+      "count": 37,
+      "shards": [
+        "seed_yaw_p009_pitch_p027_000.json"
+      ]
+    },
+    "9:3": {
+      "count": 415,
+      "shards": [
+        "seed_yaw_p009_pitch_p003_000.json"
+      ]
+    },
+    "9:30": {
+      "count": 22,
+      "shards": [
+        "seed_yaw_p009_pitch_p030_000.json"
+      ]
+    },
+    "9:33": {
+      "count": 12,
+      "shards": [
+        "seed_yaw_p009_pitch_p033_000.json"
+      ]
+    },
+    "9:36": {
+      "count": 20,
+      "shards": [
+        "seed_yaw_p009_pitch_p036_000.json"
+      ]
+    },
+    "9:6": {
+      "count": 436,
+      "shards": [
+        "seed_yaw_p009_pitch_p006_000.json"
+      ]
+    },
+    "9:9": {
+      "count": 407,
+      "shards": [
+        "seed_yaw_p009_pitch_p009_000.json"
+      ]
+    }
+  },
+  "stats": {
+    "checked": 70000,
+    "accepted": 70000,
+    "poseCells": 749,
+    "expectedPoseCells": 775,
+    "missingPoseCells": 163,
+    "minimumFacesPerCell": 1,
+    "maximumFacesPerCell": 949,
+    "packCount": 251,
+    "expressionDistribution": {
+      "neutral": 6257,
+      "smile": 6118,
+      "surprise": 1233,
+      "frown": 1392
+    },
+    "preindexedFaces": 70099,
+    "preindexFailures": 125,
+    "expansion": {
+      "fromFaces": 15000,
+      "addedFaces": 55000,
+      "downloadFailuresRecovered": 0
+    },
+    "coverage": {
+      "counts": {
+        "winkLeft": 187,
+        "winkRight": 83,
+        "blink": 1983,
+        "eyesWide": 605,
+        "eyesLookUp": 17068,
+        "eyesLookDown": 20656,
+        "browsUp": 20541,
+        "pitchPositive21": 2589,
+        "pitchNegative21": 1996,
+        "smile": 39955,
+        "mouthOpen": 1563
+      },
+      "targets": {
+        "winkLeft": 80,
+        "winkRight": 80,
+        "blink": 120,
+        "eyesWide": 160,
+        "eyesLookUp": 120,
+        "eyesLookDown": 120,
+        "browsUp": 160,
+        "pitchPositive21": 300,
+        "pitchNegative21": 300,
+        "smile": 1000,
+        "mouthOpen": 500
+      },
+      "deficits": {
+        "winkLeft": 0,
+        "winkRight": 0,
+        "blink": 0,
+        "eyesWide": 0,
+        "eyesLookUp": 0,
+        "eyesLookDown": 0,
+        "browsUp": 0,
+        "pitchPositive21": 0,
+        "pitchNegative21": 0,
+        "smile": 0,
+        "mouthOpen": 0
+      }
+    },
+    "targetedWinkCandidates": 104,
+    "mirroredWinkCandidates": 40
+  },
+  "source": {
+    "name": "Flickr-Faces-HQ (FFHQ)",
+    "url": "https://github.com/NVlabs/ffhq-dataset",
+    "mirror": "https://huggingface.co/datasets/nuwandaa/ffhq128",
+    "featureLabels": "https://github.com/DCGM/ffhq-features-dataset",
+    "license": "CC BY-NC-SA 4.0; original source licenses retained where available",
+    "licenseUrl": "https://github.com/NVlabs/ffhq-dataset/blob/master/LICENSE.txt",
+    "changes": "Retained all 70,000 source faces, resized to 256px WebP, and packed for range delivery before MediaPipe indexing."
+  },
+  "shapeVersion": "mediapipe-projection-468-v4",
+  "meshPoints": 265,
+  "projectionPoints": 468,
+  "indexFiles": [],
+  "shardsContainGeometry": true,
+  "sourceFaces": 70224,
+  "featureSchema": "mediapipe-face-actions-v2",
+  "featureLength": 55,
+  "searchableFaces": 70099
+}

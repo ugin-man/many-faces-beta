@@ -1,5 +1,7 @@
 {
   "schemaVersion": 1,
+  "active": false,
+  "role": "smoke-only",
   "source": "Open Images validation",
   "workflowRunId": 32477427350,
   "artifactId": 9444818953,

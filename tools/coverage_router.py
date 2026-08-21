@@ -80,8 +80,8 @@ class CoverageRouter:
                     yaw_distance / max(1.0, self.yaw_tolerance),
                     pitch_distance / max(1.0, self.pitch_tolerance),
                 )
-                scarcity = 1.0 - (slot.remaining / max(1, slot.initial))
-                score = slot.pressure - normalized_distance * 0.55 + scarcity * 0.08
+                quota_headroom = slot.remaining / max(1, slot.initial)
+                score = slot.pressure - normalized_distance * 0.55 + quota_headroom * 0.08
                 candidates.append((score, slot))
         if not candidates:
             return None

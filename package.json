@@ -13,6 +13,10 @@
     "test": "npm run build && node --experimental-strip-types --test tests/*.test.mjs",
     "catalog:export": "node tools/export_catalog_from_site.mjs",
     "catalog:validate": "node tools/validate_face_catalog.mjs",
+    "catalog:coverage": "node tools/coverage-200k-plan.mjs",
+    "catalog:stage-openverse": "node tools/stage-openverse-coverage.mjs",
+    "catalog:merge": "node tools/merge-face-catalog.mjs",
+    "benchmark:fixed-search": "node --experimental-strip-types tools/benchmark-fixed-candidate-search.mjs",
     "validate:artifact": "bash scripts/validate-artifact.sh",
     "lint": "bash scripts/sites-env.sh -- eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "bash scripts/sites-env.sh -- drizzle-kit generate"

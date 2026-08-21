@@ -3,7 +3,7 @@
   "policyVersion": "clean-single-factor-v1",
   "description": "Rebuild a reviewable 3-degree clean core from FFHQ plus all eligible single-face Open Images windows. Complex cross-anatomy combinations are intentionally excluded.",
   "maxTotal": 0,
-  "launchNonce": 1,
+  "launchNonce": 2,
   "windows": [
     {
       "id": "validation-000000-002197",

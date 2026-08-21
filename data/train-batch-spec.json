@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "batchId": "001",
+  "maxImages": 8000,
+  "candidateLimit": 12000,
+  "minBoxArea": 0.006,
+  "workers": 16
+}

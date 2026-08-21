@@ -13,7 +13,7 @@ permissions:
 
 concurrency:
   group: many-faces-train-collection
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   collect-train:
@@ -66,16 +66,20 @@ jobs:
           import json, os
           from pathlib import Path
           p = json.loads(Path('data/train-batch-spec.json').read_text())
-          required = ('batchId', 'maxImages', 'candidateLimit')
+          required = ('batchId', 'maxImages', 'candidateLimit', 'candidateOffset')
           missing = [key for key in required if key not in p]
           if missing:
               raise SystemExit(f'Missing train batch fields: {missing}')
-          if int(p['maxImages']) <= 0 or int(p['candidateLimit']) < int(p['maxImages']):
-              raise SystemExit('candidateLimit must be >= maxImages > 0')
+          max_images = int(p['maxImages'])
+          offset = int(p['candidateOffset'])
+          limit = int(p['candidateLimit'])
+          if max_images <= 0 or offset < 0 or limit < offset + max_images:
+              raise SystemExit('candidateLimit must be >= candidateOffset + maxImages')
           with open(os.environ['GITHUB_ENV'], 'a') as out:
               out.write(f"BATCH_ID={p['batchId']}\n")
-              out.write(f"MAX_IMAGES={int(p['maxImages'])}\n")
-              out.write(f"CANDIDATE_LIMIT={int(p['candidateLimit'])}\n")
+              out.write(f"MAX_IMAGES={max_images}\n")
+              out.write(f"CANDIDATE_OFFSET={offset}\n")
+              out.write(f"CANDIDATE_LIMIT={limit}\n")
               out.write(f"MIN_BOX_AREA={float(p.get('minBoxArea', 0.006))}\n")
               out.write(f"WORKERS={int(p.get('workers', 16))}\n")
           PY
@@ -110,10 +114,11 @@ jobs:
       - name: Stage licensed Open Images train face crops
         if: steps.gate.outputs.run == 'true'
         run: |
-          python tools/open_images_face_source.py work/stage \
+          python tools/open_images_face_source_windowed.py work/stage \
             --split train \
             --cache .cache/open-images \
             --max-images "$MAX_IMAGES" \
+            --candidate-offset "$CANDIDATE_OFFSET" \
             --candidate-limit "$CANDIDATE_LIMIT" \
             --min-box-area "$MIN_BOX_AREA" \
             --allow-occluded \
@@ -138,7 +143,7 @@ jobs:
           import json, os
           from pathlib import Path
           p = json.loads(Path('work/accepted/curation-report.json').read_text())
-          minimum = max(100, int(os.environ['MAX_IMAGES']) // 20)
+          minimum = max(100, int(os.environ['MAX_IMAGES']) // 25)
           if p['accepted'] < minimum:
               raise SystemExit(f"Only {p['accepted']} candidates filled live gaps; need at least {minimum}")
           PY
@@ -190,6 +195,7 @@ jobs:
               print(f"- Remaining before batch: {p['neededImages']:,}")
           if Path('work/stage/source-report.json').exists():
               p=json.loads(Path('work/stage/source-report.json').read_text())
+              print(f"- Candidate window: {p.get('windowStart',0):,}..{p.get('windowEnd',0)-1:,}")
               print(f"- Train face candidates staged: {p.get('staged',0):,}")
               print(f"- Eligible train face rows: {p.get('boxStats',{}).get('eligibleRows',0):,}")
           if Path('work/accepted/curation-report.json').exists():

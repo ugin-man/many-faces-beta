@@ -45,7 +45,7 @@ jobs:
       - name: Install catalog runtime
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgl1 libgles2
+          sudo apt-get install -y libegl1 libgles2
           python -m pip install --disable-pip-version-check -r tools/requirements-catalog.txt
 
       - name: Measure the 70k catalog gaps
@@ -62,9 +62,12 @@ jobs:
             --plan work/coverage-plan.json \
             --output work/stage \
             --direct true \
+            --provider commons \
             --limit 180 \
             --pages 1 \
-            --gaps 24
+            --gaps 24 \
+            --max-yaw 36 \
+            --max-pitch 27
 
       - name: Measure pose and visible face configuration
         id: curate
@@ -135,5 +138,5 @@ jobs:
       - name: Require at least one measured match
         if: steps.curate.outcome != 'success'
         run: |
-          echo "No candidate passed measured pose/configuration curation. Inspect the uploaded reports before widening any threshold." >&2
+          echo "The staging or MediaPipe curation pass produced no usable measured match. Inspect the uploaded reports; do not bypass provenance or pose checks." >&2
           exit 1

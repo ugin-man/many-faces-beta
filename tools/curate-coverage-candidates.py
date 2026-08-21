@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Validate staged face images against coverage targets before catalog ingestion.
+"""Measure staged faces and keep only images that fill catalog coverage gaps.
 
-The collector's search terms are only hints. This tool runs MediaPipe on every
-candidate and accepts it only when measured pose and facial action match the
-requested gap. It also rejects multiple faces, tiny faces, corrupt images and
-visual duplicates. The output directory can be passed directly to
-build_face_catalog.py.
+Two modes are supported:
+- strict target mode: search hints specify the expected pose/configuration;
+- route-any-gap mode: broad face crops are measured first, then assigned to the
+  highest-pressure compatible gap in a coverage plan.
 """
 
 from __future__ import annotations
@@ -24,6 +23,8 @@ from typing import Any
 
 import numpy as np
 from PIL import Image, ImageOps
+
+from coverage_router import CoverageRouter
 
 MODEL_URL = (
     "https://storage.googleapis.com/mediapipe-models/face_landmarker/"
@@ -49,7 +50,7 @@ BLEND_KEYS = (
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("staging", type=Path, help="Directory produced by stage-openverse-coverage.mjs")
+    parser.add_argument("staging", type=Path, help="Directory containing images and metadata.csv")
     parser.add_argument("output", type=Path, help="Accepted image directory")
     parser.add_argument("--model", type=Path, default=Path(".models/face_landmarker.task"))
     parser.add_argument("--yaw-tolerance", type=float, default=12.0)
@@ -57,7 +58,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-face-area", type=float, default=0.08)
     parser.add_argument("--max-files", type=int, default=0)
     parser.add_argument("--overwrite", action="store_true")
-    return parser.parse_args()
+    parser.add_argument("--coverage-plan", type=Path)
+    parser.add_argument("--route-any-gap", action="store_true")
+    parser.add_argument("--route-yaw-tolerance", type=float, default=9.0)
+    parser.add_argument("--route-pitch-tolerance", type=float, default=9.0)
+    args = parser.parse_args()
+    if args.route_any_gap and not args.coverage_plan:
+        parser.error("--route-any-gap requires --coverage-plan")
+    if args.coverage_plan and not args.route_any_gap:
+        parser.error("--coverage-plan currently requires --route-any-gap")
+    return args
 
 
 def ensure_model(path: Path) -> None:
@@ -216,6 +226,15 @@ def main() -> int:
     rows = read_rows(staging)
     if args.max_files > 0:
         rows = rows[: args.max_files]
+    router = (
+        CoverageRouter(
+            args.coverage_plan.resolve(),
+            yaw_tolerance=args.route_yaw_tolerance,
+            pitch_tolerance=args.route_pitch_tolerance,
+        )
+        if args.route_any_gap
+        else None
+    )
     options = vision.FaceLandmarkerOptions(
         base_options=python.BaseOptions(model_asset_path=str(args.model.resolve())),
         running_mode=vision.RunningMode.IMAGE,
@@ -251,16 +270,38 @@ def main() -> int:
                     reasons["missing_features"] += 1
                     continue
                 yaw, pitch, roll = pose_from_matrix(result.facial_transformation_matrixes[0])
-                target_yaw, target_pitch = (float(value) for value in row["target_pose"].split(":"))
-                if abs(yaw - target_yaw) > args.yaw_tolerance or abs(pitch - target_pitch) > args.pitch_tolerance:
-                    reasons["pose_mismatch"] += 1
-                    continue
                 scores = {category.category_name: float(category.score) for category in result.face_blendshapes[0]}
                 configurations = classify(scores, landmarks, yaw)
-                target_configuration = row["target_configuration"]
-                if target_configuration not in configurations:
-                    reasons["configuration_mismatch"] += 1
-                    continue
+
+                if router is not None:
+                    assignment = router.assign(yaw, pitch, configurations)
+                    if assignment is None:
+                        reasons["no_coverage_gap"] += 1
+                        continue
+                    target_pose = assignment.pose
+                    target_configuration = assignment.configuration
+                    target_pressure = f"{assignment.pressure:.6f}"
+                else:
+                    try:
+                        target_yaw, target_pitch = (
+                            float(value) for value in row["target_pose"].split(":")
+                        )
+                    except (KeyError, ValueError):
+                        reasons["missing_target"] += 1
+                        continue
+                    if (
+                        abs(yaw - target_yaw) > args.yaw_tolerance
+                        or abs(pitch - target_pitch) > args.pitch_tolerance
+                    ):
+                        reasons["pose_mismatch"] += 1
+                        continue
+                    target_configuration = row.get("target_configuration", "")
+                    if target_configuration not in configurations:
+                        reasons["configuration_mismatch"] += 1
+                        continue
+                    target_pose = row["target_pose"]
+                    target_pressure = row.get("target_pressure", "")
+
                 visual_hash = difference_hash(image)
                 if any(hamming(visual_hash, previous) <= 4 for previous in hashes):
                     reasons["visual_duplicate"] += 1
@@ -273,6 +314,9 @@ def main() -> int:
                 shutil.copyfile(source, destination)
                 output_row = dict(row)
                 output_row["relative_path"] = f"images/{destination_name}"
+                output_row["target_pose"] = target_pose
+                output_row["target_configuration"] = target_configuration
+                output_row["target_pressure"] = target_pressure
                 output_row["measured_yaw"] = f"{yaw:.4f}"
                 output_row["measured_pitch"] = f"{pitch:.4f}"
                 output_row["measured_roll"] = f"{roll:.4f}"
@@ -291,19 +335,30 @@ def main() -> int:
     print()
 
     columns = list(rows[0].keys()) if rows else []
-    for extra in ("measured_yaw", "measured_pitch", "measured_roll", "measured_configurations"):
+    for extra in (
+        "target_pose",
+        "target_configuration",
+        "target_pressure",
+        "measured_yaw",
+        "measured_pitch",
+        "measured_roll",
+        "measured_configurations",
+    ):
         if extra not in columns:
             columns.append(extra)
     with (output / "metadata.csv").open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=columns)
         writer.writeheader()
         writer.writerows(accepted_rows)
-    report = {
+    report: dict[str, Any] = {
+        "mode": "route-any-gap" if router is not None else "strict-target",
         "checked": len(rows),
         "accepted": len(accepted_rows),
         "rejected": sum(reasons.values()),
         "reasons": dict(reasons),
     }
+    if router is not None:
+        report["coverageRouting"] = router.report()
     (output / "curation-report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(json.dumps(report, indent=2))
     return 0 if accepted_rows else 1

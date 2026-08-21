@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
-  "archiveSha256": "fca52275119c4f1766d987f8a9bd39f98b5931f80d74e1a0b42b4b4bb3d7d221",
-  "parts": 4,
+  "archiveSha256": "65909d0fd5de3ee3817e436dad3e9108f608fca9d962c6b9a1b687a5327fcf5f",
+  "parts": 8,
+  "nonce": 2,
   "purpose": "install-verified-clean-core-v1"
 }

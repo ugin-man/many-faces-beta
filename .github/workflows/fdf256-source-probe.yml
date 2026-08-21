@@ -1,0 +1,70 @@
+name: FDF256 source probe
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/fdf256-source-probe.yml
+      - tools/fdf256-source.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'work/coverage-driven-200k'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            /tools/fdf256-source.py
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Probe official image partitions without downloading them
+        run: |
+          python tools/fdf256-source.py work/fdf-probe \
+            --probe-only \
+            --license cc-by-2 \
+            --license cc-by-sa-2 \
+            --license cc-by-nc-2 \
+            --license cc-by-nc-sa-2
+
+      - name: Download, checksum and inspect official metadata
+        run: |
+          python tools/fdf256-source.py work/fdf-metadata \
+            --metadata-only \
+            --keep-archives
+
+      - name: Summarize source contract
+        run: |
+          {
+            echo "## FDF256 source probe"
+            echo
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          probe = json.loads(Path("work/fdf-probe/source-report.json").read_text())
+          metadata = json.loads(Path("work/fdf-metadata/source-report.json").read_text())
+          for source in probe["sources"]:
+              info = source["probe"]
+              size = info.get("contentLength", 0)
+              print(f"- {source['name']}: reachable={info.get('reachable')} status={info.get('status')} bytes={size}")
+          for item in metadata.get("metadataFiles", []):
+              print(f"- metadata: {item['path']} records={item.get('records')} fields={item.get('recordFields')}")
+          PY
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload verified source report
+        uses: actions/upload-artifact@v4
+        with:
+          name: fdf256-source-probe-${{ github.run_id }}
+          path: |
+            work/fdf-probe/source-report.json
+            work/fdf-metadata/source-report.json
+          retention-days: 30

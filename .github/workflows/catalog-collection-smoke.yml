@@ -4,7 +4,9 @@ on:
   pull_request:
     paths:
       - .github/workflows/catalog-collection-smoke.yml
+      - data/coverage-checkpoints/**
       - tools/coverage-200k-plan.mjs
+      - tools/apply_coverage_checkpoints.py
       - tools/open_images_face_source.py
       - tools/coverage_router.py
       - tools/curate-coverage-candidates.py
@@ -30,6 +32,7 @@ jobs:
         with:
           sparse-checkout: |
             /tools/*
+            /data/coverage-checkpoints/*
             /public/seed-catalog/manifest.json
             /public/seed-catalog/shards/*
           sparse-checkout-cone-mode: false
@@ -56,24 +59,28 @@ jobs:
           sudo apt-get install -y libegl1 libgles2
           python -m pip install --disable-pip-version-check -r tools/requirements-catalog.txt
 
-      - name: Measure the 70k catalog gaps
+      - name: Measure base catalog and apply packed checkpoints
         run: |
           mkdir -p work
           node tools/coverage-200k-plan.mjs \
             --manifest public/seed-catalog/manifest.json \
             --target 200000 \
-            --output work/coverage-plan.json
+            --output work/base-coverage-plan.json
+          python tools/apply_coverage_checkpoints.py \
+            work/base-coverage-plan.json \
+            work/coverage-plan.json \
+            --checkpoints data/coverage-checkpoints
 
       - name: Stage attributed Open Images face crops
         run: |
           python tools/open_images_face_source.py work/stage \
             --split validation \
             --cache .cache/open-images \
-            --max-images 240 \
-            --candidate-limit 1500 \
+            --max-images 1800 \
+            --candidate-limit 2197 \
             --min-box-area 0.006 \
             --allow-occluded \
-            --workers 8
+            --workers 12
 
       - name: Measure first, then route each face into a live gap
         id: curate
@@ -86,7 +93,7 @@ jobs:
             --route-any-gap \
             --route-yaw-tolerance 9 \
             --route-pitch-tolerance 9 \
-            --max-files 240
+            --max-files 1800
 
       - name: Require a meaningful measured sample
         if: steps.curate.outcome == 'success'
@@ -95,8 +102,8 @@ jobs:
           import json
           from pathlib import Path
           report = json.loads(Path("work/accepted/curation-report.json").read_text())
-          if report["accepted"] < 20:
-              raise SystemExit(f"Only {report['accepted']} measured faces filled a live gap; need at least 20 for a useful smoke batch")
+          if report["accepted"] < 100:
+              raise SystemExit(f"Only {report['accepted']} measured faces filled a live gap; need at least 100 for the expanded batch")
           PY
 
       - name: Build a packed supplement catalog
@@ -113,19 +120,29 @@ jobs:
             --overwrite
           node tools/finalize-supplement-catalog.mjs \
             --catalog work/supplement \
-            --catalog-id "open-images-smoke-${GITHUB_RUN_ID}"
+            --catalog-id "open-images-validation-${GITHUB_RUN_ID}"
           node tools/validate_face_catalog.mjs work/supplement | tee work/supplement-validation.json
 
       - name: Write collection summary
         if: always()
         run: |
           {
-            echo "## Open Images coverage-routing smoke"
+            echo "## Open Images cumulative coverage batch"
             echo
             echo "This run creates a reviewable supplement artifact only; it never mutates the 70k base catalog."
             echo
             if [[ -f work/coverage-plan.json ]]; then
-              node -e 'const p=require("./work/coverage-plan.json"); console.log(`- Base searchable faces: ${p.currentFaces.toLocaleString()}`); console.log(`- Target: ${p.targetFaces.toLocaleString()}`); console.log(`- Planned additions: ${p.neededImages.toLocaleString()}`); console.log(`- Gap cells queued: ${p.collectionQueue.length.toLocaleString()}`)'
+              python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path("work/coverage-plan.json").read_text())
+          print(f"- Base searchable faces: {p.get('baseFaces', p['currentFaces']):,}")
+          print(f"- Packed checkpoint faces: {p.get('checkpointFaces', 0):,}")
+          print(f"- Effective current faces: {p['currentFaces']:,}")
+          print(f"- Target: {p['targetFaces']:,}")
+          print(f"- Remaining planned additions: {p['neededImages']:,}")
+          print(f"- Open queue items: {len(p['collectionQueue']):,}")
+          PY
             fi
             if [[ -f work/stage/source-report.json ]]; then
               python - <<'PY'
@@ -144,11 +161,11 @@ jobs:
           from pathlib import Path
           p = json.loads(Path("work/accepted/curation-report.json").read_text())
           print(f"- Measured: {p['checked']}")
-          print(f"- Routed and accepted: {p['accepted']}")
+          print(f"- Routed and accepted before packing: {p['accepted']}")
           print(f"- Rejected: {p['rejected']}")
           print(f"- Rejection reasons: {p['reasons']}")
           routing = p.get('coverageRouting', {})
-          print(f"- Distinct gaps filled: {len(routing.get('assignedByGap', {}))}")
+          print(f"- Distinct routed gaps: {len(routing.get('assignedByGap', {}))}")
           PY
             fi
             if [[ -f work/supplement/manifest.json ]]; then
@@ -160,8 +177,9 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: open-images-coverage-smoke-${{ github.run_id }}
+          name: open-images-coverage-batch-${{ github.run_id }}
           path: |
+            work/base-coverage-plan.json
             work/coverage-plan.json
             work/stage/metadata.csv
             work/stage/source-report.json

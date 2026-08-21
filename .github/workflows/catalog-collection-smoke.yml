@@ -9,6 +9,7 @@ on:
       - tools/coverage_router.py
       - tools/curate-coverage-candidates.py
       - tools/build_face_catalog.py
+      - tools/build_face_catalog_compat.py
       - tools/finalize-supplement-catalog.mjs
       - tools/validate_face_catalog.mjs
       - tools/requirements-catalog.txt
@@ -101,7 +102,7 @@ jobs:
       - name: Build a packed supplement catalog
         if: steps.curate.outcome == 'success'
         run: |
-          python tools/build_face_catalog.py \
+          python tools/build_face_catalog_compat.py \
             work/accepted \
             work/supplement \
             --metadata work/accepted/metadata.csv \

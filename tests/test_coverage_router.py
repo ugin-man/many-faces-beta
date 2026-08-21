@@ -64,6 +64,30 @@ class CoverageRouterTest(unittest.TestCase):
         self.assertEqual(report["remaining"], 0)
         self.assertEqual(report["assignedByGap"]["-18:9|winkLeft"], 1)
 
+    def test_spreads_tied_faces_across_open_quotas(self) -> None:
+        plan = self.make_plan([
+            {
+                "yaw": 0,
+                "pitch": 0,
+                "configuration": "neutral",
+                "recommendedAdditions": 2,
+                "pressure": 3.0,
+            },
+            {
+                "yaw": 9,
+                "pitch": 0,
+                "configuration": "neutral",
+                "recommendedAdditions": 2,
+                "pressure": 3.0,
+            },
+        ])
+        router = CoverageRouter(plan, yaw_tolerance=9, pitch_tolerance=9)
+        first = router.assign(4.5, 0.0, {"neutral"})
+        second = router.assign(4.5, 0.0, {"neutral"})
+        self.assertIsNotNone(first)
+        self.assertIsNotNone(second)
+        self.assertNotEqual(first.pose, second.pose)
+
     def test_rejects_faces_that_fill_no_remaining_gap(self) -> None:
         plan = self.make_plan([
             {

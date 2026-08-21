@@ -13,7 +13,7 @@ permissions:
 
 concurrency:
   group: many-faces-train-collection
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   collect-train:

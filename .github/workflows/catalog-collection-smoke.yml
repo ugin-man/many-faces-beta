@@ -47,11 +47,11 @@ jobs:
           cache: pip
           cache-dependency-path: tools/requirements-catalog.txt
 
-      - name: Cache Open Images validation metadata
+      - name: Cache Open Images test metadata
         uses: actions/cache@v4
         with:
-          path: .cache/open-images/validation
-          key: open-images-validation-v1
+          path: .cache/open-images/test
+          key: open-images-test-v1
 
       - name: Install catalog runtime
         run: |
@@ -74,13 +74,13 @@ jobs:
       - name: Stage attributed Open Images face crops
         run: |
           python tools/open_images_face_source.py work/stage \
-            --split validation \
+            --split test \
             --cache .cache/open-images \
-            --max-images 1800 \
-            --candidate-limit 2197 \
+            --max-images 4000 \
+            --candidate-limit 7000 \
             --min-box-area 0.006 \
             --allow-occluded \
-            --workers 12
+            --workers 16
 
       - name: Measure first, then route each face into a live gap
         id: curate
@@ -93,7 +93,7 @@ jobs:
             --route-any-gap \
             --route-yaw-tolerance 9 \
             --route-pitch-tolerance 9 \
-            --max-files 1800
+            --max-files 4000
 
       - name: Require a meaningful measured sample
         if: steps.curate.outcome == 'success'
@@ -102,8 +102,8 @@ jobs:
           import json
           from pathlib import Path
           report = json.loads(Path("work/accepted/curation-report.json").read_text())
-          if report["accepted"] < 100:
-              raise SystemExit(f"Only {report['accepted']} measured faces filled a live gap; need at least 100 for the expanded batch")
+          if report["accepted"] < 200:
+              raise SystemExit(f"Only {report['accepted']} measured faces filled a live gap; need at least 200 for the test batch")
           PY
 
       - name: Build a packed supplement catalog
@@ -120,7 +120,7 @@ jobs:
             --overwrite
           node tools/finalize-supplement-catalog.mjs \
             --catalog work/supplement \
-            --catalog-id "open-images-validation-${GITHUB_RUN_ID}"
+            --catalog-id "open-images-test-${GITHUB_RUN_ID}"
           node tools/validate_face_catalog.mjs work/supplement | tee work/supplement-validation.json
 
       - name: Write collection summary

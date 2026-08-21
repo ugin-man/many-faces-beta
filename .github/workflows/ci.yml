@@ -28,5 +28,5 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run lint
-      - name: Check Python curator syntax
-        run: python -m py_compile tools/curate-coverage-candidates.py
+      - name: Check Python tool syntax
+        run: python -m compileall -q tools

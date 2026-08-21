@@ -14,7 +14,8 @@ function parseArgs(argv) {
   if (!plan || !output) {
     throw new Error(
       "Usage: stage-openverse-coverage.mjs --plan <coverage plan.json> --output <staging dir> " +
-      "[--site <url>] [--direct true] [--limit 1000] [--pages 6] [--gaps 80]",
+      "[--site <url>] [--direct true] [--provider commons] [--limit 1000] [--pages 6] " +
+      "[--gaps 80] [--max-yaw 45] [--max-pitch 36]",
     );
   }
   return {
@@ -25,6 +26,8 @@ function parseArgs(argv) {
     limit: Math.max(1, Number(values.get("--limit") ?? 1_000)),
     pages: Math.max(1, Math.min(50, Number(values.get("--pages") ?? 6))),
     gaps: Math.max(1, Number(values.get("--gaps") ?? 80)),
+    maxYaw: Math.max(0, Math.min(45, Number(values.get("--max-yaw") ?? 45))),
+    maxPitch: Math.max(0, Math.min(36, Number(values.get("--max-pitch") ?? 36))),
     provider: values.get("--provider") ?? "",
   };
 }
@@ -68,6 +71,78 @@ function stripHtml(value = "") {
     .trim();
 }
 
+function usableLicense(value) {
+  const license = String(value ?? "").toLowerCase();
+  return (
+    license.includes("cc0") ||
+    license.includes("public domain") ||
+    license === "pdm" ||
+    license.startsWith("pd-") ||
+    (license.includes("cc by") && !license.includes("-nd")) ||
+    (license.includes("attribution") && !license.includes("no derivatives"))
+  );
+}
+
+function selectDiverseGaps(items, limit, maxYaw, maxPitch) {
+  const eligible = items.filter((item) =>
+    item.query &&
+    item.recommendedAdditions > 0 &&
+    Math.abs(Number(item.yaw)) <= maxYaw &&
+    Math.abs(Number(item.pitch)) <= maxPitch,
+  );
+  const groups = new Map();
+  for (const item of eligible) {
+    const group = groups.get(item.configuration) ?? [];
+    group.push(item);
+    groups.set(item.configuration, group);
+  }
+  const selected = [];
+  let depth = 0;
+  while (selected.length < limit) {
+    let added = false;
+    for (const group of groups.values()) {
+      if (group[depth]) {
+        selected.push(group[depth]);
+        added = true;
+        if (selected.length >= limit) break;
+      }
+    }
+    if (!added) break;
+    depth += 1;
+  }
+  return selected;
+}
+
+function commonsQuery(gap) {
+  const configuration = {
+    winkLeft: "wink",
+    winkRight: "wink",
+    blinkBoth: "eyes closed",
+    eyeWide: "wide eyes",
+    gazeUp: "looking up",
+    gazeDown: "looking down",
+    gazeLeft: "looking sideways",
+    gazeRight: "looking sideways",
+    browUp: "raised eyebrows",
+    browDown: "frown",
+    smileClosed: "smile",
+    smileOpen: "open smile",
+    jawOpen: "open mouth",
+    mouthPucker: "pursed lips",
+    mouthRound: "round mouth",
+    mouthWide: "wide mouth",
+    frown: "frown",
+    noseSneer: "sneer",
+    neutral: "neutral expression",
+  }[gap.configuration] ?? gap.configuration;
+  const pose = Math.abs(Number(gap.yaw)) >= 27
+    ? "profile"
+    : Math.abs(Number(gap.yaw)) >= 9
+      ? "three quarter view"
+      : "front view";
+  return `portrait ${configuration} ${pose}`;
+}
+
 async function imageAsDataUrl(url) {
   const response = await retry(() => fetch(url, {
     headers: {
@@ -105,7 +180,7 @@ async function hydrateDirectCandidates(candidates, limit) {
   return hydrated;
 }
 
-async function searchDirect(query, page, limit = 20) {
+async function searchOpenverseDirect(query, page, limit = 20) {
   const url = new URL("https://api.openverse.org/v1/images/");
   url.searchParams.set("q", query);
   url.searchParams.set("license", "by,by-sa,by-nc,by-nc-sa,cc0,pdm");
@@ -142,6 +217,70 @@ async function searchDirect(query, page, limit = 20) {
   return hydrateDirectCandidates(candidates, limit);
 }
 
+async function searchCommonsDirect(gap, page, limit = 20) {
+  const query = commonsQuery(gap);
+  const pageSize = Math.min(50, limit * 2);
+  const url = new URL("https://commons.wikimedia.org/w/api.php");
+  url.searchParams.set("action", "query");
+  url.searchParams.set("generator", "search");
+  url.searchParams.set("gsrsearch", `${query} filetype:bitmap`);
+  url.searchParams.set("gsrnamespace", "6");
+  url.searchParams.set("gsrlimit", String(pageSize));
+  url.searchParams.set("gsroffset", String((page - 1) * pageSize));
+  url.searchParams.set("prop", "imageinfo");
+  url.searchParams.set("iiprop", "url|mime|extmetadata");
+  url.searchParams.set("iiurlwidth", "512");
+  url.searchParams.set("format", "json");
+  url.searchParams.set("formatversion", "2");
+  url.searchParams.set("origin", "*");
+  const response = await retry(() => fetch(url, {
+    headers: {
+      Accept: "application/json",
+      "User-Agent": "Many Faces Dataset Builder/0.3",
+    },
+    signal: AbortSignal.timeout(20_000),
+  }));
+  if (!response.ok) throw new Error(`Wikimedia Commons ${response.status}`);
+  const payload = await response.json();
+  const candidates = (payload.query?.pages ?? []).flatMap((pageItem) => {
+    const info = pageItem.imageinfo?.[0];
+    const metadata = info?.extmetadata ?? {};
+    const license = stripHtml(metadata.LicenseShortName?.value);
+    const imageUrl = info?.thumburl ?? info?.url;
+    const sourceUrl = info?.descriptionurl;
+    if (
+      !pageItem.pageid ||
+      !imageUrl ||
+      !sourceUrl ||
+      !info?.mime?.startsWith("image/") ||
+      !usableLicense(license)
+    ) return [];
+    return [{
+      id: `commons-${pageItem.pageid}`,
+      title: stripHtml(metadata.ObjectName?.value) || pageItem.title?.replace(/^File:/, "") || "Untitled portrait",
+      imageUrl,
+      sourceName: "Wikimedia Commons",
+      sourceUrl,
+      creator: stripHtml(metadata.Artist?.value) || "Unknown creator",
+      license: license || "Public Domain",
+      licenseUrl: metadata.LicenseUrl?.value || sourceUrl,
+    }];
+  });
+  return hydrateDirectCandidates(candidates, limit);
+}
+
+async function searchDirect(gap, page, provider) {
+  if (provider !== "commons") {
+    try {
+      return await searchOpenverseDirect(gap.query, page, 20);
+    } catch (error) {
+      if (provider === "openverse") throw error;
+      console.warn(`warning: ${error}; falling back to Wikimedia Commons`);
+    }
+  }
+  return searchCommonsDirect(gap, page, 20);
+}
+
 async function searchProxy(site, query, page, provider) {
   const url = new URL("/api/openverse", site);
   url.searchParams.set("q", query);
@@ -157,10 +296,13 @@ async function searchProxy(site, query, page, provider) {
 async function main() {
   const options = parseArgs(process.argv);
   const plan = JSON.parse(await readFile(options.plan, "utf8"));
-  const queue = (plan.collectionQueue ?? [])
-    .filter((item) => item.query && item.recommendedAdditions > 0)
-    .slice(0, options.gaps);
-  if (!queue.length) throw new Error("Coverage plan contains no collection queue");
+  const queue = selectDiverseGaps(
+    plan.collectionQueue ?? [],
+    options.gaps,
+    options.maxYaw,
+    options.maxPitch,
+  );
+  if (!queue.length) throw new Error("Coverage plan contains no eligible collection queue");
 
   const imageDir = path.join(options.output, "images");
   await mkdir(imageDir, { recursive: true });
@@ -180,13 +322,12 @@ async function main() {
   }
 
   outer:
-  for (let gapIndex = 0; gapIndex < queue.length; gapIndex += 1) {
-    const gap = queue[gapIndex];
-    for (let page = 1; page <= options.pages; page += 1) {
+  for (let page = 1; page <= options.pages; page += 1) {
+    for (const gap of queue) {
       let items;
       try {
         items = options.direct
-          ? await searchDirect(gap.query, page, 20)
+          ? await searchDirect(gap, page, options.provider)
           : await searchProxy(options.site, gap.query, page, options.provider);
       } catch (error) {
         console.warn(`warning: ${error}`);
@@ -210,7 +351,7 @@ async function main() {
           license_url: item.licenseUrl ?? item.sourceUrl,
           target_pose: gap.pose,
           target_configuration: gap.configuration,
-          target_query: gap.query,
+          target_query: options.direct && options.provider === "commons" ? commonsQuery(gap) : gap.query,
           target_pressure: gap.pressure,
         };
         rows.push(row);
@@ -238,7 +379,8 @@ async function main() {
   await writeFile(statePath, JSON.stringify({ ids: [...ids], sourceUrls: [...sourceUrls], rows }, null, 2));
   console.log(JSON.stringify({
     output: options.output,
-    mode: options.direct ? "direct-openverse" : "site-proxy",
+    mode: options.direct ? `direct-${options.provider || "auto"}` : "site-proxy",
+    selectedGaps: queue.map(({ pose, configuration }) => ({ pose, configuration })),
     staged: rows.length,
     requested: options.limit,
     complete: rows.length >= options.limit,

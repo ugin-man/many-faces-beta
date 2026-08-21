@@ -39,6 +39,8 @@ def load_checkpoints(directory: Path) -> tuple[list[dict[str, Any]], Counter[str
 
     for path in sorted(directory.glob("*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
+        if data.get("active", True) is False:
+            continue
         packed = int(data.get("packedFaces", 0))
         assigned = Counter({str(k): int(v) for k, v in data.get("assignedByGap", {}).items()})
         assigned_total = sum(assigned.values())
@@ -68,9 +70,18 @@ def apply(plan: dict[str, Any], checkpoint_dir: Path) -> dict[str, Any]:
     if base_faces + packed_total > target_faces:
         raise ValueError("Packed checkpoints exceed targetFaces")
 
+    original_queue = plan.get("collectionQueue", [])
+    known_keys = {
+        f"{item.get('pose')}|{item.get('configuration')}"
+        for item in original_queue
+    }
+    unknown = {key: count for key, count in packed_gaps.items() if key not in known_keys}
+    if unknown:
+        raise ValueError(f"Checkpoint gaps not present in the fresh coverage plan: {unknown}")
+
     queue: list[dict[str, Any]] = []
     matched_packed = 0
-    for original in plan.get("collectionQueue", []):
+    for original in original_queue:
         item = dict(original)
         pose = str(item.get("pose", ""))
         configuration = str(item.get("configuration", ""))
@@ -104,12 +115,6 @@ def apply(plan: dict[str, Any], checkpoint_dir: Path) -> dict[str, Any]:
         if item["recommendedAdditions"] > 0:
             queue.append(item)
 
-    unknown = {key: count for key, count in packed_gaps.items() if not any(
-        key == f"{item.get('pose')}|{item.get('configuration')}"
-        for item in plan.get("collectionQueue", [])
-    )}
-    if unknown:
-        raise ValueError(f"Checkpoint gaps not present in the fresh coverage plan: {unknown}")
     if matched_packed != packed_total:
         raise ValueError(
             f"Matched {matched_packed} checkpoint assignments, expected {packed_total}"

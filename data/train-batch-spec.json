@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "batchId": "001",
-  "launchNonce": 2,
+  "launchNonce": 3,
   "maxImages": 8000,
   "candidateLimit": 12000,
   "minBoxArea": 0.006,

@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "clean-single-factor-v1",
+  "description": "Rebuild a reviewable 3-degree clean core from FFHQ plus all eligible single-face Open Images windows. Complex cross-anatomy combinations are intentionally excluded.",
+  "maxTotal": 0,
+  "launchNonce": 1,
+  "windows": [
+    {
+      "id": "validation-000000-002197",
+      "split": "validation",
+      "offset": 0,
+      "maxImages": 2197,
+      "candidateLimit": 2197
+    },
+    {
+      "id": "test-000000-006559",
+      "split": "test",
+      "offset": 0,
+      "maxImages": 6559,
+      "candidateLimit": 6559
+    },
+    {
+      "id": "train-000000-050000",
+      "split": "train",
+      "offset": 0,
+      "maxImages": 50000,
+      "candidateLimit": 50000
+    },
+    {
+      "id": "train-050000-100000",
+      "split": "train",
+      "offset": 50000,
+      "maxImages": 50000,
+      "candidateLimit": 100000
+    },
+    {
+      "id": "train-100000-150000",
+      "split": "train",
+      "offset": 100000,
+      "maxImages": 50000,
+      "candidateLimit": 150000
+    },
+    {
+      "id": "train-150000-200000",
+      "split": "train",
+      "offset": 150000,
+      "maxImages": 50000,
+      "candidateLimit": 200000
+    },
+    {
+      "id": "train-200000-248240",
+      "split": "train",
+      "offset": 200000,
+      "maxImages": 48240,
+      "candidateLimit": 248240
+    }
+  ]
+}

@@ -223,6 +223,17 @@ jobs:
           node tools/validate_face_catalog.mjs work/clean-core-v1/catalog \
             | tee work/clean-core-v1/catalog-validation.json
 
+      - name: Upload reviewable clean core
+        uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-clean-core-v1-${{ github.run_id }}
+          path: |
+            work/clean-core-v1
+            data/clean-core-v1-spec.json
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 6
+
       - name: Enforce review milestone
         run: |
           python - <<'PY'
@@ -248,11 +259,18 @@ jobs:
           PY
 
       - name: Write final review summary
+        if: always()
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json
           from pathlib import Path
-          audit = json.loads(Path("work/clean-core-v1/audit.json").read_text())
+          path = Path("work/clean-core-v1/audit.json")
+          if not path.exists():
+              print("## Many Faces clean core v1")
+              print()
+              print("Assembly did not produce an audit file.")
+              raise SystemExit(0)
+          audit = json.loads(path.read_text())
           print("## Many Faces clean core v1")
           print()
           print(f"- Selected faces: {audit['selectedFaces']:,}")
@@ -263,14 +281,3 @@ jobs:
           print()
           print("Open `review/index.html` after downloading the artifact.")
           PY
-
-      - name: Upload reviewable clean core
-        uses: actions/upload-artifact@v4
-        with:
-          name: many-faces-clean-core-v1-${{ github.run_id }}
-          path: |
-            work/clean-core-v1
-            data/clean-core-v1-spec.json
-          if-no-files-found: error
-          retention-days: 30
-          compression-level: 6

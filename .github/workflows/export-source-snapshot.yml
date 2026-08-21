@@ -1,9 +1,9 @@
 name: Export source snapshot
 
 on:
-  push:
+  pull_request:
     branches:
-      - work/coverage-driven-200k
+      - main
     paths:
       - data/export-source-spec.json
   workflow_dispatch:
@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
 
       - name: Build compact source snapshot
@@ -33,7 +33,7 @@ jobs:
             --exclude='public/seed-catalog/shards/'
           mkdir -p export/repo/public/seed-catalog
           cp public/seed-catalog/manifest.json export/repo/public/seed-catalog/manifest.json
-          printf '%s\n' "$GITHUB_SHA" > export/repo/.snapshot-sha
+          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > export/repo/.snapshot-sha
 
       - name: Upload source snapshot
         uses: actions/upload-artifact@v4

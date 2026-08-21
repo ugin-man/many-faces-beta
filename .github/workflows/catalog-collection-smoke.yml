@@ -108,7 +108,8 @@ jobs:
             --yaw-min -45 \
             --yaw-max 45 \
             --pitch-min -36 \
-            --pitch-max 36
+            --pitch-max 36 \
+            --overwrite
           node tools/finalize-supplement-catalog.mjs \
             --catalog work/supplement \
             --catalog-id "open-images-smoke-${GITHUB_RUN_ID}"

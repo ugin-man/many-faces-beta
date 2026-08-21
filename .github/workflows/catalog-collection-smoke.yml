@@ -5,7 +5,8 @@ on:
     paths:
       - .github/workflows/catalog-collection-smoke.yml
       - tools/coverage-200k-plan.mjs
-      - tools/stage-openverse-coverage.mjs
+      - tools/open_images_face_source.py
+      - tools/coverage_router.py
       - tools/curate-coverage-candidates.py
       - tools/build_face_catalog.py
       - tools/finalize-supplement-catalog.mjs
@@ -20,7 +21,7 @@ jobs:
   collect:
     if: github.event_name == 'workflow_dispatch' || github.head_ref == 'work/coverage-driven-200k'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     env:
       PYTHONUNBUFFERED: "1"
     steps:
@@ -42,6 +43,12 @@ jobs:
           cache: pip
           cache-dependency-path: tools/requirements-catalog.txt
 
+      - name: Cache Open Images validation metadata
+        uses: actions/cache@v4
+        with:
+          path: .cache/open-images/validation
+          key: open-images-validation-v1
+
       - name: Install catalog runtime
         run: |
           sudo apt-get update
@@ -56,29 +63,40 @@ jobs:
             --target 200000 \
             --output work/coverage-plan.json
 
-      - name: Stage a diverse licensed candidate sample
+      - name: Stage attributed Open Images face crops
         run: |
-          node tools/stage-openverse-coverage.mjs \
-            --plan work/coverage-plan.json \
-            --output work/stage \
-            --direct true \
-            --provider commons \
-            --limit 180 \
-            --pages 1 \
-            --gaps 24 \
-            --max-yaw 36 \
-            --max-pitch 27
+          python tools/open_images_face_source.py work/stage \
+            --split validation \
+            --cache .cache/open-images \
+            --max-images 240 \
+            --candidate-limit 1500 \
+            --min-box-area 0.006 \
+            --allow-occluded \
+            --workers 8
 
-      - name: Measure pose and visible face configuration
+      - name: Measure first, then route each face into a live gap
         id: curate
         continue-on-error: true
         run: |
           python tools/curate-coverage-candidates.py \
             work/stage \
             work/accepted \
-            --yaw-tolerance 15 \
-            --pitch-tolerance 18 \
-            --max-files 180
+            --coverage-plan work/coverage-plan.json \
+            --route-any-gap \
+            --route-yaw-tolerance 9 \
+            --route-pitch-tolerance 9 \
+            --max-files 240
+
+      - name: Require a meaningful measured sample
+        if: steps.curate.outcome == 'success'
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("work/accepted/curation-report.json").read_text())
+          if report["accepted"] < 20:
+              raise SystemExit(f"Only {report['accepted']} measured faces filled a live gap; need at least 20 for a useful smoke batch")
+          PY
 
       - name: Build a packed supplement catalog
         if: steps.curate.outcome == 'success'
@@ -93,25 +111,43 @@ jobs:
             --pitch-max 36
           node tools/finalize-supplement-catalog.mjs \
             --catalog work/supplement \
-            --catalog-id "coverage-smoke-${GITHUB_RUN_ID}"
+            --catalog-id "open-images-smoke-${GITHUB_RUN_ID}"
           node tools/validate_face_catalog.mjs work/supplement | tee work/supplement-validation.json
 
       - name: Write collection summary
         if: always()
         run: |
           {
-            echo "## Coverage-driven collection smoke"
+            echo "## Open Images coverage-routing smoke"
             echo
-            echo "This run only creates a reviewable supplement artifact; it does not alter the 70k catalog."
+            echo "This run creates a reviewable supplement artifact only; it never mutates the 70k base catalog."
             echo
             if [[ -f work/coverage-plan.json ]]; then
               node -e 'const p=require("./work/coverage-plan.json"); console.log(`- Base searchable faces: ${p.currentFaces.toLocaleString()}`); console.log(`- Target: ${p.targetFaces.toLocaleString()}`); console.log(`- Planned additions: ${p.neededImages.toLocaleString()}`); console.log(`- Gap cells queued: ${p.collectionQueue.length.toLocaleString()}`)'
             fi
-            if [[ -f work/stage/state.json ]]; then
-              node -e 'const p=require("./work/stage/state.json"); console.log(`- Licensed candidates staged: ${(p.rows||[]).length}`)'
+            if [[ -f work/stage/source-report.json ]]; then
+              python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path("work/stage/source-report.json").read_text())
+          print(f"- Human-face box rows: {p['boxStats']['humanFaceRows']}")
+          print(f"- Licensed deterministic candidates: {p['licensedCandidates']}")
+          print(f"- Face crops staged: {p.get('staged', 0)}")
+          print(f"- Source download failures: {sum(p.get('downloadFailures', {}).values())}")
+          PY
             fi
             if [[ -f work/accepted/curation-report.json ]]; then
-              node -e 'const p=require("./work/accepted/curation-report.json"); console.log(`- Measured: ${p.checked}`); console.log(`- Accepted: ${p.accepted}`); console.log(`- Rejected: ${p.rejected}`); console.log(`- Rejection reasons: ${JSON.stringify(p.reasons)}`)'
+              python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path("work/accepted/curation-report.json").read_text())
+          print(f"- Measured: {p['checked']}")
+          print(f"- Routed and accepted: {p['accepted']}")
+          print(f"- Rejected: {p['rejected']}")
+          print(f"- Rejection reasons: {p['reasons']}")
+          routing = p.get('coverageRouting', {})
+          print(f"- Distinct gaps filled: {len(routing.get('assignedByGap', {}))}")
+          PY
             fi
             if [[ -f work/supplement/manifest.json ]]; then
               node -e 'const p=require("./work/supplement/manifest.json"); console.log(`- Packed supplement faces: ${p.searchableFaces}`); console.log(`- Pose cells represented: ${Object.keys(p.cells||{}).length}`); console.log(`- Provenance complete: ${p.stats?.provenance?.licensedEntries === p.searchableFaces}`)'
@@ -122,11 +158,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-collection-smoke-${{ github.run_id }}
+          name: open-images-coverage-smoke-${{ github.run_id }}
           path: |
             work/coverage-plan.json
             work/stage/metadata.csv
-            work/stage/state.json
+            work/stage/source-report.json
+            work/stage/images
             work/accepted/metadata.csv
             work/accepted/curation-report.json
             work/accepted/images
@@ -135,8 +172,8 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Require at least one measured match
+      - name: Require successful measured routing
         if: steps.curate.outcome != 'success'
         run: |
-          echo "The staging or MediaPipe curation pass produced no usable measured match. Inspect the uploaded reports; do not bypass provenance or pose checks." >&2
+          echo "No staged Open Images face filled a measured catalog gap. Inspect the uploaded source and curation reports." >&2
           exit 1

@@ -19,6 +19,7 @@ jobs:
           sparse-checkout: |
             /*
             !/public/seed-catalog/*
+            /public/seed-catalog/manifest.json
           sparse-checkout-cone-mode: false
       - uses: actions/setup-node@v4
         with:

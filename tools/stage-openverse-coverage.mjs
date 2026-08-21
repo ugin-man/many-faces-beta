@@ -3,8 +3,42 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+const RETRYABLE_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
+const NON_PHOTO_TITLE = /\b(statue|sculpture|figurine|painting|drawing|illustration|icon|mannequin|doll|coin|bust|relief|artwork|poster|engraving)\b/i;
+
+export const CONFIGURATION_SEARCH_TERMS = {
+  neutral: ["person portrait", "relaxed face"],
+  winkLeft: ["person winking", "wink"],
+  winkRight: ["person winking", "wink"],
+  blink: ["eyes closed", "blinking"],
+  eyesWide: ["wide eyes", "surprised face"],
+  gazeUp: ["looking up", "eyes looking upward"],
+  gazeDown: ["looking down", "eyes looking downward"],
+  gazeLeft: ["looking sideways", "side glance"],
+  gazeRight: ["looking sideways", "side glance"],
+  browsUp: ["raised eyebrows", "surprised face"],
+  browsDown: ["furrowed eyebrows", "serious frown"],
+  smileClosed: ["closed mouth smile", "smiling person"],
+  smileOpen: ["open mouth smile", "laughing person"],
+  smileAsymmetric: ["smirk", "one sided smile"],
+  frown: ["frowning person", "sad face"],
+  mouthOpen: ["open mouth", "speaking person"],
+  mouthRound: ["round mouth", "saying oh"],
+  mouthWide: ["wide mouth", "stretched mouth"],
+  pucker: ["pursed lips", "puckered lips"],
+  mouthLeft: ["sideways mouth", "asymmetric mouth"],
+  mouthRight: ["sideways mouth", "asymmetric mouth"],
+  mouthPress: ["pressed lips", "tight lips"],
+  mouthRoll: ["rolled lips", "biting lips"],
+  mouthShrug: ["pouting face", "uncertain expression"],
+  sneer: ["sneering person", "nose wrinkle"],
+  jawLeft: ["sideways jaw", "grimacing person"],
+  jawRight: ["sideways jaw", "grimacing person"],
+  jawForward: ["jutting jaw", "grimacing person"],
+};
 
 function parseArgs(argv) {
   const values = new Map();
@@ -14,10 +48,16 @@ function parseArgs(argv) {
   if (!plan || !output) {
     throw new Error(
       "Usage: stage-openverse-coverage.mjs --plan <coverage plan.json> --output <staging dir> " +
-      "[--site <url>] [--direct true] [--provider commons] [--limit 1000] [--pages 6] " +
-      "[--gaps 80] [--max-yaw 45] [--max-pitch 36]",
+      "[--site <url>] [--direct true] [--provider openverse|commons] [--limit 1000] " +
+      "[--pages 6] [--gaps 80] [--max-yaw 45] [--max-pitch 36] " +
+      "[--min-pose-current 0] [--selection coverage|smoke] " +
+      "[--configurations neutral,smileClosed] [--query-delay-ms 350] [--results-per-query 20]",
     );
   }
+  const configurations = String(values.get("--configurations") ?? "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
   return {
     plan: path.resolve(plan),
     output: path.resolve(output),
@@ -28,23 +68,44 @@ function parseArgs(argv) {
     gaps: Math.max(1, Number(values.get("--gaps") ?? 80)),
     maxYaw: Math.max(0, Math.min(45, Number(values.get("--max-yaw") ?? 45))),
     maxPitch: Math.max(0, Math.min(36, Number(values.get("--max-pitch") ?? 36))),
+    minPoseCurrent: Math.max(0, Number(values.get("--min-pose-current") ?? 0)),
+    selection: values.get("--selection") === "smoke" ? "smoke" : "coverage",
+    configurations: configurations.length ? new Set(configurations) : null,
+    queryDelayMs: Math.max(0, Number(values.get("--query-delay-ms") ?? 350)),
+    resultsPerQuery: Math.max(1, Math.min(50, Number(values.get("--results-per-query") ?? 20))),
     provider: values.get("--provider") ?? "",
   };
 }
 
-async function retry(operation, attempts = 4) {
-  let latest;
+function sleep(milliseconds) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+function retryAfterMilliseconds(response, attempt) {
+  const header = response.headers.get("retry-after");
+  const seconds = Number(header);
+  if (Number.isFinite(seconds) && seconds >= 0) return Math.max(1_000, seconds * 1_000);
+  if (header) {
+    const date = Date.parse(header);
+    if (Number.isFinite(date)) return Math.max(1_000, date - Date.now());
+  }
+  return Math.min(30_000, 1_000 * 2 ** attempt);
+}
+
+async function fetchWithRetry(url, init, label, attempts = 5) {
+  let latestError;
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
-      return await operation();
+      const response = await fetch(url, init);
+      if (response.ok || !RETRYABLE_STATUS.has(response.status)) return response;
+      latestError = new Error(`${label} ${response.status}`);
+      if (attempt + 1 < attempts) await sleep(retryAfterMilliseconds(response, attempt));
     } catch (error) {
-      latest = error;
-      if (attempt + 1 < attempts) {
-        await new Promise((resolve) => setTimeout(resolve, 600 * 2 ** attempt));
-      }
+      latestError = error;
+      if (attempt + 1 < attempts) await sleep(Math.min(30_000, 1_000 * 2 ** attempt));
     }
   }
-  throw latest;
+  throw latestError;
 }
 
 function extensionForDataUrl(dataUrl) {
@@ -83,18 +144,36 @@ function usableLicense(value) {
   );
 }
 
-function selectDiverseGaps(items, limit, maxYaw, maxPitch) {
+export function isLikelyPhotoCandidate(title, description = "") {
+  return !NON_PHOTO_TITLE.test(`${stripHtml(title)} ${stripHtml(description)}`);
+}
+
+function smokeScore(item) {
+  const poseEase = 100 - Math.abs(Number(item.yaw)) * 1.4 - Math.abs(Number(item.pitch)) * 1.6;
+  return Number(item.poseCurrent ?? 0) * 0.04 + Number(item.pressure ?? 0) * 4 + poseEase;
+}
+
+export function selectDiverseGaps(items, limit, maxYaw, maxPitch, options = {}) {
+  const allowed = options.configurations ?? null;
+  const minimumPoseCount = Number(options.minPoseCurrent ?? 0);
   const eligible = items.filter((item) =>
     item.query &&
     item.recommendedAdditions > 0 &&
     Math.abs(Number(item.yaw)) <= maxYaw &&
-    Math.abs(Number(item.pitch)) <= maxPitch,
+    Math.abs(Number(item.pitch)) <= maxPitch &&
+    Number(item.poseCurrent ?? 0) >= minimumPoseCount &&
+    (!allowed || allowed.has(item.configuration)),
   );
   const groups = new Map();
   for (const item of eligible) {
     const group = groups.get(item.configuration) ?? [];
     group.push(item);
     groups.set(item.configuration, group);
+  }
+  if (options.selection === "smoke") {
+    for (const group of groups.values()) {
+      group.sort((left, right) => smokeScore(right) - smokeScore(left));
+    }
   }
   const selected = [];
   let depth = 0;
@@ -113,44 +192,34 @@ function selectDiverseGaps(items, limit, maxYaw, maxPitch) {
   return selected;
 }
 
-function commonsQuery(gap) {
-  const configuration = {
-    winkLeft: "wink",
-    winkRight: "wink",
-    blinkBoth: "eyes closed",
-    eyeWide: "wide eyes",
-    gazeUp: "looking up",
-    gazeDown: "looking down",
-    gazeLeft: "looking sideways",
-    gazeRight: "looking sideways",
-    browUp: "raised eyebrows",
-    browDown: "frown",
-    smileClosed: "smile",
-    smileOpen: "open smile",
-    jawOpen: "open mouth",
-    mouthPucker: "pursed lips",
-    mouthRound: "round mouth",
-    mouthWide: "wide mouth",
-    frown: "frown",
-    noseSneer: "sneer",
-    neutral: "neutral expression",
-  }[gap.configuration] ?? gap.configuration;
-  const pose = Math.abs(Number(gap.yaw)) >= 27
-    ? "profile"
-    : Math.abs(Number(gap.yaw)) >= 9
-      ? "three quarter view"
-      : "front view";
-  return `portrait ${configuration} ${pose}`;
+function poseSearchTerm(gap) {
+  const yaw = Math.abs(Number(gap.yaw));
+  const pitch = Number(gap.pitch);
+  const horizontal = yaw >= 27 ? "profile" : yaw >= 9 ? "three quarter view" : "front view";
+  const vertical = pitch >= 18 ? "looking up" : pitch <= -18 ? "looking down" : "";
+  return [horizontal, vertical].filter(Boolean).join(" ");
+}
+
+export function searchQueriesForGap(gap) {
+  const terms = CONFIGURATION_SEARCH_TERMS[gap.configuration] ?? ["facial expression"];
+  const pose = poseSearchTerm(gap);
+  const queries = [
+    `person ${terms[0]} ${pose} portrait`,
+    `person ${terms[0]} portrait`,
+    `human face ${pose} portrait`,
+    terms[1] ? `person ${terms[1]} portrait` : "",
+  ];
+  return [...new Set(queries.map((query) => query.replace(/\s+/g, " ").trim()).filter(Boolean))];
 }
 
 async function imageAsDataUrl(url) {
-  const response = await retry(() => fetch(url, {
+  const response = await fetchWithRetry(url, {
     headers: {
       Accept: "image/avif,image/webp,image/jpeg,image/png,image/*",
-      "User-Agent": "Many Faces Dataset Builder/0.3",
+      "User-Agent": "Many Faces Dataset Builder/0.4 (open source catalog research)",
     },
     signal: AbortSignal.timeout(20_000),
-  }));
+  }, "image");
   if (!response.ok) throw new Error(`image ${response.status}`);
   const contentType = (response.headers.get("content-type") ?? "").split(";")[0];
   if (!contentType.startsWith("image/") || contentType === "image/svg+xml") {
@@ -165,9 +234,9 @@ async function imageAsDataUrl(url) {
 
 async function hydrateDirectCandidates(candidates, limit) {
   const hydrated = [];
-  for (let index = 0; index < candidates.length && hydrated.length < limit; index += 5) {
+  for (let index = 0; index < candidates.length && hydrated.length < limit; index += 3) {
     const results = await Promise.allSettled(
-      candidates.slice(index, index + 5).map(async (candidate) => ({
+      candidates.slice(index, index + 3).map(async (candidate) => ({
         ...candidate,
         dataUrl: await imageAsDataUrl(candidate.imageUrl),
       })),
@@ -189,17 +258,18 @@ async function searchOpenverseDirect(query, page, limit = 20) {
   url.searchParams.set("mature", "false");
   url.searchParams.set("page", String(page));
   url.searchParams.set("page_size", String(Math.min(50, limit * 2)));
-  const response = await retry(() => fetch(url, {
+  const response = await fetchWithRetry(url, {
     headers: {
       Accept: "application/json",
-      "User-Agent": "Many Faces Dataset Builder/0.3",
+      "User-Agent": "Many Faces Dataset Builder/0.4 (open source catalog research)",
     },
     signal: AbortSignal.timeout(20_000),
-  }));
+  }, "Openverse");
   if (!response.ok) throw new Error(`Openverse ${response.status}`);
   const payload = await response.json();
   const candidates = (payload.results ?? []).flatMap((item) => {
     if (!item.id || !item.thumbnail || !item.foreign_landing_url) return [];
+    if (!isLikelyPhotoCandidate(item.title, item.description)) return [];
     const license = [item.license?.toUpperCase(), item.license_version]
       .filter(Boolean)
       .join(" ");
@@ -217,8 +287,7 @@ async function searchOpenverseDirect(query, page, limit = 20) {
   return hydrateDirectCandidates(candidates, limit);
 }
 
-async function searchCommonsDirect(gap, page, limit = 20) {
-  const query = commonsQuery(gap);
+async function searchCommonsDirect(query, page, limit = 20) {
   const pageSize = Math.min(50, limit * 2);
   const url = new URL("https://commons.wikimedia.org/w/api.php");
   url.searchParams.set("action", "query");
@@ -233,13 +302,13 @@ async function searchCommonsDirect(gap, page, limit = 20) {
   url.searchParams.set("format", "json");
   url.searchParams.set("formatversion", "2");
   url.searchParams.set("origin", "*");
-  const response = await retry(() => fetch(url, {
+  const response = await fetchWithRetry(url, {
     headers: {
       Accept: "application/json",
-      "User-Agent": "Many Faces Dataset Builder/0.3",
+      "User-Agent": "Many Faces Dataset Builder/0.4 (open source catalog research)",
     },
     signal: AbortSignal.timeout(20_000),
-  }));
+  }, "Wikimedia Commons");
   if (!response.ok) throw new Error(`Wikimedia Commons ${response.status}`);
   const payload = await response.json();
   const candidates = (payload.query?.pages ?? []).flatMap((pageItem) => {
@@ -248,16 +317,19 @@ async function searchCommonsDirect(gap, page, limit = 20) {
     const license = stripHtml(metadata.LicenseShortName?.value);
     const imageUrl = info?.thumburl ?? info?.url;
     const sourceUrl = info?.descriptionurl;
+    const title = stripHtml(metadata.ObjectName?.value) || pageItem.title?.replace(/^File:/, "") || "Untitled portrait";
+    const description = stripHtml(metadata.ImageDescription?.value);
     if (
       !pageItem.pageid ||
       !imageUrl ||
       !sourceUrl ||
       !info?.mime?.startsWith("image/") ||
-      !usableLicense(license)
+      !usableLicense(license) ||
+      !isLikelyPhotoCandidate(title, description)
     ) return [];
     return [{
       id: `commons-${pageItem.pageid}`,
-      title: stripHtml(metadata.ObjectName?.value) || pageItem.title?.replace(/^File:/, "") || "Untitled portrait",
+      title,
       imageUrl,
       sourceName: "Wikimedia Commons",
       sourceUrl,
@@ -269,25 +341,25 @@ async function searchCommonsDirect(gap, page, limit = 20) {
   return hydrateDirectCandidates(candidates, limit);
 }
 
-async function searchDirect(gap, page, provider) {
+async function searchDirect(query, page, provider, limit) {
   if (provider !== "commons") {
     try {
-      return await searchOpenverseDirect(gap.query, page, 20);
+      return await searchOpenverseDirect(query, page, limit);
     } catch (error) {
       if (provider === "openverse") throw error;
       console.warn(`warning: ${error}; falling back to Wikimedia Commons`);
     }
   }
-  return searchCommonsDirect(gap, page, 20);
+  return searchCommonsDirect(query, page, limit);
 }
 
-async function searchProxy(site, query, page, provider) {
+async function searchProxy(site, query, page, provider, limit) {
   const url = new URL("/api/openverse", site);
   url.searchParams.set("q", query);
   url.searchParams.set("page", String(page));
-  url.searchParams.set("limit", "20");
+  url.searchParams.set("limit", String(Math.min(20, limit)));
   if (provider) url.searchParams.set("provider", provider);
-  const response = await retry(() => fetch(url, { signal: AbortSignal.timeout(35_000) }));
+  const response = await fetchWithRetry(url, { signal: AbortSignal.timeout(35_000) }, "site proxy");
   if (response.status === 404) return [];
   if (!response.ok) throw new Error(`${query} page ${page}: ${response.status}`);
   return (await response.json()).items ?? [];
@@ -301,6 +373,11 @@ async function main() {
     options.gaps,
     options.maxYaw,
     options.maxPitch,
+    {
+      configurations: options.configurations,
+      minPoseCurrent: options.minPoseCurrent,
+      selection: options.selection,
+    },
   );
   if (!queue.length) throw new Error("Coverage plan contains no eligible collection queue");
 
@@ -321,47 +398,65 @@ async function main() {
     return;
   }
 
+  const cache = new Map();
+  let requestCount = 0;
+  const querySearch = async (query, page) => {
+    const key = `${options.direct}:${options.provider}:${page}:${query}`;
+    if (!cache.has(key)) {
+      cache.set(key, (async () => {
+        if (requestCount > 0 && options.queryDelayMs > 0) await sleep(options.queryDelayMs);
+        requestCount += 1;
+        return options.direct
+          ? searchDirect(query, page, options.provider, options.resultsPerQuery)
+          : searchProxy(options.site, query, page, options.provider, options.resultsPerQuery);
+      })());
+    }
+    return cache.get(key);
+  };
+
   outer:
   for (let page = 1; page <= options.pages; page += 1) {
     for (const gap of queue) {
-      let items;
-      try {
-        items = options.direct
-          ? await searchDirect(gap, page, options.provider)
-          : await searchProxy(options.site, gap.query, page, options.provider);
-      } catch (error) {
-        console.warn(`warning: ${error}`);
-        continue;
-      }
-      for (const item of items) {
-        if (!item.id || !item.dataUrl || !item.sourceUrl || !item.license) continue;
-        if (ids.has(item.id) || sourceUrls.has(item.sourceUrl)) continue;
-        const extension = extensionForDataUrl(item.dataUrl);
-        const filename = `${String(rows.length).padStart(7, "0")}-${item.id.replace(/[^a-zA-Z0-9_-]/g, "_")}${extension}`;
-        const relativePath = `images/${filename}`;
-        const payload = Buffer.from(item.dataUrl.slice(item.dataUrl.indexOf(",") + 1), "base64");
-        await writeFile(path.join(options.output, relativePath), payload);
-        const row = {
-          relative_path: relativePath,
-          title: item.title ?? "Coverage candidate",
-          source_name: item.sourceName ?? "Openverse",
-          source_url: item.sourceUrl,
-          creator: item.creator ?? "Unknown creator",
-          license: item.license,
-          license_url: item.licenseUrl ?? item.sourceUrl,
-          target_pose: gap.pose,
-          target_configuration: gap.configuration,
-          target_query: options.direct && options.provider === "commons" ? commonsQuery(gap) : gap.query,
-          target_pressure: gap.pressure,
-        };
-        rows.push(row);
-        ids.add(item.id);
-        sourceUrls.add(item.sourceUrl);
-        if (rows.length % 25 === 0) {
-          process.stdout.write(`\rstaged ${rows.length}/${options.limit} unique licensed candidates`);
-          await writeFile(statePath, JSON.stringify({ ids: [...ids], sourceUrls: [...sourceUrls], rows }, null, 2));
+      for (const query of searchQueriesForGap(gap)) {
+        let items;
+        try {
+          items = await querySearch(query, page);
+        } catch (error) {
+          console.warn(`warning: ${error}`);
+          continue;
         }
-        if (rows.length >= options.limit) break outer;
+        let newlyStaged = 0;
+        for (const item of items) {
+          if (!item.id || !item.dataUrl || !item.sourceUrl || !item.license) continue;
+          if (ids.has(item.id) || sourceUrls.has(item.sourceUrl)) continue;
+          const extension = extensionForDataUrl(item.dataUrl);
+          const filename = `${String(rows.length).padStart(7, "0")}-${item.id.replace(/[^a-zA-Z0-9_-]/g, "_")}${extension}`;
+          const relativePath = `images/${filename}`;
+          const payload = Buffer.from(item.dataUrl.slice(item.dataUrl.indexOf(",") + 1), "base64");
+          await writeFile(path.join(options.output, relativePath), payload);
+          rows.push({
+            relative_path: relativePath,
+            title: item.title ?? "Coverage candidate",
+            source_name: item.sourceName ?? "Openverse",
+            source_url: item.sourceUrl,
+            creator: item.creator ?? "Unknown creator",
+            license: item.license,
+            license_url: item.licenseUrl ?? item.sourceUrl,
+            target_pose: gap.pose,
+            target_configuration: gap.configuration,
+            target_query: query,
+            target_pressure: gap.pressure,
+          });
+          ids.add(item.id);
+          sourceUrls.add(item.sourceUrl);
+          newlyStaged += 1;
+          if (rows.length % 25 === 0) {
+            process.stdout.write(`\rstaged ${rows.length}/${options.limit} unique licensed candidates`);
+            await writeFile(statePath, JSON.stringify({ ids: [...ids], sourceUrls: [...sourceUrls], rows }, null, 2));
+          }
+          if (rows.length >= options.limit) break outer;
+        }
+        if (newlyStaged > 0) break;
       }
     }
   }
@@ -380,7 +475,9 @@ async function main() {
   console.log(JSON.stringify({
     output: options.output,
     mode: options.direct ? `direct-${options.provider || "auto"}` : "site-proxy",
+    selection: options.selection,
     selectedGaps: queue.map(({ pose, configuration }) => ({ pose, configuration })),
+    requests: requestCount,
     staged: rows.length,
     requested: options.limit,
     complete: rows.length >= options.limit,
@@ -388,7 +485,10 @@ async function main() {
   }, null, 2));
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.stack : error);
-  process.exitCode = 1;
-});
+const entryPath = process.argv[1] ? path.resolve(process.argv[1]) : "";
+if (entryPath && fileURLToPath(import.meta.url) === entryPath) {
+  main().catch((error) => {
+    console.error(error instanceof Error ? error.stack : error);
+    process.exitCode = 1;
+  });
+}

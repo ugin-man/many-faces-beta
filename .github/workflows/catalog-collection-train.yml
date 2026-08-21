@@ -1,0 +1,196 @@
+name: Catalog train collection
+
+on:
+  push:
+    branches:
+      - work/coverage-driven-200k
+    paths:
+      - data/train-batch-spec.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: many-faces-train-collection
+  cancel-in-progress: false
+
+jobs:
+  collect-train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            /tools/*
+            /data/coverage-checkpoints/*
+            /data/train-batch-spec.json
+            /public/seed-catalog/manifest.json
+            /public/seed-catalog/shards/*
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: tools/requirements-catalog.txt
+
+      - name: Load batch specification
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = json.loads(Path('data/train-batch-spec.json').read_text())
+          required = ('batchId', 'maxImages', 'candidateLimit')
+          missing = [key for key in required if key not in p]
+          if missing:
+              raise SystemExit(f'Missing train batch fields: {missing}')
+          if int(p['maxImages']) <= 0 or int(p['candidateLimit']) < int(p['maxImages']):
+              raise SystemExit('candidateLimit must be >= maxImages > 0')
+          with open(os.environ['GITHUB_ENV'], 'a') as out:
+              out.write(f"BATCH_ID={p['batchId']}\n")
+              out.write(f"MAX_IMAGES={int(p['maxImages'])}\n")
+              out.write(f"CANDIDATE_LIMIT={int(p['candidateLimit'])}\n")
+              out.write(f"MIN_BOX_AREA={float(p.get('minBoxArea', 0.006))}\n")
+              out.write(f"WORKERS={int(p.get('workers', 16))}\n")
+          PY
+
+      - name: Cache Open Images train metadata
+        uses: actions/cache@v4
+        with:
+          path: .cache/open-images/train
+          key: open-images-train-v1
+
+      - name: Install catalog runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgles2
+          python -m pip install --disable-pip-version-check -r tools/requirements-catalog.txt
+
+      - name: Measure current cumulative gaps
+        run: |
+          mkdir -p work
+          node tools/coverage-200k-plan.mjs \
+            --manifest public/seed-catalog/manifest.json \
+            --target 200000 \
+            --output work/base-coverage-plan.json
+          python tools/apply_coverage_checkpoints.py \
+            work/base-coverage-plan.json \
+            work/coverage-plan.json \
+            --checkpoints data/coverage-checkpoints
+
+      - name: Stage licensed Open Images train face crops
+        run: |
+          python tools/open_images_face_source.py work/stage \
+            --split train \
+            --cache .cache/open-images \
+            --max-images "$MAX_IMAGES" \
+            --candidate-limit "$CANDIDATE_LIMIT" \
+            --min-box-area "$MIN_BOX_AREA" \
+            --allow-occluded \
+            --workers "$WORKERS"
+
+      - name: Measure and route candidates into live gaps
+        run: |
+          python tools/curate-coverage-candidates.py \
+            work/stage \
+            work/accepted \
+            --coverage-plan work/coverage-plan.json \
+            --route-any-gap \
+            --route-yaw-tolerance 9 \
+            --route-pitch-tolerance 9 \
+            --max-files "$MAX_IMAGES"
+
+      - name: Require useful train yield
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('work/accepted/curation-report.json').read_text())
+          minimum = max(100, int(__import__('os').environ['MAX_IMAGES']) // 20)
+          if p['accepted'] < minimum:
+              raise SystemExit(f"Only {p['accepted']} candidates filled live gaps; need at least {minimum}")
+          PY
+
+      - name: Build and validate physical supplement
+        run: |
+          python tools/build_face_catalog_compat.py \
+            work/accepted \
+            work/supplement \
+            --metadata work/accepted/metadata.csv \
+            --yaw-min -45 \
+            --yaw-max 45 \
+            --pitch-min -36 \
+            --pitch-max 36 \
+            --overwrite
+          node tools/finalize-supplement-catalog.mjs \
+            --catalog work/supplement \
+            --catalog-id "open-images-train-${BATCH_ID}-${GITHUB_RUN_ID}"
+          node tools/validate_face_catalog.mjs work/supplement | tee work/supplement-validation.json
+
+      - name: Derive exact packed checkpoint draft
+        run: |
+          STAGED=$(python -c 'import json; print(json.load(open("work/stage/source-report.json"))["staged"])')
+          CURATED=$(python -c 'import json; print(json.load(open("work/accepted/curation-report.json"))["accepted"])')
+          python tools/make_packed_checkpoint.py \
+            work/accepted/metadata.csv \
+            work/supplement \
+            work/checkpoint-draft.json \
+            --source "Open Images train" \
+            --split train \
+            --workflow-run-id "$GITHUB_RUN_ID" \
+            --head-commit "$GITHUB_SHA" \
+            --staged "$STAGED" \
+            --curation-accepted "$CURATED"
+
+      - name: Write batch summary
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          print('## Many Faces train collection')
+          print()
+          if Path('work/coverage-plan.json').exists():
+              p=json.loads(Path('work/coverage-plan.json').read_text())
+              print(f"- Effective catalog before batch: {p['currentFaces']:,}")
+              print(f"- Remaining before batch: {p['neededImages']:,}")
+          if Path('work/stage/source-report.json').exists():
+              p=json.loads(Path('work/stage/source-report.json').read_text())
+              print(f"- Train face candidates staged: {p.get('staged',0):,}")
+              print(f"- Eligible train face rows: {p.get('boxStats',{}).get('eligibleRows',0):,}")
+          if Path('work/accepted/curation-report.json').exists():
+              p=json.loads(Path('work/accepted/curation-report.json').read_text())
+              print(f"- Routed into live gaps: {p.get('accepted',0):,}")
+          if Path('work/supplement/manifest.json').exists():
+              p=json.loads(Path('work/supplement/manifest.json').read_text())
+              print(f"- Physically packed faces: {p.get('searchableFaces',0):,}")
+              print(f"- Packed pose cells: {len(p.get('cells',{})):,}")
+          PY
+
+      - name: Upload compact train batch artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: open-images-train-${{ env.BATCH_ID }}-${{ github.run_id }}
+          path: |
+            work/base-coverage-plan.json
+            work/coverage-plan.json
+            work/stage/metadata.csv
+            work/stage/source-report.json
+            work/accepted/metadata.csv
+            work/accepted/curation-report.json
+            work/accepted/images
+            work/supplement
+            work/supplement-validation.json
+            work/checkpoint-draft.json
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 6

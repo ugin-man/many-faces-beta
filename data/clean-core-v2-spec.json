@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 2,
+  "policyVersion": "clean-single-factor-v2",
+  "description": "Build a minimum 70k physical catalog with explicit nonzero gates for neutral, isolated eye, gaze, brow, nose and fine-grained mouth states. Mixed cross-anatomy expressions remain excluded.",
+  "targetTotal": 70000,
+  "launchNonce": 1,
+  "openImages": {
+    "maxPerImage": 4,
+    "minBoxArea": 0.004,
+    "allowOccluded": true,
+    "allowTruncated": true
+  },
+  "windows": [
+    {"id":"validation-000000-010000","split":"validation","offset":0,"maxImages":10000,"candidateLimit":10000},
+    {"id":"test-000000-025000","split":"test","offset":0,"maxImages":25000,"candidateLimit":25000},
+    {"id":"train-000000-040000","split":"train","offset":0,"maxImages":40000,"candidateLimit":40000},
+    {"id":"train-040000-080000","split":"train","offset":40000,"maxImages":40000,"candidateLimit":80000},
+    {"id":"train-080000-120000","split":"train","offset":80000,"maxImages":40000,"candidateLimit":120000},
+    {"id":"train-120000-160000","split":"train","offset":120000,"maxImages":40000,"candidateLimit":160000},
+    {"id":"train-160000-200000","split":"train","offset":160000,"maxImages":40000,"candidateLimit":200000},
+    {"id":"train-200000-240000","split":"train","offset":200000,"maxImages":40000,"candidateLimit":240000},
+    {"id":"train-240000-280000","split":"train","offset":240000,"maxImages":40000,"candidateLimit":280000},
+    {"id":"train-280000-320000","split":"train","offset":280000,"maxImages":40000,"candidateLimit":320000},
+    {"id":"train-320000-360000","split":"train","offset":320000,"maxImages":40000,"candidateLimit":360000},
+    {"id":"train-360000-400000","split":"train","offset":360000,"maxImages":40000,"candidateLimit":400000}
+  ],
+  "targeted": [
+    {"id":"openverse-rare","provider":"openverse","maxImages":8000,"pages":8,"perPage":50},
+    {"id":"commons-rare","provider":"commons","maxImages":5000,"pages":8,"perPage":50}
+  ]
+}

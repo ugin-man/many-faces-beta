@@ -3,7 +3,7 @@
   "policyVersion": "clean-single-factor-v3",
   "description": "Minimum 70k physical catalog. Strict isolated eye, gaze, brow, nose and fine mouth profiles are hard-gated. A separately labelled one-family background pool supplies pose and identity density and cannot hide missing strict patterns.",
   "targetTotal": 70000,
-  "launchNonce": 1,
+  "launchNonce": 2,
   "openImages": {
     "maxPerImage": 4,
     "minBoxArea": 0.004,

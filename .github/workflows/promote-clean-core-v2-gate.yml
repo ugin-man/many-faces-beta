@@ -1,0 +1,84 @@
+name: Promote clean core v2 launch gate
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - data/promote-clean-core-v2-gate.json
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    if: github.head_ref == 'work/coverage-driven-200k'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 1
+      - name: Insert explicit-launch gate
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('.github/workflows/clean-core-v2.yml')
+          text = path.read_text()
+          text = text.replace(
+              "    outputs:\n      matrix: ${{ steps.spec.outputs.matrix }}\n      targeted_max: ${{ steps.spec.outputs.targeted_max }}\n",
+              "    outputs:\n      run: ${{ steps.gate.outputs.run }}\n      matrix: ${{ steps.spec.outputs.matrix }}\n      targeted_max: ${{ steps.spec.outputs.targeted_max }}\n",
+              1,
+          )
+          marker = "          fetch-depth: 1\n      - id: spec\n"
+          gate = """          fetch-depth: 1
+      - id: gate
+        name: Gate explicit v2 launch
+        shell: bash
+        run: |
+          SUBJECT=$(git log -1 --pretty=%s)
+          echo \"Latest head subject: $SUBJECT\"
+          if [[ \"$GITHUB_EVENT_NAME\" == \"workflow_dispatch\" || \"$SUBJECT\" == \"chore(dataset): launch clean core v2\"* ]]; then
+            echo \"run=true\" >> \"$GITHUB_OUTPUT\"
+          else
+            echo \"run=false\" >> \"$GITHUB_OUTPUT\"
+            echo \"Skipping expensive v2 build: this is not an explicit launch commit.\"
+          fi
+      - id: spec
+"""
+          if marker not in text:
+              raise SystemExit('prepare insertion marker not found')
+          text = text.replace(marker, gate, 1)
+          text = text.replace(
+              "  collect-open-images:\n    needs: prepare\n",
+              "  collect-open-images:\n    needs: prepare\n    if: needs.prepare.outputs.run == 'true'\n",
+              1,
+          )
+          text = text.replace(
+              "  collect-targeted:\n    needs: prepare\n",
+              "  collect-targeted:\n    needs: prepare\n    if: needs.prepare.outputs.run == 'true'\n",
+              1,
+          )
+          text = text.replace(
+              "  assemble:\n    needs:\n",
+              "  assemble:\n    if: needs.prepare.outputs.run == 'true'\n    needs:\n",
+              1,
+          )
+          required = [
+              "run: ${{ steps.gate.outputs.run }}",
+              "if: needs.prepare.outputs.run == 'true'",
+              "Gate explicit v2 launch",
+          ]
+          missing = [value for value in required if value not in text]
+          if missing:
+              raise SystemExit(f'gate patch incomplete: {missing}')
+          path.write_text(text)
+          PY
+      - name: Commit gated workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- .github/workflows/clean-core-v2.yml
+          git rm -- .github/workflows/promote-clean-core-v2-gate.yml data/promote-clean-core-v2-gate.json
+          git commit -m 'fix(ci): gate clean core v2 launches'
+          git push origin 'HEAD:${{ github.event.pull_request.head.ref }}'

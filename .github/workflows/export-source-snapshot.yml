@@ -1,11 +1,6 @@
-name: Export source snapshot
+name: Export source snapshot (manual)
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - data/export-source-spec.json
   workflow_dispatch:
 
 permissions:
@@ -14,31 +9,6 @@ permissions:
 jobs:
   export:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 1
-
-      - name: Build compact source snapshot
-        run: |
-          mkdir -p export/repo
-          rsync -a ./ export/repo/ \
-            --exclude='.git/' \
-            --exclude='node_modules/' \
-            --exclude='.next/' \
-            --exclude='.sites-runtime/' \
-            --exclude='public/seed-catalog/packs/' \
-            --exclude='public/seed-catalog/shards/'
-          mkdir -p export/repo/public/seed-catalog
-          cp public/seed-catalog/manifest.json export/repo/public/seed-catalog/manifest.json
-          printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > export/repo/.snapshot-sha
-
-      - name: Upload source snapshot
-        uses: actions/upload-artifact@v4
-        with:
-          name: many-faces-source-${{ github.run_id }}
-          path: export/repo
-          retention-days: 2
-          compression-level: 6
+      - run: echo "Source snapshot export is manual-only."

@@ -1,67 +1,13 @@
-name: Audit clean core v2 sources
+name: Audit clean core v2 sources (legacy manual)
 
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - data/clean-core-v2-audit.json
   workflow_dispatch:
 
 permissions:
   contents: read
-  actions: read
 
 jobs:
-  audit:
+  note:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-    env:
-      SOURCE_RUN_ID: "32553732686"
-      PYTHONUNBUFFERED: "1"
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 1
-      - uses: actions/setup-node@v4
-        with: {node-version: 22.13.0}
-      - uses: actions/setup-python@v5
-        with: {python-version: "3.12"}
-      - name: Wait for all Open Images source artifacts
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          for attempt in $(seq 1 60); do
-            count=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}/artifacts" \
-              --paginate --jq '[.artifacts[].name | select(startswith("clean-v2-source-"))] | unique | length')
-            echo "source artifacts: ${count}/12"
-            if [[ "$count" -ge 12 ]]; then exit 0; fi
-            sleep 20
-          done
-          echo "Timed out waiting for source artifacts" >&2
-          exit 1
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: clean-v2-source-*
-          path: work/source-artifacts
-          repository: ${{ github.repository }}
-          run-id: ${{ env.SOURCE_RUN_ID }}
-          github-token: ${{ github.token }}
-      - name: Build audit-only candidate set
-        run: |
-          python -m pip install --disable-pip-version-check numpy Pillow
-          ARGS=(--catalog "seed-ffhq=public/seed-catalog")
-          while IFS= read -r manifest; do
-            root=$(dirname "$manifest"); label=$(basename "$(dirname "$root")")
-            ARGS+=(--catalog "${label}=${root}")
-          done < <(find work/source-artifacts -path '*/supplement/manifest.json' -type f | sort)
-          python tools/build_clean_core_v2.py work/audit --overwrite --target-total 70000 "${ARGS[@]}" || true
-      - uses: actions/upload-artifact@v4
-        with:
-          name: clean-core-v2-source-audit-${{ github.run_id }}
-          path: work/audit
-          if-no-files-found: error
-          retention-days: 14
-          compression-level: 6
-      - name: Print audit
-        run: cat work/audit/audit.json
+      - run: echo "The v2 source audit is archived; use the Clean Core v3 completion gate."

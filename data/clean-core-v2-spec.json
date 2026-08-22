@@ -3,7 +3,7 @@
   "policyVersion": "clean-single-factor-v2",
   "description": "Build a minimum 70k physical catalog with explicit nonzero gates for neutral, isolated eye, gaze, brow, nose and fine-grained mouth states. Mixed cross-anatomy expressions remain excluded.",
   "targetTotal": 70000,
-  "launchNonce": 1,
+  "launchNonce": 2,
   "openImages": {
     "maxPerImage": 4,
     "minBoxArea": 0.004,

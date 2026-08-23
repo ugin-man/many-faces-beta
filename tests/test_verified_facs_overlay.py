@@ -15,6 +15,7 @@ from apply_verified_facs_annotations import (
     encode_projection,
 )
 from clean_core_policy_v3 import FEATURE_LENGTH, classify_strict_profile
+from mirror_clean_core_pairs import MIRROR_TARGETS
 from run_build_clean_core_v3_repair import fast_rank_diverse, is_verified_facs
 
 
@@ -85,6 +86,15 @@ class VerifiedFacsOverlayTests(unittest.TestCase):
         candidates = [selector_candidate(index, verified_facs=False) for index in range(8)]
         selected = fast_rank_diverse(candidates, 8)
         self.assertEqual(len(selected), 1)
+
+    def test_mirroring_swaps_asymmetric_profiles(self) -> None:
+        self.assertEqual(MIRROR_TARGETS["winkLeft"], "winkRight")
+        self.assertEqual(MIRROR_TARGETS["mouthRight"], "mouthLeft")
+
+    def test_mirroring_preserves_symmetric_profile_labels(self) -> None:
+        for profile in ("eyesWide", "noseSneer", "mouthRound", "mouthWide"):
+            with self.subTest(profile=profile):
+                self.assertEqual(MIRROR_TARGETS[profile], profile)
 
 
 if __name__ == "__main__":

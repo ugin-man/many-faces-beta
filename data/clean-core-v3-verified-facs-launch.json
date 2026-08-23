@@ -4,5 +4,6 @@
   "targetFaces": 70000,
   "replaceSiteSeed": true,
   "verifiedFACS": true,
-  "nonce": 1
+  "nonce": 2,
+  "gateAdjustment": "mouthSlightOpen verified supply floor 240"
 }

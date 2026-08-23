@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import base64
-import struct
 import sys
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
@@ -16,6 +15,33 @@ from apply_verified_facs_annotations import (
     encode_projection,
 )
 from clean_core_policy_v3 import FEATURE_LENGTH, classify_strict_profile
+from run_build_clean_core_v3_repair import fast_rank_diverse, is_verified_facs
+
+
+def selector_candidate(
+    index: int,
+    *,
+    verified_facs: bool,
+    dhash: str = "0000000000000000",
+):
+    entry = {
+        "id": f"candidate-{index}",
+        "creator": f"identity-{index}",
+    }
+    if verified_facs:
+        entry.update(
+            {
+                "sourceKind": "verified-synthetic-facs",
+                "annotationVerified": True,
+            }
+        )
+    return SimpleNamespace(
+        score=1.0 - index * 0.01,
+        source=SimpleNamespace(catalog_id="facs" if verified_facs else "natural"),
+        entry=entry,
+        structure=(index * 0.05, index * 0.08, index * 0.11),
+        dhash=dhash,
+    )
 
 
 class VerifiedFacsOverlayTests(unittest.TestCase):
@@ -48,6 +74,17 @@ class VerifiedFacsOverlayTests(unittest.TestCase):
             classified = classify_strict_profile(feature, projection)
             self.assertIsNotNone(classified)
             self.assertEqual(classified.name, profile)
+
+    def test_uniform_facs_background_does_not_erase_verified_profiles(self) -> None:
+        candidates = [selector_candidate(index, verified_facs=True) for index in range(8)]
+        selected = fast_rank_diverse(candidates, 8)
+        self.assertEqual(len(selected), 8)
+        self.assertTrue(all(is_verified_facs(item) for item in selected))
+
+    def test_natural_near_duplicates_still_use_perceptual_filter(self) -> None:
+        candidates = [selector_candidate(index, verified_facs=False) for index in range(8)]
+        selected = fast_rank_diverse(candidates, 8)
+        self.assertEqual(len(selected), 1)
 
 
 if __name__ == "__main__":

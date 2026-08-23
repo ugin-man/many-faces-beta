@@ -1,0 +1,17 @@
+{
+  "group": "wink",
+  "allowedOpenverseSources": ["flickr", "wikimedia", "stocksnap", "nappy"],
+  "commonsCategories": ["Winking", "Winks", "People with one eye closed"],
+  "queries": [
+    "winking person portrait closed mouth photograph",
+    "one eye closed person portrait neutral expression photo",
+    "woman winking closed mouth headshot photograph",
+    "man winking closed mouth headshot photograph",
+    "person wink serious face portrait photo",
+    "left eye closed portrait photograph",
+    "right eye closed portrait photograph",
+    "one eye closed headshot no smile photo",
+    "winking face neutral mouth photograph",
+    "person closing one eye portrait photo"
+  ]
+}

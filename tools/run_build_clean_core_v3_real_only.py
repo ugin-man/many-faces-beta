@@ -20,11 +20,14 @@ if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
 import clean_core_policy_v3 as policy
+import build_clean_core_v3 as builder
+import run_build_clean_core_v3_repair as repair
 
-# Honest natural-photo first release. Rare FACS-only states are allowed to be
-# gaps rather than being filled with visible 3D people. All available strict
-# natural examples are still added by the normal breadth-first strict pass.
-policy.PROFILE_MINIMUMS.update({
+# Important: repair imports the shared policy module and applies the verified-
+# FACS release gates. Reapply the natural-photo gates *after* importing repair,
+# otherwise its mouthSlightOpen=240 override silently wins and blocks the
+# real-photo build even when the physical 70k catalog is valid.
+REAL_ONLY_PROFILE_MINIMUMS = {
     "winkLeft": 4,
     "winkRight": 4,
     "blink": 200,
@@ -51,8 +54,9 @@ policy.PROFILE_MINIMUMS.update({
     "mouthShrug": 80,
     "mouthUpperUp": 20,
     "mouthLowerDown": 20,
-})
-policy.PROFILE_POSE_CELL_MINIMUMS.update({
+}
+
+REAL_ONLY_PROFILE_POSE_CELL_MINIMUMS = {
     "winkLeft": 2,
     "winkRight": 2,
     "blink": 20,
@@ -79,21 +83,20 @@ policy.PROFILE_POSE_CELL_MINIMUMS.update({
     "mouthShrug": 12,
     "mouthUpperUp": 8,
     "mouthLowerDown": 8,
-})
+}
 
-# Permit multiple real identities in rare natural-photo cells. This changes
-# density only; it does not relax the single-factor classifier.
-policy.PROFILE_CELL_LIMITS.update({
+REAL_ONLY_PROFILE_CELL_LIMITS = {
     "eyesWide": 64,
     "noseSneer": 32,
     "mouthRound": 40,
     "mouthSlightOpen": 64,
     "mouthWide": 48,
     "mouthFrown": 40,
-})
+}
 
-import build_clean_core_v3 as builder
-import run_build_clean_core_v3_repair as repair
+policy.PROFILE_MINIMUMS.update(REAL_ONLY_PROFILE_MINIMUMS)
+policy.PROFILE_POSE_CELL_MINIMUMS.update(REAL_ONLY_PROFILE_POSE_CELL_MINIMUMS)
+policy.PROFILE_CELL_LIMITS.update(REAL_ONLY_PROFILE_CELL_LIMITS)
 
 SYNTHETIC_MARKERS = (
     "verified-synthetic-facs",
@@ -164,7 +167,11 @@ def inspect_output(catalog: Path) -> tuple[int, list[str]]:
     })
     found = 0
     samples: list[str] = []
-    source_stub = type("OutputSource", (), {"label": "", "catalog_id": manifest.get("catalogId", "")})()
+    source_stub = type(
+        "OutputSource",
+        (),
+        {"label": "", "catalog_id": manifest.get("catalogId", "")},
+    )()
     for name in names:
         payload = json.loads((catalog / "shards" / name).read_text(encoding="utf-8"))
         for entry in payload.get("items", []):
@@ -187,6 +194,10 @@ def main() -> int:
     audit = json.loads(audit_path.read_text(encoding="utf-8"))
     audit["runtimeImagePolicy"] = "real-photo-only-v1"
     audit["knownSyntheticCandidatesExcluded"] = dict(sorted(EXCLUDED.items()))
+    audit["realOnlyProfileMinimums"] = dict(sorted(REAL_ONLY_PROFILE_MINIMUMS.items()))
+    audit["realOnlyProfilePoseCellMinimums"] = dict(
+        sorted(REAL_ONLY_PROFILE_POSE_CELL_MINIMUMS.items())
+    )
 
     if result == 0:
         found, samples = inspect_output(output / "catalog")

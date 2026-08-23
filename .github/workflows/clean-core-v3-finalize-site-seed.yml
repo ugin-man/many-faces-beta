@@ -1,0 +1,186 @@
+name: Finalize Clean Core v3 site seed
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - data/clean-core-v3-finalize-launch.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: many-faces-clean-core-v3-finalize
+  cancel-in-progress: true
+
+env:
+  OPEN_IMAGES_RUN_ID: "32559210408"
+  VERIFIED_FACS_RUN_ID: "32633270936"
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.gate.outputs.run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 2
+      - id: gate
+        shell: bash
+        run: |
+          SUBJECT=$(git log -1 --pretty=%s)
+          echo "HEAD subject: ${SUBJECT}"
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" || "${SUBJECT}" == "chore(dataset): finalize verified 70k site seed"* ]]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  finalize:
+    needs: prepare
+    if: needs.prepare.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 420
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install and test final selector
+        run: |
+          python -m pip install --disable-pip-version-check numpy Pillow
+          python -m unittest \
+            tests/test_clean_core_policy_v3.py \
+            tests/test_verified_facs_overlay.py \
+            tests/test_clean_core_repair_selector.py
+      - name: Download validated Open Images catalogs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: clean-v3-source-*
+          path: work/source-artifacts
+          repository: ${{ github.repository }}
+          run-id: ${{ env.OPEN_IMAGES_RUN_ID }}
+          github-token: ${{ github.token }}
+      - name: Reuse the verified FACS catalog
+        uses: actions/download-artifact@v4
+        with:
+          name: clean-v3-facs-verified
+          path: work/source-artifacts/clean-v3-facs-verified
+          repository: ${{ github.repository }}
+          run-id: ${{ env.VERIFIED_FACS_RUN_ID }}
+          github-token: ${{ github.token }}
+      - name: Build the final physical 70k catalog
+        shell: bash
+        run: |
+          ARGS=(--catalog "seed-ffhq=public/seed-catalog")
+          while IFS= read -r manifest; do
+            root=$(dirname "$manifest")
+            label=$(basename "$(dirname "$root")")
+            ARGS+=(--catalog "${label}=${root}")
+          done < <(find work/source-artifacts -path '*/supplement/manifest.json' -type f | sort)
+          python tools/run_build_clean_core_v3_repair.py \
+            work/clean-core-v3 --overwrite --target-total 70000 "${ARGS[@]}"
+      - name: Validate the final catalog and gate
+        run: |
+          node tools/validate_face_catalog.mjs work/clean-core-v3/catalog \
+            | tee work/clean-core-v3/catalog-validation.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          audit=json.loads(Path('work/clean-core-v3/audit.json').read_text())
+          manifest=json.loads(Path('work/clean-core-v3/catalog/manifest.json').read_text())
+          failures=list(audit.get('gateFailures',[]))
+          faces=int(manifest.get('searchableFaces',manifest.get('totalFaces',0)))
+          pose_cells=len(manifest.get('cells',{}))
+          if not audit.get('gatePassed'): failures.append('audit gatePassed is false')
+          if int(audit.get('selectedFaces',0)) != 70000 or faces != 70000:
+            failures.append(f"physical faces mismatch: audit={audit.get('selectedFaces')} manifest={faces}")
+          if pose_cells < 700: failures.append(f"pose cells={pose_cells} < 700")
+          for side in ('winkLeft','winkRight'):
+            count=int(audit.get('strictProfiles',{}).get(side,0))
+            if count < 80: failures.append(f"{side}={count} < 80")
+          if failures:
+            raise SystemExit('Final Clean Core gate failed:\n- '+'\n- '.join(dict.fromkeys(failures)))
+          print(json.dumps({'faces':faces,'poseCells':pose_cells,'strictProfiles':audit['strictProfiles']},indent=2))
+          PY
+      - name: Replace the old site seed
+        run: |
+          rm -rf public/seed-catalog
+          mkdir -p public/seed-catalog
+          cp -a work/clean-core-v3/catalog/. public/seed-catalog/
+          cp work/clean-core-v3/audit.json public/seed-catalog/clean-core-audit.json
+          cp work/clean-core-v3/catalog-validation.json public/seed-catalog/catalog-validation.json
+      - name: Verify the exact Site payload
+        run: |
+          node tools/validate_face_catalog.mjs public/seed-catalog \
+            | tee /tmp/site-seed-validation.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest=json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          audit=json.loads(Path('public/seed-catalog/clean-core-audit.json').read_text())
+          faces=int(manifest.get('searchableFaces',manifest.get('totalFaces',0)))
+          if manifest.get('catalogId') != 'many-faces-clean-core-v3':
+            raise SystemExit(f"wrong Site catalog: {manifest.get('catalogId')}")
+          if faces != 70000 or manifest.get('poseStep') != 3:
+            raise SystemExit(f"wrong Site payload: faces={faces} poseStep={manifest.get('poseStep')}")
+          if not audit.get('gatePassed'):
+            raise SystemExit('Site audit did not pass')
+          PY
+      - name: Write the transparent build receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          audit=json.loads(Path('public/seed-catalog/clean-core-audit.json').read_text())
+          manifest=json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          receipt={
+            'schemaVersion':1,
+            'status':'promoted-to-site-seed',
+            'openImagesWorkflowRunId':int('${{ env.OPEN_IMAGES_RUN_ID }}'),
+            'verifiedFACSWorkflowRunId':int('${{ env.VERIFIED_FACS_RUN_ID }}'),
+            'finalizeWorkflowRunId':int('${{ github.run_id }}'),
+            'catalogId':manifest.get('catalogId'),
+            'searchableFaces':manifest.get('searchableFaces',manifest.get('totalFaces')),
+            'poseStep':manifest.get('poseStep'),
+            'poseCells':len(manifest.get('cells',{})),
+            'policyVersion':audit.get('policyVersion'),
+            'strictProfiles':audit.get('strictProfiles',{}),
+            'strictProfilePoseCells':audit.get('strictProfilePoseCells',{}),
+            'backgroundProfiles':audit.get('backgroundProfiles',{}),
+            'selectedSources':audit.get('selectedSources',{}),
+            'rejections':audit.get('rejections',{}),
+          }
+          Path('data/clean-core-v3-site-build.json').write_text(
+            json.dumps(receipt,ensure_ascii=False,indent=2)+'\n'
+          )
+          PY
+      - name: Commit the physical site seed to the work branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config http.version HTTP/1.1
+          git config http.postBuffer 1073741824
+          git add -A -- public/seed-catalog data/clean-core-v3-site-build.json
+          git commit -m "feat(dataset): promote verified 70k clean core v3 site seed"
+          git push origin HEAD:work/coverage-driven-200k
+      - uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-clean-core-v3-site-seed-${{ github.run_id }}
+          path: |
+            public/seed-catalog
+            data/clean-core-v3-site-build.json
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 6

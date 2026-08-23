@@ -1,6 +1,10 @@
 name: Finalize real-photo-only Clean Core v3 site seed
 
 on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/clean-core-v3-finalize-launch.json
   pull_request:
     branches: [main]
     paths:

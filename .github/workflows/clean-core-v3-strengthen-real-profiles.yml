@@ -1,0 +1,384 @@
+name: Strengthen real-photo weak profiles
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/clean-core-v3-real-strengthen-launch.json
+  pull_request:
+    branches: [main]
+    paths:
+      - data/clean-core-v3-real-strengthen-launch.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: many-faces-clean-core-v3-real-strengthen
+  cancel-in-progress: true
+
+env:
+  OPEN_IMAGES_RUN_ID: "32559210408"
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.gate.outputs.run }}
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 2
+      - id: gate
+        shell: bash
+        run: |
+          SUBJECT=$(git log -1 --pretty=%s)
+          echo "HEAD subject: ${SUBJECT}"
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" || "${SUBJECT}" == "chore(dataset): launch real-photo weak-profile strengthening"* ]]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+      - id: matrix
+        run: |
+          python - <<'PY'
+          import json, os
+          groups = [
+            {"id":"wink","spec":"data/real-expression-queries/wink.json","maxImages":8000},
+            {"id":"eyes-wide","spec":"data/real-expression-queries/eyes-wide.json","maxImages":7000},
+            {"id":"mouth-round-open","spec":"data/real-expression-queries/mouth-round-open.json","maxImages":9000},
+            {"id":"mouth-wide-frown","spec":"data/real-expression-queries/mouth-wide-frown.json","maxImages":8000},
+            {"id":"mouth-asymmetric","spec":"data/real-expression-queries/mouth-asymmetric.json","maxImages":7000},
+            {"id":"lips-nose","spec":"data/real-expression-queries/lips-nose.json","maxImages":8000},
+          ]
+          with open(os.environ['GITHUB_OUTPUT'],'a') as handle:
+              handle.write('matrix='+json.dumps({'include':groups},separators=(',',':'))+'\n')
+          PY
+
+  collect:
+    needs: prepare
+    if: needs.prepare.outputs.run == 'true'
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          sparse-checkout: |
+            /tools/*
+            /data/real-expression-queries/*
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: tools/requirements-catalog.txt
+      - name: Install face-catalog runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgles2
+          python -m pip install --disable-pip-version-check -r tools/requirements-catalog.txt
+          python -m py_compile tools/collect_real_expression_targets.py
+      - name: Collect conservative real-photo candidates
+        run: |
+          python tools/collect_real_expression_targets.py \
+            work/stage \
+            --queries '${{ matrix.spec }}' \
+            --max-images '${{ matrix.maxImages }}' \
+            --openverse-pages 12 \
+            --commons-pages 8 \
+            --workers 16 \
+            --overwrite
+      - name: Measure every candidate with MediaPipe
+        run: |
+          python tools/build_face_catalog_compat.py \
+            work/stage \
+            work/supplement \
+            --metadata work/stage/metadata.csv \
+            --yaw-min -45 --yaw-max 45 \
+            --pitch-min -36 --pitch-max 36 \
+            --overwrite
+          node tools/finalize-supplement-catalog.mjs \
+            --catalog work/supplement \
+            --catalog-id 'clean-v3-real-target-${{ matrix.id }}-${{ github.run_id }}'
+          node tools/validate_face_catalog.mjs work/supplement \
+            | tee work/supplement-validation.json
+      - name: Upload measured real-photo supplement
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-v3-real-target-${{ matrix.id }}
+          path: |
+            work/stage/source-report.json
+            work/stage/metadata.csv
+            work/supplement
+            work/supplement-validation.json
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 6
+
+  assemble-promote:
+    needs: [prepare, collect]
+    if: needs.prepare.outputs.run == 'true' && needs.collect.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 420
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install and test assembly runtime
+        run: |
+          python -m pip install --disable-pip-version-check numpy Pillow
+          python -m py_compile \
+            tools/run_build_clean_core_v3_real_only.py \
+            tools/run_build_clean_core_v3_real_strengthened.py
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,'tools')
+          from run_build_clean_core_v3_real_only import synthetic_reason
+          source=type('S',(),{'label':'target','catalog_id':'target'})()
+          assert synthetic_reason(source,{'sourceKind':'verified-synthetic-facs'})
+          assert synthetic_reason(source,{'sourceKind':'real-photo-candidate','sourceName':'Wikimedia Commons','name':'portrait photograph'}) is None
+          PY
+      - name: Preserve the before counts
+        run: cp data/clean-core-v3-site-build.json work-baseline.json
+      - name: Download validated Open Images catalogs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: clean-v3-source-*
+          path: work/source-artifacts/open-images
+          repository: ${{ github.repository }}
+          run-id: ${{ env.OPEN_IMAGES_RUN_ID }}
+          github-token: ${{ github.token }}
+      - name: Download targeted real-photo supplements
+        uses: actions/download-artifact@v4
+        with:
+          pattern: clean-v3-real-target-*
+          path: work/source-artifacts/targets
+          merge-multiple: false
+      - name: Build the strengthened physical 70k catalog
+        shell: bash
+        run: |
+          ARGS=(--catalog "current-real-site-seed=public/seed-catalog")
+          while IFS= read -r manifest; do
+            root=$(dirname "$manifest")
+            label=$(basename "$(dirname "$root")")
+            ARGS+=(--catalog "${label}=${root}")
+          done < <(find work/source-artifacts -path '*/supplement/manifest.json' -type f | sort)
+          python tools/run_build_clean_core_v3_real_strengthened.py \
+            work/strengthened --overwrite --target-total 70000 "${ARGS[@]}"
+      - name: Validate zero synthetic faces and material profile gains
+        run: |
+          node tools/validate_face_catalog.mjs work/strengthened/catalog \
+            | tee work/strengthened/catalog-validation.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          baseline=json.loads(Path('work-baseline.json').read_text())
+          audit=json.loads(Path('work/strengthened/audit.json').read_text())
+          manifest_path=Path('work/strengthened/catalog/manifest.json')
+          manifest=json.loads(manifest_path.read_text())
+          before=baseline.get('profileCounts',{})
+          after=audit.get('strictProfiles',{})
+          floors={
+            'winkLeft':16,
+            'winkRight':16,
+            'eyesWide':15,
+            'noseSneer':1,
+            'mouthRound':15,
+            'mouthSlightOpen':140,
+            'mouthWide':55,
+            'mouthFrown':30,
+            'mouthUpperUp':50,
+            'mouthLowerDown':80,
+            'mouthLeft':24,
+            'mouthRight':16,
+          }
+          minimum_gains={
+            'winkLeft':8,
+            'winkRight':8,
+            'eyesWide':8,
+            'noseSneer':1,
+            'mouthRound':8,
+            'mouthSlightOpen':35,
+            'mouthWide':15,
+            'mouthFrown':10,
+            'mouthUpperUp':12,
+            'mouthLowerDown':15,
+            'mouthLeft':4,
+            'mouthRight':5,
+          }
+          strong_floors={
+            'blink':720,
+            'gazeUp':850,
+            'gazeDown':1300,
+            'gazeLeft':2850,
+            'gazeRight':2000,
+            'browsUp':1300,
+            'browsDown':340,
+            'mouthPucker':380,
+            'smileClosed':1250,
+          }
+          failures=[]
+          faces=int(manifest.get('searchableFaces',manifest.get('totalFaces',0)))
+          pose_cells=len(manifest.get('cells',{}))
+          if faces != 70000: failures.append(f'faces={faces} != 70000')
+          if pose_cells != 775: failures.append(f'pose cells={pose_cells} != 775')
+          if audit.get('runtimeImagePolicy') != 'real-photo-only-v1':
+            failures.append(f"runtime policy={audit.get('runtimeImagePolicy')}")
+          if int(audit.get('knownSyntheticFacesSelected',-1)) != 0:
+            failures.append(f"known synthetic selected={audit.get('knownSyntheticFacesSelected')}")
+          for profile,floor in floors.items():
+            actual=int(after.get(profile,0)); previous=int(before.get(profile,0)); gain=actual-previous
+            required_gain=minimum_gains[profile]
+            if actual < floor or gain < required_gain:
+              failures.append(f'{profile}: {previous} -> {actual}; need >= {floor} and gain >= {required_gain}')
+          for profile,floor in strong_floors.items():
+            if int(after.get(profile,0)) < floor:
+              failures.append(f'{profile} regressed to {after.get(profile,0)} < {floor}')
+          if failures:
+            Path('work/strengthened/strengthening-failures.json').write_text(json.dumps({
+              'baseline':before,'after':after,'floors':floors,'minimumGains':minimum_gains,'failures':failures
+            },indent=2)+'\n')
+            raise SystemExit('Weak-profile strengthening gate failed:\n- '+'\n- '.join(failures))
+          manifest['catalogId']='many-faces-clean-core-v3-real-strengthened'
+          clean=manifest.setdefault('stats',{}).setdefault('cleanCore',{})
+          clean.update({
+            'runtimeImagePolicy':'real-photo-only-v1',
+            'knownSyntheticFaces':0,
+            'weakProfileStrengthening':'real-photo-targeted-v1',
+            'baselineProfileCounts':before,
+            'strengthenedProfileCounts':after,
+          })
+          manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,separators=(',',':')))
+          Path('work/strengthened/strengthening-result.json').write_text(json.dumps({
+            'baseline':before,
+            'after':after,
+            'gains':{key:int(after.get(key,0))-int(before.get(key,0)) for key in floors},
+            'targets':floors,
+            'syntheticFaces':0,
+            'faces':faces,
+            'poseCells':pose_cells,
+          },ensure_ascii=False,indent=2)+'\n')
+          PY
+          node tools/validate_face_catalog.mjs work/strengthened/catalog \
+            | tee work/strengthened/catalog-validation-final.json
+      - name: Replace the Site seed with the strengthened real-photo catalog
+        run: |
+          rm -rf public/seed-catalog
+          mkdir -p public/seed-catalog
+          cp -a work/strengthened/catalog/. public/seed-catalog/
+          cp work/strengthened/audit.json public/seed-catalog/clean-core-audit.json
+          cp work/strengthened/strengthening-result.json public/seed-catalog/strengthening-result.json
+          cp work/strengthened/catalog-validation-final.json public/seed-catalog/catalog-validation.json
+      - name: Verify exactly what Site will load
+        run: |
+          node tools/validate_face_catalog.mjs public/seed-catalog \
+            | tee /tmp/site-seed-validation.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest=json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          audit=json.loads(Path('public/seed-catalog/clean-core-audit.json').read_text())
+          result=json.loads(Path('public/seed-catalog/strengthening-result.json').read_text())
+          clean=manifest.get('stats',{}).get('cleanCore',{})
+          failures=[]
+          if manifest.get('catalogId') != 'many-faces-clean-core-v3-real-strengthened':
+            failures.append(f"catalogId={manifest.get('catalogId')}")
+          if int(manifest.get('searchableFaces',0)) != 70000:
+            failures.append(f"faces={manifest.get('searchableFaces')}")
+          if manifest.get('poseStep') != 3 or len(manifest.get('cells',{})) != 775:
+            failures.append('pose grid mismatch')
+          if clean.get('runtimeImagePolicy') != 'real-photo-only-v1':
+            failures.append('manifest is not real-photo-only')
+          if int(clean.get('knownSyntheticFaces',-1)) != 0:
+            failures.append('manifest contains known synthetic faces')
+          if int(audit.get('knownSyntheticFacesSelected',-1)) != 0:
+            failures.append('audit contains known synthetic faces')
+          if int(result.get('syntheticFaces',-1)) != 0:
+            failures.append('strengthening result contains synthetic faces')
+          if failures:
+            raise SystemExit('Site payload verification failed:\n- '+'\n- '.join(failures))
+          PY
+      - name: Write transparent strengthened build receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          previous=json.loads(Path('work-baseline.json').read_text())
+          audit=json.loads(Path('public/seed-catalog/clean-core-audit.json').read_text())
+          manifest=json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          validation=json.loads(Path('public/seed-catalog/catalog-validation.json').read_text())
+          result=json.loads(Path('public/seed-catalog/strengthening-result.json').read_text())
+          target_reports={}
+          for path in Path('work/source-artifacts/targets').glob('*/source-report.json'):
+            target_reports[path.parent.name]=json.loads(path.read_text())
+          receipt={
+            'schemaVersion':3,
+            'siteSeedVerified':True,
+            'gatePassed':True,
+            'runtimeImagePolicy':'real-photo-only-v1',
+            'weakProfileStrengthening':'real-photo-targeted-v1',
+            'catalogId':manifest.get('catalogId'),
+            'searchableFaces':manifest.get('searchableFaces',manifest.get('totalFaces')),
+            'poseStep':manifest.get('poseStep'),
+            'poseCells':len(manifest.get('cells',{})),
+            'knownSyntheticFacesSelected':0,
+            'knownSyntheticCandidatesExcluded':audit.get('knownSyntheticCandidatesExcluded',{}),
+            'profileCounts':audit.get('strictProfiles',{}),
+            'profilePoseCells':audit.get('strictProfilePoseCells',{}),
+            'profileCountsBefore':previous.get('profileCounts',{}),
+            'profileGains':result.get('gains',{}),
+            'targetCollectionReports':target_reports,
+            'sourceCounts':audit.get('selectedSources',{}),
+            'rejections':audit.get('rejections',{}),
+            'openImagesSourceRunId':int('${{ env.OPEN_IMAGES_RUN_ID }}'),
+            'strengtheningWorkflowRunId':int('${{ github.run_id }}'),
+            'builtFromCommit':'${{ github.event.pull_request.head.sha || github.sha }}',
+            'validator':validation,
+            'sitePath':'public/seed-catalog',
+            'contaminatedSyntheticRuntimeCatalogRemoved':True,
+          }
+          Path('data/clean-core-v3-site-build.json').write_text(
+            json.dumps(receipt,ensure_ascii=False,indent=2)+'\n'
+          )
+          PY
+      - name: Commit the strengthened physical Site seed
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config http.version HTTP/1.1
+          git config http.postBuffer 1073741824
+          git add -A -- public/seed-catalog data/clean-core-v3-site-build.json
+          git commit -m 'feat(dataset): strengthen real-photo weak profiles'
+          git push origin HEAD:work/coverage-driven-200k
+      - uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-clean-core-v3-real-strengthened-${{ github.run_id }}
+          path: |
+            public/seed-catalog
+            data/clean-core-v3-site-build.json
+            work/strengthened/review
+            work/strengthened/strengthening-result.json
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 6

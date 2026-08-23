@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "route": "/live",
+  "catalog": "public/seed-catalog",
+  "targetDetectionFps": 28,
+  "boundedSearchBudget": 96,
+  "nonce": 1
+}

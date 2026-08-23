@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "663810c058d51b37efb32d250b81b34111bd6e96",
+  "baselineFaces": 70000,
+  "runtimeImagePolicy": "real-photo-only-v1",
+  "knownSyntheticFacesAllowed": 0,
+  "targetProfiles": [
+    "winkLeft",
+    "winkRight",
+    "eyesWide",
+    "noseSneer",
+    "mouthRound",
+    "mouthSlightOpen",
+    "mouthWide",
+    "mouthFrown",
+    "mouthUpperUp",
+    "mouthLowerDown",
+    "mouthLeft",
+    "mouthRight"
+  ],
+  "nonce": 1
+}

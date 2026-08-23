@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "purpose": "remove-known-synthetic-and-3d-people-from-runtime-catalog",
+  "targetFaces": 70000,
+  "replaceSiteSeed": true,
+  "runtimeImagePolicy": "real-photo-only-v1",
+  "knownSyntheticFacesAllowed": 0,
+  "nonce": 1
+}

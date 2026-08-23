@@ -19,5 +19,5 @@
   ],
   "providers": ["openverse", "commons"],
   "knownSyntheticFacesAllowed": 0,
-  "nonce": 1
+  "nonce": 2
 }

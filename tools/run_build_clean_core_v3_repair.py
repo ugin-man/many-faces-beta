@@ -15,6 +15,14 @@ profile/pose cell; at 70k scale that could grow to billions of Python-level
 operations. The selector below keeps the same score, structure-diversity,
 creator-penalty and perceptual-hash rules while updating distances in vectorized
 batches.
+
+Verified Synthetic Humans FACS frames are a special case for perceptual hashes:
+they deliberately share a uniform render background, so a 64-bit dHash can call
+different identities and different single-AU frames near-duplicates. Exact byte
+duplicates are already rejected globally by the physical builder. Therefore a
+verified FACS candidate is never removed merely because its dHash is close to a
+previous image; geometry diversity and the per-cell cap still control selection.
+Natural images retain the normal perceptual-duplicate rule.
 """
 
 from __future__ import annotations
@@ -54,6 +62,16 @@ policy.PROFILE_POSE_CELL_MINIMUMS.update({
 import build_clean_core_v3 as builder
 
 
+def is_verified_facs(candidate) -> bool:
+    """Return true only for entries overlaid from the controlled FACS source."""
+    entry = getattr(candidate, "entry", {})
+    return (
+        isinstance(entry, dict)
+        and entry.get("sourceKind") == "verified-synthetic-facs"
+        and entry.get("annotationVerified") is True
+    )
+
+
 def fast_rank_diverse(candidates, limit: int):
     """Select a deterministic quality/diversity set without quadratic Python loops."""
     remaining = sorted(
@@ -73,6 +91,7 @@ def fast_rank_diverse(candidates, limit: int):
     active = np.ones(count, dtype=bool)
     min_diversity = np.ones(count, dtype=np.float32)
     creators = [builder.creator_key(candidate) for candidate in remaining]
+    verified_facs = np.asarray([is_verified_facs(candidate) for candidate in remaining], dtype=bool)
     creator_counts: Counter[str] = Counter()
 
     positive_lengths = [len(candidate.structure) for candidate in remaining if candidate.structure]
@@ -96,7 +115,6 @@ def fast_rank_diverse(candidates, limit: int):
         structure_valid = np.zeros(count, dtype=bool)
 
     selected = []
-    selected_hashes: list[str] = []
     for _ in range(limit):
         active_indexes = np.flatnonzero(active)
         if active_indexes.size == 0:
@@ -125,12 +143,15 @@ def fast_rank_diverse(candidates, limit: int):
             creator_counts[creators[chosen_index]] += 1
 
         chosen_hash = chosen.dhash
-        selected_hashes.append(chosen_hash)
-        # Per-cell pools are at most a few hundred entries, so exact Hamming
-        # filtering is cheap and preserves the original <=2 duplicate rule.
+        # Do not let the uniform synthetic background erase verified FACS
+        # identities or action examples. Exact SHA-256 duplicates were already
+        # removed by build_clean_core_v3 before this selector is called.
         for index in np.flatnonzero(active):
-            if builder.hamming(remaining[int(index)].dhash, chosen_hash) <= 2:
-                active[int(index)] = False
+            index = int(index)
+            if verified_facs[index]:
+                continue
+            if builder.hamming(remaining[index].dhash, chosen_hash) <= 2:
+                active[index] = False
 
         if structures is None or not structure_valid[chosen_index]:
             min_diversity[active] = 0.0
@@ -151,5 +172,10 @@ def fast_rank_diverse(candidates, limit: int):
     return selected
 
 
-builder.rank_diverse = fast_rank_diverse
-raise SystemExit(builder.main())
+def main() -> int:
+    builder.rank_diverse = fast_rank_diverse
+    return int(builder.main())
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

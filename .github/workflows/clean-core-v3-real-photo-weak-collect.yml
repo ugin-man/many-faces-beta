@@ -5,6 +5,10 @@ on:
     branches: [work/coverage-driven-200k]
     paths:
       - data/clean-core-v3-real-photo-weak-launch.json
+  pull_request:
+    branches: [main]
+    paths:
+      - data/clean-core-v3-real-photo-weak-launch.json
   workflow_dispatch:
 
 permissions:
@@ -27,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 2
       - id: gate
         shell: bash
@@ -71,7 +75,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           sparse-checkout: |
             /tools/*
           sparse-checkout-cone-mode: false
@@ -181,7 +185,7 @@ jobs:
           report={
               'schemaVersion':1,
               'workflowRunId':int('${{ github.run_id }}'),
-              'headCommit':'${{ github.sha }}',
+              'headCommit':'${{ github.event.pull_request.head.sha || github.sha }}',
               'staged':staged,
               'curated':curated,
               'filteredWeakOriginals':filtered,

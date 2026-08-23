@@ -59,6 +59,20 @@ policy.PROFILE_POSE_CELL_MINIMUMS.update({
     "mouthRight": 6,
 })
 
+# The default caps were tuned before controlled FACS was available. They kept
+# too few identities when a rare state was concentrated in a small number of
+# pose cells (for example eyes-wide or a pure mouth stretch). Raising only these
+# strict-profile caps does not weaken isolation or pad the catalog: it lets
+# additional already-verified people occupy the same 3-degree state/pose cell.
+policy.PROFILE_CELL_LIMITS.update({
+    "eyesWide": 64,
+    "noseSneer": 32,
+    "mouthRound": 40,
+    "mouthSlightOpen": 64,
+    "mouthWide": 48,
+    "mouthFrown": 40,
+})
+
 import build_clean_core_v3 as builder
 
 

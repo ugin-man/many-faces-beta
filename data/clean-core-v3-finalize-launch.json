@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "openImagesWorkflowRunId": 32559210408,
+  "verifiedFACSWorkflowRunId": 32633270936,
+  "targetFaces": 70000,
+  "replaceSiteSeed": true,
+  "rareProfileCellCaps": "expanded",
+  "nonce": 1
+}

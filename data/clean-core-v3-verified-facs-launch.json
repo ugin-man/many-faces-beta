@@ -4,6 +4,7 @@
   "targetFaces": 70000,
   "replaceSiteSeed": true,
   "verifiedFACS": true,
-  "nonce": 2,
-  "gateAdjustment": "mouthSlightOpen verified supply floor 240"
+  "nonce": 3,
+  "gateAdjustment": "mouthSlightOpen verified supply floor 240",
+  "selectionEngine": "vectorized-incremental-diversity-v1"
 }

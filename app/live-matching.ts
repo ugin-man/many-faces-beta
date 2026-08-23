@@ -1,13 +1,13 @@
 import {
   FixedCandidateSearchIndex,
   type FixedSearchFrame,
-} from "./fixed-candidate-search";
-import type { FaceGeometry } from "./offline-matching";
+} from "./fixed-candidate-search.ts";
+import type { FaceGeometry } from "./offline-matching.ts";
 import {
   projectionError,
   type ProjectionError,
   type ProjectionRankMode,
-} from "./projection-matching";
+} from "./projection-matching.ts";
 
 export type LiveCatalogEntry = {
   id: string;

@@ -1,0 +1,17 @@
+{
+  "group": "mouth-asymmetric",
+  "allowedOpenverseSources": ["flickr", "wikimedia", "stocksnap", "nappy"],
+  "commonsCategories": ["Smirking people", "Facial expressions", "Grimaces"],
+  "queries": [
+    "crooked mouth portrait neutral eyes photograph",
+    "mouth pulled to one side portrait photo",
+    "one sided mouth expression headshot photograph",
+    "asymmetric lips portrait neutral eyes photo",
+    "person smirk closed mouth portrait photograph",
+    "sideways mouth grimace portrait photo",
+    "uneven mouth expression person photograph",
+    "one corner of mouth raised portrait photo",
+    "mouth shifted left portrait photograph",
+    "mouth shifted right portrait photograph"
+  ]
+}

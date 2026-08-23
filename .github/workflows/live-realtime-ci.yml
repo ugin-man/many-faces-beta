@@ -1,0 +1,43 @@
+name: Realtime lab CI
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - app/live/**
+      - app/live-face-lab.tsx
+      - app/live-face-lab.module.css
+      - app/live-matching.ts
+      - app/mode-nav.tsx
+      - app/mode-nav.module.css
+      - app/layout.tsx
+      - tests/live-matching.test.mjs
+      - data/live-realtime-ci.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            /*
+            !/public/seed-catalog/*
+            /public/seed-catalog/manifest.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - run: npm ci
+      - name: Build realtime route
+        run: npm run build
+      - name: Run bounded live matching tests
+        run: node --experimental-strip-types --test tests/live-matching.test.mjs
+      - name: Lint application
+        run: npm run lint

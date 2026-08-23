@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import sys
 import unittest
 from pathlib import Path
@@ -8,15 +9,27 @@ from types import SimpleNamespace
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
-from apply_verified_facs_annotations import (
-    CANONICAL_ACTIONS,
-    canonical_feature,
-    corrected_projection,
-    encode_projection,
+HAS_IMAGE_RUNTIME = (
+    importlib.util.find_spec("numpy") is not None
+    and importlib.util.find_spec("PIL") is not None
 )
-from clean_core_policy_v3 import FEATURE_LENGTH, classify_strict_profile
-from mirror_clean_core_pairs import MIRROR_TARGETS
-from run_build_clean_core_v3_repair import fast_rank_diverse, is_verified_facs
+
+if HAS_IMAGE_RUNTIME:
+    from apply_verified_facs_annotations import (
+        CANONICAL_ACTIONS,
+        canonical_feature,
+        corrected_projection,
+        encode_projection,
+    )
+    from clean_core_policy_v3 import FEATURE_LENGTH, classify_strict_profile
+    from mirror_clean_core_pairs import MIRROR_TARGETS
+    from run_build_clean_core_v3_repair import fast_rank_diverse, is_verified_facs
+else:  # Lightweight CI validates syntax without the optional image stack.
+    CANONICAL_ACTIONS = {}
+    FEATURE_LENGTH = 55
+    MIRROR_TARGETS = {}
+    canonical_feature = corrected_projection = encode_projection = None
+    classify_strict_profile = fast_rank_diverse = is_verified_facs = None
 
 
 def selector_candidate(
@@ -45,6 +58,7 @@ def selector_candidate(
     )
 
 
+@unittest.skipUnless(HAS_IMAGE_RUNTIME, "optional NumPy/Pillow runtime is not installed")
 class VerifiedFacsOverlayTests(unittest.TestCase):
     def base_feature(self) -> list[float]:
         return [0.0] * FEATURE_LENGTH

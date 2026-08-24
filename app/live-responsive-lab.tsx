@@ -395,9 +395,9 @@ export default function LiveResponsiveLab() {
 
   if (imageBufferRef.current == null) {
     imageBufferRef.current = new LivePackedImageBuffer({
-      maxImageUrls: 224,
-      maxPackBytes: 40 * 1024 * 1024,
-      preloadConcurrency: 4,
+      maxImageUrls: 320,
+      maxPackBytes: 48 * 1024 * 1024,
+      preloadConcurrency: 6,
     });
   }
 
@@ -838,7 +838,7 @@ export default function LiveResponsiveLab() {
         if (buffer && candidates.length) {
           void buffer.prime(candidates, {
             maxImages: 36,
-            maxNewPacks: 2,
+            maxNewPacks: 6,
           });
         }
 

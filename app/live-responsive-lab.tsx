@@ -45,6 +45,7 @@ import {
   predictedPoseDegrees,
   ResponsiveSwitchController,
   selectReadyRankedCandidate,
+  shouldRunLiveSearch,
 } from "./live-responsive-runtime";
 import styles from "./live-responsive-lab.module.css";
 
@@ -364,6 +365,11 @@ export default function LiveResponsiveLab() {
   const lastTelemetryAtRef = useRef(0);
   const targetDetectionFpsRef = useRef(DESKTOP_DETECTION_FPS);
   const maxOutputRateRef = useRef(20);
+  const lastSearchStatsRef = useRef({
+    searchMs: 0,
+    inspected: 0,
+    bucketHits: 0,
+  });
 
   const manifestRef = useRef<CatalogManifest | null>(null);
   const shardCacheRef = useRef(new Map<string, LiveCandidate[]>());
@@ -671,6 +677,7 @@ export default function LiveResponsiveLab() {
     switchTimesRef.current = [];
     lastDetectionAtRef.current = 0;
     lastFeatureAtRef.current = 0;
+    lastSearchStatsRef.current = { searchMs: 0, inspected: 0, bucketHits: 0 };
     recentIdsRef.current = [];
     switchControllerRef.current.reset(performance.now());
     setLiveFeature(null);
@@ -791,77 +798,84 @@ export default function LiveResponsiveLab() {
       ) {
         setCalibrating(false);
       }
-
-      void loadCatalogNeighborhood(
-        smoothedFeature[0] * 90,
-        smoothedFeature[1] * 90,
-        predicted.yaw,
-        predicted.pitch,
-      );
-
-      const searchStarted = performance.now();
-      const ranked = rankLiveCandidates(
-        candidateIndexRef.current,
-        { feature: smoothedFeature, geometry: smoothedGeometry },
-        {
-          mode: modeRef.current,
-          budget: RANK_BUDGET,
-          detailedLimit: DETAILED_LIMIT,
-          currentId: currentRef.current?.id,
-          recentIds: recentIdsRef.current,
-          holdBias: 0.001,
-          diversityPenalty: 0.004,
-          hysteresis: 0.001,
-        },
-      );
-      const searchMs = performance.now() - searchStarted;
-      const candidates = ranked.ranked.map((item) => item.candidate);
-      const buffer = imageBufferRef.current;
-      if (buffer && candidates.length) {
-        void buffer.prime(candidates, {
-          maxImages: 36,
-          maxNewPacks: 2,
-        });
-      }
-
       const decision = switchControllerRef.current.observe(
         now,
         smoothedFeature,
         maxOutputRateRef.current,
       );
-      const selected = buffer
-        ? selectReadyRankedCandidate(
-            ranked.ranked,
-            (candidate) => buffer.isReady(candidate),
-            currentRef.current?.id ?? null,
-            recentIdsRef.current.slice(0, 4),
-          )
-        : null;
+      let { searchMs, inspected, bucketHits } = lastSearchStatsRef.current;
 
-      if (!currentRef.current && ranked.ranked[0] && buffer) {
-        const first = ranked.ranked[0].candidate;
-        if (buffer.isReady(first)) {
-          showReadyCandidate(first, now);
-        } else {
-          void buffer.ensure(first).then((url) => {
-            if (url && trackingRef.current && !currentRef.current) {
-              showReadyCandidate(first, performance.now());
-            }
+      if (shouldRunLiveSearch(currentRef.current?.id ?? null, decision)) {
+        void loadCatalogNeighborhood(
+          smoothedFeature[0] * 90,
+          smoothedFeature[1] * 90,
+          predicted.yaw,
+          predicted.pitch,
+        );
+
+        const searchStarted = performance.now();
+        const ranked = rankLiveCandidates(
+          candidateIndexRef.current,
+          { feature: smoothedFeature, geometry: smoothedGeometry },
+          {
+            mode: modeRef.current,
+            budget: RANK_BUDGET,
+            detailedLimit: DETAILED_LIMIT,
+            currentId: currentRef.current?.id,
+            recentIds: recentIdsRef.current,
+            holdBias: 0.001,
+            diversityPenalty: 0.004,
+            hysteresis: 0.001,
+          },
+        );
+        searchMs = performance.now() - searchStarted;
+        inspected = ranked.inspected;
+        bucketHits = ranked.bucketHits;
+        lastSearchStatsRef.current = { searchMs, inspected, bucketHits };
+
+        const candidates = ranked.ranked.map((item) => item.candidate);
+        const buffer = imageBufferRef.current;
+        if (buffer && candidates.length) {
+          void buffer.prime(candidates, {
+            maxImages: 36,
+            maxNewPacks: 2,
           });
         }
-      } else if (
-        decision.shouldSwitch &&
-        selected &&
-        selected.candidate.id !== currentRef.current?.id
-      ) {
-        showReadyCandidate(selected.candidate, now);
+
+        const selected = buffer
+          ? selectReadyRankedCandidate(
+              ranked.ranked,
+              (candidate) => buffer.isReady(candidate),
+              currentRef.current?.id ?? null,
+              recentIdsRef.current.slice(0, 4),
+            )
+          : null;
+
+        if (!currentRef.current && ranked.ranked[0] && buffer) {
+          const first = ranked.ranked[0].candidate;
+          if (buffer.isReady(first)) {
+            showReadyCandidate(first, now);
+          } else {
+            void buffer.ensure(first).then((url) => {
+              if (url && trackingRef.current && !currentRef.current) {
+                showReadyCandidate(first, performance.now());
+              }
+            });
+          }
+        } else if (
+          decision.shouldSwitch &&
+          selected &&
+          selected.candidate.id !== currentRef.current?.id
+        ) {
+          showReadyCandidate(selected.candidate, now);
+        }
       }
 
       updateTelemetry(
         now,
         searchMs,
-        ranked.inspected,
-        ranked.bucketHits,
+        inspected,
+        bucketHits,
         decision.targetRate,
         decision.total,
       );

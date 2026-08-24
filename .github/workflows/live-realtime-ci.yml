@@ -7,6 +7,10 @@ on:
       - app/live/**
       - app/live-face-lab.tsx
       - app/live-face-lab.module.css
+      - app/live-responsive-lab.tsx
+      - app/live-responsive-lab.module.css
+      - app/live-responsive-runtime.ts
+      - app/live-packed-image-buffer.ts
       - app/live-matching.ts
       - app/mode-nav.tsx
       - app/mode-nav.module.css
@@ -14,6 +18,8 @@ on:
       - worker/index.ts
       - tests/catalog-worker.test.mjs
       - tests/live-matching.test.mjs
+      - tests/live-responsive-runtime.test.mjs
+      - tests/live-packed-image-buffer.test.mjs
       - data/live-realtime-ci.json
   workflow_dispatch:
 
@@ -52,6 +58,8 @@ jobs:
         run: |
           node --experimental-strip-types --test \
             tests/live-matching.test.mjs \
+            tests/live-responsive-runtime.test.mjs \
+            tests/live-packed-image-buffer.test.mjs \
             tests/catalog-worker.test.mjs
       - id: lint
         name: Lint application
@@ -76,10 +84,13 @@ jobs:
               'lint': os.environ.get('LINT_OUTCOME', 'missing'),
           }
           receipt = {
-              'schemaVersion': 1,
+              'schemaVersion': 2,
               'testedCommit': '${{ github.sha }}',
               'workflowRunId': int('${{ github.run_id }}'),
               'route': '/live',
+              'pipeline': 'motion-driven-packed-buffer-v1',
+              'targetMovingOutputFps': [10, 20],
+              'staticBehavior': 'hold-current-face',
               'outcomes': outcomes,
               'passed': all(value == 'success' for value in outcomes.values()),
           }

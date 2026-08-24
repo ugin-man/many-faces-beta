@@ -1,8 +1,13 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "route": "/live",
+  "legacyRoute": "/live/legacy",
   "catalog": "public/seed-catalog",
+  "pipeline": "motion-driven-packed-buffer-v1",
   "targetDetectionFps": 28,
-  "boundedSearchBudget": 96,
-  "nonce": 5
+  "targetMovingOutputFps": 20,
+  "minimumMovingOutputFps": 10,
+  "boundedSearchBudget": 128,
+  "staticBehavior": "hold-current-face",
+  "nonce": 6
 }

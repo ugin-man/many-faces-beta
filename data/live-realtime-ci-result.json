@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "testedCommit": "aebe0306215331549e670341e59d61378f62baa7",
-  "workflowRunId": 32694878316,
+  "testedCommit": "6a561fa228cefc5423b5ff99a56e644479cd76df",
+  "workflowRunId": 32695169948,
   "route": "/live",
   "outcomes": {
     "install": "success",
     "build": "success",
-    "tests": "failure",
+    "tests": "success",
     "lint": "success"
   },
-  "passed": false
+  "passed": true
 }

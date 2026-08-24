@@ -1,19 +1,19 @@
 {
-  "schemaVersion": 2,
-  "testedCommit": "6e14aff25ee1dc870df876a266b294ed3b79b55d",
-  "workflowRunId": 32762273140,
+  "schemaVersion": 3,
+  "testedCommit": "6dffdffbdb3e51d64205295092637c8d2c425c3d",
+  "workflowRunId": 32762639312,
   "route": "/live",
-  "pipeline": "motion-driven-packed-buffer-v2",
-  "targetMovingOutputFps": [
-    10,
-    20
-  ],
-  "staticBehavior": "hold-current-face-and-skip-ranking",
+  "fastRoute": "/live/fast",
+  "pipeline": "offline-faithful-fifo-v1",
+  "captureTargetFps": 30,
+  "frameDroppingPolicy": "no-intentional-drop-after-analysis-capture",
+  "matching": "offline-strict-two-stage-projection",
+  "sequence": "offline-strict-streaming-equivalent",
   "outcomes": {
     "install": "success",
     "build": "success",
     "tests": "success",
-    "lint": "failure"
+    "lint": "success"
   },
-  "passed": false
+  "passed": true
 }

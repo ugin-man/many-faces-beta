@@ -1,0 +1,116 @@
+name: Patch live benchmark receipt
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/patch-live-benchmark-receipt.json
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/coverage-driven-200k
+          fetch-depth: 1
+          sparse-checkout: |
+            /*
+            !/public/seed-catalog/*
+            /public/seed-catalog/manifest.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - name: Persist benchmark metrics in the verification receipt
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          path = Path('.github/workflows/live-realtime-ci.yml')
+          text = path.read_text(encoding='utf-8')
+          old = '        run: node --experimental-strip-types tools/benchmark-live-responsive.mjs\n'
+          new = '''        run: |
+            node --experimental-strip-types tools/benchmark-live-responsive.mjs \
+              | tee data/live-responsive-benchmark-result.json
+          '''
+          if old in text:
+              text = text.replace(old, new, 1)
+          elif 'tee data/live-responsive-benchmark-result.json' not in text:
+              raise SystemExit('Benchmark run command was not found')
+
+          if "benchmark_report = None" not in text:
+              anchor = '''          receipt = {
+          '''
+              if anchor not in text:
+                  raise SystemExit('Verification receipt anchor was not found')
+              addition = '''          benchmark_report = None
+            benchmark_path = Path('data/live-responsive-benchmark-result.json')
+            if benchmark_path.exists():
+                try:
+                    benchmark_report = json.loads(benchmark_path.read_text(encoding='utf-8'))
+                except Exception:
+                    benchmark_report = None
+            receipt = {
+          '''
+              text = text.replace(anchor, addition, 1)
+
+          if "              'benchmarkReport': benchmark_report,\n" not in text:
+              anchor = "              'staticBehavior': 'hold-current-face',\n"
+              if anchor not in text:
+                  raise SystemExit('Receipt static behavior anchor was not found')
+              text = text.replace(
+                  anchor,
+                  anchor + "              'benchmarkReport': benchmark_report,\n",
+                  1,
+              )
+
+          old_add = '          git add data/live-realtime-ci-result.json\n'
+          new_add = '''          git add \
+              data/live-realtime-ci-result.json \
+              data/live-responsive-benchmark-result.json
+          '''
+          if old_add in text:
+              text = text.replace(old_add, new_add, 1)
+          elif 'data/live-responsive-benchmark-result.json' not in text.split('Commit verification receipt', 1)[-1]:
+              raise SystemExit('Verification git add command was not found')
+
+          path.write_text(text, encoding='utf-8')
+
+          config = Path('data/live-realtime-ci.json')
+          payload = json.loads(config.read_text(encoding='utf-8'))
+          payload['nonce'] = int(payload.get('nonce', 0)) + 1
+          payload['benchmarkReceipt'] = 'committed-json-v1'
+          config.write_text(json.dumps(payload, indent=2) + '\n', encoding='utf-8')
+          PY
+      - name: Validate benchmark receipt workflow
+        run: |
+          npm ci
+          npm run build
+          node --experimental-strip-types tools/benchmark-live-responsive.mjs \
+            | tee /tmp/live-responsive-benchmark-result.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('/tmp/live-responsive-benchmark-result.json').read_text())
+          assert report['candidateCount'] == 2400
+          assert report['frameCount'] == 240
+          assert report['searchAverageMs'] <= report['limits']['searchAverageMs']
+          assert report['searchP95Ms'] <= report['limits']['searchP95Ms']
+          PY
+          npm run lint
+      - name: Commit benchmark receipt support
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/live-realtime-ci.yml data/live-realtime-ci.json
+          git commit -m "chore(live): persist responsive benchmark metrics"
+          git fetch origin work/coverage-driven-200k
+          git rebase origin/work/coverage-driven-200k
+          git push origin HEAD:work/coverage-driven-200k

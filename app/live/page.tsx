@@ -1,10 +1,10 @@
-import LiveFaithfulLab from "../live-faithful-lab";
+import FaithfulLiveClient from "./faithful-client";
 
 export const metadata = {
-  title: "Many Faces Faithful Live Baseline",
-  description: "動画版と同じ3D形状比較とstrict経路最適化を、フレームを捨てないFIFOでカメラ入力へ適用する基準実装。",
+  title: "Many Faces Offline-Faithful FIFO Live",
+  description: "動画版と同じ3D投影比較とstrict経路最適化を、全画角のカメラ入力・遅延許容FIFO・確定先読み付きで順番に実行する基準実装。",
 };
 
 export default function LivePage() {
-  return <LiveFaithfulLab />;
+  return <FaithfulLiveClient />;
 }

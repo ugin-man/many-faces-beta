@@ -1,19 +1,19 @@
 {
   "schemaVersion": 2,
-  "testedCommit": "99c0c3ff3a33eaa711b7f7742b05d57394a73540",
-  "workflowRunId": 32749937293,
+  "testedCommit": "195a14cd0715a5da6ed7a23edba214f8222eeb32",
+  "workflowRunId": 32750782855,
   "route": "/live",
-  "pipeline": "motion-driven-packed-buffer-v1",
+  "pipeline": "motion-driven-packed-buffer-v2",
   "targetMovingOutputFps": [
     10,
     20
   ],
-  "staticBehavior": "hold-current-face",
+  "staticBehavior": "hold-current-face-and-skip-ranking",
   "outcomes": {
-    "install": "success",
-    "build": "success",
-    "tests": "success",
-    "lint": "success"
+    "install": "skipped",
+    "build": "skipped",
+    "tests": "skipped",
+    "lint": "skipped"
   },
-  "passed": true
+  "passed": false
 }

@@ -148,6 +148,13 @@ export class ResponsiveSwitchController {
   }
 }
 
+export function shouldRunLiveSearch(
+  currentId: string | null,
+  decision: Pick<ResponsiveSwitchDecision, "isMoving" | "shouldSwitch">,
+) {
+  return !currentId || decision.isMoving || decision.shouldSwitch;
+}
+
 export type RankedCandidateLike<T> = {
   candidate: T;
   score: number;

@@ -95,6 +95,7 @@ self.onmessage = async (event) => {
   encoded = 0;
   previousTimestamp = null;
   estimatedSourceDrops = 0;
+  let failed = false;
   const track = event.data.track;
   const size = Math.max(256, Math.min(960, Number(event.data.size || 512)));
   const quality = Math.max(0.55, Math.min(1, Number(event.data.quality || 0.94)));
@@ -135,16 +136,22 @@ self.onmessage = async (event) => {
       }
     }
   } catch (error) {
+    failed = true;
     if (running) {
       self.postMessage({ type: "error", message: String(error?.message || error) });
     }
   } finally {
     running = false;
-    try { await drainPromise; } catch {}
+    try {
+      await drainPromise;
+    } catch (error) {
+      failed = true;
+      self.postMessage({ type: "error", message: String(error?.message || error) });
+    }
     try { reader?.releaseLock(); } catch {}
     reader = null;
     try { track.stop(); } catch {}
     postStats();
-    self.postMessage({ type: "stopped" });
+    if (!failed) self.postMessage({ type: "stopped" });
   }
 };

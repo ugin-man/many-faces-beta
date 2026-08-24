@@ -4,5 +4,5 @@
   "catalog": "public/seed-catalog",
   "targetDetectionFps": 28,
   "boundedSearchBudget": 96,
-  "nonce": 4
+  "nonce": 5
 }

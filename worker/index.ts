@@ -33,6 +33,7 @@ interface ExecutionContext {
 
 const CATALOG_PREFIX = "face-catalog/";
 const MAX_CATALOG_OBJECT_BYTES = 8 * 1024 * 1024;
+const CATALOG_PREFERENCE_CACHE_MS = 5_000;
 
 function fetchBundledAsset(request: Request, env: Env, path: string, headers?: Headers) {
   const assetRequest = new Request(new URL(path, request.url), { headers });
@@ -78,10 +79,11 @@ function isCatalogExportPath(path: string) {
 
 function isSeedCatalogPath(path: string) {
   return (
-    path === "manifest.json" || /^index_[0-9]{3}\.json$/i.test(path) ||
-    /^shards\/seed_[a-z0-9_.+-]+\.json$/i.test(path) ||
-    /^packs\/seed_pack_[0-9]{3}\.bin$/i.test(path) ||
-    /^images\/seed_ffhq_[0-9]{5}\.webp$/i.test(path)
+    path === "manifest.json" ||
+    /^index_[0-9]{3}\.json$/i.test(path) ||
+    /^shards\/[a-z0-9_.+-]+\.json$/i.test(path) ||
+    /^packs\/[a-z0-9_.-]+\.bin$/i.test(path) ||
+    /^images\/[a-z0-9_.-]+\.(?:avif|jpe?g|png|webp)$/i.test(path)
   );
 }
 
@@ -144,33 +146,29 @@ async function seedCatalogRead(
   return new Response(response.body, { headers });
 }
 
-async function catalogRead(
-  request: Request,
-  env: Env,
-  path: string,
-  immutable = false,
-) {
-  const object = await env.BUCKET.get(`${CATALOG_PREFIX}${path}`);
-  if (!object) return seedCatalogRead(request, env, path, immutable);
-  return new Response(object.body, {
-    headers: {
-      "cache-control": immutable
-        ? "private, max-age=31536000, immutable"
-        : "private, no-cache",
-      "content-type": catalogContentType(path),
-      "x-content-type-options": "nosniff",
-    },
-  });
-}
-
 type CatalogManifest = {
   schemaVersion?: number;
+  catalogId?: string;
+  generatedAt?: string;
   shapeVersion?: string;
   totalFaces?: number;
   indexFiles?: string[];
   shardsContainGeometry?: boolean;
   cells?: Record<string, { count?: number; shards?: string[] }>;
+  stats?: {
+    cleanCore?: {
+      runtimeImagePolicy?: string;
+      knownSyntheticFaces?: number;
+    };
+  };
 };
+
+type CatalogPreferenceCache = {
+  expiresAt: number;
+  remoteManifest: CatalogManifest | null;
+};
+
+let catalogPreferenceCache: CatalogPreferenceCache | null = null;
 
 function isSearchableCatalog(payload: CatalogManifest) {
   return (
@@ -184,19 +182,83 @@ function isSearchableCatalog(payload: CatalogManifest) {
   );
 }
 
+function isRealPhotoOnlyCatalog(payload: CatalogManifest) {
+  const cleanCore = payload.stats?.cleanCore;
+  return (
+    cleanCore?.runtimeImagePolicy === "real-photo-only-v1" &&
+    Number(cleanCore.knownSyntheticFaces ?? -1) === 0
+  );
+}
+
 async function preferredRemoteManifest(request: Request, env: Env) {
-  const remoteObject = await env.BUCKET.get(`${CATALOG_PREFIX}manifest.json`);
-  if (!remoteObject) return null;
-  try {
-    const remote = JSON.parse(await remoteObject.text()) as CatalogManifest;
-    if (!isSearchableCatalog(remote)) return null;
-    const seedResponse = await fetchBundledAsset(request, env, "/seed-catalog/manifest.json");
-    if (!seedResponse.ok) return remote;
-    const seed = await seedResponse.json() as CatalogManifest;
-    return Number(remote.totalFaces ?? 0) >= Number(seed.totalFaces ?? 0) ? remote : null;
-  } catch {
-    return null;
+  const now = Date.now();
+  if (catalogPreferenceCache && catalogPreferenceCache.expiresAt > now) {
+    return catalogPreferenceCache.remoteManifest;
   }
+
+  let selected: CatalogManifest | null = null;
+  const remoteObject = await env.BUCKET.get(`${CATALOG_PREFIX}manifest.json`);
+  if (remoteObject) {
+    try {
+      const remote = JSON.parse(await remoteObject.text()) as CatalogManifest;
+      if (isSearchableCatalog(remote) && isRealPhotoOnlyCatalog(remote)) {
+        const seedResponse = await fetchBundledAsset(request, env, "/seed-catalog/manifest.json");
+        if (!seedResponse.ok) {
+          selected = remote;
+        } else {
+          const seed = await seedResponse.json() as CatalogManifest;
+          if (!isSearchableCatalog(seed) || !isRealPhotoOnlyCatalog(seed)) {
+            selected = remote;
+          } else {
+            const remoteFaces = Number(remote.totalFaces ?? 0);
+            const seedFaces = Number(seed.totalFaces ?? 0);
+            if (remoteFaces > seedFaces) {
+              selected = remote;
+            } else if (remoteFaces === seedFaces) {
+              const remoteGeneratedAt = Date.parse(remote.generatedAt ?? "");
+              const seedGeneratedAt = Date.parse(seed.generatedAt ?? "");
+              if (
+                Number.isFinite(remoteGeneratedAt) &&
+                Number.isFinite(seedGeneratedAt) &&
+                remoteGeneratedAt > seedGeneratedAt
+              ) {
+                selected = remote;
+              }
+            }
+          }
+        }
+      }
+    } catch {
+      selected = null;
+    }
+  }
+
+  catalogPreferenceCache = {
+    expiresAt: now + CATALOG_PREFERENCE_CACHE_MS,
+    remoteManifest: selected,
+  };
+  return selected;
+}
+
+async function catalogRead(
+  request: Request,
+  env: Env,
+  path: string,
+  immutable = false,
+) {
+  const remote = await preferredRemoteManifest(request, env);
+  if (!remote) return seedCatalogRead(request, env, path, immutable);
+  const object = await env.BUCKET.get(`${CATALOG_PREFIX}${path}`);
+  if (!object) return seedCatalogRead(request, env, path, immutable);
+  return new Response(object.body, {
+    headers: {
+      "cache-control": immutable
+        ? "private, max-age=31536000, immutable"
+        : "private, no-cache",
+      "content-type": catalogContentType(path),
+      "x-content-type-options": "nosniff",
+    },
+  });
 }
 
 async function catalogManifestRead(request: Request, env: Env) {
@@ -209,8 +271,7 @@ async function catalogIndexRead(request: Request, env: Env, file: string) {
   if (!/^index_[0-9]{3}\.json$/i.test(file)) {
     return catalogJson({ error: "Invalid index" }, 400);
   }
-  if (await preferredRemoteManifest(request, env)) return catalogRead(request, env, file, true);
-  return seedCatalogRead(request, env, file, true);
+  return catalogRead(request, env, file, true);
 }
 
 async function catalogExportRead(request: Request, env: Env, path: string) {
@@ -258,9 +319,6 @@ async function handleCatalog(request: Request, env: Env, url: URL) {
     if (request.method === "GET" && url.pathname === "/api/catalog/image") {
       const id = url.searchParams.get("id") ?? "";
       if (/^[a-z0-9_.-]+\.(?:avif|jpe?g|png|webp)$/i.test(id)) {
-        if (id.startsWith("seed_ffhq_")) {
-          return seedCatalogRead(request, env, `images/${id}`, true);
-        }
         return catalogRead(request, env, `images/${id}`, true);
       }
       const pack = url.searchParams.get("pack") ?? "";
@@ -276,14 +334,12 @@ async function handleCatalog(request: Request, env: Env, url: URL) {
       ) {
         return catalogJson({ error: "Invalid image range" }, 400);
       }
+      const remote = await preferredRemoteManifest(request, env);
+      if (!remote) return seedCatalogPackRange(request, env, pack, offset, length);
       const object = await env.BUCKET.get(`${CATALOG_PREFIX}packs/${pack}`, {
         range: { offset, length },
       });
-      if (!object) {
-        return pack.startsWith("seed_pack_")
-          ? seedCatalogPackRange(request, env, pack, offset, length)
-          : catalogJson({ error: "Image pack not found" }, 404);
-      }
+      if (!object) return seedCatalogPackRange(request, env, pack, offset, length);
       return new Response(object.body, {
         headers: {
           "cache-control": "private, max-age=31536000, immutable",
@@ -313,6 +369,7 @@ async function handleCatalog(request: Request, env: Env, url: URL) {
       await env.BUCKET.put(`${CATALOG_PREFIX}${path}`, body, {
         httpMetadata: { contentType: catalogContentType(path) },
       });
+      catalogPreferenceCache = null;
       return catalogJson({ ok: true, path, bytes: body.byteLength });
     }
 

@@ -12,7 +12,7 @@ self.onmessage = async (event) => {
 
   running = true;
   const track = event.data.track;
-  const size = Math.max(192, Math.min(720, Number(event.data.size || 384)));
+  const maxSize = Math.max(192, Math.min(720, Number(event.data.size || 512)));
   const quality = Math.max(0.5, Math.min(1, Number(event.data.quality || 0.9)));
   try {
     if (typeof MediaStreamTrackProcessor === "undefined" || typeof OffscreenCanvas === "undefined") {
@@ -20,8 +20,8 @@ self.onmessage = async (event) => {
     }
     const processor = new MediaStreamTrackProcessor({ track });
     reader = processor.readable.getReader();
-    const canvas = new OffscreenCanvas(size, size);
-    const context = canvas.getContext("2d", { alpha: false });
+    const canvas = new OffscreenCanvas(maxSize, maxSize);
+    let context = canvas.getContext("2d", { alpha: false });
     if (!context) throw new Error("OFFSCREEN_CANVAS_UNAVAILABLE");
 
     while (running) {
@@ -29,12 +29,18 @@ self.onmessage = async (event) => {
       if (result.done || !result.value) break;
       const frame = result.value;
       try {
-        const width = frame.displayWidth || frame.codedWidth || size;
-        const height = frame.displayHeight || frame.codedHeight || size;
-        const side = Math.min(width, height);
-        const sx = Math.max(0, (width - side) / 2);
-        const sy = Math.max(0, (height - side) / 2);
-        context.drawImage(frame, sx, sy, side, side, 0, 0, size, size);
+        const width = frame.displayWidth || frame.codedWidth || maxSize;
+        const height = frame.displayHeight || frame.codedHeight || maxSize;
+        const scale = Math.min(1, maxSize / Math.max(width, height));
+        const outputWidth = Math.max(1, Math.round(width * scale));
+        const outputHeight = Math.max(1, Math.round(height * scale));
+        if (canvas.width !== outputWidth || canvas.height !== outputHeight) {
+          canvas.width = outputWidth;
+          canvas.height = outputHeight;
+          context = canvas.getContext("2d", { alpha: false });
+          if (!context) throw new Error("OFFSCREEN_CANVAS_UNAVAILABLE");
+        }
+        context.drawImage(frame, 0, 0, width, height, 0, 0, outputWidth, outputHeight);
         const blob = await canvas.convertToBlob({ type: "image/webp", quality });
         self.postMessage({
           type: "frame",

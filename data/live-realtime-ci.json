@@ -11,5 +11,5 @@
   "matching": "offline-strict-two-stage-projection",
   "frameDroppingPolicy": "no-intentional-drop-after-camera-capture",
   "displayPolicy": "decode-and-paint-barrier-before-next-analysis-frame",
-  "nonce": 13
+  "nonce": 14
 }

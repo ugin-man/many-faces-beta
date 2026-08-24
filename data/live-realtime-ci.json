@@ -9,5 +9,5 @@
   "minimumMovingOutputFps": 10,
   "boundedSearchBudget": 128,
   "staticBehavior": "hold-current-face-and-skip-ranking",
-  "nonce": 10
+  "nonce": 11
 }

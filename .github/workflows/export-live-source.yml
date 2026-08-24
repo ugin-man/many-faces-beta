@@ -5,6 +5,10 @@ on:
     branches: [work/coverage-driven-200k]
     paths:
       - data/export-live-source.json
+  pull_request:
+    branches: [main]
+    paths:
+      - data/export-live-source.json
   workflow_dispatch:
 
 permissions:
@@ -17,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
           sparse-checkout: |
             /*

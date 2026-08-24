@@ -1,5 +1,0 @@
-{
-  "schemaVersion": 1,
-  "purpose": "wire direct per-image decoding ahead of cold whole-pack warm-up",
-  "nonce": 1
-}

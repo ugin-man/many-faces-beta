@@ -1,4 +1,5 @@
 let running = false;
+let stopRequested = false;
 let reader = null;
 let drainPromise = null;
 let rawQueue = [];
@@ -78,6 +79,7 @@ function startDrain(size, quality) {
 }
 
 async function stopReader() {
+  stopRequested = true;
   running = false;
   try { await reader?.cancel(); } catch {}
 }
@@ -90,6 +92,7 @@ self.onmessage = async (event) => {
   if (event.data?.type !== "start" || !event.data.track || running) return;
 
   running = true;
+  stopRequested = false;
   rawQueue = [];
   sequence = 0;
   encoded = 0;
@@ -136,8 +139,8 @@ self.onmessage = async (event) => {
       }
     }
   } catch (error) {
-    failed = true;
-    if (running) {
+    if (!stopRequested) {
+      failed = true;
       self.postMessage({ type: "error", message: String(error?.message || error) });
     }
   } finally {

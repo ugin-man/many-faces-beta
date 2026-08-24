@@ -4,10 +4,13 @@ export type LiveImageBufferStats = {
   readyImages: number;
   pendingImages: number;
   loadedPacks: number;
+  pendingPacks: number;
   packBytes: number;
   packRequests: number;
   fallbackRequests: number;
   failures: number;
+  primeRequests: number;
+  primePasses: number;
 };
 
 export type LivePackedImageBufferOptions = {
@@ -15,13 +18,16 @@ export type LivePackedImageBufferOptions = {
   maxImageUrls?: number;
   maxPackBytes?: number;
   preloadConcurrency?: number;
+  decodeTimeoutMs?: number;
 };
 
 type PackRecord = {
   promise: Promise<ArrayBuffer>;
+  controller: AbortController;
   bytes: number;
   touchedAt: number;
   settled: boolean;
+  generation: number;
 };
 
 type ImageRecord = {
@@ -40,28 +46,44 @@ function validPackedReference(candidate: LiveCandidate) {
   );
 }
 
+function uniqueCandidates(candidates: readonly LiveCandidate[]) {
+  return [...new Map(candidates.map((candidate) => [candidate.id, candidate])).values()];
+}
+
 export function choosePreloadCandidates(
   candidates: readonly LiveCandidate[],
-  loadedPacks: ReadonlySet<string>,
+  knownPacks: ReadonlySet<string>,
   maxImages = 36,
   maxNewPacks = 2,
 ) {
-  const selectedPacks = new Set(loadedPacks);
+  const unique = uniqueCandidates(candidates);
+  const selectedPacks = new Set(knownPacks);
   let newPacks = 0;
-  for (const candidate of candidates) {
+  for (const candidate of unique) {
     if (!candidate.pack || selectedPacks.has(candidate.pack)) continue;
     if (newPacks >= maxNewPacks) break;
     selectedPacks.add(candidate.pack);
     newPacks += 1;
   }
-  return candidates
+
+  const priority = (candidate: LiveCandidate) => {
+    if (candidate.image) return 0;
+    if (candidate.pack && knownPacks.has(candidate.pack)) return 0;
+    if (candidate.pack && selectedPacks.has(candidate.pack)) return 1;
+    return 2;
+  };
+
+  return unique
     .filter(
       (candidate) =>
         Boolean(candidate.image) ||
         !candidate.pack ||
         selectedPacks.has(candidate.pack),
     )
-    .slice(0, Math.max(1, maxImages));
+    .map((candidate, index) => ({ candidate, index, priority: priority(candidate) }))
+    .sort((left, right) => left.priority - right.priority || left.index - right.index)
+    .slice(0, Math.max(1, maxImages))
+    .map(({ candidate }) => candidate);
 }
 
 export class LivePackedImageBuffer {
@@ -69,31 +91,47 @@ export class LivePackedImageBuffer {
   private readonly maxImageUrls: number;
   private readonly maxPackBytes: number;
   private readonly preloadConcurrency: number;
+  private readonly decodeTimeoutMs: number;
   private readonly packs = new Map<string, PackRecord>();
   private readonly images = new Map<string, ImageRecord>();
   private readonly pending = new Map<string, Promise<string | null>>();
+  private primeQueue: LiveCandidate[] = [];
+  private primeLoop: Promise<void> | null = null;
+  private generation = 0;
   private packRequests = 0;
   private fallbackRequests = 0;
   private failures = 0;
+  private primeRequests = 0;
+  private primePasses = 0;
 
   constructor(options: LivePackedImageBufferOptions = {}) {
     this.basePath = (options.catalogBasePath ?? "/seed-catalog").replace(/\/$/, "");
     this.maxImageUrls = Math.max(24, options.maxImageUrls ?? 192);
     this.maxPackBytes = Math.max(8 * 1024 * 1024, options.maxPackBytes ?? 36 * 1024 * 1024);
     this.preloadConcurrency = Math.max(1, Math.min(8, options.preloadConcurrency ?? 4));
+    this.decodeTimeoutMs = Math.max(500, Math.min(15_000, options.decodeTimeoutMs ?? 4_000));
   }
 
   stats(): LiveImageBufferStats {
     let packBytes = 0;
-    for (const record of this.packs.values()) packBytes += record.bytes;
+    let loadedPacks = 0;
+    let pendingPacks = 0;
+    for (const record of this.packs.values()) {
+      packBytes += record.bytes;
+      if (record.settled) loadedPacks += 1;
+      else pendingPacks += 1;
+    }
     return {
       readyImages: this.images.size,
       pendingImages: this.pending.size,
-      loadedPacks: [...this.packs.values()].filter((record) => record.settled).length,
+      loadedPacks,
+      pendingPacks,
       packBytes,
       packRequests: this.packRequests,
       fallbackRequests: this.fallbackRequests,
       failures: this.failures,
+      primeRequests: this.primeRequests,
+      primePasses: this.primePasses,
     };
   }
 
@@ -105,6 +143,10 @@ export class LivePackedImageBuffer {
     );
   }
 
+  knownPackNames() {
+    return new Set(this.packs.keys());
+  }
+
   isReady(candidate: LiveCandidate) {
     return this.images.has(candidate.id);
   }
@@ -113,6 +155,8 @@ export class LivePackedImageBuffer {
     const record = this.images.get(candidate.id);
     if (!record) return null;
     record.touchedAt = performance.now();
+    this.images.delete(candidate.id);
+    this.images.set(candidate.id, record);
     return record.url;
   }
 
@@ -121,44 +165,50 @@ export class LivePackedImageBuffer {
     if (ready) return Promise.resolve(ready);
     const existing = this.pending.get(candidate.id);
     if (existing) return existing;
-    const promise = this.prepare(candidate)
+
+    const generation = this.generation;
+    let promise: Promise<string | null>;
+    promise = this.prepare(candidate, generation)
       .catch((error) => {
-        console.warn("Live candidate image preparation failed.", candidate.id, error);
-        this.failures += 1;
+        if (generation === this.generation && !this.isAbortError(error)) {
+          console.warn("Live candidate image preparation failed.", candidate.id, error);
+          this.failures += 1;
+        }
         return null;
       })
       .finally(() => {
-        this.pending.delete(candidate.id);
+        if (this.pending.get(candidate.id) === promise) {
+          this.pending.delete(candidate.id);
+        }
       });
     this.pending.set(candidate.id, promise);
     return promise;
   }
 
-  async prime(
+  prime(
     ranked: readonly LiveCandidate[],
     options: { maxImages?: number; maxNewPacks?: number } = {},
   ) {
+    this.primeRequests += 1;
     const candidates = choosePreloadCandidates(
       ranked,
-      this.loadedPackNames(),
+      this.knownPackNames(),
       options.maxImages ?? 36,
       options.maxNewPacks ?? 2,
-    );
-    let index = 0;
-    const workers = Array.from(
-      { length: Math.min(this.preloadConcurrency, candidates.length) },
-      async () => {
-        while (index < candidates.length) {
-          const candidate = candidates[index];
-          index += 1;
-          await this.ensure(candidate);
-        }
-      },
-    );
-    await Promise.allSettled(workers);
+    ).filter((candidate) => !this.isReady(candidate));
+
+    // Every detection frame may submit a new ranking. Keep only the newest
+    // not-yet-started plan; at most one small batch from the previous plan is
+    // allowed to finish. This prevents dozens of overlapping worker pools and
+    // pack downloads when the face moves quickly.
+    this.primeQueue = candidates;
+    return this.startPrimeLoop();
   }
 
   clear() {
+    this.generation += 1;
+    this.primeQueue = [];
+    for (const record of this.packs.values()) record.controller.abort();
     for (const record of this.images.values()) {
       if (record.revoke) URL.revokeObjectURL(record.url);
     }
@@ -167,7 +217,37 @@ export class LivePackedImageBuffer {
     this.packs.clear();
   }
 
-  private rememberImage(id: string, url: string, revoke: boolean) {
+  private startPrimeLoop() {
+    if (this.primeLoop) return this.primeLoop;
+    const generation = this.generation;
+    const loop = this.drainPrimeQueue(generation).finally(() => {
+      if (this.primeLoop === loop) this.primeLoop = null;
+      if (generation === this.generation && this.primeQueue.length) {
+        void this.startPrimeLoop();
+      }
+    });
+    this.primeLoop = loop;
+    return loop;
+  }
+
+  private async drainPrimeQueue(generation: number) {
+    while (generation === this.generation && this.primeQueue.length) {
+      const batch = this.primeQueue.splice(0, this.preloadConcurrency);
+      this.primePasses += 1;
+      await Promise.allSettled(batch.map((candidate) => this.ensure(candidate)));
+    }
+  }
+
+  private rememberImage(
+    id: string,
+    url: string,
+    revoke: boolean,
+    generation: number,
+  ) {
+    if (generation !== this.generation) {
+      if (revoke) URL.revokeObjectURL(url);
+      return null;
+    }
     const previous = this.images.get(id);
     if (previous?.revoke && previous.url !== url) URL.revokeObjectURL(previous.url);
     this.images.delete(id);
@@ -183,17 +263,18 @@ export class LivePackedImageBuffer {
     return url;
   }
 
-  private async prepare(candidate: LiveCandidate) {
+  private async prepare(candidate: LiveCandidate, generation: number) {
     if (candidate.image) {
       const directUrl = `${this.basePath}/images/${encodeURIComponent(candidate.image)}`;
-      if (await this.decode(directUrl)) {
-        return this.rememberImage(candidate.id, directUrl, false);
+      if (await this.decode(directUrl, generation)) {
+        return this.rememberImage(candidate.id, directUrl, false, generation);
       }
     }
 
     if (validPackedReference(candidate)) {
       try {
-        const pack = await this.loadPack(candidate.pack as string);
+        const pack = await this.loadPack(candidate.pack as string, generation);
+        if (generation !== this.generation) return null;
         const offset = Number(candidate.offset);
         const length = Number(candidate.length);
         if (offset + length > pack.byteLength) {
@@ -201,33 +282,42 @@ export class LivePackedImageBuffer {
         }
         const bytes = new Uint8Array(pack, offset, length);
         const objectUrl = URL.createObjectURL(new Blob([bytes], { type: "image/webp" }));
-        if (await this.decode(objectUrl)) {
-          return this.rememberImage(candidate.id, objectUrl, true);
+        if (await this.decode(objectUrl, generation)) {
+          return this.rememberImage(candidate.id, objectUrl, true, generation);
         }
         URL.revokeObjectURL(objectUrl);
       } catch (error) {
-        console.warn("Direct bundled pack read failed; using API fallback.", candidate.pack, error);
+        if (!this.isAbortError(error)) {
+          console.warn("Direct bundled pack read failed; using API fallback.", candidate.pack, error);
+        }
       }
     }
 
+    if (generation !== this.generation) return null;
     this.fallbackRequests += 1;
-    if (await this.decode(candidate.url)) {
-      return this.rememberImage(candidate.id, candidate.url, false);
+    if (await this.decode(candidate.url, generation)) {
+      return this.rememberImage(candidate.id, candidate.url, false, generation);
     }
     throw new Error("Candidate image could not be decoded");
   }
 
-  private async decode(url: string) {
+  private decode(url: string, generation: number) {
     return new Promise<boolean>((resolve) => {
+      if (generation !== this.generation) {
+        resolve(false);
+        return;
+      }
       const image = new Image();
       image.decoding = "async";
       let settled = false;
+      const timeout = window.setTimeout(() => finish(false), this.decodeTimeoutMs);
       const finish = (value: boolean) => {
         if (settled) return;
         settled = true;
+        window.clearTimeout(timeout);
         image.onload = null;
         image.onerror = null;
-        resolve(value);
+        resolve(value && generation === this.generation);
       };
       image.onload = () => finish(true);
       image.onerror = () => finish(false);
@@ -236,7 +326,7 @@ export class LivePackedImageBuffer {
     });
   }
 
-  private loadPack(name: string) {
+  private loadPack(name: string, generation: number) {
     const existing = this.packs.get(name);
     if (existing) {
       existing.touchedAt = performance.now();
@@ -245,7 +335,10 @@ export class LivePackedImageBuffer {
       return existing.promise;
     }
 
+    const controller = new AbortController();
     const record: PackRecord = {
+      controller,
+      generation,
       bytes: 0,
       touchedAt: performance.now(),
       settled: false,
@@ -254,18 +347,22 @@ export class LivePackedImageBuffer {
     this.packRequests += 1;
     record.promise = fetch(
       `${this.basePath}/packs/${encodeURIComponent(name)}`,
-      { cache: "force-cache" },
+      { cache: "force-cache", signal: controller.signal },
     )
       .then(async (response) => {
         if (!response.ok) throw new Error(`PACK ${response.status}`);
         const buffer = await response.arrayBuffer();
+        if (generation !== this.generation) {
+          throw new DOMException("Stale image-buffer generation", "AbortError");
+        }
         record.bytes = buffer.byteLength;
         record.settled = true;
+        record.touchedAt = performance.now();
         this.evictPacks(name);
         return buffer;
       })
       .catch((error) => {
-        this.packs.delete(name);
+        if (this.packs.get(name) === record) this.packs.delete(name);
         throw error;
       });
     this.packs.set(name, record);
@@ -276,11 +373,17 @@ export class LivePackedImageBuffer {
     let total = 0;
     for (const record of this.packs.values()) total += record.bytes;
     if (total <= this.maxPackBytes) return;
-    for (const [name, record] of this.packs) {
-      if (name === protectedName || !record.settled) continue;
+    const settled = [...this.packs.entries()]
+      .filter(([name, record]) => name !== protectedName && record.settled)
+      .sort((left, right) => left[1].touchedAt - right[1].touchedAt);
+    for (const [name, record] of settled) {
       this.packs.delete(name);
       total -= record.bytes;
       if (total <= this.maxPackBytes) break;
     }
+  }
+
+  private isAbortError(error: unknown) {
+    return error instanceof DOMException && error.name === "AbortError";
   }
 }

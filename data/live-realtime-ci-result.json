@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
-  "testedCommit": "8908e0f455ef65e17320b7785353a2ca20af0db4",
-  "workflowRunId": 32768763678,
+  "testedCommit": "6afb07ff3f2932b4f0cb63a1f79ea147d6558334",
+  "workflowRunId": 32768841219,
   "route": "/live",
   "fastRoute": "/live/fast",
   "pipeline": "offline-faithful-fifo-v2",

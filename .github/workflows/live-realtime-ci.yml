@@ -20,12 +20,14 @@ on:
       - app/mode-nav.tsx
       - app/mode-nav.module.css
       - app/layout.tsx
+      - public/faithful-capture-worker-v2.js
       - worker/index.ts
       - tests/catalog-worker.test.mjs
       - tests/live-matching.test.mjs
       - tests/live-responsive-runtime.test.mjs
       - tests/live-packed-image-buffer.test.mjs
       - tests/live-faithful-sequence.test.mjs
+      - tests/live-faithful-delay.test.mjs
       - data/live-realtime-ci.json
   workflow_dispatch:
 
@@ -58,7 +60,7 @@ jobs:
         continue-on-error: true
         run: npm run build
       - id: tests
-        name: Run realtime and catalog delivery tests
+        name: Run realtime, faithful FIFO, and catalog delivery tests
         if: steps.install.outcome == 'success'
         continue-on-error: true
         run: |
@@ -67,6 +69,7 @@ jobs:
             tests/live-responsive-runtime.test.mjs \
             tests/live-packed-image-buffer.test.mjs \
             tests/live-faithful-sequence.test.mjs \
+            tests/live-faithful-delay.test.mjs \
             tests/catalog-worker.test.mjs
       - id: lint
         name: Lint application
@@ -91,16 +94,19 @@ jobs:
               'lint': os.environ.get('LINT_OUTCOME', 'missing'),
           }
           receipt = {
-              'schemaVersion': 3,
+              'schemaVersion': 4,
               'testedCommit': '${{ github.sha }}',
               'workflowRunId': int('${{ github.run_id }}'),
               'route': '/live',
               'fastRoute': '/live/fast',
-              'pipeline': 'offline-faithful-fifo-v1',
+              'pipeline': 'offline-faithful-fifo-v2',
               'captureTargetFps': 30,
-              'frameDroppingPolicy': 'no-intentional-drop-after-analysis-capture',
+              'captureGeometry': 'full-frame-aspect-preserved',
+              'frameDroppingPolicy': 'no-intentional-drop-after-camera-capture',
               'matching': 'offline-strict-two-stage-projection',
-              'sequence': 'offline-strict-streaming-equivalent',
+              'sequence': 'offline-strict-streaming-equivalent-with-configurable-lookahead',
+              'displayPolicy': 'decode-and-paint-barrier-before-next-analysis-frame',
+              'lookaheadSeconds': [0, 3, 10],
               'outcomes': outcomes,
               'passed': all(value == 'success' for value in outcomes.values()),
           }
@@ -115,7 +121,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/live-realtime-ci-result.json
-          git commit -m "chore(live): record faithful realtime verification" || exit 0
+          git commit -m "chore(live): record faithful FIFO v2 verification" || exit 0
           git fetch origin work/coverage-driven-200k
           git rebase origin/work/coverage-driven-200k
           git push origin HEAD:work/coverage-driven-200k

@@ -3,11 +3,11 @@
   "route": "/live",
   "legacyRoute": "/live/legacy",
   "catalog": "public/seed-catalog",
-  "pipeline": "motion-driven-packed-buffer-v2",
+  "pipeline": "motion-driven-pose-local-buffer-v2",
   "targetDetectionFps": 28,
   "targetMovingOutputFps": 20,
-  "minimumMovingOutputFps": 10,
+  "minimumMovingOutputFps": 12,
   "boundedSearchBudget": 128,
   "staticBehavior": "hold-current-face-and-skip-ranking",
-  "nonce": 11
+  "nonce": 12
 }

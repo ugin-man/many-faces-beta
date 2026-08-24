@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "purpose": "expand decoded-image and pose-neighborhood readiness after pose-local repacking",
+  "requiresPackingPolicy": "one-pack-per-3-degree-pose-cell-v1",
+  "targetMovingOutputFps": 20,
+  "minimumMovingOutputFps": 12,
+  "nonce": 1
+}

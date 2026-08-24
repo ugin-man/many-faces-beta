@@ -1,13 +1,15 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 4,
   "route": "/live",
+  "fastRoute": "/live/fast",
   "legacyRoute": "/live/legacy",
   "catalog": "public/seed-catalog",
-  "pipeline": "motion-driven-pose-local-buffer-v2",
-  "targetDetectionFps": 28,
-  "targetMovingOutputFps": 20,
-  "minimumMovingOutputFps": 12,
-  "boundedSearchBudget": 128,
-  "staticBehavior": "hold-current-face-and-skip-ranking",
-  "nonce": 12
+  "pipeline": "offline-faithful-fifo-v2",
+  "captureTargetFps": 30,
+  "captureGeometry": "full-frame-aspect-preserved",
+  "lookaheadSeconds": [0, 3, 10],
+  "matching": "offline-strict-two-stage-projection",
+  "frameDroppingPolicy": "no-intentional-drop-after-camera-capture",
+  "displayPolicy": "decode-and-paint-barrier-before-next-analysis-frame",
+  "nonce": 13
 }

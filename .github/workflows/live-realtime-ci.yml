@@ -64,6 +64,7 @@ jobs:
         if: steps.install.outcome == 'success'
         continue-on-error: true
         run: |
+          node --check public/faithful-capture-worker-v2.js
           node --experimental-strip-types --test \
             tests/live-matching.test.mjs \
             tests/live-responsive-runtime.test.mjs \

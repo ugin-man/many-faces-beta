@@ -1,0 +1,330 @@
+name: Patch live cadence and continuity
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/patch-live-cadence-continuity.json
+
+permissions:
+  contents: write
+
+concurrency:
+  group: many-faces-patch-live-cadence-continuity
+  cancel-in-progress: true
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/coverage-driven-200k
+          fetch-depth: 1
+          sparse-checkout: |
+            /*
+            !/public/seed-catalog/*
+            /public/seed-catalog/manifest.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - name: Add transition continuity to live ranking
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('app/live-matching.ts')
+          text = path.read_text(encoding='utf-8')
+          if 'continuityWeight?: number;' not in text:
+              anchor = '  hysteresis?: number;\n'
+              if anchor not in text:
+                  raise SystemExit('LiveRankOptions anchor was not found')
+              text = text.replace(anchor, anchor + '  continuityWeight?: number;\n', 1)
+
+          if 'export function liveCandidateTransitionDistance' not in text:
+              anchor = 'function scoreForMode(error: ProjectionError, mode: ProjectionRankMode) {\n'
+              start = text.find(anchor)
+              if start < 0:
+                  raise SystemExit('scoreForMode anchor was not found')
+              brace = text.find('{', start)
+              depth = 0
+              end = None
+              for index in range(brace, len(text)):
+                  if text[index] == '{':
+                      depth += 1
+                  elif text[index] == '}':
+                      depth -= 1
+                      if depth == 0:
+                          end = index + 1
+                          break
+              if end is None:
+                  raise SystemExit('scoreForMode end was not found')
+              addition = '''
+
+          export function liveCandidateTransitionDistance(
+            previous: Pick<LiveCandidate, "feature">,
+            next: Pick<LiveCandidate, "feature">,
+          ) {
+            const poseScales = [15, 18, 35];
+            let pose = 0;
+            for (let index = 0; index < 3; index += 1) {
+              const deltaDegrees =
+                (finite(next.feature[index]) - finite(previous.feature[index])) * 90;
+              const normalized = deltaDegrees / poseScales[index];
+              pose += normalized * normalized;
+            }
+            pose /= 3;
+
+            let action = 0;
+            let actionCount = 0;
+            const length = Math.min(previous.feature.length, next.feature.length);
+            for (let index = 3; index < length; index += 1) {
+              const delta = finite(next.feature[index]) - finite(previous.feature[index]);
+              action += delta * delta;
+              actionCount += 1;
+            }
+            if (actionCount) action /= actionCount;
+            return pose * 0.72 + action * 0.28;
+          }
+          '''
+              text = text[:end] + addition + text[end:]
+
+          if 'const continuityWeight = Math.max(0, options.continuityWeight ?? 0);' not in text:
+              anchor = '  const diversityPenalty = options.diversityPenalty ?? 0.012;\n'
+              if anchor not in text:
+                  raise SystemExit('diversity penalty anchor was not found')
+              text = text.replace(
+                  anchor,
+                  anchor + '''  const continuityWeight = Math.max(0, options.continuityWeight ?? 0);
+          const currentCandidate = options.currentId
+            ? query.candidates.find((candidate) => candidate.id === options.currentId) ?? null
+            : null;
+          ''',
+                  1,
+              )
+
+          if 'liveCandidateTransitionDistance(currentCandidate, candidate)' not in text:
+              anchor = '''    if (recentIndex >= 0 && candidate.id !== options.currentId) {
+              score += diversityPenalty * (recentIds.length - recentIndex) / Math.max(1, recentIds.length);
+            }
+          '''
+              if anchor not in text:
+                  raise SystemExit('recent identity penalty anchor was not found')
+              addition = '''    if (
+              continuityWeight > 0 &&
+              currentCandidate &&
+              candidate.id !== currentCandidate.id
+            ) {
+              score += liveCandidateTransitionDistance(currentCandidate, candidate) * continuityWeight;
+            }
+          '''
+              text = text.replace(anchor, anchor + addition, 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+      - name: Add adaptive cadence to the responsive lab
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('app/live-responsive-lab.tsx')
+          text = path.read_text(encoding='utf-8')
+          import_line = 'import { AdaptiveSearchCadence } from "./live-search-cadence.ts";\n'
+          if import_line not in text:
+              anchor = 'import styles from "./live-face-lab.module.css";\n'
+              if anchor not in text:
+                  raise SystemExit('Responsive lab style import was not found')
+              text = text.replace(anchor, import_line + anchor, 1)
+
+          if 'const searchCadenceRef = useRef(new AdaptiveSearchCadence' not in text:
+              anchor = '  const switchControllerRef = useRef(new ResponsiveSwitchController());\n'
+              if anchor not in text:
+                  raise SystemExit('Switch controller ref was not found')
+              text = text.replace(
+                  anchor,
+                  anchor + '  const searchCadenceRef = useRef(new AdaptiveSearchCadence({ targetFps: 20 }));\n',
+                  1,
+              )
+
+          if 'searchCadenceRef.current.shouldSearch(now)' not in text:
+              needle = 'shouldRunLiveSearch('
+              call = text.find(needle)
+              if call < 0:
+                  raise SystemExit('shouldRunLiveSearch call was not found')
+              open_paren = text.find('(', call)
+              depth = 0
+              close = None
+              for index in range(open_paren, len(text)):
+                  if text[index] == '(':
+                      depth += 1
+                  elif text[index] == ')':
+                      depth -= 1
+                      if depth == 0:
+                          close = index
+                          break
+              if close is None:
+                  raise SystemExit('shouldRunLiveSearch closing parenthesis was not found')
+              text = (
+                  text[:close + 1]
+                  + ' && searchCadenceRef.current.shouldSearch(now)'
+                  + text[close + 1:]
+              )
+
+          if 'searchCadenceRef.current.record(searchMs);' not in text:
+              anchor = '      const searchMs = performance.now() - searchStarted;\n'
+              if anchor not in text:
+                  raise SystemExit('Search duration anchor was not found')
+              text = text.replace(
+                  anchor,
+                  anchor + '      searchCadenceRef.current.record(searchMs);\n',
+                  1,
+              )
+
+          if 'searchCadenceRef.current.reset();' not in text:
+              anchor = '    switchControllerRef.current.reset();\n'
+              if anchor not in text:
+                  raise SystemExit('Switch controller reset was not found')
+              text = text.replace(
+                  anchor,
+                  anchor + '    searchCadenceRef.current.reset();\n',
+                  1,
+              )
+
+          if 'continuityWeight:' not in text:
+              start = text.find('const ranked = rankLiveCandidates(')
+              if start < 0:
+                  start = text.find('rankLiveCandidates(')
+              if start < 0:
+                  raise SystemExit('rankLiveCandidates call was not found')
+              end = text.find(');', start)
+              if end < 0:
+                  raise SystemExit('rankLiveCandidates call end was not found')
+              block = text[start:end]
+              if 'hysteresis:' in block:
+                  updated = re.sub(
+                      r'(\n\s*hysteresis:\s*[^,\n]+,)',
+                      r'\1\n          continuityWeight: 0.028,',
+                      block,
+                      count=1,
+                  )
+              elif 'recentIds:' in block:
+                  updated = re.sub(
+                      r'(\n\s*recentIds:\s*[^,\n]+,)',
+                      r'\1\n          continuityWeight: 0.028,',
+                      block,
+                      count=1,
+                  )
+              else:
+                  raise SystemExit('Live ranking options anchor was not found')
+              if updated == block:
+                  raise SystemExit('Continuity option insertion failed')
+              text = text[:start] + updated + text[end:]
+
+          path.write_text(text, encoding='utf-8')
+          PY
+      - name: Extend realtime tests and CI
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          test = Path('tests/live-matching.test.mjs')
+          text = test.read_text(encoding='utf-8')
+          if '  liveCandidateTransitionDistance,\n' not in text:
+              anchor = '  decodeCatalogVector,\n'
+              if anchor not in text:
+                  raise SystemExit('Live matching import anchor was not found')
+              text = text.replace(
+                  anchor,
+                  anchor + '  liveCandidateTransitionDistance,\n',
+                  1,
+              )
+          if 'transition continuity prefers a nearby intermediate candidate' not in text:
+              text += '''
+
+          test("transition distance grows with pose and action jumps", () => {
+            const current = candidate("current-distance", 0, { yaw: 0 });
+            const near = candidate("near-distance", 0, { yaw: 3 });
+            const far = candidate("far-distance", 0, {
+              yaw: 30,
+              actions: { mouthPucker: 0.8, eyeBlinkLeft: 0.7 },
+            });
+            assert.ok(
+              liveCandidateTransitionDistance(current, near) <
+                liveCandidateTransitionDistance(current, far),
+            );
+          });
+
+          test("transition continuity prefers a nearby intermediate candidate in a near tie", () => {
+            const current = candidate("current", 0, { yaw: 0 });
+            const far = candidate("a-far", 0, { yaw: 30 });
+            const near = candidate("z-near", 0, { yaw: 3 });
+            const frame = candidate("frame", 0, { yaw: 16.5 });
+            const index = buildLiveCandidateIndex([current, far, near]);
+            const result = rankLiveCandidates(index, frame, {
+              currentId: current.id,
+              holdBias: 0,
+              hysteresis: 0,
+              continuityWeight: 0.08,
+              budget: 16,
+              detailedLimit: 8,
+            });
+            assert.equal(result.winner?.candidate.id, near.id);
+          });
+          '''
+          test.write_text(text, encoding='utf-8')
+
+          workflow = Path('.github/workflows/live-realtime-ci.yml')
+          text = workflow.read_text(encoding='utf-8')
+          for line, anchor in (
+              ('      - app/live-search-cadence.ts\n', '      - app/live-responsive-runtime.ts\n'),
+              ('      - tests/live-search-cadence.test.mjs\n', '      - tests/live-responsive-runtime.test.mjs\n'),
+          ):
+              if line not in text:
+                  if anchor not in text:
+                      raise SystemExit(f'CI path anchor missing: {anchor.strip()}')
+                  text = text.replace(anchor, anchor + line, 1)
+          command = '            tests/live-search-cadence.test.mjs \\\n'
+          if command not in text:
+              anchor = '            tests/live-responsive-runtime.test.mjs \\\n'
+              if anchor not in text:
+                  raise SystemExit('CI cadence test command anchor was not found')
+              text = text.replace(anchor, anchor + command, 1)
+          workflow.write_text(text, encoding='utf-8')
+
+          config = Path('data/live-realtime-ci.json')
+          json = __import__('json')
+          payload = json.loads(config.read_text(encoding='utf-8'))
+          payload['nonce'] = int(payload.get('nonce', 0)) + 1
+          payload['searchCadence'] = 'adaptive-12-to-20fps-v1'
+          payload['transitionContinuity'] = 'near-tie-feature-path-v1'
+          config.write_text(json.dumps(payload, indent=2) + '\n', encoding='utf-8')
+          PY
+      - name: Validate cadence and continuity
+        run: |
+          npm ci
+          npm run build
+          node --experimental-strip-types --test \
+            tests/live-matching.test.mjs \
+            tests/live-responsive-runtime.test.mjs \
+            tests/live-search-cadence.test.mjs \
+            tests/live-packed-image-buffer.test.mjs \
+            tests/live-responsive-image-buffer.test.mjs \
+            tests/catalog-worker.test.mjs
+          npm run lint
+      - name: Commit cadence and continuity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            app/live-matching.ts \
+            app/live-responsive-lab.tsx \
+            tests/live-matching.test.mjs \
+            .github/workflows/live-realtime-ci.yml \
+            data/live-realtime-ci.json
+          git commit -m "perf(live): adapt search cadence and preserve motion path"
+          git fetch origin work/coverage-driven-200k
+          git rebase origin/work/coverage-driven-200k
+          git push origin HEAD:work/coverage-driven-200k

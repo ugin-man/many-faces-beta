@@ -387,7 +387,7 @@ export default function LiveResponsiveLab() {
   const previousClearTimerRef = useRef<number | null>(null);
   const modeRef = useRef<ProjectionRankMode>("strict");
 
-  if (!imageBufferRef.current) {
+  if (imageBufferRef.current == null) {
     imageBufferRef.current = new LivePackedImageBuffer({
       maxImageUrls: 224,
       maxPackBytes: 40 * 1024 * 1024,
@@ -595,7 +595,10 @@ export default function LiveResponsiveLab() {
   }, [loadCatalogNeighborhood]);
 
   useEffect(() => {
-    void reloadCatalog();
+    const timer = window.setTimeout(() => {
+      void reloadCatalog();
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [reloadCatalog]);
 
   useEffect(() => {

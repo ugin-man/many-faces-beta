@@ -167,21 +167,19 @@ export class LivePackedImageBuffer {
     if (existing) return existing;
 
     const generation = this.generation;
-    let promise: Promise<string | null>;
-    promise = this.prepare(candidate, generation)
-      .catch((error) => {
-        if (generation === this.generation && !this.isAbortError(error)) {
-          console.warn("Live candidate image preparation failed.", candidate.id, error);
-          this.failures += 1;
-        }
-        return null;
-      })
-      .finally(() => {
-        if (this.pending.get(candidate.id) === promise) {
-          this.pending.delete(candidate.id);
-        }
-      });
+    const promise = this.prepare(candidate, generation).catch((error) => {
+      if (generation === this.generation && !this.isAbortError(error)) {
+        console.warn("Live candidate image preparation failed.", candidate.id, error);
+        this.failures += 1;
+      }
+      return null;
+    });
     this.pending.set(candidate.id, promise);
+    void promise.finally(() => {
+      if (this.pending.get(candidate.id) === promise) {
+        this.pending.delete(candidate.id);
+      }
+    });
     return promise;
   }
 
@@ -208,6 +206,7 @@ export class LivePackedImageBuffer {
   clear() {
     this.generation += 1;
     this.primeQueue = [];
+    this.primeLoop = null;
     for (const record of this.packs.values()) record.controller.abort();
     for (const record of this.images.values()) {
       if (record.revoke) URL.revokeObjectURL(record.url);
@@ -310,11 +309,11 @@ export class LivePackedImageBuffer {
       const image = new Image();
       image.decoding = "async";
       let settled = false;
-      const timeout = window.setTimeout(() => finish(false), this.decodeTimeoutMs);
+      const timeout = globalThis.setTimeout(() => finish(false), this.decodeTimeoutMs);
       const finish = (value: boolean) => {
         if (settled) return;
         settled = true;
-        window.clearTimeout(timeout);
+        globalThis.clearTimeout(timeout);
         image.onload = null;
         image.onerror = null;
         resolve(value && generation === this.generation);

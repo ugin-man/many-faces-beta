@@ -7,6 +7,8 @@ export type LiveImageBufferStats = {
   pendingPacks: number;
   packBytes: number;
   packRequests: number;
+  rangeRequests: number;
+  rangeHits: number;
   fallbackRequests: number;
   failures: number;
   primeRequests: number;
@@ -19,6 +21,7 @@ export type LivePackedImageBufferOptions = {
   maxPackBytes?: number;
   preloadConcurrency?: number;
   decodeTimeoutMs?: number;
+  fastLaneImages?: number;
 };
 
 type PackRecord = {
@@ -34,6 +37,11 @@ type ImageRecord = {
   url: string;
   touchedAt: number;
   revoke: boolean;
+};
+
+type PrimeItem = {
+  candidate: LiveCandidate;
+  preferRange: boolean;
 };
 
 function validPackedReference(candidate: LiveCandidate) {
@@ -92,13 +100,16 @@ export class LivePackedImageBuffer {
   private readonly maxPackBytes: number;
   private readonly preloadConcurrency: number;
   private readonly decodeTimeoutMs: number;
+  private readonly fastLaneImages: number;
   private readonly packs = new Map<string, PackRecord>();
   private readonly images = new Map<string, ImageRecord>();
   private readonly pending = new Map<string, Promise<string | null>>();
-  private primeQueue: LiveCandidate[] = [];
+  private primeQueue: PrimeItem[] = [];
   private primeLoop: Promise<void> | null = null;
   private generation = 0;
   private packRequests = 0;
+  private rangeRequests = 0;
+  private rangeHits = 0;
   private fallbackRequests = 0;
   private failures = 0;
   private primeRequests = 0;
@@ -110,6 +121,7 @@ export class LivePackedImageBuffer {
     this.maxPackBytes = Math.max(8 * 1024 * 1024, options.maxPackBytes ?? 36 * 1024 * 1024);
     this.preloadConcurrency = Math.max(1, Math.min(8, options.preloadConcurrency ?? 4));
     this.decodeTimeoutMs = Math.max(500, Math.min(15_000, options.decodeTimeoutMs ?? 4_000));
+    this.fastLaneImages = Math.max(0, Math.min(8, options.fastLaneImages ?? 4));
   }
 
   stats(): LiveImageBufferStats {
@@ -128,6 +140,8 @@ export class LivePackedImageBuffer {
       pendingPacks,
       packBytes,
       packRequests: this.packRequests,
+      rangeRequests: this.rangeRequests,
+      rangeHits: this.rangeHits,
       fallbackRequests: this.fallbackRequests,
       failures: this.failures,
       primeRequests: this.primeRequests,
@@ -160,14 +174,21 @@ export class LivePackedImageBuffer {
     return record.url;
   }
 
-  ensure(candidate: LiveCandidate) {
+  ensure(
+    candidate: LiveCandidate,
+    options: { preferRange?: boolean } = {},
+  ) {
     const ready = this.urlFor(candidate);
     if (ready) return Promise.resolve(ready);
     const existing = this.pending.get(candidate.id);
     if (existing) return existing;
 
     const generation = this.generation;
-    const promise = this.prepare(candidate, generation).catch((error) => {
+    const promise = this.prepare(
+      candidate,
+      generation,
+      Boolean(options.preferRange),
+    ).catch((error) => {
       if (generation === this.generation && !this.isAbortError(error)) {
         console.warn("Live candidate image preparation failed.", candidate.id, error);
         this.failures += 1;
@@ -185,7 +206,11 @@ export class LivePackedImageBuffer {
 
   prime(
     ranked: readonly LiveCandidate[],
-    options: { maxImages?: number; maxNewPacks?: number } = {},
+    options: {
+      maxImages?: number;
+      maxNewPacks?: number;
+      fastLaneImages?: number;
+    } = {},
   ) {
     this.primeRequests += 1;
     const candidates = choosePreloadCandidates(
@@ -194,12 +219,19 @@ export class LivePackedImageBuffer {
       options.maxImages ?? 36,
       options.maxNewPacks ?? 2,
     ).filter((candidate) => !this.isReady(candidate));
+    const fastLaneImages = Math.max(
+      0,
+      Math.min(8, options.fastLaneImages ?? this.fastLaneImages),
+    );
 
     // Every detection frame may submit a new ranking. Keep only the newest
     // not-yet-started plan; at most one small batch from the previous plan is
-    // allowed to finish. This prevents dozens of overlapping worker pools and
-    // pack downloads when the face moves quickly.
-    this.primeQueue = candidates;
+    // allowed to finish. The first few ranked images use the range endpoint as
+    // a latency hedge while their full packs warm in the background.
+    this.primeQueue = candidates.map((candidate, index) => ({
+      candidate,
+      preferRange: index < fastLaneImages,
+    }));
     return this.startPrimeLoop();
   }
 
@@ -233,7 +265,11 @@ export class LivePackedImageBuffer {
     while (generation === this.generation && this.primeQueue.length) {
       const batch = this.primeQueue.splice(0, this.preloadConcurrency);
       this.primePasses += 1;
-      await Promise.allSettled(batch.map((candidate) => this.ensure(candidate)));
+      await Promise.allSettled(
+        batch.map(({ candidate, preferRange }) =>
+          this.ensure(candidate, { preferRange }),
+        ),
+      );
     }
   }
 
@@ -262,7 +298,11 @@ export class LivePackedImageBuffer {
     return url;
   }
 
-  private async prepare(candidate: LiveCandidate, generation: number) {
+  private async prepare(
+    candidate: LiveCandidate,
+    generation: number,
+    preferRange: boolean,
+  ) {
     if (candidate.image) {
       const directUrl = `${this.basePath}/images/${encodeURIComponent(candidate.image)}`;
       if (await this.decode(directUrl, generation)) {
@@ -271,20 +311,37 @@ export class LivePackedImageBuffer {
     }
 
     if (validPackedReference(candidate)) {
+      const name = candidate.pack as string;
+      const existing = this.packs.get(name);
+      const packPromise = this.loadPack(name, generation);
+
+      if (preferRange && !existing?.settled) {
+        this.rangeRequests += 1;
+        const rangePromise = this.decode(candidate.url, generation);
+        const first = await Promise.race([
+          rangePromise.then((ok) => ({ source: "range" as const, ok })),
+          packPromise.then(
+            () => ({ source: "pack" as const, ok: true }),
+            () => ({ source: "pack" as const, ok: false }),
+          ),
+        ]);
+        if (first.source === "range" && first.ok) {
+          this.rangeHits += 1;
+          void packPromise.catch(() => undefined);
+          return this.rememberImage(candidate.id, candidate.url, false, generation);
+        }
+        if (first.source === "pack" && !first.ok) {
+          if (await rangePromise) {
+            this.rangeHits += 1;
+            return this.rememberImage(candidate.id, candidate.url, false, generation);
+          }
+          throw new Error("Both the range image and packed image failed");
+        }
+      }
+
       try {
-        const pack = await this.loadPack(candidate.pack as string, generation);
-        if (generation !== this.generation) return null;
-        const offset = Number(candidate.offset);
-        const length = Number(candidate.length);
-        if (offset + length > pack.byteLength) {
-          throw new RangeError("Packed image exceeds the downloaded pack");
-        }
-        const bytes = new Uint8Array(pack, offset, length);
-        const objectUrl = URL.createObjectURL(new Blob([bytes], { type: "image/webp" }));
-        if (await this.decode(objectUrl, generation)) {
-          return this.rememberImage(candidate.id, objectUrl, true, generation);
-        }
-        URL.revokeObjectURL(objectUrl);
+        const pack = await packPromise;
+        return await this.rememberPackedImage(candidate, pack, generation);
       } catch (error) {
         if (!this.isAbortError(error)) {
           console.warn("Direct bundled pack read failed; using API fallback.", candidate.pack, error);
@@ -298,6 +355,26 @@ export class LivePackedImageBuffer {
       return this.rememberImage(candidate.id, candidate.url, false, generation);
     }
     throw new Error("Candidate image could not be decoded");
+  }
+
+  private async rememberPackedImage(
+    candidate: LiveCandidate,
+    pack: ArrayBuffer,
+    generation: number,
+  ) {
+    if (generation !== this.generation) return null;
+    const offset = Number(candidate.offset);
+    const length = Number(candidate.length);
+    if (offset + length > pack.byteLength) {
+      throw new RangeError("Packed image exceeds the downloaded pack");
+    }
+    const bytes = new Uint8Array(pack, offset, length);
+    const objectUrl = URL.createObjectURL(new Blob([bytes], { type: "image/webp" }));
+    if (await this.decode(objectUrl, generation)) {
+      return this.rememberImage(candidate.id, objectUrl, true, generation);
+    }
+    URL.revokeObjectURL(objectUrl);
+    throw new Error("Packed candidate image could not be decoded");
   }
 
   private decode(url: string, generation: number) {

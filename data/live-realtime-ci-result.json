@@ -1,14 +1,21 @@
 {
-  "schemaVersion": 3,
-  "testedCommit": "1b61a95bcdbd25eae97c32a811904f7956bb7575",
-  "workflowRunId": 32767994210,
+  "schemaVersion": 4,
+  "testedCommit": "5c8d22e80df6d08f74f4c702b5ebf6335b4862ee",
+  "workflowRunId": 32768431554,
   "route": "/live",
   "fastRoute": "/live/fast",
-  "pipeline": "offline-faithful-fifo-v1",
+  "pipeline": "offline-faithful-fifo-v2",
   "captureTargetFps": 30,
-  "frameDroppingPolicy": "no-intentional-drop-after-analysis-capture",
+  "captureGeometry": "full-frame-aspect-preserved",
+  "frameDroppingPolicy": "no-intentional-drop-after-camera-capture",
   "matching": "offline-strict-two-stage-projection",
-  "sequence": "offline-strict-streaming-equivalent",
+  "sequence": "offline-strict-streaming-equivalent-with-configurable-lookahead",
+  "displayPolicy": "decode-and-paint-barrier-before-next-analysis-frame",
+  "lookaheadSeconds": [
+    0,
+    3,
+    10
+  ],
   "outcomes": {
     "install": "success",
     "build": "success",

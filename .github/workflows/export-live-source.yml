@@ -1,0 +1,43 @@
+name: Export live source
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/export-live-source.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          sparse-checkout: |
+            /*
+            !/public/seed-catalog/packs/*
+            !/public/seed-catalog/shards/*
+            /public/seed-catalog/manifest.json
+          sparse-checkout-cone-mode: false
+      - name: Pack editable source
+        run: |
+          tar \
+            --exclude=.git \
+            --exclude=.next \
+            --exclude=dist \
+            --exclude=node_modules \
+            --exclude=.sites-runtime \
+            -czf live-source.tar.gz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-live-source-${{ github.run_id }}
+          path: live-source.tar.gz
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0

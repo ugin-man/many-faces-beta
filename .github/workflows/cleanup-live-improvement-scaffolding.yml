@@ -1,0 +1,41 @@
+name: Cleanup live improvement scaffolding
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/cleanup-live-improvement-scaffolding.json
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/coverage-driven-200k
+          fetch-depth: 1
+      - name: Remove one-time patch and export scaffolding
+        run: |
+          git rm -f --ignore-unmatch \
+            .github/workflows/patch-live-direct-fast-lane.yml \
+            data/patch-live-direct-fast-lane.json \
+            .github/workflows/patch-live-cadence-continuity.yml \
+            data/patch-live-cadence-continuity.json \
+            .github/workflows/patch-live-fast-lane-telemetry.yml \
+            data/patch-live-fast-lane-telemetry.json \
+            .github/workflows/export-live-source.yml \
+            data/export-live-source.json \
+            .github/workflows/cleanup-live-improvement-scaffolding.yml \
+            data/cleanup-live-improvement-scaffolding.json
+      - name: Commit cleanup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(live): remove one-time improvement scaffolding"
+          git fetch origin work/coverage-driven-200k
+          git rebase origin/work/coverage-driven-200k
+          git push origin HEAD:work/coverage-driven-200k

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "testedCommit": "15e7110259681ff7358338db8d27c56e5b0248b9",
-  "workflowRunId": 32749302439,
+  "testedCommit": "0b3cbe899d270642de9b87d73e597073cafc6f7b",
+  "workflowRunId": 32749651511,
   "route": "/live",
   "pipeline": "motion-driven-packed-buffer-v1",
   "targetMovingOutputFps": [
@@ -12,8 +12,8 @@
   "outcomes": {
     "install": "success",
     "build": "success",
-    "tests": "failure",
-    "lint": "failure"
+    "tests": "success",
+    "lint": "success"
   },
-  "passed": false
+  "passed": true
 }

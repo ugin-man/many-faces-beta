@@ -32,6 +32,10 @@ export type LiveCandidate = {
   id: string;
   name: string;
   url: string;
+  image?: string;
+  pack?: string;
+  offset?: number;
+  length?: number;
   feature: number[];
   geometry: FaceGeometry;
   sourceName?: string;
@@ -137,6 +141,10 @@ export function liveCandidateFromEntry(
     id: entry.id,
     name: entry.name || entry.id,
     url,
+    image: entry.image,
+    pack: entry.pack,
+    offset: entry.offset,
+    length: entry.length,
     feature: entry.feature.map(finite),
     geometry: { structure, surface, projection, layout },
     sourceName: entry.sourceName,
@@ -228,7 +236,7 @@ export function rankLiveCandidates(
   }
   return {
     winner,
-    ranked: measured.slice(0, 12),
+    ranked: measured.slice(0, 24),
     inspected: query.inspected,
     bucketHits: query.bucketHits,
     fallbackCandidates: query.fallbackCandidates,

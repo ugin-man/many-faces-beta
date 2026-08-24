@@ -22,6 +22,7 @@ export class DelayedFaithfulCommitter<T extends FaithfulCandidate> {
   private readonly sequence = new FaithfulStrictSequence<T>();
   private lookaheadFrames: number;
   private committedFrames = 0;
+  private bestPath: FaithfulChoice<T>[] = [];
 
   constructor(lookaheadFrames = 90) {
     this.lookaheadFrames = Math.max(0, Math.floor(lookaheadFrames));
@@ -31,10 +32,12 @@ export class DelayedFaithfulCommitter<T extends FaithfulCandidate> {
     this.sequence.reset();
     this.lookaheadFrames = Math.max(0, Math.floor(lookaheadFrames));
     this.committedFrames = 0;
+    this.bestPath = [];
   }
 
   push(frame: SequenceFrame, rankedBeam: FaithfulRanked<T>[]) {
     this.sequence.push(frame, rankedBeam);
+    this.bestPath = this.sequence.sequence();
     return this.take(false);
   }
 
@@ -43,7 +46,7 @@ export class DelayedFaithfulCommitter<T extends FaithfulCandidate> {
   }
 
   stats(): FaithfulDelayStats {
-    const analyzedFrames = this.sequence.sequence().length;
+    const analyzedFrames = this.bestPath.length;
     return {
       analyzedFrames,
       committedFrames: this.committedFrames,
@@ -52,12 +55,11 @@ export class DelayedFaithfulCommitter<T extends FaithfulCandidate> {
   }
 
   private take(flush: boolean): FaithfulChoice<T>[] {
-    const bestPath = this.sequence.sequence();
     const stableEnd = flush
-      ? bestPath.length
-      : Math.max(0, bestPath.length - this.lookaheadFrames);
+      ? this.bestPath.length
+      : Math.max(0, this.bestPath.length - this.lookaheadFrames);
     if (stableEnd <= this.committedFrames) return [];
-    const output = bestPath.slice(this.committedFrames, stableEnd);
+    const output = this.bestPath.slice(this.committedFrames, stableEnd);
     this.committedFrames = stableEnd;
     return output;
   }

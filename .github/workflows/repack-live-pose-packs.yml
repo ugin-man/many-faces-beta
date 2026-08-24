@@ -1,0 +1,155 @@
+name: Repack live catalog by pose cell
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/live-pose-pack-launch.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: many-faces-live-pose-pack-repack
+  cancel-in-progress: true
+
+jobs:
+  repack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Test the pose-local repacker
+        run: node --test tests/repack-live-pose-packs.test.mjs
+      - name: Repack the 70k seed by 3-degree pose cell
+        run: |
+          node tools/repack-live-pose-packs.mjs \
+            public/seed-catalog \
+            work/live-pose-catalog \
+            --overwrite
+      - name: Validate the repacked physical catalog
+        run: |
+          node tools/validate_face_catalog.mjs work/live-pose-catalog \
+            | tee work/live-pose-catalog/catalog-validation.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(Path('work/live-pose-catalog/manifest.json').read_text())
+          report = json.loads(Path('work/live-pose-catalog/live-packing-report.json').read_text())
+          clean = manifest.get('stats', {}).get('cleanCore', {})
+          failures = []
+          faces = int(manifest.get('searchableFaces', manifest.get('totalFaces', 0)))
+          cells = len(manifest.get('cells', {}))
+          if faces != 70000:
+              failures.append(f'faces={faces:,}, expected 70,000')
+          if cells != 775:
+              failures.append(f'pose cells={cells:,}, expected 775')
+          if int(report.get('packCount', 0)) != cells:
+              failures.append(f"pack count={report.get('packCount')}, expected {cells}")
+          if int(report.get('maximumPackBytes', 0)) > 8 * 1024 * 1024:
+              failures.append(f"maximum pose pack={report.get('maximumPackBytes'):,} bytes")
+          if clean.get('runtimeImagePolicy') != 'real-photo-only-v1':
+              failures.append('runtime image policy changed')
+          if int(clean.get('knownSyntheticFaces', -1)) != 0:
+              failures.append('known synthetic faces are not zero')
+          if failures:
+              raise SystemExit('Pose-local repack gate failed:\n- ' + '\n- '.join(failures))
+          print(json.dumps({
+              'catalogId': manifest.get('catalogId'),
+              'faces': faces,
+              'poseCells': cells,
+              'packCount': report.get('packCount'),
+              'medianPackBytes': report.get('medianPackBytes'),
+              'p95PackBytes': report.get('p95PackBytes'),
+              'maximumPackBytes': report.get('maximumPackBytes'),
+              'knownSyntheticFaces': clean.get('knownSyntheticFaces'),
+          }, indent=2))
+          PY
+      - name: Replace only the physical pack layout
+        run: |
+          rm -rf public/seed-catalog/packs public/seed-catalog/shards
+          mkdir -p public/seed-catalog/packs public/seed-catalog/shards
+          cp -a work/live-pose-catalog/packs/. public/seed-catalog/packs/
+          cp -a work/live-pose-catalog/shards/. public/seed-catalog/shards/
+          cp work/live-pose-catalog/manifest.json public/seed-catalog/manifest.json
+          cp work/live-pose-catalog/live-packing-report.json public/seed-catalog/live-packing-report.json
+          cp work/live-pose-catalog/catalog-validation.json public/seed-catalog/catalog-validation.json
+      - name: Run application and runtime regression checks
+        run: |
+          npm run build
+          node --experimental-strip-types --test \
+            tests/live-matching.test.mjs \
+            tests/live-responsive-runtime.test.mjs \
+            tests/live-packed-image-buffer.test.mjs \
+            tests/catalog-worker.test.mjs \
+            tests/repack-live-pose-packs.test.mjs
+          npm run lint
+      - name: Write build receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          report = json.loads(Path('public/seed-catalog/live-packing-report.json').read_text())
+          receipt = {
+              'schemaVersion': 1,
+              'workflowRunId': int('${{ github.run_id }}'),
+              'builtFromCommit': '${{ github.sha }}',
+              'catalogId': manifest.get('catalogId'),
+              'searchableFaces': manifest.get('searchableFaces', manifest.get('totalFaces')),
+              'poseStep': manifest.get('poseStep'),
+              'poseCells': len(manifest.get('cells', {})),
+              'packingPolicy': report.get('policy'),
+              'packCount': report.get('packCount'),
+              'medianPackBytes': report.get('medianPackBytes'),
+              'p95PackBytes': report.get('p95PackBytes'),
+              'maximumPackBytes': report.get('maximumPackBytes'),
+              'runtimeImagePolicy': manifest.get('stats', {}).get('cleanCore', {}).get('runtimeImagePolicy'),
+              'knownSyntheticFaces': manifest.get('stats', {}).get('cleanCore', {}).get('knownSyntheticFaces'),
+              'passed': True,
+          }
+          Path('data/live-pose-pack-build.json').write_text(
+              json.dumps(receipt, indent=2) + '\n', encoding='utf-8'
+          )
+          PY
+      - name: Commit pose-local runtime packs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config http.version HTTP/1.1
+          git config http.postBuffer 1073741824
+          git add -A -- \
+            public/seed-catalog/manifest.json \
+            public/seed-catalog/packs \
+            public/seed-catalog/shards \
+            public/seed-catalog/live-packing-report.json \
+            public/seed-catalog/catalog-validation.json \
+            data/live-pose-pack-build.json
+          git commit -m "perf(live): repack the 70k catalog by pose cell"
+          git fetch origin work/coverage-driven-200k
+          git rebase origin/work/coverage-driven-200k
+          git push origin HEAD:work/coverage-driven-200k
+      - uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-live-pose-catalog-${{ github.run_id }}
+          path: |
+            data/live-pose-pack-build.json
+            public/seed-catalog/manifest.json
+            public/seed-catalog/live-packing-report.json
+            public/seed-catalog/catalog-validation.json
+          if-no-files-found: error
+          retention-days: 30

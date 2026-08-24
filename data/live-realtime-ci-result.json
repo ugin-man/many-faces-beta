@@ -1,8 +1,14 @@
 {
-  "schemaVersion": 1,
-  "testedCommit": "95416fc0ac092c8f1a4c7c5c55c1bf5db94bfb82",
-  "workflowRunId": 32741935657,
+  "schemaVersion": 2,
+  "testedCommit": "461ecac3b74dceab0549fe54a90aa8c8475195b4",
+  "workflowRunId": 32742068061,
   "route": "/live",
+  "pipeline": "motion-driven-packed-buffer-v1",
+  "targetMovingOutputFps": [
+    10,
+    20
+  ],
+  "staticBehavior": "hold-current-face",
   "outcomes": {
     "install": "success",
     "build": "success",

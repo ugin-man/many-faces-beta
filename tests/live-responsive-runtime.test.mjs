@@ -4,6 +4,7 @@ import {
   ResponsiveSwitchController,
   predictedPoseDegrees,
   selectReadyRankedCandidate,
+  shouldRunLiveSearch,
 } from "../app/live-responsive-runtime.ts";
 
 function feature({ yaw = 0, pitch = 0, mouth = 0 } = {}) {
@@ -62,6 +63,21 @@ test("small meaningful movement accumulates instead of being lost", () => {
     }
   }
   assert.equal(switched, true);
+});
+
+test("static frames reuse the current result instead of reranking", () => {
+  assert.equal(
+    shouldRunLiveSearch("current", { isMoving: false, shouldSwitch: false }),
+    false,
+  );
+  assert.equal(
+    shouldRunLiveSearch(null, { isMoving: false, shouldSwitch: false }),
+    true,
+  );
+  assert.equal(
+    shouldRunLiveSearch("current", { isMoving: true, shouldSwitch: false }),
+    true,
+  );
 });
 
 test("ready candidate selection never waits for the unavailable top result", () => {

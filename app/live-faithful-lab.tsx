@@ -176,6 +176,7 @@ export default function LiveFaithfulLab() {
   const [catalogReady, setCatalogReady] = useState(false);
   const [catalogCount, setCatalogCount] = useState(0);
   const [catalogLoaded, setCatalogLoaded] = useState(0);
+  const [candidateCount, setCandidateCount] = useState(0);
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState<Output | null>(null);
   const [queueSize, setQueueSize] = useState(0);
@@ -239,7 +240,10 @@ export default function LiveFaithfulLab() {
           });
         if (candidates.length < 4) throw new Error("骨格比較できる顔素材がありません");
         candidatesRef.current = candidates;
-        if (!disposed) setCatalogReady(true);
+        if (!disposed) {
+          setCandidateCount(candidates.length);
+          setCatalogReady(true);
+        }
 
         const { FaceLandmarker, FilesetResolver } = await import("@mediapipe/tasks-vision");
         const fileset = await FilesetResolver.forVisionTasks(WASM_URL);
@@ -452,7 +456,7 @@ export default function LiveFaithfulLab() {
           <div><span>FRAME SEARCH</span><strong>{frameMs.toFixed(1)} ms</strong></div>
           <div><span>SEARCH POOL</span><strong>{searchPool.toLocaleString()}</strong></div>
           <div><span>STRICT ERROR</span><strong>{output?.error.strictTotal.toFixed(4) ?? "—"}</strong></div>
-          <div><span>CATALOG</span><strong>{candidatesRef.current.length.toLocaleString()} / {catalogCount.toLocaleString()}</strong></div>
+          <div><span>CATALOG</span><strong>{candidateCount.toLocaleString()} / {catalogCount.toLocaleString()}</strong></div>
         </aside>
       </section>
 

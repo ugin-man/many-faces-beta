@@ -240,16 +240,11 @@ async function preferredRemoteManifest(request: Request, env: Env) {
   return selected;
 }
 
-async function catalogRead(
-  request: Request,
-  env: Env,
+function remoteCatalogResponse(
+  object: { body: ReadableStream },
   path: string,
-  immutable = false,
+  immutable: boolean,
 ) {
-  const remote = await preferredRemoteManifest(request, env);
-  if (!remote) return seedCatalogRead(request, env, path, immutable);
-  const object = await env.BUCKET.get(`${CATALOG_PREFIX}${path}`);
-  if (!object) return seedCatalogRead(request, env, path, immutable);
   return new Response(object.body, {
     headers: {
       "cache-control": immutable
@@ -259,6 +254,26 @@ async function catalogRead(
       "x-content-type-options": "nosniff",
     },
   });
+}
+
+async function catalogRead(
+  request: Request,
+  env: Env,
+  path: string,
+  immutable = false,
+) {
+  const remote = await preferredRemoteManifest(request, env);
+  if (!remote) {
+    const seed = await seedCatalogRead(request, env, path, immutable);
+    if (seed.ok) return seed;
+    const stagedObject = await env.BUCKET.get(`${CATALOG_PREFIX}${path}`);
+    return stagedObject
+      ? remoteCatalogResponse(stagedObject, path, immutable)
+      : seed;
+  }
+  const object = await env.BUCKET.get(`${CATALOG_PREFIX}${path}`);
+  if (!object) return seedCatalogRead(request, env, path, immutable);
+  return remoteCatalogResponse(object, path, immutable);
 }
 
 async function catalogManifestRead(request: Request, env: Env) {
@@ -335,7 +350,22 @@ async function handleCatalog(request: Request, env: Env, url: URL) {
         return catalogJson({ error: "Invalid image range" }, 400);
       }
       const remote = await preferredRemoteManifest(request, env);
-      if (!remote) return seedCatalogPackRange(request, env, pack, offset, length);
+      if (!remote) {
+        const seed = await seedCatalogPackRange(request, env, pack, offset, length);
+        if (seed.ok) return seed;
+        const stagedObject = await env.BUCKET.get(`${CATALOG_PREFIX}packs/${pack}`, {
+          range: { offset, length },
+        });
+        if (!stagedObject) return seed;
+        return new Response(stagedObject.body, {
+          headers: {
+            "cache-control": "private, max-age=31536000, immutable",
+            "content-length": String(length),
+            "content-type": "image/webp",
+            "x-content-type-options": "nosniff",
+          },
+        });
+      }
       const object = await env.BUCKET.get(`${CATALOG_PREFIX}packs/${pack}`, {
         range: { offset, length },
       });

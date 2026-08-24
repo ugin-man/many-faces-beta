@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "purpose": "repack the real-photo 70k runtime catalog into one bounded pack per 3-degree pose cell",
+  "targetFaces": 70000,
+  "targetPoseCells": 775,
+  "knownSyntheticFacesAllowed": 0,
+  "maximumPackBytes": 8388608,
+  "nonce": 1
+}

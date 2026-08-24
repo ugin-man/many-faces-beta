@@ -1,0 +1,456 @@
+name: Apply frame-responsive realtime upgrade
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/apply-live-flow-v2.json
+
+permissions:
+  contents: write
+
+concurrency:
+  group: many-faces-live-flow-v2
+  cancel-in-progress: true
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/coverage-driven-200k
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - name: Replace stable-only display path with decoded flow buffer
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(text: str, old: str, new: str, label: str) -> str:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"{label}: expected exactly one match, found {count}")
+              return text.replace(old, new, 1)
+
+          matching_path = Path('app/live-matching.ts')
+          matching = matching_path.read_text(encoding='utf-8')
+          matching = replace_once(
+              matching,
+              'export function rankLiveCandidates(\n',
+              '''export type LiveFlowSelectionOptions = {
+            currentId?: string | null;
+            recentIds?: readonly string[];
+            readyIds?: ReadonlySet<string>;
+            sequence?: number;
+            tolerance?: number;
+            poolLimit?: number;
+          };
+
+          export function selectLiveFlowCandidate(
+            ranked: readonly LiveRankedCandidate[],
+            options: LiveFlowSelectionOptions = {},
+          ) {
+            const ready = ranked.filter((item) =>
+              !options.readyIds || options.readyIds.has(item.candidate.id)
+            );
+            if (!ready.length) return null;
+
+            const tolerance = options.tolerance ?? 0.05;
+            const poolLimit = Math.max(2, Math.min(16, options.poolLimit ?? 12));
+            const bestScore = ready[0].score;
+            let pool = ready
+              .filter((item) => item.score <= bestScore + tolerance)
+              .slice(0, poolLimit);
+            if (pool.length < 2 && ready.length > 1) {
+              pool = ready.slice(0, poolLimit);
+            }
+
+            const withoutCurrent = pool.filter(
+              (item) => item.candidate.id !== options.currentId,
+            );
+            if (withoutCurrent.length) pool = withoutCurrent;
+
+            const recent = new Set((options.recentIds ?? []).slice(0, 6));
+            const withoutRecent = pool.filter(
+              (item) => !recent.has(item.candidate.id),
+            );
+            if (withoutRecent.length) pool = withoutRecent;
+
+            const sequence = Math.max(0, Math.floor(options.sequence ?? 0));
+            return pool[sequence % pool.length] ?? ready[0];
+          }
+
+          export function rankLiveCandidates(
+          ''',
+              'insert flow selector',
+          )
+          matching = replace_once(
+              matching,
+              '    ranked: measured.slice(0, 12),',
+              '    ranked: measured.slice(0, 32),',
+              'expand ranked beam',
+          )
+          matching_path.write_text(matching, encoding='utf-8')
+
+          lab_path = Path('app/live-face-lab.tsx')
+          lab = lab_path.read_text(encoding='utf-8')
+          lab = replace_once(
+              lab,
+              '  rankLiveCandidates,\n  type LiveCandidate,',
+              '  rankLiveCandidates,\n  selectLiveFlowCandidate,\n  type LiveCandidate,',
+              'import flow selector',
+          )
+          lab = replace_once(
+              lab,
+              'const PRELOAD_CANDIDATES = 8;\nconst TELEMETRY_INTERVAL_MS = 250;',
+              'const PRELOAD_CANDIDATES = 24;\nconst DECODED_IMAGE_CACHE = 128;\nconst TELEMETRY_INTERVAL_MS = 250;',
+              'increase preload cache',
+          )
+          lab = replace_once(
+              lab,
+              '''type LiveStats = {
+            detectionFps: number;
+            searchMs: number;
+            inspected: number;
+            bucketHits: number;
+            candidatePool: number;
+            loadedShards: number;
+          };''',
+              '''type LiveStats = {
+            detectionFps: number;
+            displayFps: number;
+            searchMs: number;
+            inspected: number;
+            bucketHits: number;
+            candidatePool: number;
+            loadedShards: number;
+            readyImages: number;
+          };''',
+              'extend live telemetry',
+          )
+          lab = replace_once(
+              lab,
+              '  const detectionTimesRef = useRef<number[]>([]);\n  const lastTelemetryAtRef = useRef(0);',
+              '  const detectionTimesRef = useRef<number[]>([]);\n  const displayTimesRef = useRef<number[]>([]);\n  const lastTelemetryAtRef = useRef(0);',
+              'add display timing',
+          )
+          lab = replace_once(
+              lab,
+              '''  const decodedRef = useRef(new Map<string, Promise<boolean>>());
+            const previousClearTimerRef = useRef<number | null>(null);
+            const modeRef = useRef<ProjectionRankMode>("strict");
+            const switchRateRef = useRef(12);''',
+              '''  const decodedRef = useRef(new Map<string, Promise<boolean>>());
+            const decodedImagesRef = useRef(new Map<string, HTMLImageElement>());
+            const decodedReadyRef = useRef(new Set<string>());
+            const flowSequenceRef = useRef(0);
+            const previousClearTimerRef = useRef<number | null>(null);
+            const modeRef = useRef<ProjectionRankMode>("strict");
+            const switchRateRef = useRef(15);''',
+              'add decoded image buffer',
+          )
+          lab = replace_once(
+              lab,
+              '  const [switchRate, setSwitchRate] = useState(12);',
+              '  const [switchRate, setSwitchRate] = useState(15);',
+              'raise default display rate',
+          )
+          lab = replace_once(
+              lab,
+              '''  const [stats, setStats] = useState<LiveStats>({
+            detectionFps: 0,
+            searchMs: 0,
+            inspected: 0,
+            bucketHits: 0,
+            candidatePool: 0,
+            loadedShards: 0,
+          });''',
+              '''  const [stats, setStats] = useState<LiveStats>({
+            detectionFps: 0,
+            displayFps: 0,
+            searchMs: 0,
+            inspected: 0,
+            bucketHits: 0,
+            candidatePool: 0,
+            loadedShards: 0,
+            readyImages: 0,
+          });''',
+              'initialize display telemetry',
+          )
+
+          ensure_start = lab.index('  const ensureDecoded = useCallback((candidate: LiveCandidate) => {')
+          ensure_end_marker = '  }, []);\n\n  const showCandidate = useCallback'
+          ensure_end = lab.index(ensure_end_marker, ensure_start)
+          ensure_block = '''  const ensureDecoded = useCallback((candidate: LiveCandidate) => {
+            if (decodedReadyRef.current.has(candidate.id)) return Promise.resolve(true);
+            const existing = decodedRef.current.get(candidate.id);
+            if (existing) return existing;
+            const promise = new Promise<boolean>((resolve) => {
+              const image = new Image();
+              image.decoding = "async";
+              let settled = false;
+              const finish = (ok: boolean) => {
+                if (settled) return;
+                settled = true;
+                if (ok) {
+                  decodedReadyRef.current.add(candidate.id);
+                  decodedImagesRef.current.delete(candidate.id);
+                  decodedImagesRef.current.set(candidate.id, image);
+                  while (decodedImagesRef.current.size > DECODED_IMAGE_CACHE) {
+                    const oldest = decodedImagesRef.current.keys().next().value as string | undefined;
+                    if (!oldest || oldest === candidate.id) break;
+                    const oldImage = decodedImagesRef.current.get(oldest);
+                    if (oldImage) oldImage.src = "";
+                    decodedImagesRef.current.delete(oldest);
+                    decodedReadyRef.current.delete(oldest);
+                    decodedRef.current.delete(oldest);
+                  }
+                }
+                resolve(ok);
+              };
+              image.onload = () => finish(true);
+              image.onerror = () => finish(false);
+              image.src = candidate.url;
+              void image.decode?.().then(() => finish(true)).catch(() => undefined);
+            });
+            decodedRef.current.set(candidate.id, promise);
+            while (decodedRef.current.size > DECODED_IMAGE_CACHE * 2) {
+              const oldest = decodedRef.current.keys().next().value as string | undefined;
+              if (!oldest || oldest === candidate.id) break;
+              if (!decodedReadyRef.current.has(oldest)) decodedRef.current.delete(oldest);
+              else break;
+            }
+            return promise;
+          }, []);
+
+          const showCandidate = useCallback'''
+          lab = lab[:ensure_start] + ensure_block + lab[ensure_end + len('  }, []);\n\n  const showCandidate = useCallback'):]
+
+          show_start = lab.index('  const showCandidate = useCallback(async (candidate: LiveCandidate) => {')
+          show_end_marker = '  }, [ensureDecoded]);\n\n  const rebuildCandidateIndex'
+          show_end = lab.index(show_end_marker, show_start)
+          show_block = '''  const showCandidate = useCallback((candidate: LiveCandidate) => {
+            if (candidate.id === currentRef.current?.id) return false;
+            if (!decodedReadyRef.current.has(candidate.id)) {
+              void ensureDecoded(candidate);
+              return false;
+            }
+            const oldCurrent = currentRef.current;
+            currentRef.current = candidate;
+            setPrevious(oldCurrent);
+            setCurrent(candidate);
+            recentIdsRef.current = [
+              candidate.id,
+              ...recentIdsRef.current.filter((id) => id !== candidate.id),
+            ].slice(0, 10);
+            const displayedAt = performance.now();
+            displayTimesRef.current.push(displayedAt);
+            while (
+              displayTimesRef.current.length &&
+              displayTimesRef.current[0] < displayedAt - 1_000
+            ) {
+              displayTimesRef.current.shift();
+            }
+            if (previousClearTimerRef.current !== null) {
+              window.clearTimeout(previousClearTimerRef.current);
+            }
+            previousClearTimerRef.current = window.setTimeout(() => {
+              setPrevious(null);
+              previousClearTimerRef.current = null;
+            }, 55);
+            return true;
+          }, [ensureDecoded]);
+
+          const rebuildCandidateIndex'''
+          lab = lab[:show_start] + show_block + lab[show_end + len('  }, [ensureDecoded]);\n\n  const rebuildCandidateIndex'):]
+
+          lab = replace_once(
+              lab,
+              '''    detectionTimesRef.current = [];
+            lastDetectionAtRef.current = 0;
+            lastSelectionAtRef.current = 0;
+            recentIdsRef.current = [];''',
+              '''    detectionTimesRef.current = [];
+            displayTimesRef.current = [];
+            flowSequenceRef.current = 0;
+            lastDetectionAtRef.current = 0;
+            lastSelectionAtRef.current = 0;
+            recentIdsRef.current = [];''',
+              'reset flow timing',
+          )
+          lab = replace_once(
+              lab,
+              '''      detectionFps: times.length,
+            searchMs,
+            inspected,
+            bucketHits,
+            candidatePool: candidatePoolRef.current.length,
+            loadedShards: shardCacheRef.current.size,''',
+              '''      detectionFps: times.length,
+            displayFps: displayTimesRef.current.length,
+            searchMs,
+            inspected,
+            bucketHits,
+            candidatePool: candidatePoolRef.current.length,
+            loadedShards: shardCacheRef.current.size,
+            readyImages: decodedReadyRef.current.size,''',
+              'report actual display rate',
+          )
+          lab = replace_once(
+              lab,
+              '          detailedLimit: 40,',
+              '          detailedLimit: 48,',
+              'expand detailed live beam',
+          )
+          lab = replace_once(
+              lab,
+              '''      const selectionInterval = 1_000 / switchRateRef.current;
+            if (
+              ranked.winner &&
+              (currentRef.current === null || now - lastSelectionAtRef.current >= selectionInterval)
+            ) {
+              lastSelectionAtRef.current = now;
+              void showCandidate(ranked.winner.candidate);
+            }''',
+              '''      const selectionInterval = 1_000 / switchRateRef.current;
+            const flowWinner = selectLiveFlowCandidate(ranked.ranked, {
+              currentId: currentRef.current?.id,
+              recentIds: recentIdsRef.current,
+              readyIds: decodedReadyRef.current,
+              sequence: flowSequenceRef.current,
+              tolerance: 0.05,
+              poolLimit: 12,
+            });
+            if (
+              flowWinner &&
+              (currentRef.current === null || now - lastSelectionAtRef.current >= selectionInterval)
+            ) {
+              if (showCandidate(flowWinner.candidate)) {
+                lastSelectionAtRef.current = now;
+                flowSequenceRef.current += 1;
+              }
+            }''',
+              'replace stable winner with decoded flow winner',
+          )
+          lab = replace_once(
+              lab,
+              '''          <div><span>DETECTION</span><strong>{stats.detectionFps} FPS</strong></div>
+            <div><span>SEARCH</span><strong>{stats.searchMs.toFixed(1)} ms</strong></div>''',
+              '''          <div><span>DETECTION</span><strong>{stats.detectionFps} FPS</strong></div>
+            <div><span>DISPLAY</span><strong>{stats.displayFps} FPS</strong></div>
+            <div><span>SEARCH</span><strong>{stats.searchMs.toFixed(1)} ms</strong></div>
+            <div><span>READY IMAGES</span><strong>{stats.readyImages}</strong></div>''',
+              'show actual display telemetry',
+          )
+          lab = replace_once(
+              lab,
+              '            <b>{switchRate} / 秒</b>',
+              '            <b>{switchRate} / 秒（目標）</b>',
+              'clarify target rate',
+          )
+          lab_path.write_text(lab, encoding='utf-8')
+
+          css_path = Path('app/live-face-lab.module.css')
+          css = css_path.read_text(encoding='utf-8')
+          css = replace_once(
+              css,
+              '''.currentFace {
+            z-index: 2;
+            animation: faceIn 105ms linear both;
+          }
+
+          .previousFace {
+            z-index: 1;
+            opacity: 0.86;
+          }
+
+          @keyframes faceIn {
+            from { opacity: 0; transform: scale(1.008); }
+            to { opacity: 1; transform: scale(1); }
+          }''',
+              '''.currentFace {
+            z-index: 2;
+            animation: faceIn 42ms linear both;
+            will-change: opacity;
+          }
+
+          .previousFace {
+            z-index: 1;
+            opacity: 1;
+          }
+
+          @keyframes faceIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }''',
+              'shorten display transition',
+          )
+          css_path.write_text(css, encoding='utf-8')
+
+          test_path = Path('tests/live-matching.test.mjs')
+          tests = test_path.read_text(encoding='utf-8')
+          tests = replace_once(
+              tests,
+              '  rankLiveCandidates,\n} from "../app/live-matching.ts";',
+              '  rankLiveCandidates,\n  selectLiveFlowCandidate,\n} from "../app/live-matching.ts";',
+              'import flow selector test helper',
+          )
+          tests += '''
+
+          test("decoded flow selection changes identity across near-equal matches", () => {
+            const candidates = [
+              candidate("current", 0, { yaw: 3 }),
+              candidate("next-a", 0, { yaw: 3 }),
+              candidate("next-b", 0, { yaw: 3 }),
+              candidate("next-c", 0, { yaw: 3 }),
+            ];
+            const index = buildLiveCandidateIndex(candidates);
+            const ranked = rankLiveCandidates(index, candidates[0], {
+              mode: "strict",
+              budget: 16,
+              detailedLimit: 16,
+            });
+            const readyIds = new Set(candidates.map((item) => item.id));
+            const first = selectLiveFlowCandidate(ranked.ranked, {
+              currentId: "current",
+              readyIds,
+              sequence: 0,
+              tolerance: 0.05,
+            });
+            const second = selectLiveFlowCandidate(ranked.ranked, {
+              currentId: "current",
+              recentIds: first ? [first.candidate.id] : [],
+              readyIds,
+              sequence: 1,
+              tolerance: 0.05,
+            });
+            assert.ok(first);
+            assert.ok(second);
+            assert.notEqual(first.candidate.id, "current");
+            assert.notEqual(second.candidate.id, "current");
+            assert.notEqual(first.candidate.id, second.candidate.id);
+          });
+          '''
+          test_path.write_text(tests, encoding='utf-8')
+          PY
+      - name: Install, build and verify
+        run: |
+          npm ci
+          npm run build
+          node --experimental-strip-types --test tests/live-matching.test.mjs tests/catalog-worker.test.mjs
+          npm run lint
+      - name: Commit frame-responsive realtime implementation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/live-face-lab.tsx app/live-face-lab.module.css app/live-matching.ts tests/live-matching.test.mjs
+          git rm .github/workflows/apply-live-flow-v2.yml data/apply-live-flow-v2.json
+          git commit -m "feat(live): make output frame-responsive"
+          git fetch origin work/coverage-driven-200k
+          git rebase origin/work/coverage-driven-200k
+          git push origin HEAD:work/coverage-driven-200k

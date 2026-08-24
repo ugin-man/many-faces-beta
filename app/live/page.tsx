@@ -1,10 +1,10 @@
-import LiveResponsiveLab from "../live-responsive-lab";
+import LiveFaithfulLab from "../live-faithful-lab";
 
 export const metadata = {
-  title: "Many Faces Responsive Realtime Lab",
-  description: "静止中は顔を保持し、動作中は実写70,000枚のカタログを12〜20fps相当で追従するリアルタイム実験画面。",
+  title: "Many Faces Faithful Live Baseline",
+  description: "動画版と同じ3D形状比較とstrict経路最適化を、フレームを捨てないFIFOでカメラ入力へ適用する基準実装。",
 };
 
 export default function LivePage() {
-  return <LiveResponsiveLab />;
+  return <LiveFaithfulLab />;
 }

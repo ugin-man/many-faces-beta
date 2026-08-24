@@ -1,0 +1,137 @@
+name: Patch live responsive benchmark
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/patch-live-responsive-benchmark.json
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/coverage-driven-200k
+          fetch-depth: 1
+          sparse-checkout: |
+            /*
+            !/public/seed-catalog/*
+            /public/seed-catalog/manifest.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - name: Add benchmark gate to realtime CI
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          path = Path('.github/workflows/live-realtime-ci.yml')
+          text = path.read_text(encoding='utf-8')
+          if '      - tools/benchmark-live-responsive.mjs\n' not in text:
+              anchor = '      - tests/live-matching.test.mjs\n'
+              if anchor not in text:
+                  raise SystemExit('Realtime CI path anchor was not found')
+              text = text.replace(
+                  anchor,
+                  '      - tools/benchmark-live-responsive.mjs\n' + anchor,
+                  1,
+              )
+
+          if 'id: benchmark' not in text:
+              anchor = '''      - id: lint
+                name: Lint application
+          '''
+              if anchor not in text:
+                  raise SystemExit('Realtime CI lint step anchor was not found')
+              benchmark = '''      - id: benchmark
+                name: Benchmark responsive search path
+                if: steps.install.outcome == 'success'
+                continue-on-error: true
+                run: node --experimental-strip-types tools/benchmark-live-responsive.mjs
+          '''
+              text = text.replace(anchor, benchmark + anchor, 1)
+
+          env_anchor = '          LINT_OUTCOME: ${{ steps.lint.outcome }}\n'
+          if '          BENCHMARK_OUTCOME: ${{ steps.benchmark.outcome }}\n' not in text:
+              if env_anchor not in text:
+                  raise SystemExit('Realtime receipt env anchor was not found')
+              text = text.replace(
+                  env_anchor,
+                  env_anchor + '          BENCHMARK_OUTCOME: ${{ steps.benchmark.outcome }}\n',
+                  1,
+              )
+
+          outcomes_anchor = "              'lint': os.environ.get('LINT_OUTCOME', 'missing'),\n"
+          if "              'benchmark': os.environ.get('BENCHMARK_OUTCOME', 'missing'),\n" not in text:
+              if outcomes_anchor not in text:
+                  raise SystemExit('Realtime receipt outcomes anchor was not found')
+              text = text.replace(
+                  outcomes_anchor,
+                  outcomes_anchor + "              'benchmark': os.environ.get('BENCHMARK_OUTCOME', 'missing'),\n",
+                  1,
+              )
+
+          fail_env_anchor = '          LINT_OUTCOME: ${{ steps.lint.outcome }}\n'
+          # The same line appears in both receipt and final gate environments.
+          if text.count('          BENCHMARK_OUTCOME: ${{ steps.benchmark.outcome }}\n') < 2:
+              position = text.rfind(fail_env_anchor)
+              if position < 0:
+                  raise SystemExit('Realtime final gate env anchor was not found')
+              insert = position + len(fail_env_anchor)
+              text = (
+                  text[:insert]
+                  + '          BENCHMARK_OUTCOME: ${{ steps.benchmark.outcome }}\n'
+                  + text[insert:]
+              )
+
+          old_loop = '          for outcome in "$INSTALL_OUTCOME" "$BUILD_OUTCOME" "$TEST_OUTCOME" "$LINT_OUTCOME"; do\n'
+          new_loop = '          for outcome in "$INSTALL_OUTCOME" "$BUILD_OUTCOME" "$TEST_OUTCOME" "$LINT_OUTCOME" "$BENCHMARK_OUTCOME"; do\n'
+          if old_loop in text:
+              text = text.replace(old_loop, new_loop, 1)
+          elif new_loop not in text:
+              raise SystemExit('Realtime final gate loop was not found')
+
+          path.write_text(text, encoding='utf-8')
+
+          config = Path('data/live-realtime-ci.json')
+          payload = json.loads(config.read_text(encoding='utf-8'))
+          payload['nonce'] = int(payload.get('nonce', 0)) + 1
+          payload['responsiveBenchmark'] = {
+              'candidateCount': 2400,
+              'frameCount': 240,
+              'averageSearchLimitMs': 16,
+              'p95SearchLimitMs': 28,
+          }
+          config.write_text(json.dumps(payload, indent=2) + '\n', encoding='utf-8')
+          PY
+      - name: Validate benchmark gate
+        run: |
+          npm ci
+          npm run build
+          node --experimental-strip-types tools/benchmark-live-responsive.mjs
+          node --experimental-strip-types --test \
+            tests/live-matching.test.mjs \
+            tests/live-responsive-runtime.test.mjs \
+            tests/live-search-cadence.test.mjs \
+            tests/live-neighborhood-index-cache.test.mjs \
+            tests/live-packed-image-buffer.test.mjs \
+            tests/live-responsive-image-buffer.test.mjs \
+            tests/catalog-worker.test.mjs
+          npm run lint
+      - name: Commit benchmark gate
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/live-realtime-ci.yml data/live-realtime-ci.json
+          git commit -m "test(live): gate responsive search performance"
+          git fetch origin work/coverage-driven-200k
+          git rebase origin/work/coverage-driven-200k
+          git push origin HEAD:work/coverage-driven-200k

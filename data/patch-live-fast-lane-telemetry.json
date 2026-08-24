@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "purpose": "count direct-range decoded faces in READY IMAGES telemetry",
+  "nonce": 1
+}

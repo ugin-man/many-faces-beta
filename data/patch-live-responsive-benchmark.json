@@ -1,5 +1,0 @@
-{
-  "schemaVersion": 1,
-  "purpose": "add a deterministic 2400-candidate realtime search benchmark to CI",
-  "nonce": 1
-}

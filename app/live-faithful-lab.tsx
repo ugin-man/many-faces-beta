@@ -3,26 +3,15 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type {
-  FaceLandmarker,
-  FaceLandmarkerResult,
-} from "@mediapipe/tasks-vision";
+import type { FaceLandmarker, FaceLandmarkerResult } from "@mediapipe/tasks-vision";
 import { faceFeatureFromScores } from "./face-actions";
-import {
-  faceGeometryFromLandmarks,
-  type FaceGeometry,
-  type SequenceFrame,
-} from "./offline-matching";
-import {
-  rankProjectionCandidateModesTwoStage,
-  type ProjectionError,
-} from "./projection-matching";
+import { faceGeometryFromLandmarks, type FaceGeometry, type SequenceFrame } from "./offline-matching";
+import { rankProjectionCandidateModesTwoStage, type ProjectionError } from "./projection-matching";
 import { FaithfulStrictSequence } from "./live-faithful-sequence";
 import styles from "./live-faithful-lab.module.css";
 
 const WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm";
 const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
-const SAMPLE_FPS = 30;
 const INDEX_BEAM_PER_FRAME = 64;
 
 type CatalogEntry = {
@@ -62,8 +51,8 @@ type Candidate = {
 };
 
 type QueueItem = {
-  frame: SequenceFrame;
-  capturedAt: number;
+  blob: Blob;
+  time: number;
 };
 
 type Output = {
@@ -84,10 +73,7 @@ function quantizePose(value: number) {
 function featureFromResult(result: FaceLandmarkerResult) {
   const matrix = result.facialTransformationMatrixes[0]?.data;
   const scores = new Map(
-    (result.faceBlendshapes[0]?.categories ?? []).map((category) => [
-      category.categoryName,
-      category.score,
-    ]),
+    (result.faceBlendshapes[0]?.categories ?? []).map((category) => [category.categoryName, category.score]),
   );
   let pose = [0, 0, 0];
   if (matrix && matrix.length >= 11) {
@@ -131,8 +117,7 @@ function candidateFromEntry(entry: CatalogEntry): Candidate | null {
     !structure || structure.length < 13 ||
     !surface || surface.length < 300 ||
     !projection || projection.length < 936 ||
-    !entry.layout || entry.layout.length !== 4 ||
-    !url
+    !entry.layout || entry.layout.length !== 4 || !url
   ) return null;
   return {
     id: entry.id,
@@ -158,18 +143,17 @@ function localCandidates(frame: SequenceFrame, candidates: Candidate[]) {
 export default function LiveFaithfulLab() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const workerRef = useRef<Worker | null>(null);
   const landmarkerRef = useRef<FaceLandmarker | null>(null);
   const candidatesRef = useRef<Candidate[]>([]);
   const queueRef = useRef<QueueItem[]>([]);
   const processingRef = useRef(false);
   const runningRef = useRef(false);
-  const captureStartRef = useRef(0);
-  const lastCaptureRef = useRef(0);
   const capturedRef = useRef(0);
   const processedRef = useRef(0);
+  const firstTimestampRef = useRef<number | null>(null);
   const latestCapturedTimeRef = useRef(0);
   const sequenceRef = useRef(new FaithfulStrictSequence<Candidate>());
-  const frameCallbackRef = useRef<number | null>(null);
   const processQueueRef = useRef<() => void>(() => undefined);
 
   const [engineReady, setEngineReady] = useState(false);
@@ -185,18 +169,15 @@ export default function LiveFaithfulLab() {
   const [lagSeconds, setLagSeconds] = useState(0);
   const [frameMs, setFrameMs] = useState(0);
   const [searchPool, setSearchPool] = useState(0);
+  const [captureMode, setCaptureMode] = useState("WORKER FIFO");
   const [error, setError] = useState<string | null>(null);
 
   const stop = useCallback(() => {
     runningRef.current = false;
     setRunning(false);
-    if (frameCallbackRef.current !== null) {
-      const video = videoRef.current as HTMLVideoElement & {
-        cancelVideoFrameCallback?: (id: number) => void;
-      } | null;
-      video?.cancelVideoFrameCallback?.(frameCallbackRef.current);
-      frameCallbackRef.current = null;
-    }
+    workerRef.current?.postMessage({ type: "stop" });
+    workerRef.current?.terminate();
+    workerRef.current = null;
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
     if (videoRef.current) videoRef.current.srcObject = null;
@@ -290,38 +271,56 @@ export default function LiveFaithfulLab() {
   const processQueue = useCallback(() => {
     if (processingRef.current) return;
     processingRef.current = true;
-    const run = () => {
-      if (!queueRef.current.length) {
+    const run = async () => {
+      const item = queueRef.current.shift();
+      if (!item) {
         processingRef.current = false;
         return;
       }
-      const item = queueRef.current.shift() as QueueItem;
       setQueueSize(queueRef.current.length);
       const started = performance.now();
-      const pool = localCandidates(item.frame, candidatesRef.current);
-      const ranked = rankProjectionCandidateModesTwoStage(
-        item.frame,
-        pool,
-        INDEX_BEAM_PER_FRAME,
-        Math.min(1_024, pool.length),
-      ).strict;
-      const choice = sequenceRef.current.push(item.frame, ranked);
-      const elapsed = performance.now() - started;
-      processedRef.current += 1;
-      setProcessed(processedRef.current);
-      setFrameMs(elapsed);
-      setSearchPool(pool.length);
-      if (choice) {
-        setOutput({
-          candidate: choice.candidate,
-          error: choice.error,
-          frameTime: choice.frame.time,
-        });
-        setLagSeconds(Math.max(0, latestCapturedTimeRef.current - choice.frame.time));
+      let bitmap: ImageBitmap | null = null;
+      try {
+        bitmap = await createImageBitmap(item.blob);
+        const landmarker = landmarkerRef.current;
+        if (!landmarker) return;
+        const result = landmarker.detect(bitmap);
+        const landmarks = result.faceLandmarks[0];
+        if (!landmarks || !result.faceBlendshapes.length) return;
+        const geometry = faceGeometryFromLandmarks(
+          landmarks,
+          bitmap.width && bitmap.height ? bitmap.width / bitmap.height : 1,
+        );
+        if (!geometry) return;
+        const frame: SequenceFrame = {
+          time: item.time,
+          feature: featureFromResult(result),
+          geometry,
+        };
+        const pool = localCandidates(frame, candidatesRef.current);
+        const ranked = rankProjectionCandidateModesTwoStage(
+          frame,
+          pool,
+          INDEX_BEAM_PER_FRAME,
+          Math.min(1_024, pool.length),
+        ).strict;
+        const choice = sequenceRef.current.push(frame, ranked);
+        processedRef.current += 1;
+        setProcessed(processedRef.current);
+        setSearchPool(pool.length);
+        if (choice) {
+          setOutput({ candidate: choice.candidate, error: choice.error, frameTime: choice.frame.time });
+          setLagSeconds(Math.max(0, latestCapturedTimeRef.current - choice.frame.time));
+        }
+      } catch (caught) {
+        console.warn("Faithful queued frame failed.", caught);
+      } finally {
+        bitmap?.close();
+        setFrameMs(performance.now() - started);
+        window.setTimeout(() => void run(), 0);
       }
-      window.setTimeout(run, 0);
     };
-    run();
+    void run();
   }, []);
 
   useEffect(() => {
@@ -348,9 +347,8 @@ export default function LiveFaithfulLab() {
       sequenceRef.current.reset();
       capturedRef.current = 0;
       processedRef.current = 0;
+      firstTimestampRef.current = null;
       latestCapturedTimeRef.current = 0;
-      captureStartRef.current = performance.now();
-      lastCaptureRef.current = 0;
       setOutput(null);
       setQueueSize(0);
       setCaptured(0);
@@ -360,51 +358,35 @@ export default function LiveFaithfulLab() {
       runningRef.current = true;
       setRunning(true);
 
-      const frameVideo = video as HTMLVideoElement & {
-        requestVideoFrameCallback?: (callback: (now: number) => void) => number;
-      };
-      const capture = (now: number) => {
+      const sourceTrack = stream.getVideoTracks()[0];
+      if (!sourceTrack) throw new Error("CAMERA TRACK MISSING");
+      const worker = new Worker("/faithful-capture-worker.js");
+      workerRef.current = worker;
+      worker.onmessage = (event: MessageEvent<{ type?: string; blob?: Blob; timestamp?: number; message?: string }>) => {
         if (!runningRef.current) return;
-        const minimumInterval = 1_000 / SAMPLE_FPS;
-        if (now - lastCaptureRef.current >= minimumInterval) {
-          lastCaptureRef.current = now;
-          const landmarker = landmarkerRef.current;
-          if (landmarker && video.readyState >= 2) {
-            const result = landmarker.detect(video);
-            const landmarks = result.faceLandmarks[0];
-            if (landmarks && result.faceBlendshapes.length) {
-              const geometry = faceGeometryFromLandmarks(
-                landmarks,
-                video.videoWidth && video.videoHeight ? video.videoWidth / video.videoHeight : 1,
-              );
-              if (geometry) {
-                const time = (now - captureStartRef.current) / 1_000;
-                const frame: SequenceFrame = {
-                  time,
-                  feature: featureFromResult(result),
-                  geometry,
-                };
-                queueRef.current.push({ frame, capturedAt: now });
-                capturedRef.current += 1;
-                latestCapturedTimeRef.current = time;
-                setCaptured(capturedRef.current);
-                setQueueSize(queueRef.current.length);
-                processQueueRef.current();
-              }
-            }
-          }
+        if (event.data.type === "error") {
+          setCaptureMode("WORKER ERROR");
+          setError(`入力FIFO Worker: ${event.data.message || "unknown error"}`);
+          return;
         }
-        if (frameVideo.requestVideoFrameCallback) {
-          frameCallbackRef.current = frameVideo.requestVideoFrameCallback(capture);
-        } else {
-          frameCallbackRef.current = requestAnimationFrame(capture);
-        }
+        if (event.data.type !== "frame" || !event.data.blob) return;
+        const rawTimestamp = Number(event.data.timestamp ?? 0);
+        if (firstTimestampRef.current === null) firstTimestampRef.current = rawTimestamp;
+        const time = Math.max(0, rawTimestamp - Number(firstTimestampRef.current ?? rawTimestamp));
+        queueRef.current.push({ blob: event.data.blob, time });
+        capturedRef.current += 1;
+        latestCapturedTimeRef.current = time;
+        setCaptured(capturedRef.current);
+        setQueueSize(queueRef.current.length);
+        processQueueRef.current();
       };
-      if (frameVideo.requestVideoFrameCallback) {
-        frameCallbackRef.current = frameVideo.requestVideoFrameCallback(capture);
-      } else {
-        frameCallbackRef.current = requestAnimationFrame(capture);
-      }
+      worker.onerror = () => {
+        setCaptureMode("WORKER ERROR");
+        setError("入力FIFO Workerを開始できませんでした");
+      };
+      const captureTrack = sourceTrack.clone();
+      setCaptureMode("WORKER FIFO");
+      worker.postMessage({ type: "start", track: captureTrack, size: 512, quality: 0.9 }, [captureTrack]);
     } catch (caught) {
       console.error("Faithful camera start failed.", caught);
       setError("カメラを開始できませんでした");
@@ -439,7 +421,7 @@ export default function LiveFaithfulLab() {
             </div>
           )}
           <div className={styles.camera}>
-            <span>RAW CAMERA / 30 FPS TARGET</span>
+            <span>RAW CAMERA / {captureMode}</span>
             <video ref={videoRef} muted playsInline />
           </div>
           <div className={styles.meta}>
@@ -453,7 +435,7 @@ export default function LiveFaithfulLab() {
           <div><span>PROCESSED</span><strong>{processed}</strong></div>
           <div><span>FIFO QUEUE</span><strong>{queueSize} frames</strong></div>
           <div><span>PIPELINE LAG</span><strong>{lagSeconds.toFixed(2)} s</strong></div>
-          <div><span>FRAME SEARCH</span><strong>{frameMs.toFixed(1)} ms</strong></div>
+          <div><span>FRAME PIPELINE</span><strong>{frameMs.toFixed(1)} ms</strong></div>
           <div><span>SEARCH POOL</span><strong>{searchPool.toLocaleString()}</strong></div>
           <div><span>STRICT ERROR</span><strong>{output?.error.strictTotal.toFixed(4) ?? "—"}</strong></div>
           <div><span>CATALOG</span><strong>{candidateCount.toLocaleString()} / {catalogCount.toLocaleString()}</strong></div>
@@ -469,7 +451,7 @@ export default function LiveFaithfulLab() {
           <p className={styles.progress}>FULL INDEX: {catalogLoaded} chunks / {catalogCount.toLocaleString()} faces</p>
         )}
         <p className={styles.note}>
-          この画面では入力側のフレームをFIFOへ積み、動画版と同じ3度量子化、同じ12°/15°→18°/21°の候補絞り込み、同じ二段階3D投影比較、strict 64候補、同じ別人制約・12フレームcooldown・経路連続性で順番に処理します。処理が追いつかなければFIFOが伸び、表示だけが遅れます。
+          カメラ入力は別Workerで圧縮してFIFOへ積みます。解析側は動画版と同じ3度量子化、同じ12°/15°→18°/21°の候補絞り込み、同じ二段階3D投影比較、strict 64候補、同じ別人制約・12フレームcooldown・経路連続性を順番に実行します。処理が追いつかない場合はフレームを意図的に捨てず、FIFOと表示遅延が増えます。
         </p>
         {error && <p className={styles.error}>{error}</p>}
       </section>

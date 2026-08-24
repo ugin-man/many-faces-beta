@@ -11,6 +11,8 @@ on:
       - app/mode-nav.tsx
       - app/mode-nav.module.css
       - app/layout.tsx
+      - worker/index.ts
+      - tests/catalog-worker.test.mjs
       - tests/live-matching.test.mjs
       - data/live-realtime-ci.json
   workflow_dispatch:
@@ -44,10 +46,13 @@ jobs:
         continue-on-error: true
         run: npm run build
       - id: tests
-        name: Run bounded live matching tests
+        name: Run realtime and catalog delivery tests
         if: steps.install.outcome == 'success'
         continue-on-error: true
-        run: node --experimental-strip-types --test tests/live-matching.test.mjs
+        run: |
+          node --experimental-strip-types --test \
+            tests/live-matching.test.mjs \
+            tests/catalog-worker.test.mjs
       - id: lint
         name: Lint application
         if: steps.install.outcome == 'success'

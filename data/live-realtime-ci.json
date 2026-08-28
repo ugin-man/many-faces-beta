@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "route": "/live",
   "fastRoute": "/live/fast",
   "legacyRoute": "/live/legacy",
@@ -7,9 +7,11 @@
   "pipeline": "offline-faithful-fifo-v2",
   "captureTargetFps": 30,
   "captureGeometry": "full-frame-aspect-preserved",
+  "cameraStartPolicy": "capture-before-catalog-and-model-ready",
+  "queuedFrameReadinessPolicy": "hold-until-landmarker-and-catalog-ready",
   "lookaheadSeconds": [0, 3, 10],
   "matching": "offline-strict-two-stage-projection",
   "frameDroppingPolicy": "no-intentional-drop-after-camera-capture",
   "displayPolicy": "decode-and-paint-barrier-before-next-analysis-frame",
-  "nonce": 14
+  "nonce": 15
 }

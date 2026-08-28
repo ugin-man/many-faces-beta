@@ -15,6 +15,10 @@ import {
   type ProjectionError,
 } from "../projection-matching";
 import { DelayedFaithfulCommitter } from "./faithful-delay";
+import {
+  canProcessFaithfulQueue,
+  canStartFaithfulCapture,
+} from "./faithful-startup";
 import styles from "../live-faithful-lab.module.css";
 
 const WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm";
@@ -251,6 +255,8 @@ export default function FaithfulLiveClient() {
   const fallbackDropEstimateRef = useRef(0);
 
   const landmarkerRef = useRef<FaceLandmarker | null>(null);
+  const engineReadyRef = useRef(false);
+  const catalogReadyRef = useRef(false);
   const candidatesRef = useRef<Candidate[]>([]);
   const queueRef = useRef<QueueItem[]>([]);
   const processingRef = useRef(false);
@@ -348,7 +354,15 @@ export default function FaithfulLiveClient() {
   }, [presentChoices]);
 
   const processQueue = useCallback(() => {
-    if (processingRef.current) return;
+    if (
+      processingRef.current ||
+      !canProcessFaithfulQueue(
+        Boolean(landmarkerRef.current),
+        candidatesRef.current.length,
+      )
+    ) {
+      return;
+    }
     processingRef.current = true;
 
     const run = async () => {
@@ -409,7 +423,15 @@ export default function FaithfulLiveClient() {
         await finishCaptureIfDrained();
       } finally {
         processingRef.current = false;
-        if (queueRef.current.length) processQueueRef.current();
+        if (
+          queueRef.current.length &&
+          canProcessFaithfulQueue(
+            Boolean(landmarkerRef.current),
+            candidatesRef.current.length,
+          )
+        ) {
+          processQueueRef.current();
+        }
       }
     };
     void run();
@@ -615,10 +637,12 @@ export default function FaithfulLiveClient() {
           throw new Error("骨格比較できる顔素材がありません");
         }
         candidatesRef.current = candidates;
+        catalogReadyRef.current = true;
         if (!disposed) {
           setCandidateCount(candidates.length);
           setCatalogReady(true);
         }
+        processQueueRef.current();
 
         const { FaceLandmarker, FilesetResolver } = await import(
           "@mediapipe/tasks-vision"
@@ -650,7 +674,9 @@ export default function FaithfulLiveClient() {
           return;
         }
         landmarkerRef.current = landmarker;
+        engineReadyRef.current = true;
         setEngineReady(true);
+        processQueueRef.current();
       } catch (caught) {
         console.error("Faithful live setup failed.", caught);
         if (!disposed) {
@@ -662,6 +688,8 @@ export default function FaithfulLiveClient() {
     return () => {
       disposed = true;
       disposedRef.current = true;
+      engineReadyRef.current = false;
+      catalogReadyRef.current = false;
       capturingRef.current = false;
       workerRef.current?.terminate();
       workerRef.current = null;
@@ -680,12 +708,7 @@ export default function FaithfulLiveClient() {
   }, []);
 
   const start = useCallback(async () => {
-    if (
-      !engineReady ||
-      !catalogReady ||
-      capturingRef.current ||
-      draining
-    ) {
+    if (!canStartFaithfulCapture(capturingRef.current, draining)) {
       return;
     }
     setError(null);
@@ -852,11 +875,15 @@ export default function FaithfulLiveClient() {
             />
           ) : (
             <div className={styles.empty}>
-              <strong>{ready ? "CAMERA START" : "LOADING FULL CATALOG"}</strong>
+              <strong>{busy ? "CAPTURING INTO FIFO" : "CAMERA START"}</strong>
               <span>
                 {busy
-                  ? `${lookaheadSeconds.toFixed(0)}秒ぶんの経路が確定するまで保持中`
-                  : "高速化・フレーム破棄・ready fallbackなし"}
+                  ? ready
+                    ? `${lookaheadSeconds.toFixed(0)}秒ぶんの経路が確定するまで保持中`
+                    : "カタログと追跡エンジンの準備中。入力はFIFOへ保持中"
+                  : ready
+                    ? "高速化・フレーム破棄・ready fallbackなし"
+                    : "準備完了を待たずにカメラ入力をFIFOへ積めます"}
               </span>
             </div>
           )}
@@ -892,8 +919,8 @@ export default function FaithfulLiveClient() {
 
       <section className={styles.controls}>
         <div className={styles.buttons}>
-          <button type="button" onClick={start} disabled={!ready || busy}>
-            カメラを開始
+          <button type="button" onClick={start} disabled={busy}>
+            {ready ? "カメラを開始" : "準備中からカメラを開始"}
           </button>
           <button type="button" onClick={requestStop} disabled={!running}>
             入力を止めてFIFOを処理

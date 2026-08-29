@@ -1,17 +1,16 @@
 {
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "route": "/live",
+  "pipeline": "five-second-offline-strict-review-v1",
+  "captureSeconds": 5,
+  "captureTargetFps": 30,
+  "reviewOutputFps": [12, 20, 30],
+  "processingPlaybackSeparation": true,
+  "matching": "offline-strict-two-stage-projection",
+  "sequence": "full-five-second-offline-strict-optimization",
+  "fifoRoute": "/live/fifo",
   "fastRoute": "/live/fast",
   "legacyRoute": "/live/legacy",
   "catalog": "public/seed-catalog",
-  "pipeline": "offline-faithful-fifo-v2",
-  "captureTargetFps": 30,
-  "captureGeometry": "full-frame-aspect-preserved",
-  "cameraStartPolicy": "capture-before-catalog-and-model-ready",
-  "queuedFrameReadinessPolicy": "hold-until-landmarker-and-catalog-ready",
-  "lookaheadSeconds": [0, 3, 10],
-  "matching": "offline-strict-two-stage-projection",
-  "frameDroppingPolicy": "no-intentional-drop-after-camera-capture",
-  "displayPolicy": "decode-and-paint-barrier-before-next-analysis-frame",
-  "nonce": 15
+  "nonce": 16
 }

@@ -342,6 +342,8 @@ export default function LiveReviewClient() {
   const recordingUrlRef = useRef<string | null>(null);
 
   const landmarkerRef = useRef<FaceLandmarker | null>(null);
+  const reviewEngineReadyRef = useRef(false);
+  const reviewCatalogReadyRef = useRef(false);
   const candidatesRef = useRef<Candidate[]>([]);
   const preparationErrorRef = useRef<Error | null>(null);
   const preparationTokenRef = useRef(0);
@@ -525,8 +527,12 @@ export default function LiveReviewClient() {
         }
         if (disposed || preparationTokenRef.current !== token) return;
         candidatesRef.current = candidates;
+        reviewCatalogReadyRef.current = true;
         setCandidateCount(candidates.length);
         setCatalogReady(true);
+        if (reviewEngineReadyRef.current) {
+          setPhase((current) => current === "preparing" ? "ready" : current);
+        }
       } catch (caught) {
         const failure = caught instanceof Error
           ? caught
@@ -571,7 +577,11 @@ export default function LiveReviewClient() {
           return;
         }
         landmarkerRef.current = landmarker;
+        reviewEngineReadyRef.current = true;
         setEngineReady(true);
+        if (reviewCatalogReadyRef.current) {
+          setPhase((current) => current === "preparing" ? "ready" : current);
+        }
       } catch (caught) {
         const failure = caught instanceof Error
           ? caught
@@ -593,20 +603,13 @@ export default function LiveReviewClient() {
       processingTokenRef.current += 1;
       cleanupRecording();
       cleanupReview();
+      reviewEngineReadyRef.current = false;
+      reviewCatalogReadyRef.current = false;
       landmarkerRef.current?.close();
       landmarkerRef.current = null;
     };
   }, [cleanupRecording, cleanupReview]);
 
-  useEffect(() => {
-    if (
-      phase === "preparing" &&
-      engineReady &&
-      catalogReady
-    ) {
-      setPhase("ready");
-    }
-  }, [catalogReady, engineReady, phase]);
 
   const waitUntilPrepared = useCallback(async (token: number) => {
     while (

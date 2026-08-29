@@ -30,6 +30,7 @@ on:
       - tests/live-faithful-sequence.test.mjs
       - tests/live-faithful-delay.test.mjs
       - tests/live-faithful-startup.test.mjs
+      - tests/live-review-timeline.test.mjs
       - data/live-realtime-ci.json
   workflow_dispatch:
 
@@ -48,7 +49,7 @@ jobs:
             !/public/seed-catalog/*
             /public/seed-catalog/manifest.json
           sparse-checkout-cone-mode: false
-      - name: Allow camera capture before analyzer readiness
+      - name: Allow FIFO camera capture before analyzer readiness
         run: python tools/patch_faithful_camera_start.py
       - uses: actions/setup-node@v4
         with:
@@ -59,12 +60,12 @@ jobs:
         continue-on-error: true
         run: npm ci
       - id: build
-        name: Build realtime routes
+        name: Build realtime and review routes
         if: steps.install.outcome == 'success'
         continue-on-error: true
         run: npm run build
       - id: tests
-        name: Run realtime, faithful FIFO, startup, and catalog delivery tests
+        name: Run realtime, five-second review, FIFO, and catalog tests
         if: steps.install.outcome == 'success'
         continue-on-error: true
         run: |
@@ -76,6 +77,7 @@ jobs:
             tests/live-faithful-sequence.test.mjs \
             tests/live-faithful-delay.test.mjs \
             tests/live-faithful-startup.test.mjs \
+            tests/live-review-timeline.test.mjs \
             tests/catalog-worker.test.mjs
       - id: lint
         name: Lint application
@@ -100,21 +102,20 @@ jobs:
               'lint': os.environ.get('LINT_OUTCOME', 'missing'),
           }
           receipt = {
-              'schemaVersion': 5,
+              'schemaVersion': 6,
               'testedCommit': '${{ github.sha }}',
               'workflowRunId': int('${{ github.run_id }}'),
               'route': '/live',
-              'fastRoute': '/live/fast',
-              'pipeline': 'offline-faithful-fifo-v2',
+              'pipeline': 'five-second-offline-strict-review-v1',
+              'captureSeconds': 5,
               'captureTargetFps': 30,
-              'captureGeometry': 'full-frame-aspect-preserved',
-              'cameraStartPolicy': 'capture-before-catalog-and-model-ready',
-              'queuedFrameReadinessPolicy': 'hold-until-landmarker-and-catalog-ready',
-              'frameDroppingPolicy': 'no-intentional-drop-after-camera-capture',
+              'reviewOutputFps': [12, 20, 30],
+              'processingPlaybackSeparation': True,
               'matching': 'offline-strict-two-stage-projection',
-              'sequence': 'offline-strict-streaming-equivalent-with-configurable-lookahead',
-              'displayPolicy': 'decode-and-paint-barrier-before-next-analysis-frame',
-              'lookaheadSeconds': [0, 3, 10],
+              'sequence': 'full-five-second-offline-strict-optimization',
+              'fifoRoute': '/live/fifo',
+              'fastRoute': '/live/fast',
+              'legacyRoute': '/live/legacy',
               'outcomes': outcomes,
               'passed': all(value == 'success' for value in outcomes.values()),
           }
@@ -129,7 +130,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add app/live/faithful-client.tsx data/live-realtime-ci-result.json
-          git commit -m "fix(live): enable camera while faithful analyzer prepares" || exit 0
+          git commit -m "chore(live): record five-second review verification" || exit 0
           git fetch origin work/coverage-driven-200k
           git rebase origin/work/coverage-driven-200k
           git push origin HEAD:work/coverage-driven-200k

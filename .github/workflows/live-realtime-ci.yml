@@ -22,7 +22,6 @@ on:
       - app/layout.tsx
       - public/faithful-capture-worker-v2.js
       - tools/patch_faithful_camera_start.py
-      - tools/patch_live_review_ready.py
       - worker/index.ts
       - tests/catalog-worker.test.mjs
       - tests/live-matching.test.mjs
@@ -32,6 +31,7 @@ on:
       - tests/live-faithful-delay.test.mjs
       - tests/live-faithful-startup.test.mjs
       - tests/live-review-timeline.test.mjs
+      - tests/live-review-local-catalog.test.mjs
       - data/live-realtime-ci.json
   workflow_dispatch:
 
@@ -50,10 +50,8 @@ jobs:
             !/public/seed-catalog/*
             /public/seed-catalog/manifest.json
           sparse-checkout-cone-mode: false
-      - name: Apply realtime startup patches once
-        run: |
-          python tools/patch_faithful_camera_start.py
-          python tools/patch_live_review_ready.py
+      - name: Keep the FIFO route startable during setup
+        run: python tools/patch_faithful_camera_start.py
       - uses: actions/setup-node@v4
         with:
           node-version: 22.13.0
@@ -68,7 +66,7 @@ jobs:
         continue-on-error: true
         run: npm run build
       - id: tests
-        name: Run realtime, five-second review, FIFO, and catalog tests
+        name: Run lightweight review, FIFO, and catalog tests
         if: steps.install.outcome == 'success'
         continue-on-error: true
         run: |
@@ -81,6 +79,7 @@ jobs:
             tests/live-faithful-delay.test.mjs \
             tests/live-faithful-startup.test.mjs \
             tests/live-review-timeline.test.mjs \
+            tests/live-review-local-catalog.test.mjs \
             tests/catalog-worker.test.mjs
       - id: lint
         name: Lint application
@@ -105,14 +104,18 @@ jobs:
               'lint': os.environ.get('LINT_OUTCOME', 'missing'),
           }
           receipt = {
-              'schemaVersion': 6,
+              'schemaVersion': 7,
               'testedCommit': '${{ github.sha }}',
               'workflowRunId': int('${{ github.run_id }}'),
               'route': '/live',
-              'pipeline': 'five-second-offline-strict-review-v1',
+              'pipeline': 'five-second-pose-local-review-v2',
               'captureSeconds': 5,
-              'captureTargetFps': 30,
+              'analysisFpsOptions': [12, 20, 30],
+              'defaultAnalysisFps': 12,
               'reviewOutputFps': [12, 20, 30],
+              'startupCatalogPolicy': 'manifest-only',
+              'candidateLoadingPolicy': 'pose-local-shards-after-face-analysis',
+              'recordingStorage': 'single-media-recorder-blob',
               'processingPlaybackSeparation': True,
               'matching': 'offline-strict-two-stage-projection',
               'sequence': 'full-five-second-offline-strict-optimization',
@@ -127,13 +130,13 @@ jobs:
           )
           print(json.dumps(receipt, indent=2))
           PY
-      - name: Commit patched sources and verification receipt
+      - name: Commit verification receipt
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/live/faithful-client.tsx app/live/review-client.tsx data/live-realtime-ci-result.json
-          git commit -m "chore(live): record five-second review verification" || exit 0
+          git add app/live/faithful-client.tsx data/live-realtime-ci-result.json
+          git commit -m "chore(live): record lightweight review verification" || exit 0
           git fetch origin work/coverage-driven-200k
           git rebase origin/work/coverage-driven-200k
           git push origin HEAD:work/coverage-driven-200k

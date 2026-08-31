@@ -1,16 +1,24 @@
 {
-  "schemaVersion": 6,
-  "testedCommit": "436c586836e423f7e22b238209be84bafb92739c",
-  "workflowRunId": 33403788350,
+  "schemaVersion": 7,
+  "testedCommit": "5ed60f457e7a602018fdb68314c1f6de4ad07247",
+  "workflowRunId": 33403911375,
   "route": "/live",
-  "pipeline": "five-second-offline-strict-review-v1",
+  "pipeline": "five-second-pose-local-review-v2",
   "captureSeconds": 5,
-  "captureTargetFps": 30,
+  "analysisFpsOptions": [
+    12,
+    20,
+    30
+  ],
+  "defaultAnalysisFps": 12,
   "reviewOutputFps": [
     12,
     20,
     30
   ],
+  "startupCatalogPolicy": "manifest-only",
+  "candidateLoadingPolicy": "pose-local-shards-after-face-analysis",
+  "recordingStorage": "single-media-recorder-blob",
   "processingPlaybackSeparation": true,
   "matching": "offline-strict-two-stage-projection",
   "sequence": "full-five-second-offline-strict-optimization",

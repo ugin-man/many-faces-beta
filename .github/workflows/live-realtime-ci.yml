@@ -22,6 +22,7 @@ on:
       - app/layout.tsx
       - public/faithful-capture-worker-v2.js
       - tools/patch_faithful_camera_start.py
+      - tools/patch_live_review_lite_lint.py
       - worker/index.ts
       - tests/catalog-worker.test.mjs
       - tests/live-matching.test.mjs
@@ -50,8 +51,10 @@ jobs:
             !/public/seed-catalog/*
             /public/seed-catalog/manifest.json
           sparse-checkout-cone-mode: false
-      - name: Keep the FIFO route startable during setup
-        run: python tools/patch_faithful_camera_start.py
+      - name: Apply idempotent live-route fixes
+        run: |
+          python tools/patch_faithful_camera_start.py
+          python tools/patch_live_review_lite_lint.py
       - uses: actions/setup-node@v4
         with:
           node-version: 22.13.0
@@ -130,12 +133,12 @@ jobs:
           )
           print(json.dumps(receipt, indent=2))
           PY
-      - name: Commit verification receipt
+      - name: Commit patched source and verification receipt
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/live/faithful-client.tsx data/live-realtime-ci-result.json
+          git add app/live/faithful-client.tsx app/live/review-client-lite.tsx data/live-realtime-ci-result.json
           git commit -m "chore(live): record lightweight review verification" || exit 0
           git fetch origin work/coverage-driven-200k
           git rebase origin/work/coverage-driven-200k

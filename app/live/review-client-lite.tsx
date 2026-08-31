@@ -1,6 +1,4 @@
 "use client";
-/* eslint-disable @next/next/no-img-element */
-
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FaceLandmarker, FaceLandmarkerResult } from "@mediapipe/tasks-vision";
@@ -378,7 +376,9 @@ export default function LightweightReviewClient() {
   const [currentError, setCurrentError] = useState<ProjectionError | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  replayFpsRef.current = replayFps;
+  useEffect(() => {
+    replayFpsRef.current = replayFps;
+  }, [replayFps]);
 
   const busy = !["idle", "review", "error"].includes(phase);
   const readinessLabel = useMemo(() => {

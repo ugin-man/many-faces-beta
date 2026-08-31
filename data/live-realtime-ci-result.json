@@ -1,7 +1,7 @@
 {
   "schemaVersion": 7,
-  "testedCommit": "5ed60f457e7a602018fdb68314c1f6de4ad07247",
-  "workflowRunId": 33403911375,
+  "testedCommit": "b8ead7704db144fbfabd053e5e0c729261c415d5",
+  "workflowRunId": 33404262321,
   "route": "/live",
   "pipeline": "five-second-pose-local-review-v2",
   "captureSeconds": 5,
@@ -29,7 +29,7 @@
     "install": "success",
     "build": "success",
     "tests": "success",
-    "lint": "failure"
+    "lint": "success"
   },
-  "passed": false
+  "passed": true
 }

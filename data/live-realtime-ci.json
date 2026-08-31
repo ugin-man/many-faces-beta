@@ -16,5 +16,5 @@
   "fastRoute": "/live/fast",
   "legacyRoute": "/live/legacy",
   "catalog": "public/seed-catalog",
-  "nonce": 18
+  "nonce": 19
 }

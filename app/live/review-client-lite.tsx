@@ -1136,6 +1136,7 @@ export default function LightweightReviewClient() {
                 className={styles.canvas}
                 width={768}
                 height={512}
+                data-testid="verification-output-canvas"
               />
             </div>
             <div className={styles.outputMeta}>

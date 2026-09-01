@@ -16,7 +16,7 @@ env:
 jobs:
   bundle:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,36 +25,46 @@ jobs:
         with:
           node-version: 22.13.0
           cache: npm
-      - name: Install and build the exact branch state
+      - name: Install the exact branch dependencies
+        run: npm ci
+      - name: Build a compact all-pose verification catalog
         run: |
-          npm ci
+          python tools/build_compact_verification_catalog.py \
+            public/seed-catalog work/compact-seed \
+            --per-cell 6 --overwrite
+          node tools/validate_face_catalog.mjs work/compact-seed \
+            | tee work/compact-seed/catalog-validation.json
+      - name: Build the Site against the compact catalog
+        run: |
+          mv public/seed-catalog work/production-seed
+          cp -a work/compact-seed public/seed-catalog
           npm run build
-      - name: Assemble a portable bundle
+      - name: Assemble a portable runtime-only bundle
         run: |
           rm -rf work/local-video-verification
           mkdir -p work/local-video-verification
           cp -a \
-            app \
-            data \
             dist \
             node_modules \
             package.json \
             package-lock.json \
             public \
             scripts \
-            tests \
-            tools \
-            worker \
             work/local-video-verification/
-          for path in .openai drizzle.config.ts eslint.config.mjs next-env.d.ts postcss.config.mjs tsconfig.json vinext.config.ts wrangler.jsonc wrangler.toml; do
+          for path in .openai vinext.config.ts wrangler.jsonc wrangler.toml; do
             if [[ -e "$path" ]]; then cp -a "$path" work/local-video-verification/; fi
           done
-          du -sh work/local-video-verification | tee work/local-video-verification/BUNDLE_SIZE.txt
           git rev-parse HEAD > work/local-video-verification/GIT_HEAD.txt
+          cp work/compact-seed/verification-catalog-report.json \
+            work/local-video-verification/
+          du -sh \
+            node_modules dist public/seed-catalog \
+            work/local-video-verification \
+            | tee work/local-video-verification/BUNDLE_SIZE.txt
       - uses: actions/upload-artifact@v4
         with:
           name: many-faces-local-video-verification-${{ github.run_id }}
           path: work/local-video-verification
           if-no-files-found: error
           retention-days: 3
-          compression-level: 6
+          compression-level: 9

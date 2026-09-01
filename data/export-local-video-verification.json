@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "purpose": "portable browser verification bundle for the uploaded deterministic face video",
+  "route": "/live",
+  "nonce": 1
+}

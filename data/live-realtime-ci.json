@@ -1,7 +1,9 @@
 {
-  "schemaVersion": 7,
+  "schemaVersion": 8,
   "route": "/live",
-  "pipeline": "five-second-pose-local-review-v2",
+  "pipeline": "five-second-pose-local-review-v3",
+  "deterministicVideoInput": true,
+  "cameraInputStatus": "experimental-secondary",
   "captureSeconds": 5,
   "analysisFpsOptions": [12, 20, 30],
   "defaultAnalysisFps": 12,
@@ -12,9 +14,10 @@
   "processingPlaybackSeparation": true,
   "matching": "offline-strict-two-stage-projection",
   "sequence": "full-five-second-offline-strict-optimization",
+  "runtimeVerificationOutput": "window.__MANY_FACES_VERIFY__",
   "fifoRoute": "/live/fifo",
   "fastRoute": "/live/fast",
   "legacyRoute": "/live/legacy",
   "catalog": "public/seed-catalog",
-  "nonce": 19
+  "nonce": 20
 }

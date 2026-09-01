@@ -833,6 +833,7 @@ export default function LightweightReviewClient() {
       setPlaybackTime(0);
       setPhase("review");
       video.currentTime = 0;
+      await nextPaint();
       drawReviewAt(0);
       await nextPaint();
       const canvas = outputCanvasRef.current;

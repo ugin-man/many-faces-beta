@@ -21,6 +21,7 @@ on:
       - app/mode-nav.module.css
       - app/layout.tsx
       - public/faithful-capture-worker-v2.js
+      - tools/normalize_live_deterministic_marker.py
       - tools/patch_faithful_camera_start.py
       - tools/patch_live_deterministic_video.py
       - tools/patch_live_review_lite_lint.py
@@ -56,6 +57,7 @@ jobs:
       - name: Apply idempotent live-route fixes
         run: |
           python tools/patch_faithful_camera_start.py
+          python tools/normalize_live_deterministic_marker.py
           python tools/patch_live_deterministic_video.py
           python tools/patch_live_review_lite_lint.py
       - uses: actions/setup-node@v4

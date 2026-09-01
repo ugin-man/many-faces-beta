@@ -1,9 +1,11 @@
 {
-  "schemaVersion": 7,
-  "testedCommit": "986ef2df769f1f29e77098e9dec0f7aa2e39cdc3",
-  "workflowRunId": 33466180932,
+  "schemaVersion": 8,
+  "testedCommit": "430594ddc5d72b3a0cab2e3605dd466d461774bc",
+  "workflowRunId": 33467382836,
   "route": "/live",
-  "pipeline": "five-second-pose-local-review-v2",
+  "pipeline": "five-second-pose-local-review-v3",
+  "deterministicVideoInput": true,
+  "cameraInputStatus": "experimental-secondary",
   "captureSeconds": 5,
   "analysisFpsOptions": [
     12,
@@ -22,14 +24,15 @@
   "processingPlaybackSeparation": true,
   "matching": "offline-strict-two-stage-projection",
   "sequence": "full-five-second-offline-strict-optimization",
+  "runtimeVerificationOutput": "window.__MANY_FACES_VERIFY__",
   "fifoRoute": "/live/fifo",
   "fastRoute": "/live/fast",
   "legacyRoute": "/live/legacy",
   "outcomes": {
-    "install": "success",
-    "build": "success",
-    "tests": "success",
-    "lint": "success"
+    "install": "skipped",
+    "build": "skipped",
+    "tests": "skipped",
+    "lint": "skipped"
   },
-  "passed": true
+  "passed": false
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 7,
-  "testedCommit": "b8ead7704db144fbfabd053e5e0c729261c415d5",
-  "workflowRunId": 33404262321,
+  "testedCommit": "986ef2df769f1f29e77098e9dec0f7aa2e39cdc3",
+  "workflowRunId": 33466180932,
   "route": "/live",
   "pipeline": "five-second-pose-local-review-v2",
   "captureSeconds": 5,

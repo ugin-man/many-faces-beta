@@ -796,8 +796,8 @@ export default function LightweightReviewClient() {
     clearReview();
     cleanupRecording();
     setError(null);
-    setRecordingRemaining(CAPTURE_SECONDS);
-    setPhase("recording");
+      setRecordingRemaining(CAPTURE_SECONDS);
+      setPhase("recording");
     setProgress({ done: 0, total: CAPTURE_SECONDS * 10, label: "5秒間を録画中" });
 
     try {

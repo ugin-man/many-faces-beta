@@ -25,6 +25,7 @@ import {
   quantizeReviewTime,
   reviewItemAtTime,
 } from "./review-timeline";
+import { evaluateVerificationGate } from "./verification-gate";
 import styles from "./review-client-lite.module.css";
 
 const WASM_URL =
@@ -109,6 +110,28 @@ type Progress = {
   total: number;
   label: string;
 };
+
+type VerificationReport = {
+  sourceName: string;
+  plannedFrames: number;
+  faceFrames: number;
+  sequenceFrames: number;
+  selectedImages: number;
+  imageFailures: number;
+  outputChanges: number;
+  uniqueFaces: number;
+  processingMs: number;
+  canvasNonBlank: boolean;
+  faceCoverage: number;
+  passed: boolean;
+  reasons: string[];
+};
+
+declare global {
+  interface Window {
+    __MANY_FACES_VERIFY__?: VerificationReport;
+  }
+}
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
@@ -320,6 +343,27 @@ function drawContained(
   );
 }
 
+function canvasHasVisiblePixels(canvas: HTMLCanvasElement) {
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) return false;
+  const width = Math.min(canvas.width, 96);
+  const height = Math.min(canvas.height, 64);
+  const scratch = document.createElement("canvas");
+  scratch.width = width;
+  scratch.height = height;
+  const target = scratch.getContext("2d", { willReadFrequently: true });
+  if (!target) return false;
+  target.drawImage(canvas, 0, 0, width, height);
+  const pixels = target.getImageData(0, 0, width, height).data;
+  let visible = 0;
+  for (let index = 0; index < pixels.length; index += 4) {
+    if (pixels[index] + pixels[index + 1] + pixels[index + 2] > 45) {
+      visible += 1;
+    }
+  }
+  return visible > width * height * 0.08;
+}
+
 function phaseText(phase: Phase) {
   switch (phase) {
     case "recording": return "5秒間を録画中";
@@ -356,6 +400,8 @@ export default function LightweightReviewClient() {
   const [modelState, setModelState] = useState<Readiness>("loading");
   const [manifestState, setManifestState] = useState<Readiness>("loading");
   const [catalogTotal, setCatalogTotal] = useState(0);
+  const [sourceName, setSourceName] = useState("");
+  const [report, setReport] = useState<VerificationReport | null>(null);
   const [analysisFps, setAnalysisFps] = useState(12);
   const [replayFps, setReplayFps] = useState(12);
   const [recordingRemaining, setRecordingRemaining] = useState(CAPTURE_SECONDS);
@@ -379,6 +425,10 @@ export default function LightweightReviewClient() {
   useEffect(() => {
     replayFpsRef.current = replayFps;
   }, [replayFps]);
+
+  useEffect(() => {
+    window.__MANY_FACES_VERIFY__ = report ?? undefined;
+  }, [report]);
 
   const busy = !["idle", "review", "error"].includes(phase);
   const readinessLabel = useMemo(() => {
@@ -410,6 +460,8 @@ export default function LightweightReviewClient() {
     outputImagesRef.current.clear();
     sequenceRef.current = [];
     lastOutputIdRef.current = null;
+    setReport(null);
+    window.__MANY_FACES_VERIFY__ = undefined;
     if (recordingUrlRef.current) {
       URL.revokeObjectURL(recordingUrlRef.current);
       recordingUrlRef.current = null;
@@ -775,13 +827,44 @@ export default function LightweightReviewClient() {
       0);
       setOutputChanges(changes);
       setUniqueFaces(selected.length);
-      setProcessingMs(performance.now() - started);
+      const elapsed = performance.now() - started;
+      setProcessingMs(elapsed);
       setProgress(null);
       setPlaybackTime(0);
       setPhase("review");
       video.currentTime = 0;
       drawReviewAt(0);
       await nextPaint();
+      const canvas = outputCanvasRef.current;
+      const canvasNonBlank = Boolean(
+        canvas && canvasHasVisiblePixels(canvas),
+      );
+      const gate = evaluateVerificationGate({
+        plannedFrames: frameCount,
+        faceFrames: frames.length,
+        sequenceFrames: choices.length,
+        selectedImages: selected.length,
+        imageFailures: failures,
+        outputChanges: changes,
+        canvasNonBlank,
+      });
+      const nextReport: VerificationReport = {
+        sourceName: sourceName || "camera-five-seconds.webm",
+        plannedFrames: frameCount,
+        faceFrames: frames.length,
+        sequenceFrames: choices.length,
+        selectedImages: selected.length,
+        imageFailures: failures,
+        outputChanges: changes,
+        uniqueFaces: selected.length,
+        processingMs: elapsed,
+        canvasNonBlank,
+        faceCoverage: gate.faceCoverage,
+        passed: gate.passed,
+        reasons: gate.reasons,
+      };
+      setReport(nextReport);
+      window.__MANY_FACES_VERIFY__ = nextReport;
     } catch (caught) {
       if (caught instanceof DOMException && caught.name === "AbortError") return;
       console.error("Lightweight review failed.", caught);
@@ -789,13 +872,47 @@ export default function LightweightReviewClient() {
       setPhase("error");
       setProgress(null);
     }
-  }, [analysisFps, drawReviewAt, loadFrameCandidates, waitUntilPrepared]);
+  }, [
+    analysisFps,
+    drawReviewAt,
+    loadFrameCandidates,
+    sourceName,
+    waitUntilPrepared,
+  ]);
+
+  const verifyVideoFile = useCallback(async (file: File | null) => {
+    if (!file || busy) return;
+    clearReview();
+    cleanupRecording();
+    setError(null);
+    setSourceName(file.name);
+    try {
+      const url = URL.createObjectURL(file);
+      recordingUrlRef.current = url;
+      const video = playbackVideoRef.current;
+      if (!video) throw new Error("検証用動画を準備できませんでした");
+      video.src = url;
+      video.load();
+      await waitForVideoMetadata(video);
+      const duration = Number.isFinite(video.duration) && video.duration > 0
+        ? Math.min(CAPTURE_SECONDS, video.duration)
+        : CAPTURE_SECONDS;
+      setClipDuration(duration);
+      void processRecording(url, duration);
+    } catch (caught) {
+      console.error("Fixed video verification failed.", caught);
+      setError(caught instanceof Error ? caught.message : "動画を開けませんでした");
+      setPhase("error");
+      setProgress(null);
+    }
+  }, [busy, cleanupRecording, clearReview, processRecording]);
 
   const recordFiveSeconds = useCallback(async () => {
     if (busy) return;
     clearReview();
     cleanupRecording();
     setError(null);
+      setSourceName("camera-five-seconds.webm");
       setRecordingRemaining(CAPTURE_SECONDS);
       setPhase("recording");
     setProgress({ done: 0, total: CAPTURE_SECONDS * 10, label: "5秒間を録画中" });
@@ -918,6 +1035,8 @@ export default function LightweightReviewClient() {
     setCurrentOutputName("—");
     setCurrentOutputSource("—");
     setCurrentError(null);
+    setSourceName("");
+    setReport(null);
   }, [cleanupRecording, clearReview]);
 
   const progressRatio = progress?.total
@@ -929,13 +1048,18 @@ export default function LightweightReviewClient() {
   );
 
   return (
-    <main className={styles.shell}>
+    <main
+      className={styles.shell}
+      data-testid="verification-root"
+      data-state={phase}
+      data-verdict={report ? (report.passed ? "passed" : "failed") : "pending"}
+    >
       <header className={styles.header}>
         <div>
-          <p className={styles.eyebrow}>MANY FACES / 5 SECOND REVIEW</p>
-          <h1>重い処理は後回し。まず5秒だけ撮る。</h1>
+          <p className={styles.eyebrow}>MANY FACES / DETERMINISTIC VIDEO CHECK</p>
+          <h1>カメラの前に、同じ動画で壊れ方を潰す。</h1>
           <p className={styles.lead}>
-            起動時に70,000枚を展開しません。録画をFace Meshで解析した後、必要な角度のshardだけを読み込みます。
+            固定動画なら、毎回同じ入力でFace Mesh、角度shard、3D照合、strict経路、画像表示まで確認できます。カメラは比較用の実験扱いです。
           </p>
         </div>
         <nav className={styles.nav}>
@@ -964,8 +1088,8 @@ export default function LightweightReviewClient() {
       <section className={phase === "review" ? styles.reviewGrid : styles.captureGrid}>
         <article className={styles.panel}>
           <div className={styles.panelHeader}>
-            <span>{phase === "review" ? "SOURCE VIDEO" : "CAMERA"}</span>
-            <b>{phase === "recording" ? `${recordingRemaining.toFixed(1)}s` : "5.0s"}</b>
+          <span>{phase === "review" ? "SOURCE VIDEO" : "INPUT"}</span>
+          <b>{phase === "recording" ? `${recordingRemaining.toFixed(1)}s` : sourceName || "NO VIDEO"}</b>
           </div>
           <div className={styles.viewport}>
             <video
@@ -991,7 +1115,7 @@ export default function LightweightReviewClient() {
                 <span>
                   {busy
                     ? "ページを閉じずに待ってください。進捗は下に出ます。"
-                    : "カメラを押すだけ。モデルやカタログの準備完了は待たなくて大丈夫です。"}
+                    : "まず固定動画を選んでください。同じ入力でこちら側も自動検証できます。"}
                 </span>
               </div>
             )}
@@ -1023,13 +1147,25 @@ export default function LightweightReviewClient() {
 
       <section className={styles.commandBar}>
         <div className={styles.primaryRow}>
+          <label className={styles.filePicker}>
+            <span>固定動画で検証</span>
+            <input
+              type="file"
+              accept="video/*"
+              data-testid="verification-file-input"
+              onChange={(event) => {
+                void verifyVideoFile(event.target.files?.[0] ?? null);
+              }}
+              disabled={busy}
+            />
+          </label>
           <button
             type="button"
-            className={styles.primaryButton}
+            className={styles.cameraButton}
             onClick={recordFiveSeconds}
             disabled={busy}
           >
-            {phase === "recording" ? "録画中" : "5秒撮る"}
+            {phase === "recording" ? "録画中" : "カメラで5秒（実験）"}
           </button>
           <button type="button" onClick={reset} disabled={phase === "recording"}>
             リセット
@@ -1105,6 +1241,18 @@ export default function LightweightReviewClient() {
           />
         )}
 
+        {report && (
+          <div className={report.passed ? styles.passBox : styles.failBox}>
+            <strong>{report.passed ? "自動検証 PASS" : "自動検証で問題を検出"}</strong>
+            <span>
+              顔検出 {(report.faceCoverage * 100).toFixed(1)}% · {report.sequenceFrames} frames · {report.uniqueFaces} faces · {(report.processingMs / 1_000).toFixed(1)}秒
+            </span>
+            {!report.passed && report.reasons.map((reason) => (
+              <small key={reason}>{reason}</small>
+            ))}
+          </div>
+        )}
+
         {error && <p className={styles.error}>{error}</p>}
       </section>
 
@@ -1124,6 +1272,9 @@ export default function LightweightReviewClient() {
           <div><span>STRICT ERROR</span><strong>{currentError?.strictTotal.toFixed(4) ?? "—"}</strong></div>
         </div>
       </details>
+      <output hidden data-testid="verification-report">
+        {report ? JSON.stringify(report) : ""}
+      </output>
     </main>
   );
 }

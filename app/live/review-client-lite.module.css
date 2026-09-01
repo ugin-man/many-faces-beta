@@ -323,3 +323,5 @@
   .viewport{aspect-ratio:4/3}
   .metrics{grid-template-columns:1fr 1fr}
 }
+
+.filePicker{position:relative;display:inline-flex;align-items:center;min-height:42px;padding:9px 15px;border:1px solid #eef2f7;border-radius:10px;background:#eef2f7;color:#11151b;font-weight:750;cursor:pointer}.filePicker input{position:absolute;inset:0;opacity:0;cursor:pointer}.filePicker:has(input:disabled){opacity:.4;cursor:not-allowed}.cameraButton{background:#171a21!important;color:#cbd1dc!important}.passBox,.failBox{display:flex;flex-direction:column;gap:5px;margin-top:12px;padding:12px 14px;border-radius:12px}.passBox{border:1px solid #315842;background:#102119;color:#bce8cd}.failBox{border:1px solid #6a353d;background:#241419;color:#ffbdc4}.passBox span,.failBox span{color:inherit;opacity:.82;font-size:12px}.passBox small,.failBox small{display:block;line-height:1.45}

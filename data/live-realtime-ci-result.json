@@ -1,7 +1,7 @@
 {
   "schemaVersion": 8,
-  "testedCommit": "974c3a481e15592cf6d0b295ff43710c16ebb216",
-  "workflowRunId": 33467669735,
+  "testedCommit": "778a4a5826d03ab93d9e5106dcbdde5d3af966c6",
+  "workflowRunId": 33467779871,
   "route": "/live",
   "pipeline": "five-second-pose-local-review-v3",
   "deterministicVideoInput": true,
@@ -29,10 +29,10 @@
   "fastRoute": "/live/fast",
   "legacyRoute": "/live/legacy",
   "outcomes": {
-    "install": "skipped",
-    "build": "skipped",
-    "tests": "skipped",
-    "lint": "skipped"
+    "install": "success",
+    "build": "success",
+    "tests": "success",
+    "lint": "success"
   },
-  "passed": false
+  "passed": true
 }

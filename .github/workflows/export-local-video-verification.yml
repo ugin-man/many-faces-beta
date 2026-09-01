@@ -25,6 +25,13 @@ jobs:
         with:
           node-version: 22.13.0
           cache: npm
+      - name: Apply the same deterministic review patches as CI
+        run: |
+          python tools/patch_faithful_camera_start.py
+          python tools/normalize_live_deterministic_marker.py
+          python tools/patch_live_deterministic_video.py
+          python tools/patch_live_review_canvas_mount.py
+          python tools/patch_live_review_lite_lint.py
       - name: Install the exact branch dependencies
         run: npm ci
       - name: Build a compact all-pose verification catalog

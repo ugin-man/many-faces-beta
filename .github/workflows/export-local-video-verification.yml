@@ -1,0 +1,60 @@
+name: Export local video verification bundle
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/export-local-video-verification.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - name: Install and build the exact branch state
+        run: |
+          npm ci
+          npm run build
+      - name: Assemble a portable bundle
+        run: |
+          rm -rf work/local-video-verification
+          mkdir -p work/local-video-verification
+          cp -a \
+            app \
+            data \
+            dist \
+            node_modules \
+            package.json \
+            package-lock.json \
+            public \
+            scripts \
+            tests \
+            tools \
+            worker \
+            work/local-video-verification/
+          for path in .openai drizzle.config.ts eslint.config.mjs next-env.d.ts postcss.config.mjs tsconfig.json vinext.config.ts wrangler.jsonc wrangler.toml; do
+            if [[ -e "$path" ]]; then cp -a "$path" work/local-video-verification/; fi
+          done
+          du -sh work/local-video-verification | tee work/local-video-verification/BUNDLE_SIZE.txt
+          git rev-parse HEAD > work/local-video-verification/GIT_HEAD.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-local-video-verification-${{ github.run_id }}
+          path: work/local-video-verification
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 6

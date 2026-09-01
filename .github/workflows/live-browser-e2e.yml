@@ -1,0 +1,156 @@
+name: Deterministic video browser E2E
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/live-browser-e2e.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - name: Apply the deterministic review patches
+        run: |
+          python tools/patch_faithful_camera_start.py
+          python tools/normalize_live_deterministic_marker.py
+          python tools/patch_live_deterministic_video.py
+          python tools/patch_live_review_canvas_mount.py
+          python tools/patch_live_review_lite_lint.py
+      - name: Install app and browser driver
+        run: |
+          npm ci
+          npm install --no-save playwright-core@1.55.0
+      - name: Build a compact all-pose browser catalog
+        run: |
+          python tools/build_compact_verification_catalog.py \
+            public/seed-catalog work/browser-seed \
+            --per-cell 6 --overwrite
+          node tools/validate_face_catalog.mjs work/browser-seed \
+            | tee work/browser-seed/catalog-validation.json
+          mv public/seed-catalog work/production-seed
+          cp -a work/browser-seed public/seed-catalog
+      - name: Generate a deterministic real-face video fixture
+        run: |
+          mkdir -p work/e2e
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root=Path('public/seed-catalog')
+          manifest=json.loads((root/'manifest.json').read_text())
+          preferred=['0:0','3:0','-3:0','0:3','0:-3']
+          key=next((value for value in preferred if value in manifest['cells']), next(iter(manifest['cells'])))
+          shard=manifest['cells'][key]['shards'][0]
+          items=json.loads((root/'shards'/shard).read_text())['items']
+          item=items[0]
+          target=Path('work/e2e/source.webp')
+          if item.get('image'):
+              target.write_bytes((root/'images'/item['image']).read_bytes())
+          else:
+              pack=root/'packs'/item['pack']
+              with pack.open('rb') as handle:
+                  handle.seek(int(item['offset']))
+                  target.write_bytes(handle.read(int(item['length'])))
+          Path('work/e2e/source.json').write_text(json.dumps({'cell':key,'id':item.get('id')},indent=2)+'\n')
+          PY
+          ffmpeg -hide_banner -loglevel error -loop 1 -i work/e2e/source.webp \
+            -vf "scale=420:420:force_original_aspect_ratio=decrease,pad=480:480:(ow-iw)/2:(oh-ih)/2:color=black,zoompan=z='1.0+0.035*sin(on/18)':x='iw/2-(iw/zoom/2)+8*sin(on/11)':y='ih/2-(ih/zoom/2)+6*cos(on/13)':d=1:s=480x480:fps=12,format=yuv420p" \
+            -t 5 -an -c:v libx264 -preset veryfast -crf 25 \
+            work/e2e/fixed-face.mp4
+          ffprobe -v error -show_entries format=duration:stream=width,height,avg_frame_rate \
+            -of json work/e2e/fixed-face.mp4 | tee work/e2e/video-probe.json
+      - name: Build the exact browser artifact
+        run: npm run build
+      - name: Start the Site locally
+        run: |
+          CHROME_PATH=$(command -v google-chrome || command -v chromium)
+          echo "CHROME_PATH=${CHROME_PATH}" >> "$GITHUB_ENV"
+          PORT=4173 HOST=127.0.0.1 nohup npm start > work/e2e/server.log 2>&1 &
+          echo $! > work/e2e/server.pid
+          for attempt in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:4173/live >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat work/e2e/server.log
+          exit 1
+      - id: browser
+        name: Run the real Chromium fixed-video workflow
+        continue-on-error: true
+        env:
+          MANY_FACES_BASE_URL: http://127.0.0.1:4173
+          MANY_FACES_TEST_VIDEO: work/e2e/fixed-face.mp4
+          MANY_FACES_SCREENSHOT: work/e2e/live-browser-e2e.png
+          MANY_FACES_REPORT: work/e2e/live-browser-e2e.json
+        run: node tools/run_live_browser_e2e.mjs
+      - name: Write and commit browser receipt
+        if: always()
+        env:
+          BROWSER_OUTCOME: ${{ steps.browser.outcome }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report_path=Path('work/e2e/live-browser-e2e.json')
+          report=json.loads(report_path.read_text()) if report_path.exists() else {}
+          runtime=report.get('runtimeReport') or {}
+          receipt={
+            'schemaVersion':1,
+            'testedCommit':'${{ github.sha }}',
+            'workflowRunId':int('${{ github.run_id }}'),
+            'browserOutcome':os.environ.get('BROWSER_OUTCOME','missing'),
+            'route':'/live',
+            'input':'generated-real-face-fixed-video',
+            'pipeline':'five-second-pose-local-review-v4',
+            'state':report.get('state'),
+            'verdict':report.get('verdict'),
+            'runtimeReport':runtime,
+            'layout':report.get('layout'),
+            'pageErrors':report.get('pageErrors',[]),
+            'passed':os.environ.get('BROWSER_OUTCOME')=='success' and bool(runtime.get('passed')),
+          }
+          Path('data/live-browser-e2e-result.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          print(json.dumps(receipt,indent=2))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            app/live/review-client-lite.tsx \
+            app/live/review-client-lite.module.css \
+            data/live-browser-e2e-result.json
+          git commit -m "test(live): record deterministic Chromium verification" || exit 0
+          git fetch origin work/coverage-driven-200k
+          git rebase origin/work/coverage-driven-200k
+          git push origin HEAD:work/coverage-driven-200k
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: many-faces-live-browser-e2e-${{ github.run_id }}
+          path: |
+            work/e2e/live-browser-e2e.json
+            work/e2e/live-browser-e2e.png
+            work/e2e/server.log
+            work/e2e/source.json
+            work/e2e/video-probe.json
+            public/seed-catalog/verification-catalog-report.json
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 6
+      - name: Fail an unsuccessful browser verification
+        if: steps.browser.outcome != 'success'
+        run: exit 1

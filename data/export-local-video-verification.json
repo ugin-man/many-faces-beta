@@ -1,6 +1,7 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "purpose": "portable browser verification bundle for the uploaded deterministic face video",
   "route": "/live",
-  "nonce": 1
+  "catalog": "all-pose compact 6-per-cell",
+  "nonce": 2
 }

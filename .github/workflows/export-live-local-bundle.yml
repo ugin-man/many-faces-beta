@@ -1,0 +1,79 @@
+name: Export live local browser bundle
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/live-local-bundle.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Apply idempotent live patches
+        run: |
+          python tools/patch_faithful_camera_start.py
+          python tools/normalize_live_deterministic_marker.py
+          python tools/patch_live_deterministic_video.py
+          python tools/patch_live_review_lite_lint.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build the Site runtime
+        run: npm run build
+      - name: Validate the portable bundle
+        run: |
+          test -f dist/server/index.js
+          test -f public/seed-catalog/manifest.json
+          test -d node_modules/vinext
+          node --experimental-strip-types --test \
+            tests/live-review-local-catalog.test.mjs \
+            tests/live-verification-gate.test.mjs
+      - name: Prepare portable runtime
+        run: |
+          mkdir -p work/live-local-bundle
+          cp -a \
+            dist \
+            node_modules \
+            public \
+            scripts \
+            worker \
+            package.json \
+            package-lock.json \
+            vite.config.ts \
+            wrangler.jsonc \
+            work/live-local-bundle/
+          if [[ -d .openai ]]; then cp -a .openai work/live-local-bundle/; fi
+          cat > work/live-local-bundle/BUNDLE.json <<JSON
+          {
+            "schemaVersion": 1,
+            "commit": "${GITHUB_SHA}",
+            "route": "/live",
+            "purpose": "private local Chromium verification with a user-supplied video",
+            "userVideoIncluded": false
+          }
+          JSON
+          tar --use-compress-program='zstd -3 -T0' \
+            -cf work/many-faces-live-local-${GITHUB_RUN_ID}.tar.zst \
+            -C work/live-local-bundle .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-live-local-${{ github.run_id }}
+          path: work/many-faces-live-local-${{ github.run_id }}.tar.zst
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0

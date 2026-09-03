@@ -1,0 +1,230 @@
+name: Optimize fixed-video review with exact parity
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/live-fixed-video-exact-optimize.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+concurrency:
+  group: many-faces-live-fixed-video-exact-optimize
+  cancel-in-progress: true
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+
+      - name: Require a passing deterministic browser baseline
+        run: |
+          mkdir -p work
+          cp data/live-fixed-video-e2e-result.json work/live-baseline.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('work/live-baseline.json').read_text())
+          final=report.get('finalReport') or {}
+          failures=[]
+          if not report.get('passed'): failures.append('outer E2E did not pass')
+          if not final.get('passed'): failures.append('runtime gate did not pass')
+          if not final.get('sequenceIds'): failures.append('ordered sequence IDs missing')
+          if not final.get('sequenceFingerprint'): failures.append('fingerprint missing')
+          if not final.get('phaseTimingsMs'): failures.append('phase timings missing')
+          if failures: raise SystemExit('Invalid baseline: '+', '.join(failures))
+          print(json.dumps({
+              'testedCommit': report.get('testedCommit'),
+              'fingerprint': final.get('sequenceFingerprint'),
+              'processingMs': final.get('processingMs'),
+              'phaseTimingsMs': final.get('phaseTimingsMs'),
+          }, indent=2))
+          PY
+
+      - name: Apply exact-output-preserving runtime optimizations
+        run: |
+          python tools/patch_worker_seed_mode.py
+          python tools/patch_mediapipe_asset_mime.py
+          if grep -q 'operationIsStalled(true' app/live/review-client-lite.tsx \
+            && grep -q '__MANY_FACES_RUNTIME__' app/live/review-client-lite.tsx \
+            && grep -q 'modelStateRef = useRef' app/live/review-client-lite.tsx; then
+            echo 'Live runtime reliability patch already applied.'
+          else
+            python tools/patch_live_runtime_reliability.py
+          fi
+          python tools/patch_live_review_canvas_mount.py
+          python tools/patch_live_fixed_video_source_name.py
+          python tools/patch_live_verification_metrics.py
+          python tools/patch_live_review_lite_lint.py
+          python tools/patch_live_pose_pool_cache.py
+          python tools/patch_projection_descriptor_cache.py
+
+      - name: Install application and browser runtime
+        run: |
+          npm ci
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Self-host MediaPipe runtime assets
+        run: bash tools/prepare_mediapipe_runtime.sh public/mediapipe
+
+      - name: Build and run deterministic unit gates
+        run: |
+          npm run build
+          node --experimental-strip-types --test \
+            tests/live-review-timeline.test.mjs \
+            tests/live-review-local-catalog.test.mjs \
+            tests/live-verification-gate.test.mjs \
+            tests/live-review-sequence-metrics.test.mjs \
+            tests/live-runtime-liveness.test.mjs \
+            tests/catalog-worker.test.mjs \
+            tests/catalog-worker-local-seed.test.mjs \
+            tests/mediapipe-worker.test.mjs
+          npm run lint
+
+      - name: Prepare the same five-second fixture
+        run: |
+          ffmpeg -hide_banner -loglevel warning -y \
+            -i public/test-fixtures/reference-face-motion.mp4 \
+            -ss 17.2 -t 5 -an -vf 'scale=512:-2:flags=lanczos' \
+            -c:v libvpx-vp9 -deadline good -cpu-used 4 -b:v 0 -crf 31 \
+            work/reference-face-motion.webm
+
+      - name: Start the production Site locally
+        run: |
+          npm start > work/live-optimize-server.log 2>&1 &
+          echo $! > work/live-optimize-server.pid
+          ready=0
+          for attempt in $(seq 1 90); do
+            if curl --fail --silent --show-error \
+              'http://127.0.0.1:3000/api/catalog/manifest?source=seed' \
+              > work/seed-manifest.json; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [[ "$ready" != "1" ]]; then
+            cat work/live-optimize-server.log
+            exit 1
+          fi
+
+      - name: Run the optimized browser path
+        env:
+          LIVE_E2E_BASE_URL: http://127.0.0.1:3000
+          LIVE_E2E_VIDEO: work/reference-face-motion.webm
+          LIVE_E2E_OUTPUT: work/live-optimized
+          LIVE_E2E_TIMEOUT_MS: "900000"
+          LIVE_E2E_STALL_MS: "120000"
+        run: node tools/live_fixed_video_e2e.mjs
+
+      - name: Require exact output parity and a measurable speed gain
+        run: |
+          python tools/compare_live_e2e_reports.py \
+            work/live-baseline.json \
+            work/live-optimized/live-fixed-video-e2e.json \
+            --output work/live-optimized/exact-parity-comparison.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          comparison=json.loads(Path('work/live-optimized/exact-parity-comparison.json').read_text())
+          baseline=json.loads(Path('work/live-baseline.json').read_text())['finalReport']
+          candidate=json.loads(Path('work/live-optimized/live-fixed-video-e2e.json').read_text())['finalReport']
+          before=float(baseline.get('processingMs') or 0)
+          after=float(candidate.get('processingMs') or 0)
+          before_search=float((baseline.get('phaseTimingsMs') or {}).get('candidateSearch') or 0)
+          after_search=float((candidate.get('phaseTimingsMs') or {}).get('candidateSearch') or 0)
+          failures=[]
+          if not comparison.get('exactSequenceParity'):
+              failures.append('ordered output sequence changed')
+          if before <= 0 or after <= 0:
+              failures.append('processing timing is missing')
+          elif after > before * 0.98:
+              failures.append(f'total processing did not improve by 2% ({before:.1f} -> {after:.1f} ms)')
+          if before_search <= 0 or after_search <= 0:
+              failures.append('candidate-search timing is missing')
+          elif after_search > before_search * 0.95:
+              failures.append(f'candidate search did not improve by 5% ({before_search:.1f} -> {after_search:.1f} ms)')
+          result={
+              'exactSequenceParity': comparison.get('exactSequenceParity'),
+              'fingerprint': candidate.get('sequenceFingerprint'),
+              'baselineProcessingMs': before,
+              'optimizedProcessingMs': after,
+              'totalSpeedup': before/after if after else 0,
+              'baselineCandidateSearchMs': before_search,
+              'optimizedCandidateSearchMs': after_search,
+              'candidateSearchSpeedup': before_search/after_search if after_search else 0,
+              'failures': failures,
+          }
+          Path('work/live-optimized/optimization-gate.json').write_text(json.dumps(result,indent=2)+'\n')
+          print(json.dumps(result,indent=2))
+          if failures: raise SystemExit('\n'.join(failures))
+          PY
+
+      - name: Commit only the verified exact-parity optimization
+        run: |
+          cp work/live-optimized/live-fixed-video-e2e.json \
+            data/live-fixed-video-optimized-result.json
+          cp work/live-optimized/exact-parity-comparison.json \
+            data/live-fixed-video-exact-parity.json
+          cp work/live-optimized/optimization-gate.json \
+            data/live-fixed-video-optimization-gate.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for name in (
+              'live-fixed-video-optimized-result.json',
+              'live-fixed-video-exact-parity.json',
+              'live-fixed-video-optimization-gate.json',
+          ):
+              path=Path('data')/name
+              payload=json.loads(path.read_text())
+              payload['testedCommit']='${{ github.sha }}'
+              payload['workflowRunId']=int('${{ github.run_id }}')
+              path.write_text(json.dumps(payload,indent=2)+'\n')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            app/live/review-client-lite.tsx \
+            app/projection-matching.ts \
+            worker/index.ts \
+            public/mediapipe \
+            data/live-fixed-video-optimized-result.json \
+            data/live-fixed-video-exact-parity.json \
+            data/live-fixed-video-optimization-gate.json
+          git commit -m "perf(live): cache exact pose pools and geometry descriptors"
+          git fetch origin work/coverage-driven-200k
+          git rebase origin/work/coverage-driven-200k
+          git push origin HEAD:work/coverage-driven-200k
+
+      - name: Upload optimization evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-live-exact-optimize-${{ github.run_id }}
+          path: |
+            work/live-baseline.json
+            work/live-optimized
+            work/live-optimize-server.log
+            work/seed-manifest.json
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 6

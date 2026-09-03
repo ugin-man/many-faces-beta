@@ -35,9 +35,11 @@ jobs:
       - name: Apply the runtime fixes under test
         run: |
           python tools/patch_worker_seed_mode.py
+          python tools/patch_mediapipe_asset_mime.py
           python tools/patch_live_runtime_reliability.py
           python tools/patch_live_review_canvas_mount.py
           python tools/patch_live_fixed_video_source_name.py
+          python tools/patch_live_verification_metrics.py
           python tools/patch_live_review_lite_lint.py
 
       - name: Install application and browser test runtime
@@ -60,9 +62,11 @@ jobs:
             tests/live-review-timeline.test.mjs \
             tests/live-review-local-catalog.test.mjs \
             tests/live-verification-gate.test.mjs \
+            tests/live-review-sequence-metrics.test.mjs \
             tests/live-runtime-liveness.test.mjs \
             tests/catalog-worker.test.mjs \
-            tests/catalog-worker-local-seed.test.mjs
+            tests/catalog-worker-local-seed.test.mjs \
+            tests/mediapipe-worker.test.mjs
           npm run lint
 
       - name: Prepare deterministic five-second WebM fixture
@@ -134,10 +138,10 @@ jobs:
           report=json.loads(path.read_text())
           report['testedCommit']='${{ github.sha }}'
           report['workflowRunId']=int('${{ github.run_id }}')
-          report['pipeline']='five-second-pose-local-review-v6'
+          report['pipeline']='five-second-pose-local-review-v7'
           report['fixture']='public/test-fixtures/reference-face-motion.mp4'
           report['fixtureSegment']={'startSeconds':17.2,'durationSeconds':5}
-          report['mediaPipeAssets']='same-origin'
+          report['mediaPipeAssets']='same-origin-application-wasm'
           report['catalogSource']='seed'
           report['livenessPolicy']={
               'preparationTimeoutSeconds':45,
@@ -153,7 +157,7 @@ jobs:
             app/live/review-client-lite.tsx \
             public/mediapipe \
             data/live-fixed-video-e2e-result.json
-          git commit -m "fix(live): pass deterministic browser verification" || exit 0
+          git commit -m "perf(live): establish measured deterministic baseline" || exit 0
           git fetch origin work/coverage-driven-200k
           git rebase origin/work/coverage-driven-200k
           git push origin HEAD:work/coverage-driven-200k

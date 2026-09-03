@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "baseline": "data/live-fixed-video-e2e-result.json",
+  "fixture": "public/test-fixtures/reference-face-motion.mp4",
+  "fixtureSegment": {
+    "startSeconds": 17.2,
+    "durationSeconds": 5
+  },
+  "optimizations": [
+    "exact pose-window candidate pool reuse",
+    "invariant projection descriptor memoization"
+  ],
+  "requires": {
+    "orderedCandidateSequenceParity": true,
+    "sequenceFingerprintParity": true,
+    "totalProcessingImprovementMinimum": 0.02,
+    "candidateSearchImprovementMinimum": 0.05
+  },
+  "nonce": 1
+}

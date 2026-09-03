@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "purpose": "apply decoded-frame analysis, mounted output, stable browser hooks, and bounded stall detection",
+  "fixturePolicy": "private local video supplied at verification time",
+  "nonce": 1
+}

@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 9,
+  "schemaVersion": 10,
   "route": "/live",
-  "pipeline": "five-second-pose-local-review-v4",
+  "pipeline": "five-second-pose-local-review-v5",
   "deterministicVideoInput": true,
   "cameraInputStatus": "experimental-secondary",
   "captureSeconds": 5,
@@ -12,6 +12,7 @@
   "candidateLoadingPolicy": "pose-local-shards-after-face-analysis",
   "recordingStorage": "single-media-recorder-blob",
   "processingPlaybackSeparation": true,
+  "frameDecodePolicy": "seek-requestVideoFrameCallback-canvas",
   "matching": "offline-strict-two-stage-projection",
   "sequence": "full-five-second-offline-strict-optimization",
   "firstOutputPolicy": "mount-canvas-then-draw-then-verify",
@@ -20,5 +21,5 @@
   "fastRoute": "/live/fast",
   "legacyRoute": "/live/legacy",
   "catalog": "public/seed-catalog",
-  "nonce": 23
+  "nonce": 24
 }

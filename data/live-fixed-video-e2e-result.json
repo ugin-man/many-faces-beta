@@ -1,0 +1,909 @@
+{
+  "schemaVersion": 2,
+  "baseUrl": "http://127.0.0.1:3000",
+  "videoPath": "/home/runner/work/many-faces-beta/many-faces-beta/work/reference-face-motion.webm",
+  "expectedVideoName": "reference-face-motion.webm",
+  "durationMs": 67508,
+  "passed": true,
+  "failure": null,
+  "finalReport": {
+    "sourceName": "reference-face-motion.webm",
+    "plannedFrames": 60,
+    "faceFrames": 59,
+    "sequenceFrames": 59,
+    "selectedImages": 59,
+    "imageFailures": 0,
+    "outputChanges": 58,
+    "uniqueFaces": 59,
+    "processingMs": 64583.79999999999,
+    "canvasNonBlank": true,
+    "faceCoverage": 0.9833333333333333,
+    "passed": true,
+    "reasons": []
+  },
+  "events": [
+    {
+      "atMs": 248,
+      "type": "navigate",
+      "url": "http://127.0.0.1:3000/live"
+    },
+    {
+      "atMs": 499,
+      "type": "route-ready",
+      "title": "Many Faces Lightweight Five-Second Review",
+      "initialText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n5\u79d2\u64ae\u3063\u3066\u3001\u3042\u3068\u304b\u3089\u9023\u7d9a\u518d\u751f\nMODEL\nCATALOG\n\u30d0\u30c3\u30af\u30b0\u30e9\u30a6\u30f3\u30c9\u6e96\u5099\u4e2d\nINPUT\nNO VIDEO\n5\u79d2\u30ec\u30d3\u30e5\u30fc\n\u307e\u305a\u56fa\u5b9a\u52d5\u753b\u3092\u9078\u3093\u3067\u304f\u3060\u3055\u3044\u3002\u540c\u3058\u5165\u529b\u3067\u3053\u3061\u3089\u5074\u3082\u81ea\u52d5\u691c\u8a3c\u3067\u304d\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 525,
+      "type": "fixture-submitted",
+      "videoPath": "/home/runner/work/many-faces-beta/many-faces-beta/work/reference-face-motion.webm",
+      "expectedVideoName": "reference-face-motion.webm"
+    },
+    {
+      "atMs": 541,
+      "type": "heartbeat",
+      "state": "waiting",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "idle",
+        "label": "5\u79d2\u64ae\u3063\u3066\u3001\u3042\u3068\u304b\u3089\u9023\u7d9a\u518d\u751f",
+        "updatedAt": 1788436433827,
+        "stalled": false
+      },
+      "progress": "",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u89e3\u6790\u30a8\u30f3\u30b8\u30f3\u3092\u5f85\u3063\u3066\u3044\u307e\u3059\nMODEL\nCATALOG\n\u30d0\u30c3\u30af\u30b0\u30e9\u30a6\u30f3\u30c9\u6e96\u5099\u4e2d\nINPUT\nreference-face-motion.webm\n\u89e3\u6790\u30a8\u30f3\u30b8\u30f3\u3092\u5f85\u3063\u3066\u3044\u307e\u3059\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 576,
+      "type": "console",
+      "level": "error",
+      "text": "wasm streaming compile failed: TypeError: Failed to execute 'compile' on 'WebAssembly': Incorrect response MIME type. Expected 'application/wasm'."
+    },
+    {
+      "atMs": 576,
+      "type": "console",
+      "level": "error",
+      "text": "falling back to ArrayBuffer instantiation"
+    },
+    {
+      "atMs": 823,
+      "type": "console",
+      "level": "warning",
+      "text": "W0903 11:53:54.164999 2196592 face_landmarker_graph.cc:180] Sets FaceBlendshapesGraph acceleration to xnnpack by default."
+    },
+    {
+      "atMs": 878,
+      "type": "console",
+      "level": "log",
+      "text": "I0903 11:53:54.220999 2196592 gl_context.cc:407] GL version: 3.0 (OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))), renderer: WebKit WebGL"
+    },
+    {
+      "atMs": 879,
+      "type": "console",
+      "level": "warning",
+      "text": "W0903 11:53:54.223000 2196592 gl_context.cc:1119] OpenGL error checking is disabled"
+    },
+    {
+      "atMs": 882,
+      "type": "console",
+      "level": "log",
+      "text": "Graph successfully started running."
+    },
+    {
+      "atMs": 1332,
+      "type": "console",
+      "level": "error",
+      "text": "INFO: Created TensorFlow Lite XNNPACK delegate for CPU."
+    },
+    {
+      "atMs": 2956,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d",
+        "updatedAt": 1788436434234,
+        "stalled": false
+      },
+      "progress": "",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 2957,
+      "type": "console",
+      "level": "warning",
+      "text": "[.WebGL-0x22404908600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "atMs": 2957,
+      "type": "console",
+      "level": "warning",
+      "text": "[.WebGL-0x22404908600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "atMs": 2961,
+      "type": "requestfailed",
+      "url": "blob:http://127.0.0.1:3000/531014e7-40a1-4dbf-8c80-93f9db81114b",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "atMs": 3287,
+      "type": "console",
+      "level": "warning",
+      "text": "[.WebGL-0x22404908600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "atMs": 3287,
+      "type": "console",
+      "level": "warning",
+      "text": "[.WebGL-0x22404908600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    },
+    {
+      "atMs": 4155,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 5 / 60",
+        "updatedAt": 1788436437496,
+        "stalled": false
+      },
+      "progress": "Face Mesh 5 / 608%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 5 / 60\n8%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 5334,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 9 / 60",
+        "updatedAt": 1788436438675,
+        "stalled": false
+      },
+      "progress": "Face Mesh 9 / 6015%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 9 / 60\n15%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 6520,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 13 / 60",
+        "updatedAt": 1788436439862,
+        "stalled": false
+      },
+      "progress": "Face Mesh 13 / 6022%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 13 / 60\n22%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 7522,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 16 / 60",
+        "updatedAt": 1788436440835,
+        "stalled": false
+      },
+      "progress": "Face Mesh 16 / 6027%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 16 / 60\n27%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 8773,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 20 / 60",
+        "updatedAt": 1788436442114,
+        "stalled": false
+      },
+      "progress": "Face Mesh 20 / 6033%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 20 / 60\n33%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 10042,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 24 / 60",
+        "updatedAt": 1788436443382,
+        "stalled": false
+      },
+      "progress": "Face Mesh 24 / 6040%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 24 / 60\n40%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 11279,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 27 / 60",
+        "updatedAt": 1788436444620,
+        "stalled": false
+      },
+      "progress": "Face Mesh 27 / 6045%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 27 / 60\n45%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 12619,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 30 / 60",
+        "updatedAt": 1788436445959,
+        "stalled": false
+      },
+      "progress": "Face Mesh 30 / 6050%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 30 / 60\n50%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 13968,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 33 / 60",
+        "updatedAt": 1788436447310,
+        "stalled": false
+      },
+      "progress": "Face Mesh 33 / 6055%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 33 / 60\n55%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 14970,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 35 / 60",
+        "updatedAt": 1788436448224,
+        "stalled": false
+      },
+      "progress": "Face Mesh 35 / 6058%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 35 / 60\n58%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 16239,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 38 / 60",
+        "updatedAt": 1788436449580,
+        "stalled": false
+      },
+      "progress": "Face Mesh 38 / 6063%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 38 / 60\n63%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 17241,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 40 / 60",
+        "updatedAt": 1788436450506,
+        "stalled": false
+      },
+      "progress": "Face Mesh 40 / 6067%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 40 / 60\n67%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 18589,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 43 / 60",
+        "updatedAt": 1788436451930,
+        "stalled": false
+      },
+      "progress": "Face Mesh 43 / 6072%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 43 / 60\n72%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 19594,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 45 / 60",
+        "updatedAt": 1788436452934,
+        "stalled": false
+      },
+      "progress": "Face Mesh 45 / 6075%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 45 / 60\n75%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 20597,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 47 / 60",
+        "updatedAt": 1788436453876,
+        "stalled": false
+      },
+      "progress": "Face Mesh 47 / 6078%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 47 / 60\n78%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 21960,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 50 / 60",
+        "updatedAt": 1788436455301,
+        "stalled": false
+      },
+      "progress": "Face Mesh 50 / 6083%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 50 / 60\n83%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 23285,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 53 / 60",
+        "updatedAt": 1788436456626,
+        "stalled": false
+      },
+      "progress": "Face Mesh 53 / 6088%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 53 / 60\n88%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 24402,
+      "type": "heartbeat",
+      "state": "analyzing",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "analyzing",
+        "label": "Face Mesh 57 / 60",
+        "updatedAt": 1788436457744,
+        "stalled": false
+      },
+      "progress": "Face Mesh 57 / 6095%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u9332\u753b\u3092Face Mesh\u3067\u89e3\u6790\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 57 / 60\n95%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 25406,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "Face Mesh 60 / 60",
+        "updatedAt": 1788436458597,
+        "stalled": false
+      },
+      "progress": "Face Mesh 60 / 60100%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\nFace Mesh 60 / 60\n100%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 27427,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 2 / 59 \u00b7 2,970\u5019\u88dc",
+        "updatedAt": 1788436460770,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 2 / 59 \u00b7 2,970\u5019\u88dc3%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 2 / 59 \u00b7 2,970\u5019\u88dc\n3%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 29468,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 4 / 59 \u00b7 4,062\u5019\u88dc",
+        "updatedAt": 1788436462661,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 4 / 59 \u00b7 4,062\u5019\u88dc7%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 4 / 59 \u00b7 4,062\u5019\u88dc\n7%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 30470,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 5 / 59 \u00b7 4,108\u5019\u88dc",
+        "updatedAt": 1788436463282,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 5 / 59 \u00b7 4,108\u5019\u88dc8%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 5 / 59 \u00b7 4,108\u5019\u88dc\n8%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 31478,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 7 / 59 \u00b7 3,571\u5019\u88dc",
+        "updatedAt": 1788436464595,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 8 / 59 \u00b7 3,371\u5019\u88dc14%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 8 / 59 \u00b7 3,371\u5019\u88dc\n14%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 32480,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 16 / 59 \u00b7 3,190\u5019\u88dc",
+        "updatedAt": 1788436465531,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 16 / 59 \u00b7 3,190\u5019\u88dc27%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 16 / 59 \u00b7 3,190\u5019\u88dc\n27%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 33484,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 17 / 59 \u00b7 5,221\u5019\u88dc",
+        "updatedAt": 1788436466728,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 17 / 59 \u00b7 5,221\u5019\u88dc29%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 17 / 59 \u00b7 5,221\u5019\u88dc\n29%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 35539,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 18 / 59 \u00b7 8,452\u5019\u88dc",
+        "updatedAt": 1788436468792,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 18 / 59 \u00b7 8,452\u5019\u88dc31%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 18 / 59 \u00b7 8,452\u5019\u88dc\n31%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 38608,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 19 / 59 \u00b7 10,871\u5019\u88dc",
+        "updatedAt": 1788436471106,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 19 / 59 \u00b7 10,871\u5019\u88dc32%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 19 / 59 \u00b7 10,871\u5019\u88dc\n32%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 40665,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 20 / 59 \u00b7 12,670\u5019\u88dc",
+        "updatedAt": 1788436473677,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 20 / 59 \u00b7 12,670\u5019\u88dc34%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 20 / 59 \u00b7 12,670\u5019\u88dc\n34%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 43732,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 21 / 59 \u00b7 13,035\u5019\u88dc",
+        "updatedAt": 1788436476989,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 21 / 59 \u00b7 13,035\u5019\u88dc36%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 21 / 59 \u00b7 13,035\u5019\u88dc\n36%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 45833,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 21 / 59 \u00b7 13,035\u5019\u88dc",
+        "updatedAt": 1788436476989,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 22 / 59 \u00b7 13,066\u5019\u88dc37%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 22 / 59 \u00b7 13,066\u5019\u88dc\n37%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 46835,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 23 / 59 \u00b7 11,541\u5019\u88dc",
+        "updatedAt": 1788436480143,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 23 / 59 \u00b7 11,541\u5019\u88dc39%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 23 / 59 \u00b7 11,541\u5019\u88dc\n39%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 47837,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 27 / 59 \u00b7 7,566\u5019\u88dc",
+        "updatedAt": 1788436481158,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 27 / 59 \u00b7 7,566\u5019\u88dc46%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 27 / 59 \u00b7 7,566\u5019\u88dc\n46%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 48842,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 30 / 59 \u00b7 7,708\u5019\u88dc",
+        "updatedAt": 1788436481989,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 30 / 59 \u00b7 7,708\u5019\u88dc51%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 30 / 59 \u00b7 7,708\u5019\u88dc\n51%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 49864,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 31 / 59 \u00b7 7,758\u5019\u88dc",
+        "updatedAt": 1788436483047,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 31 / 59 \u00b7 7,758\u5019\u88dc53%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 31 / 59 \u00b7 7,758\u5019\u88dc\n53%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 51914,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 33 / 59 \u00b7 5,591\u5019\u88dc",
+        "updatedAt": 1788436485167,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 33 / 59 \u00b7 5,591\u5019\u88dc56%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 33 / 59 \u00b7 5,591\u5019\u88dc\n56%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 52916,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 36 / 59 \u00b7 3,728\u5019\u88dc",
+        "updatedAt": 1788436486258,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 36 / 59 \u00b7 3,728\u5019\u88dc61%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 36 / 59 \u00b7 3,728\u5019\u88dc\n61%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 53949,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 44 / 59 \u00b7 3,728\u5019\u88dc",
+        "updatedAt": 1788436486924,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 44 / 59 \u00b7 3,728\u5019\u88dc75%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 44 / 59 \u00b7 3,728\u5019\u88dc\n75%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 54953,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 45 / 59 \u00b7 5,854\u5019\u88dc",
+        "updatedAt": 1788436487496,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 45 / 59 \u00b7 5,854\u5019\u88dc76%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 45 / 59 \u00b7 5,854\u5019\u88dc\n76%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 56992,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 46 / 59 \u00b7 9,747\u5019\u88dc",
+        "updatedAt": 1788436489631,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 46 / 59 \u00b7 9,747\u5019\u88dc78%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 46 / 59 \u00b7 9,747\u5019\u88dc\n78%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 59031,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 47 / 59 \u00b7 11,445\u5019\u88dc",
+        "updatedAt": 1788436491960,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 47 / 59 \u00b7 11,445\u5019\u88dc80%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 47 / 59 \u00b7 11,445\u5019\u88dc\n80%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 61079,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 47 / 59 \u00b7 11,445\u5019\u88dc",
+        "updatedAt": 1788436491960,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 48 / 59 \u00b7 13,852\u5019\u88dc81%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 48 / 59 \u00b7 13,852\u5019\u88dc\n81%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 62105,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 49 / 59 \u00b7 14,840\u5019\u88dc",
+        "updatedAt": 1788436495169,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 49 / 59 \u00b7 14,840\u5019\u88dc83%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 49 / 59 \u00b7 14,840\u5019\u88dc\n83%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 63106,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 50 / 59 \u00b7 14,962\u5019\u88dc",
+        "updatedAt": 1788436496379,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 50 / 59 \u00b7 14,962\u5019\u88dc85%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 50 / 59 \u00b7 14,962\u5019\u88dc\n85%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 64108,
+      "type": "heartbeat",
+      "state": "searching",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "searching",
+        "label": "3D\u7167\u5408 56 / 59 \u00b7 13,692\u5019\u88dc",
+        "updatedAt": 1788436497409,
+        "stalled": false
+      },
+      "progress": "3D\u7167\u5408 56 / 59 \u00b7 13,692\u5019\u88dc95%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u5fc5\u8981\u306a\u89d2\u5ea6\u306e\u9854\u3060\u3051\u8aad\u307f\u8fbc\u307f\u30fb\u7167\u5408\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n3D\u7167\u5408 56 / 59 \u00b7 13,692\u5019\u88dc\n95%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 65111,
+      "type": "heartbeat",
+      "state": "preloading",
+      "verdict": "pending",
+      "report": null,
+      "runtime": {
+        "phase": "preloading",
+        "label": "\u63a1\u7528\u753b\u50cf\u3092\u6e96\u5099\u4e2d 56 / 59",
+        "updatedAt": 1788436498452,
+        "stalled": false
+      },
+      "progress": "\u63a1\u7528\u753b\u50cf\u3092\u6e96\u5099\u4e2d 56 / 5995%",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u63a1\u7528\u753b\u50cf\u3092\u518d\u751f\u524d\u306b\u6e96\u5099\u4e2d\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nINPUT\nreference-face-motion.webm\n\u63a1\u7528\u753b\u50cf\u3092\u518d\u751f\u524d\u306b\u6e96\u5099\u4e2d\n\u30da\u30fc\u30b8\u3092\u9589\u3058\u305a\u306b\u5f85\u3063\u3066\u304f\u3060\u3055\u3044\u3002\u9032\u6357\u306f\u4e0b\u306b\u51fa\u307e\u3059\u3002\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n\u63a1\u7528\u753b\u50cf\u3092\u6e96\u5099\u4e2d 56 / 59\n95%\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 65126,
+      "type": "requestfailed",
+      "url": "blob:http://127.0.0.1:3000/531014e7-40a1-4dbf-8c80-93f9db81114b",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "atMs": 66115,
+      "type": "heartbeat",
+      "state": "review",
+      "verdict": "passed",
+      "report": {
+        "sourceName": "reference-face-motion.webm",
+        "plannedFrames": 60,
+        "faceFrames": 59,
+        "sequenceFrames": 59,
+        "selectedImages": 59,
+        "imageFailures": 0,
+        "outputChanges": 58,
+        "uniqueFaces": 59,
+        "processingMs": 64583.79999999999,
+        "canvasNonBlank": true,
+        "faceCoverage": 0.9833333333333333,
+        "passed": true,
+        "reasons": []
+      },
+      "runtime": {
+        "phase": "review",
+        "label": "\u30ec\u30d3\u30e5\u30fc\u3067\u304d\u307e\u3059",
+        "updatedAt": 1788436498464,
+        "stalled": false
+      },
+      "progress": "",
+      "bodyText": "OFFLINE\nREALTIME\n\nMANY FACES / DETERMINISTIC VIDEO CHECK\n\n\u30ab\u30e1\u30e9\u306e\u524d\u306b\u3001\u540c\u3058\u52d5\u753b\u3067\u58ca\u308c\u65b9\u3092\u6f70\u3059\u3002\n\n\u56fa\u5b9a\u52d5\u753b\u306a\u3089\u3001\u6bce\u56de\u540c\u3058\u5165\u529b\u3067Face Mesh\u3001\u89d2\u5ea6shard\u30013D\u7167\u5408\u3001strict\u7d4c\u8def\u3001\u753b\u50cf\u8868\u793a\u307e\u3067\u78ba\u8a8d\u3067\u304d\u307e\u3059\u3002\u30ab\u30e1\u30e9\u306f\u6bd4\u8f03\u7528\u306e\u5b9f\u9a13\u6271\u3044\u3067\u3059\u3002\n\nVIDEO\nFIFO\nFAST\n1 \u64ae\u5f71\n2 \u51e6\u7406\n3 \u78ba\u8a8d\n\u30ec\u30d3\u30e5\u30fc\u3067\u304d\u307e\u3059\nMODEL\nCATALOG\n\u89e3\u6790\u6e96\u5099OK\nSOURCE VIDEO\nreference-face-motion.webm\nMANY FACES\n12 FPS\nPhilly Community Commemmorates Fidel\nFFHQ / Flickr\n\u56fa\u5b9a\u52d5\u753b\u3067\u691c\u8a3c\n\u30ab\u30e1\u30e9\u30675\u79d2\uff08\u5b9f\u9a13\uff09\n\u30ea\u30bb\u30c3\u30c8\n\u89e3\u6790\u5bc6\u5ea6\n12fps \u8efd\u91cf\n20fps \u4e2d\u9593\n30fps \u52d5\u753b\u7248\u57fa\u6e96\n\u518d\u751f\n\u22121 frame\n+1 frame\n\u518d\u751f\n12fps\n20fps\n30fps\n\u81ea\u52d5\u691c\u8a3c PASS\n\u9854\u691c\u51fa 98.3% \u00b7 59 frames \u00b7 59 faces \u00b7 64.6\u79d2\n\u51e6\u7406\u306e\u8a73\u7d30"
+    },
+    {
+      "atMs": 67337,
+      "type": "playback-advanced",
+      "playbackTime": 1.203205
+    },
+    {
+      "atMs": 67508,
+      "type": "pass",
+      "finalReport": {
+        "sourceName": "reference-face-motion.webm",
+        "plannedFrames": 60,
+        "faceFrames": 59,
+        "sequenceFrames": 59,
+        "selectedImages": 59,
+        "imageFailures": 0,
+        "outputChanges": 58,
+        "uniqueFaces": 59,
+        "processingMs": 64583.79999999999,
+        "canvasNonBlank": true,
+        "faceCoverage": 0.9833333333333333,
+        "passed": true,
+        "reasons": []
+      },
+      "layout": {
+        "viewportWidth": 1440,
+        "documentWidth": 1440,
+        "documentHeight": 1126,
+        "rootRect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1126.265625,
+          "top": 0,
+          "right": 1440,
+          "bottom": 1126.265625,
+          "left": 0
+        }
+      }
+    }
+  ],
+  "testedCommit": "ec0633302f5d8c8a8db34ed3605ef48a52308851",
+  "workflowRunId": 33751961273,
+  "pipeline": "five-second-pose-local-review-v6",
+  "fixture": "public/test-fixtures/reference-face-motion.mp4",
+  "fixtureSegment": {
+    "startSeconds": 17.2,
+    "durationSeconds": 5
+  },
+  "mediaPipeAssets": "same-origin",
+  "catalogSource": "seed",
+  "livenessPolicy": {
+    "preparationTimeoutSeconds": 45,
+    "progressStallTimeoutSeconds": 90,
+    "externalE2EStallTimeoutSeconds": 120
+  }
+}

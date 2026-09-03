@@ -26,12 +26,16 @@ import {
   reviewItemAtTime,
 } from "./review-timeline";
 import { evaluateVerificationGate } from "./verification-gate";
+import {
+  OPERATION_STALL_TIMEOUT_MS,
+  operationIsStalled,
+  preparationFailureReason,
+  progressSignature,
+} from "./runtime-liveness";
 import styles from "./review-client-lite.module.css";
 
-const WASM_URL =
-  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm";
-const MODEL_URL =
-  "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
+const WASM_URL = "/mediapipe";
+const MODEL_URL = "/mediapipe/face_landmarker.task";
 const CAPTURE_SECONDS = 5;
 const INDEX_BEAM_PER_FRAME = 64;
 const SHARD_CONCURRENCY = 4;
@@ -130,6 +134,12 @@ type VerificationReport = {
 declare global {
   interface Window {
     __MANY_FACES_VERIFY__?: VerificationReport;
+    __MANY_FACES_RUNTIME__?: {
+      phase: Phase;
+      label: string;
+      updatedAt: number;
+      stalled: boolean;
+    };
   }
 }
 
@@ -299,6 +309,20 @@ function nextPaint() {
   return new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 }
 
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit = {},
+  timeoutMs = 20_000,
+) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
 function loadCandidateImage(candidate: Candidate) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
@@ -395,6 +419,10 @@ export default function LightweightReviewClient() {
   const playbackRafRef = useRef<number | null>(null);
   const replayFpsRef = useRef(12);
   const lastOutputIdRef = useRef<string | null>(null);
+  const modelStateRef = useRef<Readiness>("loading");
+  const manifestStateRef = useRef<Readiness>("loading");
+  const lastProgressSignatureRef = useRef("");
+  const lastProgressAtRef = useRef(0);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [modelState, setModelState] = useState<Readiness>("loading");
@@ -421,6 +449,7 @@ export default function LightweightReviewClient() {
   const [currentOutputSource, setCurrentOutputSource] = useState("—");
   const [currentError, setCurrentError] = useState<ProjectionError | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [secondsSinceProgress, setSecondsSinceProgress] = useState(0);
 
   useEffect(() => {
     replayFpsRef.current = replayFps;
@@ -430,12 +459,55 @@ export default function LightweightReviewClient() {
     window.__MANY_FACES_VERIFY__ = report ?? undefined;
   }, [report]);
 
+  useEffect(() => {
+    const signature = progressSignature(phase, progress);
+    if (signature !== lastProgressSignatureRef.current) {
+      lastProgressSignatureRef.current = signature;
+      lastProgressAtRef.current = Date.now();
+    }
+    window.__MANY_FACES_RUNTIME__ = {
+      phase,
+      label: progress?.label ?? phaseText(phase),
+      updatedAt: lastProgressAtRef.current,
+      stalled: false,
+    };
+  }, [phase, progress]);
+
   const busy = !["idle", "review", "error"].includes(phase);
   const readinessLabel = useMemo(() => {
     if (modelState === "failed" || manifestState === "failed") return "準備エラー";
     if (modelState === "ready" && manifestState === "ready") return "解析準備OK";
     return "バックグラウンド準備中";
   }, [manifestState, modelState]);
+
+  useEffect(() => {
+    if (!busy) return;
+    const tick = () => {
+      const now = Date.now();
+      const elapsed = Math.max(0, now - lastProgressAtRef.current);
+      setSecondsSinceProgress(Math.floor(elapsed / 1_000));
+      if (!operationIsStalled(true, now, lastProgressAtRef.current)) return;
+      processingTokenRef.current += 1;
+      const message = `「${phaseText(phase)}」で${Math.ceil(
+        OPERATION_STALL_TIMEOUT_MS / 1_000,
+      )}秒以上進捗がありません。処理を停止しました。`;
+      setError(message);
+      setProgress(null);
+      setPhase("error");
+      window.__MANY_FACES_RUNTIME__ = {
+        phase: "error",
+        label: message,
+        updatedAt: now,
+        stalled: true,
+      };
+    };
+    const firstTick = window.setTimeout(tick, 0);
+    const timer = window.setInterval(tick, 1_000);
+    return () => {
+      window.clearTimeout(firstTick);
+      window.clearInterval(timer);
+    };
+  }, [busy, phase]);
 
   const stopPlayback = useCallback(() => {
     if (playbackRafRef.current !== null) {
@@ -475,22 +547,28 @@ export default function LightweightReviewClient() {
 
   useEffect(() => {
     let disposed = false;
+    modelStateRef.current = "loading";
+    manifestStateRef.current = "loading";
 
     async function prepareManifest() {
       try {
-        const response = await fetch("/api/catalog/manifest?source=seed", {
-          cache: "no-store",
-        });
+        const response = await fetchWithTimeout(
+          "/api/catalog/manifest?source=seed",
+          { cache: "no-store" },
+          15_000,
+        );
         if (!response.ok) throw new Error(`CATALOG ${response.status}`);
         const manifest = await response.json() as CatalogManifest;
         if (disposed) return;
         manifestRef.current = manifest;
+        manifestStateRef.current = "ready";
         setCatalogTotal(
           Number(manifest.searchableFaces ?? manifest.totalFaces ?? 0),
         );
         setManifestState("ready");
       } catch (caught) {
         console.error("Review manifest setup failed.", caught);
+        manifestStateRef.current = "failed";
         if (!disposed) setManifestState("failed");
       }
     }
@@ -527,9 +605,11 @@ export default function LightweightReviewClient() {
           return;
         }
         landmarkerRef.current = landmarker;
+        modelStateRef.current = "ready";
         setModelState("ready");
       } catch (caught) {
         console.error("Review model setup failed.", caught);
+        modelStateRef.current = "failed";
         if (!disposed) setModelState("failed");
       }
     }
@@ -547,19 +627,23 @@ export default function LightweightReviewClient() {
   }, [cleanupRecording, clearReview]);
 
   const waitUntilPrepared = useCallback(async (token: number) => {
+    const startedAt = Date.now();
     while (
       processingTokenRef.current === token &&
       (!manifestRef.current || !landmarkerRef.current)
     ) {
-      if (modelState === "failed" || manifestState === "failed") {
-        throw new Error("解析の準備に失敗しました。ページを再読み込みしてください");
-      }
+      const reason = preparationFailureReason(
+        modelStateRef.current,
+        manifestStateRef.current,
+        Date.now() - startedAt,
+      );
+      if (reason) throw new Error(reason);
       await new Promise<void>((resolve) => window.setTimeout(resolve, 100));
     }
     if (processingTokenRef.current !== token) {
       throw new DOMException("Cancelled", "AbortError");
     }
-  }, [manifestState, modelState]);
+  }, []);
 
   const loadShard = useCallback((file: string, token: number) => {
     const cached = shardCacheRef.current.get(file);
@@ -568,9 +652,10 @@ export default function LightweightReviewClient() {
       const manifest = manifestRef.current;
       if (!manifest) throw new Error("CATALOG MANIFEST MISSING");
       const catalog = manifest.catalogId || manifest.generatedAt || "current";
-      const response = await fetch(
+      const response = await fetchWithTimeout(
         `/api/catalog/shard?source=seed&file=${encodeURIComponent(file)}&catalog=${encodeURIComponent(catalog)}`,
         { cache: "force-cache" },
+        20_000,
       );
       if (!response.ok) throw new Error(`SHARD ${response.status}`);
       const payload = await response.json() as { items?: CatalogEntry[] };
@@ -669,6 +754,7 @@ export default function LightweightReviewClient() {
   const processRecording = useCallback(async (
     videoUrl: string,
     duration: number,
+    inputName: string,
   ) => {
     const token = processingTokenRef.current + 1;
     processingTokenRef.current = token;
@@ -850,7 +936,7 @@ export default function LightweightReviewClient() {
         canvasNonBlank,
       });
       const nextReport: VerificationReport = {
-        sourceName: sourceName || "camera-five-seconds.webm",
+        sourceName: inputName,
         plannedFrames: frameCount,
         faceFrames: frames.length,
         sequenceFrames: choices.length,
@@ -877,7 +963,6 @@ export default function LightweightReviewClient() {
     analysisFps,
     drawReviewAt,
     loadFrameCandidates,
-    sourceName,
     waitUntilPrepared,
   ]);
 
@@ -899,7 +984,7 @@ export default function LightweightReviewClient() {
         ? Math.min(CAPTURE_SECONDS, video.duration)
         : CAPTURE_SECONDS;
       setClipDuration(duration);
-      void processRecording(url, duration);
+      void processRecording(url, duration, file.name);
     } catch (caught) {
       console.error("Fixed video verification failed.", caught);
       setError(caught instanceof Error ? caught.message : "動画を開けませんでした");
@@ -984,7 +1069,7 @@ export default function LightweightReviewClient() {
         : CAPTURE_SECONDS;
       setClipDuration(duration);
       setRecordingRemaining(0);
-      void processRecording(url, duration);
+      void processRecording(url, duration, "camera-five-seconds.webm");
     } catch (caught) {
       cleanupRecording();
       console.error("Five-second recording failed.", caught);
@@ -1272,6 +1357,7 @@ export default function LightweightReviewClient() {
           <div><span>UNIQUE FACES</span><strong>{uniqueFaces}</strong></div>
           <div><span>IMAGE FAILURES</span><strong>{imageFailures}</strong></div>
           <div><span>STRICT ERROR</span><strong>{currentError?.strictTotal.toFixed(4) ?? "—"}</strong></div>
+          <div><span>HEARTBEAT</span><strong>{busy ? `${secondsSinceProgress}s ago` : "idle"}</strong></div>
         </div>
       </details>
       <output hidden data-testid="verification-report">

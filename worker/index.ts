@@ -4,11 +4,11 @@ import handler from "vinext/server/app-router-entry";
 
 interface Env {
   ASSETS?: Fetcher;
-  BUCKET: R2Bucket;
-  DB: D1Database;
+  BUCKET?: R2Bucket;
+  DB?: D1Database;
   CATALOG_UPLOAD_KEY?: string;
   CATALOG_OWNER_EMAIL?: string;
-  IMAGES: {
+  IMAGES?: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
         output(options: { format: string; quality: number }): Promise<{ response(): Response }>;
@@ -17,7 +17,8 @@ interface Env {
   };
 }
 
-function canUploadCatalog(request: Request, env: Env) {
+function canUploadCatalog(request: Request, env?: Env) {
+  if (!env?.BUCKET) return false;
   if (!env.CATALOG_UPLOAD_KEY) return true;
   const suppliedKey = request.headers.get("x-catalog-upload-key");
   if (suppliedKey && suppliedKey === env.CATALOG_UPLOAD_KEY) return true;
@@ -35,9 +36,9 @@ const CATALOG_PREFIX = "face-catalog/";
 const MAX_CATALOG_OBJECT_BYTES = 8 * 1024 * 1024;
 const CATALOG_PREFERENCE_CACHE_MS = 5_000;
 
-function fetchBundledAsset(request: Request, env: Env, path: string, headers?: Headers) {
+function fetchBundledAsset(request: Request, env: Env | undefined, path: string, headers?: Headers) {
   const assetRequest = new Request(new URL(path, request.url), { headers });
-  return env.ASSETS ? env.ASSETS.fetch(assetRequest) : fetch(assetRequest);
+  return env?.ASSETS ? env.ASSETS.fetch(assetRequest) : fetch(assetRequest);
 }
 
 function catalogJson(data: unknown, status = 200) {
@@ -190,7 +191,15 @@ function isRealPhotoOnlyCatalog(payload: CatalogManifest) {
   );
 }
 
-async function preferredRemoteManifest(request: Request, env: Env) {
+type CatalogSource = "auto" | "seed" | "remote";
+
+function requestedCatalogSource(url: URL): CatalogSource {
+  const source = url.searchParams.get("source");
+  return source === "seed" || source === "remote" ? source : "auto";
+}
+
+async function preferredRemoteManifest(request: Request, env?: Env) {
+  if (!env?.BUCKET) return null;
   const now = Date.now();
   if (catalogPreferenceCache && catalogPreferenceCache.expiresAt > now) {
     return catalogPreferenceCache.remoteManifest;
@@ -202,7 +211,11 @@ async function preferredRemoteManifest(request: Request, env: Env) {
     try {
       const remote = JSON.parse(await remoteObject.text()) as CatalogManifest;
       if (isSearchableCatalog(remote) && isRealPhotoOnlyCatalog(remote)) {
-        const seedResponse = await fetchBundledAsset(request, env, "/seed-catalog/manifest.json");
+        const seedResponse = await fetchBundledAsset(
+          request,
+          env,
+          "/seed-catalog/manifest.json",
+        );
         if (!seedResponse.ok) {
           selected = remote;
         } else {
@@ -256,46 +269,88 @@ function remoteCatalogResponse(
   });
 }
 
-async function catalogRead(
-  request: Request,
-  env: Env,
+async function remoteCatalogRead(
+  env: Env | undefined,
   path: string,
   immutable = false,
 ) {
+  if (!env?.BUCKET) {
+    return catalogJson({ error: "Remote catalog is unavailable" }, 404);
+  }
+  const object = await env.BUCKET.get(`${CATALOG_PREFIX}${path}`);
+  return object
+    ? remoteCatalogResponse(object, path, immutable)
+    : catalogJson({ error: "Catalog object not found" }, 404);
+}
+
+async function catalogRead(
+  request: Request,
+  env: Env | undefined,
+  path: string,
+  immutable = false,
+  source: CatalogSource = "auto",
+) {
+  if (source === "seed") {
+    return seedCatalogRead(request, env as Env, path, immutable);
+  }
+  if (source === "remote") {
+    return remoteCatalogRead(env, path, immutable);
+  }
+
   const remote = await preferredRemoteManifest(request, env);
   if (!remote) {
-    const seed = await seedCatalogRead(request, env, path, immutable);
-    if (seed.ok) return seed;
+    const seed = await seedCatalogRead(request, env as Env, path, immutable);
+    if (seed.ok || !env?.BUCKET) return seed;
     const stagedObject = await env.BUCKET.get(`${CATALOG_PREFIX}${path}`);
     return stagedObject
       ? remoteCatalogResponse(stagedObject, path, immutable)
       : seed;
   }
-  const object = await env.BUCKET.get(`${CATALOG_PREFIX}${path}`);
-  if (!object) return seedCatalogRead(request, env, path, immutable);
+  const object = await env?.BUCKET?.get(`${CATALOG_PREFIX}${path}`);
+  if (!object) return seedCatalogRead(request, env as Env, path, immutable);
   return remoteCatalogResponse(object, path, immutable);
 }
 
-async function catalogManifestRead(request: Request, env: Env) {
+async function catalogManifestRead(
+  request: Request,
+  env: Env | undefined,
+  source: CatalogSource = "auto",
+) {
+  if (source === "seed") {
+    return seedCatalogRead(request, env as Env, "manifest.json", false);
+  }
+  if (source === "remote") {
+    return remoteCatalogRead(env, "manifest.json", false);
+  }
   const remote = await preferredRemoteManifest(request, env);
   if (remote) return catalogJson(remote);
-  return seedCatalogRead(request, env, "manifest.json", false);
+  return seedCatalogRead(request, env as Env, "manifest.json", false);
 }
 
-async function catalogIndexRead(request: Request, env: Env, file: string) {
+async function catalogIndexRead(
+  request: Request,
+  env: Env | undefined,
+  file: string,
+  source: CatalogSource,
+) {
   if (!/^index_[0-9]{3}\.json$/i.test(file)) {
     return catalogJson({ error: "Invalid index" }, 400);
   }
-  return catalogRead(request, env, file, true);
+  return catalogRead(request, env, file, true, source);
 }
 
-async function catalogExportRead(request: Request, env: Env, path: string) {
+async function catalogExportRead(
+  request: Request,
+  env: Env | undefined,
+  path: string,
+  source: CatalogSource,
+) {
   if (!isCatalogExportPath(path)) {
     return catalogJson({ error: "Invalid export path" }, 400);
   }
   const response = path === "manifest.json"
-    ? await catalogManifestRead(request, env)
-    : await catalogRead(request, env, path, true);
+    ? await catalogManifestRead(request, env, source)
+    : await catalogRead(request, env, path, true, source);
   if (!response.ok || !response.body) return response;
   const headers = new Headers(response.headers);
   headers.set(
@@ -309,10 +364,24 @@ async function catalogExportRead(request: Request, env: Env, path: string) {
   return new Response(response.body, { status: response.status, headers });
 }
 
-async function handleCatalog(request: Request, env: Env, url: URL) {
+async function remotePackRange(
+  env: Env | undefined,
+  pack: string,
+  offset: number,
+  length: number,
+) {
+  if (!env?.BUCKET) return null;
+  return env.BUCKET.get(`${CATALOG_PREFIX}packs/${pack}`, {
+    range: { offset, length },
+  });
+}
+
+async function handleCatalog(request: Request, env: Env | undefined, url: URL) {
   try {
+    const source = requestedCatalogSource(url);
+
     if (request.method === "GET" && url.pathname === "/api/catalog/manifest") {
-      return catalogManifestRead(request, env);
+      return catalogManifestRead(request, env, source);
     }
 
     if (request.method === "GET" && url.pathname === "/api/catalog/shard") {
@@ -320,21 +389,31 @@ async function handleCatalog(request: Request, env: Env, url: URL) {
       if (!/^[a-z0-9_.+-]+\.json$/i.test(file)) {
         return catalogJson({ error: "Invalid shard" }, 400);
       }
-      return catalogRead(request, env, `shards/${file}`, true);
+      return catalogRead(request, env, `shards/${file}`, true, source);
     }
 
     if (request.method === "GET" && url.pathname === "/api/catalog/index") {
-      return catalogIndexRead(request, env, url.searchParams.get("file") ?? "");
+      return catalogIndexRead(
+        request,
+        env,
+        url.searchParams.get("file") ?? "",
+        source,
+      );
     }
 
     if (request.method === "GET" && url.pathname === "/api/catalog/export") {
-      return catalogExportRead(request, env, url.searchParams.get("path") ?? "");
+      return catalogExportRead(
+        request,
+        env,
+        url.searchParams.get("path") ?? "",
+        source,
+      );
     }
 
     if (request.method === "GET" && url.pathname === "/api/catalog/image") {
       const id = url.searchParams.get("id") ?? "";
       if (/^[a-z0-9_.-]+\.(?:avif|jpe?g|png|webp)$/i.test(id)) {
-        return catalogRead(request, env, `images/${id}`, true);
+        return catalogRead(request, env, `images/${id}`, true, source);
       }
       const pack = url.searchParams.get("pack") ?? "";
       const offset = Number(url.searchParams.get("offset"));
@@ -349,28 +428,25 @@ async function handleCatalog(request: Request, env: Env, url: URL) {
       ) {
         return catalogJson({ error: "Invalid image range" }, 400);
       }
-      const remote = await preferredRemoteManifest(request, env);
-      if (!remote) {
-        const seed = await seedCatalogPackRange(request, env, pack, offset, length);
-        if (seed.ok) return seed;
-        const stagedObject = await env.BUCKET.get(`${CATALOG_PREFIX}packs/${pack}`, {
-          range: { offset, length },
-        });
-        if (!stagedObject) return seed;
-        return new Response(stagedObject.body, {
-          headers: {
-            "cache-control": "private, max-age=31536000, immutable",
-            "content-length": String(length),
-            "content-type": "image/webp",
-            "x-content-type-options": "nosniff",
-          },
-        });
+
+      if (source !== "remote") {
+        const seed = await seedCatalogPackRange(
+          request,
+          env as Env,
+          pack,
+          offset,
+          length,
+        );
+        if (seed.ok || source === "seed" || !env?.BUCKET) return seed;
       }
-      const object = await env.BUCKET.get(`${CATALOG_PREFIX}packs/${pack}`, {
-        range: { offset, length },
-      });
-      if (!object) return seedCatalogPackRange(request, env, pack, offset, length);
-      return new Response(object.body, {
+
+      const remoteObject = await remotePackRange(env, pack, offset, length);
+      if (!remoteObject) {
+        return source === "remote"
+          ? catalogJson({ error: "Image pack not found" }, 404)
+          : seedCatalogPackRange(request, env as Env, pack, offset, length);
+      }
+      return new Response(remoteObject.body, {
         headers: {
           "cache-control": "private, max-age=31536000, immutable",
           "content-length": String(length),
@@ -396,7 +472,7 @@ async function handleCatalog(request: Request, env: Env, url: URL) {
       if (!body.byteLength || body.byteLength > MAX_CATALOG_OBJECT_BYTES) {
         return catalogJson({ error: "Invalid object size" }, 413);
       }
-      await env.BUCKET.put(`${CATALOG_PREFIX}${path}`, body, {
+      await env?.BUCKET?.put(`${CATALOG_PREFIX}${path}`, body, {
         httpMetadata: { contentType: catalogContentType(path) },
       });
       catalogPreferenceCache = null;

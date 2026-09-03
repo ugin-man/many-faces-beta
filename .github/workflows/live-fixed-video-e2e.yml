@@ -3,8 +3,6 @@ name: Verify live review with fixed face video
 on:
   push:
     branches: [work/coverage-driven-200k]
-    paths:
-      - data/live-fixed-video-e2e.json
   workflow_dispatch:
 
 permissions:
@@ -19,12 +17,13 @@ concurrency:
 
 jobs:
   verify:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'chore(live-e2e):')
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.sha }}
           fetch-depth: 2
 
       - uses: actions/setup-node@v4
@@ -78,10 +77,6 @@ jobs:
       - name: Prepare deterministic five-second WebM fixture
         run: |
           mkdir -p work
-          # The opening of the uploaded video deliberately leaves the face out of
-          # frame. Use a later five-second interval that has complete face
-          # visibility plus large pose/expression motion, so the acceptance gate
-          # measures the pipeline rather than absence of input.
           ffmpeg -hide_banner -loglevel warning -y \
             -i public/test-fixtures/reference-face-motion.mp4 \
             -ss 17.2 -t 5 -an -vf 'scale=512:-2:flags=lanczos' \
@@ -144,10 +139,10 @@ jobs:
           report=json.loads(path.read_text())
           report['testedCommit']='${{ github.sha }}'
           report['workflowRunId']=int('${{ github.run_id }}')
-          report['pipeline']='five-second-pose-local-review-v7'
+          report['pipeline']='five-second-pose-local-review-v8'
           report['fixture']='public/test-fixtures/reference-face-motion.mp4'
           report['fixtureSegment']={'startSeconds':17.2,'durationSeconds':5}
-          report['mediaPipeAssets']='same-origin-application-wasm'
+          report['mediaPipeAssets']='same-origin-api-proxy-application-wasm'
           report['catalogSource']='seed'
           report['livenessPolicy']={
               'preparationTimeoutSeconds':45,

@@ -14,6 +14,24 @@ from pathlib import Path
 PATH = Path("worker/index.ts")
 text = PATH.read_text(encoding="utf-8")
 
+# The branch can already contain the fully patched runtime because a successful
+# verification workflow commits it back. Re-running the old replacement over
+# that source used to duplicate CatalogSource/requestedCatalogSource and break
+# the next build. Treat the complete marker set as an idempotent success.
+if all(
+    marker in text
+    for marker in (
+        'type CatalogSource = "auto" | "seed" | "remote";',
+        "async function catalogRead(",
+        "async function catalogManifestRead(",
+        "const source = requestedCatalogSource(url);",
+        "env: Env | undefined",
+        "if (!env?.BUCKET) return null;",
+    )
+):
+    print("Explicit seed/local catalog runtime already applied.")
+    raise SystemExit(0)
+
 text = text.replace("  BUCKET: R2Bucket;", "  BUCKET?: R2Bucket;", 1)
 text = text.replace("  DB: D1Database;", "  DB?: D1Database;", 1)
 text = text.replace("  IMAGES: {", "  IMAGES?: {", 1)

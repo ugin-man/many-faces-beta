@@ -152,6 +152,18 @@ declare global {
   }
 }
 
+type VideoFrameCallbackMetadata = {
+  mediaTime?: number;
+  presentedFrames?: number;
+};
+
+type VideoWithFrameCallback = HTMLVideoElement & {
+  requestVideoFrameCallback?: (
+    callback: (now: number, metadata: VideoFrameCallbackMetadata) => void,
+  ) => number;
+  cancelVideoFrameCallback?: (id: number) => void;
+};
+
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
 }
@@ -276,6 +288,43 @@ function waitForVideoMetadata(video: HTMLVideoElement) {
     };
     video.addEventListener("loadedmetadata", ready, { once: true });
     video.addEventListener("error", failed, { once: true });
+  });
+}
+
+function waitForDecodedVideoFrame(
+  video: HTMLVideoElement,
+  targetTime: number,
+) {
+  return new Promise<void>((resolve) => {
+    const source = video as VideoWithFrameCallback;
+    let callbackId: number | null = null;
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timeout);
+      if (callbackId !== null) source.cancelVideoFrameCallback?.(callbackId);
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    };
+    const timeout = window.setTimeout(finish, 2_500);
+
+    if (source.requestVideoFrameCallback) {
+      callbackId = source.requestVideoFrameCallback((_now, metadata) => {
+        const mediaTime = Number(metadata.mediaTime);
+        // A browser may report the nearest decodable timestamp rather than the
+        // exact requested timestamp.  The callback itself is the important
+        // presentation barrier; the tolerance is retained for diagnostics.
+        void targetTime;
+        void mediaTime;
+        finish();
+      });
+      return;
+    }
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+      finish();
+      return;
+    }
+    video.addEventListener("loadeddata", finish, { once: true });
   });
 }
 
@@ -415,6 +464,7 @@ export default function LightweightReviewClient() {
   const previewVideoRef = useRef<HTMLVideoElement | null>(null);
   const playbackVideoRef = useRef<HTMLVideoElement | null>(null);
   const outputCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const analysisCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -813,7 +863,21 @@ export default function LightweightReviewClient() {
           index / analysisFps,
         );
         await seekVideo(video, time);
-        const result = landmarker.detect(video);
+        await waitForDecodedVideoFrame(video, time);
+        const canvas = analysisCanvasRef.current ?? document.createElement("canvas");
+        analysisCanvasRef.current = canvas;
+        const sourceWidth = Math.max(1, video.videoWidth);
+        const sourceHeight = Math.max(1, video.videoHeight);
+        if (canvas.width !== sourceWidth || canvas.height !== sourceHeight) {
+          canvas.width = sourceWidth;
+          canvas.height = sourceHeight;
+        }
+        const context = canvas.getContext("2d", { alpha: false });
+        if (!context) {
+          throw new Error("解析用キャンバスを準備できませんでした");
+        }
+        context.drawImage(video, 0, 0, sourceWidth, sourceHeight);
+        const result = landmarker.detect(canvas);
         const landmarks = result.faceLandmarks[0];
         if (landmarks && result.faceBlendshapes.length) {
           const geometry = faceGeometryFromLandmarks(

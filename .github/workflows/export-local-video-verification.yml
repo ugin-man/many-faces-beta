@@ -31,6 +31,7 @@ jobs:
           python tools/normalize_live_deterministic_marker.py
           python tools/patch_live_deterministic_video.py
           python tools/patch_live_review_canvas_mount.py
+          python tools/patch_live_review_frame_decode.py
           python tools/patch_live_review_lite_lint.py
       - name: Install the exact branch dependencies
         run: npm ci

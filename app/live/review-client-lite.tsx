@@ -27,6 +27,12 @@ import {
 } from "./review-timeline";
 import { evaluateVerificationGate } from "./verification-gate";
 import {
+  emptyReviewPhaseTimings,
+  reviewSequenceFingerprint,
+  roundedReviewPhaseTimings,
+  type ReviewPhaseTimings,
+} from "./review-sequence-metrics";
+import {
   OPERATION_STALL_TIMEOUT_MS,
   operationIsStalled,
   preparationFailureReason,
@@ -34,8 +40,8 @@ import {
 } from "./runtime-liveness";
 import styles from "./review-client-lite.module.css";
 
-const WASM_URL = "/mediapipe";
-const MODEL_URL = "/mediapipe/face_landmarker.task";
+const WASM_URL = "/api/mediapipe";
+const MODEL_URL = "/api/mediapipe/face_landmarker.task";
 const CAPTURE_SECONDS = 5;
 const INDEX_BEAM_PER_FRAME = 64;
 const SHARD_CONCURRENCY = 4;
@@ -125,6 +131,9 @@ type VerificationReport = {
   outputChanges: number;
   uniqueFaces: number;
   processingMs: number;
+  phaseTimingsMs: ReviewPhaseTimings;
+  sequenceIds: string[];
+  sequenceFingerprint: string;
   canvasNonBlank: boolean;
   faceCoverage: number;
   passed: boolean;
@@ -759,6 +768,8 @@ export default function LightweightReviewClient() {
     const token = processingTokenRef.current + 1;
     processingTokenRef.current = token;
     const started = performance.now();
+    const phaseTimings = emptyReviewPhaseTimings();
+    let phaseStarted = started;
     setError(null);
     setProgress(null);
     setFaceFrames(0);
@@ -775,6 +786,7 @@ export default function LightweightReviewClient() {
     try {
       setPhase("waiting");
       await waitUntilPrepared(token);
+      phaseTimings.preparation = performance.now() - phaseStarted;
       const video = playbackVideoRef.current;
       const landmarker = landmarkerRef.current;
       if (!video || !landmarker) throw new Error("解析エンジンがありません");
@@ -790,6 +802,7 @@ export default function LightweightReviewClient() {
       setPlannedFrames(frameCount);
       const frames: SequenceFrame[] = [];
 
+      phaseStarted = performance.now();
       setPhase("analyzing");
       for (let index = 0; index < frameCount; index += 1) {
         if (processingTokenRef.current !== token) {
@@ -824,11 +837,13 @@ export default function LightweightReviewClient() {
         });
         await nextPaint();
       }
+      phaseTimings.faceMesh = performance.now() - phaseStarted;
       setFaceFrames(frames.length);
       if (frames.length < 2) {
         throw new Error("顔を十分に検出できませんでした。明るい場所で撮り直してください");
       }
 
+      phaseStarted = performance.now();
       setPhase("searching");
       const beams: Array<Array<{ candidate: Candidate; error: ProjectionError }>> = [];
       for (let index = 0; index < frames.length; index += 1) {
@@ -852,10 +867,13 @@ export default function LightweightReviewClient() {
         await nextPaint();
       }
 
+      phaseTimings.candidateSearch = performance.now() - phaseStarted;
+
       // The beams retain every candidate needed by the final path. Clearing the
       // shard cache here lets all non-final local candidates be garbage-collected.
       shardCacheRef.current.clear();
 
+      phaseStarted = performance.now();
       setPhase("optimizing");
       setProgress({ done: 0, total: 1, label: "5秒全体のstrict経路を計算中" });
       await nextPaint();
@@ -865,12 +883,14 @@ export default function LightweightReviewClient() {
         STRICT_SEQUENCE_OPTIONS,
       );
       if (!choices.length) throw new Error("連続経路を作れませんでした");
+      phaseTimings.pathOptimization = performance.now() - phaseStarted;
       const timeline = choices.map((choice) => ({
         time: choice.frame.time,
         choice,
       }));
       sequenceRef.current = timeline;
 
+      phaseStarted = performance.now();
       setPhase("preloading");
       const selected = [...new Map(
         choices.map((choice) => [choice.candidate.id, choice.candidate]),
@@ -905,7 +925,10 @@ export default function LightweightReviewClient() {
           () => preloadWorker(),
         ),
       );
+      phaseTimings.imagePreload = performance.now() - phaseStarted;
       setImageFailures(failures);
+      const sequenceIds = choices.map((choice) => choice.candidate.id);
+      const sequenceFingerprint = reviewSequenceFingerprint(sequenceIds);
       const changes = choices.reduce((count, choice, index) =>
         index > 0 && choices[index - 1].candidate.id !== choice.candidate.id
           ? count + 1
@@ -945,6 +968,9 @@ export default function LightweightReviewClient() {
         outputChanges: changes,
         uniqueFaces: selected.length,
         processingMs: elapsed,
+        phaseTimingsMs: roundedReviewPhaseTimings(phaseTimings),
+        sequenceIds,
+        sequenceFingerprint,
         canvasNonBlank,
         faceCoverage: gate.faceCoverage,
         passed: gate.passed,

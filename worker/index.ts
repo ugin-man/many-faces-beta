@@ -60,6 +60,44 @@ function catalogContentType(path: string) {
   return "image/webp";
 }
 
+function mediapipeContentType(path: string) {
+  if (path.endsWith(".wasm")) return "application/wasm";
+  if (path.endsWith(".js")) return "text/javascript; charset=utf-8";
+  if (path.endsWith(".json")) return "application/json; charset=utf-8";
+  return "application/octet-stream";
+}
+
+async function mediapipeAssetRead(
+  request: Request,
+  env: Env | undefined,
+  apiPath: string,
+  fallback?: (assetRequest: Request) => Promise<Response>,
+) {
+  const match = apiPath.match(/^\/api\/mediapipe\/([a-z0-9_.-]+)$/i);
+  if (!match) return new Response("Not found", { status: 404 });
+
+  const staticPath = `/mediapipe/${match[1]}`;
+  const assetRequest = new Request(new URL(staticPath, request.url), {
+    headers: request.headers,
+  });
+  const response = env?.ASSETS
+    ? await env.ASSETS.fetch(assetRequest)
+    : fallback
+      ? await fallback(assetRequest)
+      : new Response("Not found", { status: 404 });
+  if (!response.ok || !response.body) return response;
+
+  const headers = new Headers(response.headers);
+  headers.set("content-type", mediapipeContentType(staticPath));
+  headers.set("cache-control", "public, max-age=31536000, immutable");
+  headers.set("x-content-type-options", "nosniff");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 function isCatalogUploadPath(path: string) {
   return (
     path === "manifest.json" ||
@@ -495,6 +533,15 @@ async function handleCatalog(request: Request, env: Env | undefined, url: URL) {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+
+    if (url.pathname.startsWith("/api/mediapipe/")) {
+      return mediapipeAssetRead(
+        request,
+        env,
+        url.pathname,
+        (assetRequest) => handler.fetch(assetRequest, env, ctx),
+      );
+    }
 
     if (url.pathname.startsWith("/api/catalog/")) {
       return handleCatalog(request, env, url);

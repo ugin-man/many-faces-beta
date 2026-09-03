@@ -7,6 +7,10 @@
       "bytes": 3758596,
       "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
     },
+    "runtime-manifest.json": {
+      "bytes": 1170,
+      "sha256": "fa3db62a6f9219a311e7383750797310db81287f48cf95cbb895cd5d9a3c4bd6"
+    },
     "vision_wasm_internal.js": {
       "bytes": 323377,
       "sha256": "e170ee67dd4e16c1a6fcd8840a206687e5a59b22c20e4a902bc445b095454d73"

@@ -10,7 +10,7 @@
   "analysisFps": 12,
   "requires": {
     "catalogSource": "seed",
-    "mediaPipeAssets": "same-origin-application-wasm",
+    "mediaPipeAssets": "same-origin-api-proxy-application-wasm",
     "faceCoverageMinimum": 0.7,
     "canvasNonBlank": true,
     "imageFailures": 0,
@@ -19,5 +19,5 @@
     "noProgressTimeoutSeconds": 120,
     "overallTimeoutSeconds": 900
   },
-  "nonce": 9
+  "nonce": 10
 }

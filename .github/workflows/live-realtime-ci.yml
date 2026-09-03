@@ -25,6 +25,7 @@ on:
       - tools/patch_faithful_camera_start.py
       - tools/patch_live_deterministic_video.py
       - tools/patch_live_review_canvas_mount.py
+      - tools/patch_live_review_frame_decode.py
       - tools/patch_live_review_lite_lint.py
       - worker/index.ts
       - tests/catalog-worker.test.mjs
@@ -61,6 +62,7 @@ jobs:
           python tools/normalize_live_deterministic_marker.py
           python tools/patch_live_deterministic_video.py
           python tools/patch_live_review_canvas_mount.py
+          python tools/patch_live_review_frame_decode.py
           python tools/patch_live_review_lite_lint.py
       - uses: actions/setup-node@v4
         with:
@@ -115,11 +117,11 @@ jobs:
               'lint': os.environ.get('LINT_OUTCOME', 'missing'),
           }
           receipt = {
-              'schemaVersion': 9,
+              'schemaVersion': 10,
               'testedCommit': '${{ github.sha }}',
               'workflowRunId': int('${{ github.run_id }}'),
               'route': '/live',
-              'pipeline': 'five-second-pose-local-review-v4',
+              'pipeline': 'five-second-pose-local-review-v5',
               'deterministicVideoInput': True,
               'cameraInputStatus': 'experimental-secondary',
               'captureSeconds': 5,
@@ -130,6 +132,7 @@ jobs:
               'candidateLoadingPolicy': 'pose-local-shards-after-face-analysis',
               'recordingStorage': 'single-media-recorder-blob',
               'processingPlaybackSeparation': True,
+              'frameDecodePolicy': 'seek-requestVideoFrameCallback-canvas',
               'matching': 'offline-strict-two-stage-projection',
               'sequence': 'full-five-second-offline-strict-optimization',
               'firstOutputPolicy': 'mount-canvas-then-draw-then-verify',
@@ -155,7 +158,7 @@ jobs:
             app/live/review-client-lite.tsx \
             app/live/review-client-lite.module.css \
             data/live-realtime-ci-result.json
-          git commit -m "fix(live): mount deterministic output before first draw" || exit 0
+          git commit -m "fix(live): analyze the decoded fixed-video frame" || exit 0
           git fetch origin work/coverage-driven-200k
           git rebase origin/work/coverage-driven-200k
           git push origin HEAD:work/coverage-driven-200k

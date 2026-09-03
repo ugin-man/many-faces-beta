@@ -36,7 +36,13 @@ jobs:
         run: |
           python tools/patch_worker_seed_mode.py
           python tools/patch_mediapipe_asset_mime.py
-          python tools/patch_live_runtime_reliability.py
+          if grep -q 'operationIsStalled(true' app/live/review-client-lite.tsx \
+            && grep -q '__MANY_FACES_RUNTIME__' app/live/review-client-lite.tsx \
+            && grep -q 'modelStateRef = useRef' app/live/review-client-lite.tsx; then
+            echo 'Live runtime reliability patch already applied.'
+          else
+            python tools/patch_live_runtime_reliability.py
+          fi
           python tools/patch_live_review_canvas_mount.py
           python tools/patch_live_fixed_video_source_name.py
           python tools/patch_live_verification_metrics.py

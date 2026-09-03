@@ -1,8 +1,9 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "purpose": "portable browser verification bundle for the uploaded deterministic face video",
   "route": "/live",
   "catalog": "all-pose compact 6-per-cell",
+  "frameDecodePolicy": "seek-requestVideoFrameCallback-canvas",
   "firstOutputPolicy": "mount-canvas-then-draw-then-verify",
-  "nonce": 3
+  "nonce": 4
 }

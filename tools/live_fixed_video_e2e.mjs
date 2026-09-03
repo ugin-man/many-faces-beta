@@ -11,6 +11,7 @@ const videoPath = path.resolve(
 const outputDir = path.resolve(process.env.LIVE_E2E_OUTPUT || "work/live-e2e");
 const overallTimeoutMs = Number(process.env.LIVE_E2E_TIMEOUT_MS || 12 * 60_000);
 const stallTimeoutMs = Number(process.env.LIVE_E2E_STALL_MS || 120_000);
+const expectedVideoName = path.basename(videoPath);
 
 await fs.mkdir(outputDir, { recursive: true });
 
@@ -36,6 +37,7 @@ const browser = await chromium.launch({
   args: [
     "--disable-dev-shm-usage",
     "--use-gl=swiftshader",
+    "--enable-unsafe-swiftshader",
     "--enable-webgl",
     "--autoplay-policy=no-user-gesture-required",
   ],
@@ -54,10 +56,11 @@ page.on("pageerror", (error) => {
   record("pageerror", { message: String(error?.stack || error).slice(0, 4_000) });
 });
 page.on("requestfailed", (request) => {
-  record("requestfailed", {
-    url: request.url(),
-    reason: request.failure()?.errorText || "unknown",
-  });
+  const url = request.url();
+  const reason = request.failure()?.errorText || "unknown";
+  // Loading a file into an existing <video> can abort the previous blob URL.
+  // Keep it as evidence, but do not treat this browser behaviour as a failure.
+  record("requestfailed", { url, reason });
 });
 page.on("response", (response) => {
   if (response.status() >= 400) {
@@ -83,7 +86,7 @@ try {
 
   const fileInput = page.getByTestId("verification-file-input");
   await fileInput.setInputFiles(videoPath);
-  record("fixture-submitted", { videoPath });
+  record("fixture-submitted", { videoPath, expectedVideoName });
 
   while (Date.now() - startedAt < overallTimeoutMs) {
     const snapshot = await page.evaluate(() => {
@@ -134,12 +137,20 @@ try {
   if (!finalReport.passed) {
     throw new Error(`VERIFICATION_GATE_FAILED: ${JSON.stringify(finalReport)}`);
   }
+  if (finalReport.sourceName !== expectedVideoName) {
+    throw new Error(
+      `VERIFICATION_SOURCE_MISMATCH_${finalReport.sourceName}_EXPECTED_${expectedVideoName}`,
+    );
+  }
   if (!finalReport.canvasNonBlank) throw new Error("OUTPUT_CANVAS_IS_BLANK");
   if (Number(finalReport.faceCoverage) < 0.7) {
     throw new Error(`FACE_COVERAGE_TOO_LOW_${finalReport.faceCoverage}`);
   }
   if (Number(finalReport.sequenceFrames) !== Number(finalReport.faceFrames)) {
     throw new Error("SEQUENCE_FRAME_COUNT_MISMATCH");
+  }
+  if (Number(finalReport.imageFailures) !== 0) {
+    throw new Error(`OUTPUT_IMAGE_FAILURES_${finalReport.imageFailures}`);
   }
 
   const layout = await page.evaluate(() => ({
@@ -157,17 +168,18 @@ try {
     );
   }
 
-  const playButton = page.getByRole("button", { name: "再生" });
-  if (await playButton.isVisible()) {
-    await playButton.click();
-    await page.waitForTimeout(1_200);
-    const playbackTime = await page.evaluate(() => {
-      const videos = [...document.querySelectorAll("video")];
-      return Math.max(0, ...videos.map((video) => Number(video.currentTime || 0)));
-    });
-    if (playbackTime <= 0.05) throw new Error("REVIEW_PLAYBACK_DID_NOT_ADVANCE");
-    record("playback-advanced", { playbackTime });
+  const playButton = page.getByRole("button", { name: "再生", exact: true });
+  if (!(await playButton.isVisible())) {
+    throw new Error("REVIEW_PLAY_BUTTON_MISSING");
   }
+  await playButton.click();
+  await page.waitForTimeout(1_200);
+  const playbackTime = await page.evaluate(() => {
+    const videos = [...document.querySelectorAll("video")];
+    return Math.max(0, ...videos.map((video) => Number(video.currentTime || 0)));
+  });
+  if (playbackTime <= 0.05) throw new Error("REVIEW_PLAYBACK_DID_NOT_ADVANCE");
+  record("playback-advanced", { playbackTime });
 
   await page.screenshot({
     path: path.join(outputDir, "live-fixed-video-pass.png"),
@@ -185,9 +197,10 @@ try {
   } catch {}
 } finally {
   const result = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     baseUrl,
     videoPath,
+    expectedVideoName,
     durationMs: Date.now() - startedAt,
     passed: !failure,
     failure,

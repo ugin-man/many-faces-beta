@@ -1,0 +1,17 @@
+{
+  "group": "lips-nose",
+  "allowedOpenverseSources": ["flickr", "wikimedia", "stocksnap", "nappy"],
+  "commonsCategories": ["Sneering people", "Disgust", "Facial expressions", "Wrinkled noses"],
+  "queries": [
+    "upper lip raised portrait neutral eyes photograph",
+    "lower lip pulled down portrait photo",
+    "sneering person portrait photograph",
+    "wrinkled nose person portrait photo",
+    "person showing disgust neutral eyes headshot photograph",
+    "nose wrinkle facial expression portrait photo",
+    "raised upper lip face close up photograph",
+    "lower lip down facial expression portrait photograph",
+    "pressed lips portrait neutral eyes photo",
+    "rolled lips portrait photograph"
+  ]
+}

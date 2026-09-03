@@ -4,11 +4,11 @@ import handler from "vinext/server/app-router-entry";
 
 interface Env {
   ASSETS?: Fetcher;
-  BUCKET: R2Bucket;
-  DB: D1Database;
+  BUCKET?: R2Bucket;
+  DB?: D1Database;
   CATALOG_UPLOAD_KEY?: string;
   CATALOG_OWNER_EMAIL?: string;
-  IMAGES: {
+  IMAGES?: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
         output(options: { format: string; quality: number }): Promise<{ response(): Response }>;
@@ -17,7 +17,8 @@ interface Env {
   };
 }
 
-function canUploadCatalog(request: Request, env: Env) {
+function canUploadCatalog(request: Request, env?: Env) {
+  if (!env?.BUCKET) return false;
   if (!env.CATALOG_UPLOAD_KEY) return true;
   const suppliedKey = request.headers.get("x-catalog-upload-key");
   if (suppliedKey && suppliedKey === env.CATALOG_UPLOAD_KEY) return true;
@@ -33,10 +34,11 @@ interface ExecutionContext {
 
 const CATALOG_PREFIX = "face-catalog/";
 const MAX_CATALOG_OBJECT_BYTES = 8 * 1024 * 1024;
+const CATALOG_PREFERENCE_CACHE_MS = 5_000;
 
-function fetchBundledAsset(request: Request, env: Env, path: string, headers?: Headers) {
+function fetchBundledAsset(request: Request, env: Env | undefined, path: string, headers?: Headers) {
   const assetRequest = new Request(new URL(path, request.url), { headers });
-  return env.ASSETS ? env.ASSETS.fetch(assetRequest) : fetch(assetRequest);
+  return env?.ASSETS ? env.ASSETS.fetch(assetRequest) : fetch(assetRequest);
 }
 
 function catalogJson(data: unknown, status = 200) {
@@ -56,6 +58,44 @@ function catalogContentType(path: string) {
   if (path.endsWith(".png")) return "image/png";
   if (path.endsWith(".jpg") || path.endsWith(".jpeg")) return "image/jpeg";
   return "image/webp";
+}
+
+function mediapipeContentType(path: string) {
+  if (path.endsWith(".wasm")) return "application/wasm";
+  if (path.endsWith(".js")) return "text/javascript; charset=utf-8";
+  if (path.endsWith(".json")) return "application/json; charset=utf-8";
+  return "application/octet-stream";
+}
+
+async function mediapipeAssetRead(
+  request: Request,
+  env: Env | undefined,
+  apiPath: string,
+  fallback?: (assetRequest: Request) => Promise<Response>,
+) {
+  const match = apiPath.match(/^\/api\/mediapipe\/([a-z0-9_.-]+)$/i);
+  if (!match) return new Response("Not found", { status: 404 });
+
+  const staticPath = `/mediapipe/${match[1]}`;
+  const assetRequest = new Request(new URL(staticPath, request.url), {
+    headers: request.headers,
+  });
+  const response = env?.ASSETS
+    ? await env.ASSETS.fetch(assetRequest)
+    : fallback
+      ? await fallback(assetRequest)
+      : new Response("Not found", { status: 404 });
+  if (!response.ok || !response.body) return response;
+
+  const headers = new Headers(response.headers);
+  headers.set("content-type", mediapipeContentType(staticPath));
+  headers.set("cache-control", "public, max-age=31536000, immutable");
+  headers.set("x-content-type-options", "nosniff");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 }
 
 function isCatalogUploadPath(path: string) {
@@ -78,10 +118,11 @@ function isCatalogExportPath(path: string) {
 
 function isSeedCatalogPath(path: string) {
   return (
-    path === "manifest.json" || /^index_[0-9]{3}\.json$/i.test(path) ||
-    /^shards\/seed_[a-z0-9_.+-]+\.json$/i.test(path) ||
-    /^packs\/seed_pack_[0-9]{3}\.bin$/i.test(path) ||
-    /^images\/seed_ffhq_[0-9]{5}\.webp$/i.test(path)
+    path === "manifest.json" ||
+    /^index_[0-9]{3}\.json$/i.test(path) ||
+    /^shards\/[a-z0-9_.+-]+\.json$/i.test(path) ||
+    /^packs\/[a-z0-9_.-]+\.bin$/i.test(path) ||
+    /^images\/[a-z0-9_.-]+\.(?:avif|jpe?g|png|webp)$/i.test(path)
   );
 }
 
@@ -144,33 +185,29 @@ async function seedCatalogRead(
   return new Response(response.body, { headers });
 }
 
-async function catalogRead(
-  request: Request,
-  env: Env,
-  path: string,
-  immutable = false,
-) {
-  const object = await env.BUCKET.get(`${CATALOG_PREFIX}${path}`);
-  if (!object) return seedCatalogRead(request, env, path, immutable);
-  return new Response(object.body, {
-    headers: {
-      "cache-control": immutable
-        ? "private, max-age=31536000, immutable"
-        : "private, no-cache",
-      "content-type": catalogContentType(path),
-      "x-content-type-options": "nosniff",
-    },
-  });
-}
-
 type CatalogManifest = {
   schemaVersion?: number;
+  catalogId?: string;
+  generatedAt?: string;
   shapeVersion?: string;
   totalFaces?: number;
   indexFiles?: string[];
   shardsContainGeometry?: boolean;
   cells?: Record<string, { count?: number; shards?: string[] }>;
+  stats?: {
+    cleanCore?: {
+      runtimeImagePolicy?: string;
+      knownSyntheticFaces?: number;
+    };
+  };
 };
+
+type CatalogPreferenceCache = {
+  expiresAt: number;
+  remoteManifest: CatalogManifest | null;
+};
+
+let catalogPreferenceCache: CatalogPreferenceCache | null = null;
 
 function isSearchableCatalog(payload: CatalogManifest) {
   return (
@@ -184,42 +221,174 @@ function isSearchableCatalog(payload: CatalogManifest) {
   );
 }
 
-async function preferredRemoteManifest(request: Request, env: Env) {
-  const remoteObject = await env.BUCKET.get(`${CATALOG_PREFIX}manifest.json`);
-  if (!remoteObject) return null;
-  try {
-    const remote = JSON.parse(await remoteObject.text()) as CatalogManifest;
-    if (!isSearchableCatalog(remote)) return null;
-    const seedResponse = await fetchBundledAsset(request, env, "/seed-catalog/manifest.json");
-    if (!seedResponse.ok) return remote;
-    const seed = await seedResponse.json() as CatalogManifest;
-    return Number(remote.totalFaces ?? 0) >= Number(seed.totalFaces ?? 0) ? remote : null;
-  } catch {
-    return null;
-  }
+function isRealPhotoOnlyCatalog(payload: CatalogManifest) {
+  const cleanCore = payload.stats?.cleanCore;
+  return (
+    cleanCore?.runtimeImagePolicy === "real-photo-only-v1" &&
+    Number(cleanCore.knownSyntheticFaces ?? -1) === 0
+  );
 }
 
-async function catalogManifestRead(request: Request, env: Env) {
+type CatalogSource = "auto" | "seed" | "remote";
+
+function requestedCatalogSource(url: URL): CatalogSource {
+  const source = url.searchParams.get("source");
+  return source === "seed" || source === "remote" ? source : "auto";
+}
+
+async function preferredRemoteManifest(request: Request, env?: Env) {
+  if (!env?.BUCKET) return null;
+  const now = Date.now();
+  if (catalogPreferenceCache && catalogPreferenceCache.expiresAt > now) {
+    return catalogPreferenceCache.remoteManifest;
+  }
+
+  let selected: CatalogManifest | null = null;
+  const remoteObject = await env.BUCKET.get(`${CATALOG_PREFIX}manifest.json`);
+  if (remoteObject) {
+    try {
+      const remote = JSON.parse(await remoteObject.text()) as CatalogManifest;
+      if (isSearchableCatalog(remote) && isRealPhotoOnlyCatalog(remote)) {
+        const seedResponse = await fetchBundledAsset(
+          request,
+          env,
+          "/seed-catalog/manifest.json",
+        );
+        if (!seedResponse.ok) {
+          selected = remote;
+        } else {
+          const seed = await seedResponse.json() as CatalogManifest;
+          if (!isSearchableCatalog(seed) || !isRealPhotoOnlyCatalog(seed)) {
+            selected = remote;
+          } else {
+            const remoteFaces = Number(remote.totalFaces ?? 0);
+            const seedFaces = Number(seed.totalFaces ?? 0);
+            if (remoteFaces > seedFaces) {
+              selected = remote;
+            } else if (remoteFaces === seedFaces) {
+              const remoteGeneratedAt = Date.parse(remote.generatedAt ?? "");
+              const seedGeneratedAt = Date.parse(seed.generatedAt ?? "");
+              if (
+                Number.isFinite(remoteGeneratedAt) &&
+                Number.isFinite(seedGeneratedAt) &&
+                remoteGeneratedAt > seedGeneratedAt
+              ) {
+                selected = remote;
+              }
+            }
+          }
+        }
+      }
+    } catch {
+      selected = null;
+    }
+  }
+
+  catalogPreferenceCache = {
+    expiresAt: now + CATALOG_PREFERENCE_CACHE_MS,
+    remoteManifest: selected,
+  };
+  return selected;
+}
+
+function remoteCatalogResponse(
+  object: { body: ReadableStream },
+  path: string,
+  immutable: boolean,
+) {
+  return new Response(object.body, {
+    headers: {
+      "cache-control": immutable
+        ? "private, max-age=31536000, immutable"
+        : "private, no-cache",
+      "content-type": catalogContentType(path),
+      "x-content-type-options": "nosniff",
+    },
+  });
+}
+
+async function remoteCatalogRead(
+  env: Env | undefined,
+  path: string,
+  immutable = false,
+) {
+  if (!env?.BUCKET) {
+    return catalogJson({ error: "Remote catalog is unavailable" }, 404);
+  }
+  const object = await env.BUCKET.get(`${CATALOG_PREFIX}${path}`);
+  return object
+    ? remoteCatalogResponse(object, path, immutable)
+    : catalogJson({ error: "Catalog object not found" }, 404);
+}
+
+async function catalogRead(
+  request: Request,
+  env: Env | undefined,
+  path: string,
+  immutable = false,
+  source: CatalogSource = "auto",
+) {
+  if (source === "seed") {
+    return seedCatalogRead(request, env as Env, path, immutable);
+  }
+  if (source === "remote") {
+    return remoteCatalogRead(env, path, immutable);
+  }
+
+  const remote = await preferredRemoteManifest(request, env);
+  if (!remote) {
+    const seed = await seedCatalogRead(request, env as Env, path, immutable);
+    if (seed.ok || !env?.BUCKET) return seed;
+    const stagedObject = await env.BUCKET.get(`${CATALOG_PREFIX}${path}`);
+    return stagedObject
+      ? remoteCatalogResponse(stagedObject, path, immutable)
+      : seed;
+  }
+  const object = await env?.BUCKET?.get(`${CATALOG_PREFIX}${path}`);
+  if (!object) return seedCatalogRead(request, env as Env, path, immutable);
+  return remoteCatalogResponse(object, path, immutable);
+}
+
+async function catalogManifestRead(
+  request: Request,
+  env: Env | undefined,
+  source: CatalogSource = "auto",
+) {
+  if (source === "seed") {
+    return seedCatalogRead(request, env as Env, "manifest.json", false);
+  }
+  if (source === "remote") {
+    return remoteCatalogRead(env, "manifest.json", false);
+  }
   const remote = await preferredRemoteManifest(request, env);
   if (remote) return catalogJson(remote);
-  return seedCatalogRead(request, env, "manifest.json", false);
+  return seedCatalogRead(request, env as Env, "manifest.json", false);
 }
 
-async function catalogIndexRead(request: Request, env: Env, file: string) {
+async function catalogIndexRead(
+  request: Request,
+  env: Env | undefined,
+  file: string,
+  source: CatalogSource,
+) {
   if (!/^index_[0-9]{3}\.json$/i.test(file)) {
     return catalogJson({ error: "Invalid index" }, 400);
   }
-  if (await preferredRemoteManifest(request, env)) return catalogRead(request, env, file, true);
-  return seedCatalogRead(request, env, file, true);
+  return catalogRead(request, env, file, true, source);
 }
 
-async function catalogExportRead(request: Request, env: Env, path: string) {
+async function catalogExportRead(
+  request: Request,
+  env: Env | undefined,
+  path: string,
+  source: CatalogSource,
+) {
   if (!isCatalogExportPath(path)) {
     return catalogJson({ error: "Invalid export path" }, 400);
   }
   const response = path === "manifest.json"
-    ? await catalogManifestRead(request, env)
-    : await catalogRead(request, env, path, true);
+    ? await catalogManifestRead(request, env, source)
+    : await catalogRead(request, env, path, true, source);
   if (!response.ok || !response.body) return response;
   const headers = new Headers(response.headers);
   headers.set(
@@ -233,10 +402,24 @@ async function catalogExportRead(request: Request, env: Env, path: string) {
   return new Response(response.body, { status: response.status, headers });
 }
 
-async function handleCatalog(request: Request, env: Env, url: URL) {
+async function remotePackRange(
+  env: Env | undefined,
+  pack: string,
+  offset: number,
+  length: number,
+) {
+  if (!env?.BUCKET) return null;
+  return env.BUCKET.get(`${CATALOG_PREFIX}packs/${pack}`, {
+    range: { offset, length },
+  });
+}
+
+async function handleCatalog(request: Request, env: Env | undefined, url: URL) {
   try {
+    const source = requestedCatalogSource(url);
+
     if (request.method === "GET" && url.pathname === "/api/catalog/manifest") {
-      return catalogManifestRead(request, env);
+      return catalogManifestRead(request, env, source);
     }
 
     if (request.method === "GET" && url.pathname === "/api/catalog/shard") {
@@ -244,24 +427,31 @@ async function handleCatalog(request: Request, env: Env, url: URL) {
       if (!/^[a-z0-9_.+-]+\.json$/i.test(file)) {
         return catalogJson({ error: "Invalid shard" }, 400);
       }
-      return catalogRead(request, env, `shards/${file}`, true);
+      return catalogRead(request, env, `shards/${file}`, true, source);
     }
 
     if (request.method === "GET" && url.pathname === "/api/catalog/index") {
-      return catalogIndexRead(request, env, url.searchParams.get("file") ?? "");
+      return catalogIndexRead(
+        request,
+        env,
+        url.searchParams.get("file") ?? "",
+        source,
+      );
     }
 
     if (request.method === "GET" && url.pathname === "/api/catalog/export") {
-      return catalogExportRead(request, env, url.searchParams.get("path") ?? "");
+      return catalogExportRead(
+        request,
+        env,
+        url.searchParams.get("path") ?? "",
+        source,
+      );
     }
 
     if (request.method === "GET" && url.pathname === "/api/catalog/image") {
       const id = url.searchParams.get("id") ?? "";
       if (/^[a-z0-9_.-]+\.(?:avif|jpe?g|png|webp)$/i.test(id)) {
-        if (id.startsWith("seed_ffhq_")) {
-          return seedCatalogRead(request, env, `images/${id}`, true);
-        }
-        return catalogRead(request, env, `images/${id}`, true);
+        return catalogRead(request, env, `images/${id}`, true, source);
       }
       const pack = url.searchParams.get("pack") ?? "";
       const offset = Number(url.searchParams.get("offset"));
@@ -276,15 +466,25 @@ async function handleCatalog(request: Request, env: Env, url: URL) {
       ) {
         return catalogJson({ error: "Invalid image range" }, 400);
       }
-      const object = await env.BUCKET.get(`${CATALOG_PREFIX}packs/${pack}`, {
-        range: { offset, length },
-      });
-      if (!object) {
-        return pack.startsWith("seed_pack_")
-          ? seedCatalogPackRange(request, env, pack, offset, length)
-          : catalogJson({ error: "Image pack not found" }, 404);
+
+      if (source !== "remote") {
+        const seed = await seedCatalogPackRange(
+          request,
+          env as Env,
+          pack,
+          offset,
+          length,
+        );
+        if (seed.ok || source === "seed" || !env?.BUCKET) return seed;
       }
-      return new Response(object.body, {
+
+      const remoteObject = await remotePackRange(env, pack, offset, length);
+      if (!remoteObject) {
+        return source === "remote"
+          ? catalogJson({ error: "Image pack not found" }, 404)
+          : seedCatalogPackRange(request, env as Env, pack, offset, length);
+      }
+      return new Response(remoteObject.body, {
         headers: {
           "cache-control": "private, max-age=31536000, immutable",
           "content-length": String(length),
@@ -310,9 +510,10 @@ async function handleCatalog(request: Request, env: Env, url: URL) {
       if (!body.byteLength || body.byteLength > MAX_CATALOG_OBJECT_BYTES) {
         return catalogJson({ error: "Invalid object size" }, 413);
       }
-      await env.BUCKET.put(`${CATALOG_PREFIX}${path}`, body, {
+      await env?.BUCKET?.put(`${CATALOG_PREFIX}${path}`, body, {
         httpMetadata: { contentType: catalogContentType(path) },
       });
+      catalogPreferenceCache = null;
       return catalogJson({ ok: true, path, bytes: body.byteLength });
     }
 
@@ -332,6 +533,15 @@ async function handleCatalog(request: Request, env: Env, url: URL) {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+
+    if (url.pathname.startsWith("/api/mediapipe/")) {
+      return mediapipeAssetRead(
+        request,
+        env,
+        url.pathname,
+        (assetRequest) => handler.fetch(assetRequest, env, ctx),
+      );
+    }
 
     if (url.pathname.startsWith("/api/catalog/")) {
       return handleCatalog(request, env, url);

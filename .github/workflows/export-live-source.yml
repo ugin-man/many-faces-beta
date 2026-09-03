@@ -1,0 +1,56 @@
+name: Export live verification source
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/export-live-source.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            /.github/workflows/live-realtime-ci.yml
+            /app/*
+            /app/live/*
+            /data/live-realtime-ci.json
+            /package.json
+            /package-lock.json
+            /public/test-fixtures/*
+            /scripts/*
+            /tests/*
+            /tools/*
+            /worker/*
+            /.openai/*
+            /drizzle.config.ts
+            /eslint.config.mjs
+            /next-env.d.ts
+            /postcss.config.mjs
+            /tsconfig.json
+            /vinext.config.ts
+            /wrangler.jsonc
+            /wrangler.toml
+          sparse-checkout-cone-mode: false
+      - name: Prepare source bundle
+        run: |
+          mkdir -p work/live-source
+          for path in .github app data package.json package-lock.json public scripts tests tools worker .openai drizzle.config.ts eslint.config.mjs next-env.d.ts postcss.config.mjs tsconfig.json vinext.config.ts wrangler.jsonc wrangler.toml; do
+            if [[ -e "$path" ]]; then cp -a "$path" work/live-source/; fi
+          done
+          git rev-parse HEAD > work/live-source/GIT_HEAD.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-live-source-${{ github.run_id }}
+          path: work/live-source
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 6

@@ -1,0 +1,13 @@
+name: Build clean core v1 (legacy manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  note:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Clean Core v1 is retained for reproducibility only; it is not a completion candidate."

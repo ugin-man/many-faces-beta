@@ -1,0 +1,179 @@
+name: Verify live review with fixed face video
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+concurrency:
+  group: many-faces-live-fixed-video-e2e
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'chore(live-e2e):')
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+
+      - name: Apply the runtime fixes under test
+        run: |
+          python tools/patch_worker_seed_mode.py
+          python tools/patch_mediapipe_asset_mime.py
+          if grep -q 'operationIsStalled(true' app/live/review-client-lite.tsx \
+            && grep -q '__MANY_FACES_RUNTIME__' app/live/review-client-lite.tsx \
+            && grep -q 'modelStateRef = useRef' app/live/review-client-lite.tsx; then
+            echo 'Live runtime reliability patch already applied.'
+          else
+            python tools/patch_live_runtime_reliability.py
+          fi
+          python tools/patch_live_review_canvas_mount.py
+          python tools/patch_live_fixed_video_source_name.py
+          python tools/patch_live_verification_metrics.py
+          python tools/patch_live_review_lite_lint.py
+
+      - name: Install application and browser test runtime
+        run: |
+          npm ci
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Self-host MediaPipe runtime assets
+        run: bash tools/prepare_mediapipe_runtime.sh public/mediapipe
+
+      - name: Build the exact patched runtime
+        run: npm run build
+
+      - name: Run unit and worker delivery gates
+        run: |
+          node --experimental-strip-types --test \
+            tests/live-review-timeline.test.mjs \
+            tests/live-review-local-catalog.test.mjs \
+            tests/live-verification-gate.test.mjs \
+            tests/live-review-sequence-metrics.test.mjs \
+            tests/live-runtime-liveness.test.mjs \
+            tests/catalog-worker.test.mjs \
+            tests/catalog-worker-local-seed.test.mjs \
+            tests/mediapipe-worker.test.mjs
+          npm run lint
+
+      - name: Prepare deterministic five-second WebM fixture
+        run: |
+          mkdir -p work
+          ffmpeg -hide_banner -loglevel warning -y \
+            -i public/test-fixtures/reference-face-motion.mp4 \
+            -ss 17.2 -t 5 -an -vf 'scale=512:-2:flags=lanczos' \
+            -c:v libvpx-vp9 -deadline good -cpu-used 4 -b:v 0 -crf 31 \
+            work/reference-face-motion.webm
+          ffprobe -v error \
+            -show_entries format=duration,size:stream=codec_name,width,height,avg_frame_rate \
+            -of json work/reference-face-motion.webm \
+            | tee work/reference-face-motion-probe.json
+
+      - name: Start the production Site locally
+        run: |
+          npm start > work/live-e2e-server.log 2>&1 &
+          echo $! > work/live-e2e-server.pid
+          ready=0
+          for attempt in $(seq 1 90); do
+            if curl --fail --silent --show-error \
+              'http://127.0.0.1:3000/api/catalog/manifest?source=seed' \
+              > work/seed-manifest.json; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [[ "$ready" != "1" ]]; then
+            cat work/live-e2e-server.log
+            exit 1
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest=json.loads(Path('work/seed-manifest.json').read_text())
+          assert manifest.get('schemaVersion') == 3, manifest
+          assert manifest.get('stats',{}).get('cleanCore',{}).get('knownSyntheticFaces') == 0, manifest
+          print(json.dumps({
+              'catalogId': manifest.get('catalogId'),
+              'faces': manifest.get('searchableFaces', manifest.get('totalFaces')),
+              'cells': len(manifest.get('cells',{})),
+          }, indent=2))
+          PY
+
+      - name: Run fixed-video browser acceptance test
+        env:
+          LIVE_E2E_BASE_URL: http://127.0.0.1:3000
+          LIVE_E2E_VIDEO: work/reference-face-motion.webm
+          LIVE_E2E_OUTPUT: work/live-e2e
+          LIVE_E2E_TIMEOUT_MS: "900000"
+          LIVE_E2E_STALL_MS: "120000"
+        run: node tools/live_fixed_video_e2e.mjs
+
+      - name: Write and commit verified runtime state
+        if: success()
+        run: |
+          cp work/live-e2e/live-fixed-video-e2e.json \
+            data/live-fixed-video-e2e-result.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path=Path('data/live-fixed-video-e2e-result.json')
+          report=json.loads(path.read_text())
+          report['testedCommit']='${{ github.sha }}'
+          report['workflowRunId']=int('${{ github.run_id }}')
+          report['pipeline']='five-second-pose-local-review-v8'
+          report['fixture']='public/test-fixtures/reference-face-motion.mp4'
+          report['fixtureSegment']={'startSeconds':17.2,'durationSeconds':5}
+          report['mediaPipeAssets']='same-origin-api-proxy-application-wasm'
+          report['catalogSource']='seed'
+          report['livenessPolicy']={
+              'preparationTimeoutSeconds':45,
+              'progressStallTimeoutSeconds':90,
+              'externalE2EStallTimeoutSeconds':120,
+          }
+          path.write_text(json.dumps(report,indent=2)+'\n')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            worker/index.ts \
+            app/live/review-client-lite.tsx \
+            public/mediapipe \
+            data/live-fixed-video-e2e-result.json
+          git commit -m "perf(live): establish measured deterministic baseline" || exit 0
+          git fetch origin work/coverage-driven-200k
+          git rebase origin/work/coverage-driven-200k
+          git push origin HEAD:work/coverage-driven-200k
+
+      - name: Upload evidence even when the test fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-live-fixed-video-e2e-${{ github.run_id }}
+          path: |
+            work/live-e2e
+            work/live-e2e-server.log
+            work/reference-face-motion-probe.json
+            work/seed-manifest.json
+            public/mediapipe/runtime-manifest.json
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 6

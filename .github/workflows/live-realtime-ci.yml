@@ -1,0 +1,175 @@
+name: Realtime lab CI
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - app/live/**
+      - app/live-faithful-lab.tsx
+      - app/live-faithful-lab.module.css
+      - app/live-faithful-sequence.ts
+      - app/live-face-lab.tsx
+      - app/live-face-lab.module.css
+      - app/live-responsive-lab.tsx
+      - app/live-responsive-lab.module.css
+      - app/live-responsive-runtime.ts
+      - app/live-packed-image-buffer.ts
+      - app/live-matching.ts
+      - app/projection-matching.ts
+      - app/offline-matching.ts
+      - app/mode-nav.tsx
+      - app/mode-nav.module.css
+      - app/layout.tsx
+      - public/faithful-capture-worker-v2.js
+      - tools/normalize_live_deterministic_marker.py
+      - tools/patch_faithful_camera_start.py
+      - tools/patch_live_deterministic_video.py
+      - tools/patch_live_review_canvas_mount.py
+      - tools/patch_live_review_frame_decode.py
+      - tools/patch_live_review_lite_lint.py
+      - worker/index.ts
+      - tests/catalog-worker.test.mjs
+      - tests/live-matching.test.mjs
+      - tests/live-responsive-runtime.test.mjs
+      - tests/live-packed-image-buffer.test.mjs
+      - tests/live-faithful-sequence.test.mjs
+      - tests/live-faithful-delay.test.mjs
+      - tests/live-faithful-startup.test.mjs
+      - tests/live-review-timeline.test.mjs
+      - tests/live-review-local-catalog.test.mjs
+      - tests/live-verification-gate.test.mjs
+      - data/live-realtime-ci.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            /*
+            !/public/seed-catalog/*
+            /public/seed-catalog/manifest.json
+          sparse-checkout-cone-mode: false
+      - name: Apply idempotent live-route fixes
+        run: |
+          python tools/patch_faithful_camera_start.py
+          python tools/normalize_live_deterministic_marker.py
+          python tools/patch_live_deterministic_video.py
+          python tools/patch_live_review_canvas_mount.py
+          python tools/patch_live_review_frame_decode.py
+          python tools/patch_live_review_lite_lint.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - id: install
+        name: Install dependencies
+        continue-on-error: true
+        run: npm ci
+      - id: build
+        name: Build realtime and review routes
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: npm run build
+      - id: tests
+        name: Run deterministic video, FIFO, and catalog tests
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: |
+          node --check public/faithful-capture-worker-v2.js
+          node --experimental-strip-types --test \
+            tests/live-matching.test.mjs \
+            tests/live-responsive-runtime.test.mjs \
+            tests/live-packed-image-buffer.test.mjs \
+            tests/live-faithful-sequence.test.mjs \
+            tests/live-faithful-delay.test.mjs \
+            tests/live-faithful-startup.test.mjs \
+            tests/live-review-timeline.test.mjs \
+            tests/live-review-local-catalog.test.mjs \
+            tests/live-verification-gate.test.mjs \
+            tests/catalog-worker.test.mjs
+      - id: lint
+        name: Lint application
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: npm run lint
+      - name: Write verification receipt
+        if: always()
+        env:
+          INSTALL_OUTCOME: ${{ steps.install.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          TEST_OUTCOME: ${{ steps.tests.outcome }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          outcomes = {
+              'install': os.environ.get('INSTALL_OUTCOME', 'missing'),
+              'build': os.environ.get('BUILD_OUTCOME', 'missing'),
+              'tests': os.environ.get('TEST_OUTCOME', 'missing'),
+              'lint': os.environ.get('LINT_OUTCOME', 'missing'),
+          }
+          receipt = {
+              'schemaVersion': 10,
+              'testedCommit': '${{ github.sha }}',
+              'workflowRunId': int('${{ github.run_id }}'),
+              'route': '/live',
+              'pipeline': 'five-second-pose-local-review-v5',
+              'deterministicVideoInput': True,
+              'cameraInputStatus': 'experimental-secondary',
+              'captureSeconds': 5,
+              'analysisFpsOptions': [12, 20, 30],
+              'defaultAnalysisFps': 12,
+              'reviewOutputFps': [12, 20, 30],
+              'startupCatalogPolicy': 'manifest-only',
+              'candidateLoadingPolicy': 'pose-local-shards-after-face-analysis',
+              'recordingStorage': 'single-media-recorder-blob',
+              'processingPlaybackSeparation': True,
+              'frameDecodePolicy': 'seek-requestVideoFrameCallback-canvas',
+              'matching': 'offline-strict-two-stage-projection',
+              'sequence': 'full-five-second-offline-strict-optimization',
+              'firstOutputPolicy': 'mount-canvas-then-draw-then-verify',
+              'runtimeVerificationOutput': 'window.__MANY_FACES_VERIFY__',
+              'fifoRoute': '/live/fifo',
+              'fastRoute': '/live/fast',
+              'legacyRoute': '/live/legacy',
+              'outcomes': outcomes,
+              'passed': all(value == 'success' for value in outcomes.values()),
+          }
+          Path('data/live-realtime-ci-result.json').write_text(
+              json.dumps(receipt, indent=2) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(receipt, indent=2))
+          PY
+      - name: Commit patched source and verification receipt
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            app/live/faithful-client.tsx \
+            app/live/review-client-lite.tsx \
+            app/live/review-client-lite.module.css \
+            data/live-realtime-ci-result.json
+          git commit -m "fix(live): analyze the decoded fixed-video frame" || exit 0
+          git fetch origin work/coverage-driven-200k
+          git rebase origin/work/coverage-driven-200k
+          git push origin HEAD:work/coverage-driven-200k
+      - name: Fail unsuccessful verification
+        if: always()
+        env:
+          INSTALL_OUTCOME: ${{ steps.install.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          TEST_OUTCOME: ${{ steps.tests.outcome }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+        run: |
+          for outcome in "$INSTALL_OUTCOME" "$BUILD_OUTCOME" "$TEST_OUTCOME" "$LINT_OUTCOME"; do
+            [[ "$outcome" == "success" ]] || exit 1
+          done

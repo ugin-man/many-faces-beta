@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "purpose": "finalize-verified-70k-site-seed",
+  "targetFaces": 70000,
+  "replaceLegacySeed": true,
+  "openImagesSourceRunId": 32559210408,
+  "verifiedFACS": true,
+  "symmetricPoseMirroring": true,
+  "physicalPoseReceipt": true,
+  "nonce": 1
+}

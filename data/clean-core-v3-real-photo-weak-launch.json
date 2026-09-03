@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "purpose": "strengthen weak real-photo-only Clean Core v3 profiles",
+  "profiles": [
+    "winkLeft",
+    "winkRight",
+    "eyesWide",
+    "noseSneer",
+    "mouthRound",
+    "mouthSlightOpen",
+    "mouthOpen",
+    "smileOpen",
+    "mouthWide",
+    "mouthLeft",
+    "mouthRight",
+    "mouthFrown",
+    "mouthUpperUp",
+    "mouthLowerDown"
+  ],
+  "providers": ["openverse", "commons"],
+  "knownSyntheticFacesAllowed": 0,
+  "nonce": 2
+}

@@ -1,0 +1,188 @@
+name: Finalize responsive realtime v2
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/live-responsive-v2-launch.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: many-faces-live-pose-pack-repack
+  cancel-in-progress: false
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Ensure one small runtime pack per 3-degree pose cell
+        run: |
+          POLICY=$(python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest=json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          print(manifest.get('stats',{}).get('livePacking',{}).get('policy',''))
+          PY
+          )
+          if [[ "$POLICY" != "one-pack-per-3-degree-pose-cell-v1" ]]; then
+            node tools/repack-live-pose-packs.mjs \
+              public/seed-catalog work/live-pose-catalog --overwrite
+            node tools/validate_face_catalog.mjs work/live-pose-catalog \
+              | tee work/live-pose-catalog/catalog-validation.json
+            rm -rf public/seed-catalog/packs public/seed-catalog/shards
+            mkdir -p public/seed-catalog/packs public/seed-catalog/shards
+            cp -a work/live-pose-catalog/packs/. public/seed-catalog/packs/
+            cp -a work/live-pose-catalog/shards/. public/seed-catalog/shards/
+            cp work/live-pose-catalog/manifest.json public/seed-catalog/manifest.json
+            cp work/live-pose-catalog/live-packing-report.json public/seed-catalog/live-packing-report.json
+            cp work/live-pose-catalog/catalog-validation.json public/seed-catalog/catalog-validation.json
+          fi
+      - name: Apply idempotent pose-local browser tuning
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          path=Path('app/live-responsive-lab.tsx')
+          text=path.read_text(encoding='utf-8')
+          substitutions=[
+              ('maxImageUrls: 224','maxImageUrls: 320'),
+              ('maxPackBytes: 40 * 1024 * 1024','maxPackBytes: 48 * 1024 * 1024'),
+              ('preloadConcurrency: 4','preloadConcurrency: 6'),
+          ]
+          for old,new in substitutions:
+              text=text.replace(old,new,1)
+          patterns=[
+              (r'const MAX_CACHED_SHARDS = \d+;', 'const MAX_CACHED_SHARDS = 24;'),
+              (r'const MAX_CURRENT_CELLS = \d+;', 'const MAX_CURRENT_CELLS = 9;'),
+              (r'const MAX_PREDICTED_CELLS = \d+;', 'const MAX_PREDICTED_CELLS = 6;'),
+              (r'const PRELOAD_CANDIDATES = \d+;', 'const PRELOAD_CANDIDATES = 32;'),
+              (r'const MAX_NEW_PACKS_PER_PRELOAD = \d+;', 'const MAX_NEW_PACKS_PER_PRELOAD = 6;'),
+          ]
+          for pattern,replacement in patterns:
+              text=re.sub(pattern,replacement,text,count=1)
+          text=re.sub(r'maxNewPacks:\s*2\b','maxNewPacks: 6',text)
+          path.write_text(text,encoding='utf-8')
+          PY
+      - name: Enforce physical and safety gates
+        run: |
+          node tools/validate_face_catalog.mjs public/seed-catalog \
+            | tee /tmp/live-catalog-validation.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest=json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          packing=manifest.get('stats',{}).get('livePacking',{})
+          clean=manifest.get('stats',{}).get('cleanCore',{})
+          failures=[]
+          faces=int(manifest.get('searchableFaces',manifest.get('totalFaces',0)))
+          cells=len(manifest.get('cells',{}))
+          if faces != 70000: failures.append(f'faces={faces}')
+          if cells != 775: failures.append(f'cells={cells}')
+          if packing.get('policy') != 'one-pack-per-3-degree-pose-cell-v1': failures.append('pose-local policy missing')
+          if int(packing.get('packCount',0)) != 775: failures.append(f"packs={packing.get('packCount')}")
+          if int(packing.get('maximumPackBytes',0)) > 8*1024*1024: failures.append('pose pack exceeds 8 MiB')
+          if clean.get('runtimeImagePolicy') != 'real-photo-only-v1': failures.append('real-photo policy missing')
+          if int(clean.get('knownSyntheticFaces',-1)) != 0: failures.append('synthetic faces are not zero')
+          if failures: raise SystemExit('Final realtime physical gate failed:\n- '+'\n- '.join(failures))
+          PY
+      - name: Verify responsive runtime
+        run: |
+          npm run build
+          node --experimental-strip-types --test \
+            tests/live-matching.test.mjs \
+            tests/live-responsive-runtime.test.mjs \
+            tests/live-packed-image-buffer.test.mjs \
+            tests/catalog-worker.test.mjs \
+            tests/repack-live-pose-packs.test.mjs
+          npm run lint
+      - name: Write final responsive-v2 receipt and trigger normal realtime CI
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest=json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          packing=manifest.get('stats',{}).get('livePacking',{})
+          clean=manifest.get('stats',{}).get('cleanCore',{})
+          receipt={
+              'schemaVersion':2,
+              'workflowRunId':int('${{ github.run_id }}'),
+              'validatedInputCommit':'${{ github.sha }}',
+              'route':'/live',
+              'legacyRoute':'/live/legacy',
+              'pipeline':'motion-driven-pose-local-buffer-v2',
+              'catalogId':manifest.get('catalogId'),
+              'searchableFaces':manifest.get('searchableFaces',manifest.get('totalFaces')),
+              'poseStep':manifest.get('poseStep'),
+              'poseCells':len(manifest.get('cells',{})),
+              'packingPolicy':packing.get('policy'),
+              'packCount':packing.get('packCount'),
+              'medianPackBytes':packing.get('medianPackBytes'),
+              'p95PackBytes':packing.get('p95PackBytes'),
+              'maximumPackBytes':packing.get('maximumPackBytes'),
+              'runtimeImagePolicy':clean.get('runtimeImagePolicy'),
+              'knownSyntheticFaces':clean.get('knownSyntheticFaces'),
+              'browserBuffer':{
+                  'maxImageUrls':320,
+                  'maxPackBytes':50331648,
+                  'preloadConcurrency':6,
+                  'maxCachedShards':24,
+                  'currentPoseCells':9,
+                  'predictedPoseCells':6,
+                  'maxNewPacksPerPass':6,
+              },
+              'targetMovingOutputFps':[12,20],
+              'staticBehavior':'hold-current-face',
+              'outcomes':{'build':'success','tests':'success','lint':'success','catalogValidation':'success'},
+              'passed':True,
+          }
+          Path('data/live-responsive-v2-final.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          trigger=Path('data/live-realtime-ci.json')
+          payload=json.loads(trigger.read_text())
+          payload['nonce']=int(payload.get('nonce',0))+1
+          payload['pipeline']='motion-driven-pose-local-buffer-v2'
+          payload['minimumMovingOutputFps']=12
+          trigger.write_text(json.dumps(payload,indent=2)+'\n')
+          PY
+      - name: Commit final responsive-v2 state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config http.version HTTP/1.1
+          git config http.postBuffer 1073741824
+          git add -A -- \
+            app/live-responsive-lab.tsx \
+            public/seed-catalog/manifest.json \
+            public/seed-catalog/packs \
+            public/seed-catalog/shards \
+            public/seed-catalog/live-packing-report.json \
+            public/seed-catalog/catalog-validation.json \
+            data/live-responsive-v2-final.json \
+            data/live-realtime-ci.json
+          git commit -m "perf(live): finalize the pose-local responsive pipeline" || true
+          git fetch origin work/coverage-driven-200k
+          git rebase origin/work/coverage-driven-200k
+          git push origin HEAD:work/coverage-driven-200k
+      - uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-responsive-live-v2-${{ github.run_id }}
+          path: |
+            data/live-responsive-v2-final.json
+            public/seed-catalog/manifest.json
+            public/seed-catalog/live-packing-report.json
+            public/seed-catalog/catalog-validation.json
+          if-no-files-found: error
+          retention-days: 30

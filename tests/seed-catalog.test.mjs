@@ -5,9 +5,13 @@ import path from "node:path";
 import test from "node:test";
 
 const root = path.resolve("public/seed-catalog");
+const hasCatalogPayload =
+  existsSync(path.join(root, "manifest.json")) &&
+  existsSync(path.join(root, "shards")) &&
+  existsSync(path.join(root, "packs"));
 
 test("bundles a validated face catalog across pose and expression groups", {
-  skip: !existsSync(path.join(root, "manifest.json")),
+  skip: !hasCatalogPayload,
 }, async () => {
   const manifest = JSON.parse(await readFile(path.join(root, "manifest.json"), "utf8"));
   assert.equal(manifest.schemaVersion, 3);

@@ -1,0 +1,13 @@
+name: Build clean core v2 (legacy manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  note:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Clean Core v2 is retired; active development moved to Clean Core v3."

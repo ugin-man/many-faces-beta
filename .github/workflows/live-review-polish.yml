@@ -1,0 +1,62 @@
+name: Apply live review UI polish
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/live-review-polish-launch.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: many-faces-live-review-polish
+  cancel-in-progress: true
+
+jobs:
+  polish-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+      - name: Apply review fixes and copy polish
+        run: |
+          python tools/patch_faithful_camera_start.py
+          python tools/normalize_live_deterministic_marker.py
+          python tools/patch_live_deterministic_video.py
+          python tools/patch_live_review_canvas_mount.py
+          python tools/patch_live_review_frame_decode.py
+          python tools/patch_live_review_test_hooks.py
+          python tools/patch_live_review_copy.py
+          python tools/patch_live_review_lite_lint.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build routes
+        run: npm run build
+      - name: Run review tests
+        run: |
+          node --check scripts/verify-live-video.mjs
+          node --experimental-strip-types --test \
+            tests/live-review-timeline.test.mjs \
+            tests/live-review-local-catalog.test.mjs \
+            tests/live-verification-gate.test.mjs \
+            tests/catalog-worker.test.mjs
+      - name: Lint application
+        run: npm run lint
+      - name: Commit polished review
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/live/review-client-lite.tsx app/live/review-client-lite.module.css
+          git commit -m "style(live): polish the deterministic motion review" || exit 0
+          git fetch origin work/coverage-driven-200k
+          git rebase origin/work/coverage-driven-200k
+          git push origin HEAD:work/coverage-driven-200k

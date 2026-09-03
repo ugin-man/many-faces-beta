@@ -1,0 +1,15 @@
+name: Catalog collection smoke (legacy manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  note:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "The original validation/test smoke path is retained only as a manual marker."
+          echo "Production coverage collection now runs through the train-batch workflow."

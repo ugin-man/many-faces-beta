@@ -1,0 +1,224 @@
+name: Repair and promote clean core v3
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - data/clean-core-v3-repair-launch.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: many-faces-clean-core-v3-repair-promote
+  cancel-in-progress: true
+
+env:
+  SOURCE_RUN_ID: "32559210408"
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  collect-facs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          sparse-checkout: |
+            /tools/*
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: tools/requirements-catalog.txt
+      - name: Install runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgles2
+          python -m pip install --disable-pip-version-check -r tools/requirements-catalog.txt kagglehub
+      - name: Stage controlled single-AU source
+        run: |
+          python tools/stage_synthetic_facs.py work/stage \
+            --cache .cache/synthetic-humans-facs --max-images 0 --overwrite
+      - name: Curate synthetic FACS without background-exposure false rejects
+        run: |
+          python tools/run_curate_clean_core_v3_facs.py \
+            work/stage work/accepted --min-face-area 0.065
+      - name: Mirror asymmetric states and build supplement
+        run: |
+          python tools/mirror_clean_core_pairs.py work/accepted work/expanded --overwrite
+          python tools/build_face_catalog_compat.py \
+            work/expanded work/supplement \
+            --metadata work/expanded/metadata.csv \
+            --yaw-min -45 --yaw-max 45 --pitch-min -36 --pitch-max 36 --overwrite
+          node tools/finalize-supplement-catalog.mjs \
+            --catalog work/supplement \
+            --catalog-id "clean-v3-facs-repair-${GITHUB_RUN_ID}"
+          node tools/validate_face_catalog.mjs work/supplement \
+            | tee work/supplement-validation.json
+      - name: Require useful FACS recovery
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('work/accepted/clean-curation-report.json').read_text())
+          profiles=report.get('profiles',{})
+          print(json.dumps(report,indent=2))
+          required={
+            'winkLeft':20,'winkRight':20,'eyesWide':80,'browsUp':80,'browsDown':80,
+            'noseSneer':60,'mouthRound':60,'mouthPucker':80,'mouthWide':80,
+            'mouthFrown':60,'mouthUpperUp':60,'mouthLowerDown':60,
+          }
+          failures=[f"{name}={profiles.get(name,0)} < {minimum}" for name,minimum in required.items() if profiles.get(name,0)<minimum]
+          if failures:
+            raise SystemExit('FACS recovery insufficient:\n- '+'\n- '.join(failures))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clean-v3-facs-repair
+          path: |
+            work/stage/source-report.json
+            work/accepted/clean-curation-report.json
+            work/supplement
+            work/supplement-validation.json
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 6
+
+  assemble-promote:
+    needs: collect-facs
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install assembly runtime
+        run: |
+          python -m pip install --disable-pip-version-check numpy Pillow
+          python -m unittest tests/test_clean_core_policy_v3.py
+      - name: Download previously validated Open Images source catalogs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: clean-v3-source-*
+          path: work/source-artifacts
+          repository: ${{ github.repository }}
+          run-id: ${{ env.SOURCE_RUN_ID }}
+          github-token: ${{ github.token }}
+      - name: Download repaired FACS source
+        uses: actions/download-artifact@v4
+        with:
+          name: clean-v3-facs-repair
+          path: work/source-artifacts/clean-v3-facs-repair
+      - name: Build repaired physical 70k catalog
+        shell: bash
+        run: |
+          ARGS=(--catalog "seed-ffhq=public/seed-catalog")
+          while IFS= read -r manifest; do
+            root=$(dirname "$manifest")
+            label=$(basename "$(dirname "$root")")
+            ARGS+=(--catalog "${label}=${root}")
+          done < <(find work/source-artifacts -path '*/supplement/manifest.json' -type f | sort)
+          python tools/run_build_clean_core_v3_repair.py \
+            work/clean-core-v3 --overwrite --target-total 70000 "${ARGS[@]}"
+      - name: Validate repaired physical catalog
+        run: |
+          node tools/validate_face_catalog.mjs work/clean-core-v3/catalog \
+            | tee work/clean-core-v3/catalog-validation.json
+      - name: Verify completion before touching the seed catalog
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          audit=json.loads(Path('work/clean-core-v3/audit.json').read_text())
+          manifest=json.loads(Path('work/clean-core-v3/catalog/manifest.json').read_text())
+          if not audit.get('gatePassed'):
+            raise SystemExit('Repaired gate failed:\n- '+'\n- '.join(audit.get('gateFailures',[])))
+          if audit.get('selectedFaces') != 70000 or manifest.get('searchableFaces',manifest.get('totalFaces')) != 70000:
+            raise SystemExit(f"Expected exactly 70,000 physical searchable faces: audit={audit.get('selectedFaces')} manifest={manifest.get('searchableFaces',manifest.get('totalFaces'))}")
+          if audit.get('selectedPoseCells',0) < 700:
+            raise SystemExit(f"Pose coverage too small: {audit.get('selectedPoseCells')}")
+          print(json.dumps({
+            'faces':audit['selectedFaces'],
+            'poseCells':audit['selectedPoseCells'],
+            'strictProfiles':audit.get('strictProfiles',{}),
+            'backgroundProfiles':audit.get('backgroundProfiles',{}),
+            'sources':audit.get('selectedSources',{}),
+          },indent=2))
+          PY
+      - name: Replace old seed catalog with repaired Clean Core v3
+        run: |
+          rm -rf public/seed-catalog
+          mkdir -p public/seed-catalog
+          cp -a work/clean-core-v3/catalog/. public/seed-catalog/
+          cp work/clean-core-v3/audit.json public/seed-catalog/clean-core-audit.json
+          cp work/clean-core-v3/catalog-validation.json public/seed-catalog/catalog-validation.json
+      - name: Verify the exact files that the site will load
+        run: |
+          node tools/validate_face_catalog.mjs public/seed-catalog \
+            | tee /tmp/seed-validation.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest=json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          audit=json.loads(Path('public/seed-catalog/clean-core-audit.json').read_text())
+          if manifest.get('totalFaces') != 70000:
+            raise SystemExit(f"Site seed manifest is not 70k: {manifest.get('totalFaces')}")
+          if audit.get('policyVersion') != 'clean-single-factor-v3':
+            raise SystemExit(f"Unexpected policy: {audit.get('policyVersion')}")
+          PY
+      - name: Write build receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          audit=json.loads(Path('public/seed-catalog/clean-core-audit.json').read_text())
+          manifest=json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          receipt={
+            'schemaVersion':1,
+            'status':'promoted-to-site-seed',
+            'sourceWorkflowRunId':int('${{ env.SOURCE_RUN_ID }}'),
+            'repairWorkflowRunId':int('${{ github.run_id }}'),
+            'policyVersion':audit.get('policyVersion'),
+            'catalogId':manifest.get('catalogId'),
+            'searchableFaces':manifest.get('searchableFaces',manifest.get('totalFaces')),
+            'poseStep':manifest.get('poseStep'),
+            'poseCells':audit.get('selectedPoseCells'),
+            'strictProfiles':audit.get('strictProfiles',{}),
+            'backgroundProfiles':audit.get('backgroundProfiles',{}),
+            'selectedSources':audit.get('selectedSources',{}),
+            'rejections':audit.get('rejections',{}),
+          }
+          Path('data/clean-core-v3-site-build.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          PY
+      - name: Commit physical seed replacement to work branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- public/seed-catalog data/clean-core-v3-site-build.json
+          git commit -m "feat(dataset): promote 70k clean core v3 as site seed"
+          git push origin HEAD:work/coverage-driven-200k
+      - uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-clean-core-v3-site-seed-${{ github.run_id }}
+          path: |
+            public/seed-catalog
+            data/clean-core-v3-site-build.json
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 6

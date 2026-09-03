@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "runtime": "@mediapipe/tasks-vision@1.0.1",
+  "sameOrigin": true,
+  "files": {
+    "face_landmarker.task": {
+      "bytes": 3758596,
+      "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
+    },
+    "runtime-manifest.json": {
+      "bytes": 1170,
+      "sha256": "fa3db62a6f9219a311e7383750797310db81287f48cf95cbb895cd5d9a3c4bd6"
+    },
+    "vision_wasm_internal.js": {
+      "bytes": 323377,
+      "sha256": "e170ee67dd4e16c1a6fcd8840a206687e5a59b22c20e4a902bc445b095454d73"
+    },
+    "vision_wasm_internal.wasm": {
+      "bytes": 11756954,
+      "sha256": "8da277a733926eacd0474b8704b36742d6ec3231c57a860c5b889dff8f1df886"
+    },
+    "vision_wasm_module_internal.js": {
+      "bytes": 323415,
+      "sha256": "da8934057f147b622e82cfb4c0dbd85461c598e268588b5a8ba9ca963a8ff82d"
+    },
+    "vision_wasm_module_internal.wasm": {
+      "bytes": 11756972,
+      "sha256": "2dabd8e23c60984628beb7bb338764c81a08e6837145273f59578684b5d53c1b"
+    },
+    "vision_wasm_nosimd_internal.js": {
+      "bytes": 323180,
+      "sha256": "e81d715a3d42cc3373602eb2f7aff795d164934db680e32496b65dab537f9658"
+    },
+    "vision_wasm_nosimd_internal.wasm": {
+      "bytes": 10960242,
+      "sha256": "a28483cd42e74e855bf5ebdb6b40d9b66a5b49e35e95020bc97669e6822a3192"
+    }
+  }
+}

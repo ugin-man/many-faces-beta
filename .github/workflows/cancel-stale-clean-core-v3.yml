@@ -1,0 +1,23 @@
+name: Cancel stale clean core v3 runs
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - data/cancel-stale-clean-core-v3.json
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Cancel superseded workflow runs
+        run: |
+          for run_id in 32556870801 32556919902; do
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/cancel" || true
+          done

@@ -1,0 +1,13 @@
+{
+  "catalogId": "many-faces-clean-core-v3-pose-local-v1",
+  "sourceFaces": 70000,
+  "searchableFaces": 70000,
+  "failedDetections": 0,
+  "poseCells": 775,
+  "shards": 775,
+  "packs": 775,
+  "largestShardBytes": 1656704,
+  "largestPackBytes": 1628290,
+  "coverage": null,
+  "orphanedFinalShards": 0
+}

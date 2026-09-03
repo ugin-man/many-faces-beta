@@ -1,0 +1,142 @@
+name: Tune realtime pose-local buffer
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/live-pose-buffer-tuning-launch.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: many-faces-live-pose-buffer-tuning
+  cancel-in-progress: true
+
+jobs:
+  tune:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          sparse-checkout: |
+            /*
+            !/public/seed-catalog/*
+            /public/seed-catalog/manifest.json
+            /public/seed-catalog/live-packing-report.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - name: Verify pose-local physical layout
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          packing = manifest.get('stats', {}).get('livePacking', {})
+          if packing.get('policy') != 'one-pack-per-3-degree-pose-cell-v1':
+              raise SystemExit('Pose-local catalog is not active yet')
+          if int(packing.get('packCount', 0)) != 775:
+              raise SystemExit(f"Unexpected pose-pack count: {packing.get('packCount')}")
+          PY
+      - name: Tune the browser working set for small pose-local packs
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          path = Path('app/live-responsive-lab.tsx')
+          text = path.read_text(encoding='utf-8')
+          original = text
+          required = {
+              'maxImageUrls': ('maxImageUrls: 224', 'maxImageUrls: 320'),
+              'maxPackBytes': ('maxPackBytes: 40 * 1024 * 1024', 'maxPackBytes: 48 * 1024 * 1024'),
+              'preloadConcurrency': ('preloadConcurrency: 4', 'preloadConcurrency: 6'),
+          }
+          for label, (old, new) in required.items():
+              if old not in text and new not in text:
+                  raise SystemExit(f'Missing required tuning marker: {label}')
+              text = text.replace(old, new, 1)
+
+          regex_tuning = [
+              (r'const MAX_CACHED_SHARDS = \d+;', 'const MAX_CACHED_SHARDS = 24;'),
+              (r'const MAX_CURRENT_CELLS = \d+;', 'const MAX_CURRENT_CELLS = 9;'),
+              (r'const MAX_PREDICTED_CELLS = \d+;', 'const MAX_PREDICTED_CELLS = 6;'),
+              (r'const PRELOAD_CANDIDATES = \d+;', 'const PRELOAD_CANDIDATES = 32;'),
+              (r'const MAX_NEW_PACKS_PER_PRELOAD = \d+;', 'const MAX_NEW_PACKS_PER_PRELOAD = 6;'),
+          ]
+          applied = []
+          for pattern, replacement in regex_tuning:
+              updated, count = re.subn(pattern, replacement, text, count=1)
+              if count:
+                  text = updated
+                  applied.append(replacement)
+
+          text, direct_count = re.subn(r'maxNewPacks:\s*2\b', 'maxNewPacks: 6', text)
+          if direct_count:
+              applied.append('maxNewPacks: 6')
+
+          if text == original:
+              raise SystemExit('No realtime buffer tuning was applied')
+          path.write_text(text, encoding='utf-8')
+          print('\n'.join(applied))
+          PY
+      - name: Install and verify the tuned runtime
+        run: |
+          npm ci
+          npm run build
+          node --experimental-strip-types --test \
+            tests/live-matching.test.mjs \
+            tests/live-responsive-runtime.test.mjs \
+            tests/live-packed-image-buffer.test.mjs \
+            tests/catalog-worker.test.mjs
+          npm run lint
+      - name: Write tuning receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          packing = manifest.get('stats', {}).get('livePacking', {})
+          receipt = {
+              'schemaVersion': 1,
+              'workflowRunId': int('${{ github.run_id }}'),
+              'testedCommit': '${{ github.sha }}',
+              'catalogId': manifest.get('catalogId'),
+              'packingPolicy': packing.get('policy'),
+              'posePackCount': packing.get('packCount'),
+              'browserBuffer': {
+                  'maxImageUrls': 320,
+                  'maxPackBytes': 50331648,
+                  'preloadConcurrency': 6,
+                  'maxCachedShards': 24,
+                  'currentPoseCells': 9,
+                  'predictedPoseCells': 6,
+                  'maxNewPacksPerPass': 6,
+              },
+              'outcomes': {
+                  'build': 'success',
+                  'tests': 'success',
+                  'lint': 'success',
+              },
+              'passed': True,
+          }
+          Path('data/live-pose-buffer-tuning-build.json').write_text(
+              json.dumps(receipt, indent=2) + '\n', encoding='utf-8'
+          )
+          PY
+      - name: Commit tuned responsive runtime
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/live-responsive-lab.tsx data/live-pose-buffer-tuning-build.json
+          git commit -m "perf(live): widen the pose-local ready buffer"
+          git fetch origin work/coverage-driven-200k
+          git rebase origin/work/coverage-driven-200k
+          git push origin HEAD:work/coverage-driven-200k

@@ -27,3 +27,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - run: npm run lint
+      - name: Check Python tools
+        run: |
+          python -m compileall -q tools
+          python -m unittest discover -s tests -p 'test_*.py'

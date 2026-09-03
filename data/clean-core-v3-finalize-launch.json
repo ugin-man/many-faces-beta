@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 2,
+  "openImagesWorkflowRunId": 32559210408,
+  "targetFaces": 70000,
+  "replaceSiteSeed": true,
+  "runtimeImagePolicy": "real-photo-only-v1",
+  "knownSyntheticFacesAllowed": 0,
+  "removeSyntheticHumansFACSFromRuntime": true,
+  "nonce": 4
+}

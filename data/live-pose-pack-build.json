@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "workflowRunId": 32757373259,
+  "builtFromCommit": "33c9c515ffade5bbdae5d412cd5b59e6d2d4dea5",
+  "catalogId": "many-faces-clean-core-v3-pose-local-v1",
+  "searchableFaces": 70000,
+  "poseStep": 3,
+  "poseCells": 775,
+  "packingPolicy": "one-pack-per-3-degree-pose-cell-v1",
+  "packCount": 775,
+  "medianPackBytes": 504222,
+  "p95PackBytes": 900210,
+  "maximumPackBytes": 1628290,
+  "runtimeImagePolicy": "real-photo-only-v1",
+  "knownSyntheticFaces": 0,
+  "passed": true
+}

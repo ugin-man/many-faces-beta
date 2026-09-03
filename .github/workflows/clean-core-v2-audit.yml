@@ -1,0 +1,13 @@
+name: Audit clean core v2 sources (legacy manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  note:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "The v2 source audit is archived; use the Clean Core v3 completion gate."

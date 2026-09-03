@@ -1,0 +1,32 @@
+name: Export MediaPipe face model
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/export-mediapipe-model.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download official MediaPipe face landmarker
+        run: |
+          mkdir -p model
+          curl --fail --location --retry 5 --retry-all-errors \
+            https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task \
+            --output model/face_landmarker.task
+          test "$(stat -c %s model/face_landmarker.task)" -gt 3000000
+          sha256sum model/face_landmarker.task | tee model/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mediapipe-face-landmarker
+          path: model
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0

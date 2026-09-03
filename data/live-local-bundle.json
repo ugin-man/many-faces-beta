@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 2,
+  "purpose": "private local browser verification with user library video",
+  "userVideoIncluded": false,
+  "mediaPipeAssets": "bundled-local",
+  "nonce": 2
+}

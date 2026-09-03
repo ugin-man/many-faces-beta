@@ -1,0 +1,78 @@
+name: Export local video verification bundle
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/export-local-video-verification.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - name: Apply the same deterministic review patches as CI
+        run: |
+          python tools/patch_faithful_camera_start.py
+          python tools/normalize_live_deterministic_marker.py
+          python tools/patch_live_deterministic_video.py
+          python tools/patch_live_review_canvas_mount.py
+          python tools/patch_live_review_frame_decode.py
+          python tools/patch_live_review_lite_lint.py
+      - name: Install the exact branch dependencies
+        run: npm ci
+      - name: Build a compact all-pose verification catalog
+        run: |
+          python tools/build_compact_verification_catalog.py \
+            public/seed-catalog work/compact-seed \
+            --per-cell 6 --overwrite
+          node tools/validate_face_catalog.mjs work/compact-seed \
+            | tee work/compact-seed/catalog-validation.json
+      - name: Build the Site against the compact catalog
+        run: |
+          mv public/seed-catalog work/production-seed
+          cp -a work/compact-seed public/seed-catalog
+          npm run build
+      - name: Assemble a portable runtime-only bundle
+        run: |
+          rm -rf work/local-video-verification
+          mkdir -p work/local-video-verification
+          cp -a \
+            dist \
+            node_modules \
+            package.json \
+            package-lock.json \
+            public \
+            scripts \
+            work/local-video-verification/
+          for path in .openai vinext.config.ts wrangler.jsonc wrangler.toml; do
+            if [[ -e "$path" ]]; then cp -a "$path" work/local-video-verification/; fi
+          done
+          git rev-parse HEAD > work/local-video-verification/GIT_HEAD.txt
+          cp work/compact-seed/verification-catalog-report.json \
+            work/local-video-verification/
+          du -sh \
+            node_modules dist public/seed-catalog \
+            work/local-video-verification \
+            | tee work/local-video-verification/BUNDLE_SIZE.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-local-video-verification-${{ github.run_id }}
+          path: work/local-video-verification
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 9

@@ -1,0 +1,16 @@
+{
+  "group": "eyes-wide",
+  "allowedOpenverseSources": ["flickr", "wikimedia", "stocksnap", "nappy"],
+  "commonsCategories": ["Facial expressions", "Surprised people", "Eyes"],
+  "queries": [
+    "wide eyed person portrait closed mouth photograph",
+    "person eyes wide open neutral mouth portrait photo",
+    "surprised eyes closed mouth headshot photograph",
+    "staring person portrait neutral expression photo",
+    "raised eyelids portrait closed lips photograph",
+    "wide open eyes serious face photograph",
+    "alert expression portrait mouth closed photo",
+    "person staring at camera closed mouth headshot",
+    "astonished eyes neutral mouth portrait photograph"
+  ]
+}

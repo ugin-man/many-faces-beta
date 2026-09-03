@@ -1,0 +1,242 @@
+name: Finalize Clean Core v3 site seed
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - data/clean-core-v3-site-final-selfheal.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: many-faces-clean-core-v3-site-final
+  cancel-in-progress: false
+
+env:
+  OPEN_IMAGES_SOURCE_RUN_ID: "32559210408"
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  finalize:
+    if: github.head_ref == 'work/coverage-driven-200k' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+
+      - id: existing
+        name: Check whether the physical site seed is already final
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          manifest_path = Path('public/seed-catalog/manifest.json')
+          receipt_path = Path('data/clean-core-v3-site-build.json')
+          done = False
+          if manifest_path.is_file() and receipt_path.is_file():
+              manifest = json.loads(manifest_path.read_text())
+              receipt = json.loads(receipt_path.read_text())
+              catalog_id = str(manifest.get('catalogId', ''))
+              faces = int(manifest.get('searchableFaces', manifest.get('totalFaces', 0)))
+              done = (
+                  catalog_id != 'seed-ffhq-70224-actions-v4'
+                  and 'clean' in catalog_id.lower()
+                  and faces >= 70000
+                  and int(manifest.get('poseStep', 0)) == 3
+                  and bool(receipt.get('siteSeedVerified', receipt.get('gatePassed', False)))
+              )
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f"done={'true' if done else 'false'}\n")
+          print(f'already finalized: {done}')
+          PY
+
+      - uses: actions/setup-node@v4
+        if: steps.existing.outputs.done != 'true'
+        with:
+          node-version: 22.13.0
+
+      - uses: actions/setup-python@v5
+        if: steps.existing.outputs.done != 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: tools/requirements-catalog.txt
+
+      - name: Install catalog runtime and run focused tests
+        if: steps.existing.outputs.done != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgles2
+          python -m pip install --disable-pip-version-check -r tools/requirements-catalog.txt kagglehub
+          python -m unittest \
+            tests/test_verified_facs_overlay.py \
+            tests/test_clean_core_repair_selector.py \
+            tests/test_clean_core_policy_v3.py
+
+      - name: Download validated Open Images source catalogs
+        if: steps.existing.outputs.done != 'true'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: clean-v3-source-*
+          path: work/source-artifacts
+          repository: ${{ github.repository }}
+          run-id: ${{ env.OPEN_IMAGES_SOURCE_RUN_ID }}
+          github-token: ${{ github.token }}
+          merge-multiple: false
+
+      - name: Rebuild controlled FACS source with current isolation policy
+        if: steps.existing.outputs.done != 'true'
+        run: |
+          python tools/run_stage_synthetic_facs_v3.py work/facs-stage \
+            --cache .cache/synthetic-humans-facs --max-images 0 --overwrite
+          python tools/run_curate_clean_core_v3_facs.py \
+            work/facs-stage work/facs-accepted --min-face-area 0.065
+          python tools/mirror_clean_core_pairs.py \
+            work/facs-accepted work/facs-expanded --overwrite
+          python tools/build_face_catalog_compat.py \
+            work/facs-expanded work/facs-supplement \
+            --metadata work/facs-expanded/metadata.csv \
+            --yaw-min -45 --yaw-max 45 --pitch-min -36 --pitch-max 36 --overwrite
+          node tools/finalize-supplement-catalog.mjs \
+            --catalog work/facs-supplement \
+            --catalog-id "clean-v3-facs-final-${GITHUB_RUN_ID}"
+          python tools/apply_verified_facs_annotations.py \
+            work/facs-expanded work/facs-supplement \
+            --metadata work/facs-expanded/metadata.csv
+          node tools/validate_face_catalog.mjs work/facs-supplement \
+            | tee work/facs-validation.json
+
+      - name: Build physical 70k Clean Core
+        if: steps.existing.outputs.done != 'true'
+        shell: bash
+        run: |
+          ARGS=(--catalog "legacy-seed=public/seed-catalog")
+          while IFS= read -r manifest; do
+            root=$(dirname "$manifest")
+            label=$(basename "$(dirname "$root")")
+            ARGS+=(--catalog "${label}=${root}")
+          done < <(find work/source-artifacts -path '*/supplement/manifest.json' -type f | sort)
+          ARGS+=(--catalog "verified-facs=work/facs-supplement")
+          python tools/run_build_clean_core_v3_repair.py \
+            work/clean-core-v3-final \
+            --overwrite \
+            --target-total 70000 \
+            "${ARGS[@]}"
+
+      - name: Validate the physical catalog and honest gate
+        if: steps.existing.outputs.done != 'true'
+        run: |
+          node tools/validate_face_catalog.mjs work/clean-core-v3-final/catalog \
+            | tee work/clean-core-v3-final/catalog-validation.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          audit = json.loads(Path('work/clean-core-v3-final/audit.json').read_text())
+          manifest = json.loads(Path('work/clean-core-v3-final/catalog/manifest.json').read_text())
+          failures = list(audit.get('gateFailures', []))
+          faces = int(manifest.get('searchableFaces', manifest.get('totalFaces', 0)))
+          cells = len(manifest.get('cells', {}))
+          if not audit.get('gatePassed'):
+              failures.insert(0, 'audit gatePassed is false')
+          if faces != 70000:
+              failures.append(f'physical faces={faces:,}, expected 70,000')
+          if int(manifest.get('poseStep', 0)) != 3:
+              failures.append(f"poseStep={manifest.get('poseStep')}, expected 3")
+          if cells < 700:
+              failures.append(f'physical pose cells={cells}, expected at least 700')
+          if failures:
+              raise SystemExit('Final Clean Core gate failed:\n- ' + '\n- '.join(failures))
+          print(json.dumps({
+              'catalogId': manifest.get('catalogId'),
+              'faces': faces,
+              'poseCells': cells,
+              'profiles': audit.get('selectedProfiles', {}),
+              'profilePoseCells': audit.get('selectedProfilePoseCells', {}),
+          }, indent=2))
+          PY
+
+      - name: Replace the legacy site seed atomically in the working tree
+        if: steps.existing.outputs.done != 'true'
+        run: |
+          rm -rf public/seed-catalog-next
+          cp -a work/clean-core-v3-final/catalog public/seed-catalog-next
+          node tools/validate_face_catalog.mjs public/seed-catalog-next \
+            | tee work/site-seed-validation.json
+          rm -rf public/seed-catalog
+          mv public/seed-catalog-next public/seed-catalog
+
+      - name: Write transparent site-seed receipt
+        if: steps.existing.outputs.done != 'true'
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          manifest = json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          audit = json.loads(Path('work/clean-core-v3-final/audit.json').read_text())
+          validation = json.loads(Path('work/site-seed-validation.json').read_text())
+          receipt = {
+              'schemaVersion': 1,
+              'siteSeedVerified': True,
+              'gatePassed': bool(audit.get('gatePassed')),
+              'catalogId': manifest.get('catalogId'),
+              'searchableFaces': int(manifest.get('searchableFaces', manifest.get('totalFaces', 0))),
+              'poseStep': manifest.get('poseStep'),
+              'poseCells': len(manifest.get('cells', {})),
+              'profileCounts': audit.get('selectedProfiles', {}),
+              'profilePoseCells': audit.get('selectedProfilePoseCells', {}),
+              'sourceCounts': audit.get('selectedSources', {}),
+              'rejections': audit.get('rejections', {}),
+              'openImagesSourceRunId': int('${{ env.OPEN_IMAGES_SOURCE_RUN_ID }}'),
+              'promotionWorkflowRunId': int('${{ github.run_id }}'),
+              'builtFromCommit': '${{ github.event.pull_request.head.sha || github.sha }}',
+              'validatedAt': datetime.now(timezone.utc).isoformat(),
+              'validator': validation,
+              'sitePath': 'public/seed-catalog',
+              'legacyCatalogRemoved': True,
+          }
+          Path('data/clean-core-v3-site-build.json').write_text(
+              json.dumps(receipt, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          PY
+
+      - name: Verify exactly what Site will load
+        if: steps.existing.outputs.done != 'true'
+        run: |
+          node tools/validate_face_catalog.mjs public/seed-catalog
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          receipt = json.loads(Path('data/clean-core-v3-site-build.json').read_text())
+          faces = int(manifest.get('searchableFaces', manifest.get('totalFaces', 0)))
+          assert faces == 70000, faces
+          assert manifest.get('catalogId') != 'seed-ffhq-70224-actions-v4'
+          assert receipt.get('siteSeedVerified') is True
+          assert receipt.get('catalogId') == manifest.get('catalogId')
+          assert int(receipt.get('searchableFaces', 0)) == faces
+          print(f"Site seed ready: {manifest.get('catalogId')} / {faces:,} faces / {manifest.get('poseStep')} degree")
+          PY
+
+      - name: Commit the physical site seed to the work branch
+        if: steps.existing.outputs.done != 'true'
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A -- public/seed-catalog data/clean-core-v3-site-build.json
+          git commit -m 'feat(dataset): promote final 70k clean core v3 site seed'
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
+
+      - name: Report existing completed seed
+        if: steps.existing.outputs.done == 'true'
+        run: |
+          cat public/seed-catalog/manifest.json
+          cat data/clean-core-v3-site-build.json

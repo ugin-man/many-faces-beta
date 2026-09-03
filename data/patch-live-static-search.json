@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "purpose": "stop live ranking and pack priming while facial motion is static",
+  "nonce": 1
+}

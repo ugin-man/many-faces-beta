@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "workflowRunId": 32757845420,
+  "testedCommit": "7a9b290d55dbe64153c23623b8329e322df8fb85",
+  "catalogId": "many-faces-clean-core-v3-pose-local-v1",
+  "packingPolicy": "one-pack-per-3-degree-pose-cell-v1",
+  "posePackCount": 775,
+  "browserBuffer": {
+    "maxImageUrls": 320,
+    "maxPackBytes": 50331648,
+    "preloadConcurrency": 6,
+    "maxCachedShards": 24,
+    "currentPoseCells": 9,
+    "predictedPoseCells": 6,
+    "maxNewPacksPerPass": 6
+  },
+  "outcomes": {
+    "build": "success",
+    "tests": "success",
+    "lint": "success"
+  },
+  "passed": true
+}

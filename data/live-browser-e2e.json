@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "route": "/live",
+  "input": "generated-real-face-fixed-video",
+  "pipeline": "five-second-pose-local-review-v4",
+  "nonce": 1
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "purpose": "replace stable-only realtime display with a predecoded flow buffer",
+  "targetDisplayFps": 15,
+  "maximumDisplayFps": 30,
+  "decodedImageCache": 128,
+  "preloadCandidates": 24,
+  "nonce": 1
+}

@@ -1,0 +1,210 @@
+name: Finalize real-photo-only Clean Core v3 site seed
+
+on:
+  push:
+    branches: [work/coverage-driven-200k]
+    paths:
+      - data/clean-core-v3-finalize-launch.json
+  pull_request:
+    branches: [main]
+    paths:
+      - data/clean-core-v3-finalize-launch.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: many-faces-clean-core-v3-finalize
+  cancel-in-progress: true
+
+env:
+  OPEN_IMAGES_RUN_ID: "32559210408"
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.gate.outputs.run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 2
+      - id: gate
+        shell: bash
+        run: |
+          SUBJECT=$(git log -1 --pretty=%s)
+          echo "HEAD subject: ${SUBJECT}"
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" || "${SUBJECT}" == "chore(dataset): finalize real-photo-only 70k site seed"* ]]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  finalize:
+    needs: prepare
+    if: needs.prepare.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 420
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install and test the real-photo selector
+        run: |
+          python -m pip install --disable-pip-version-check numpy Pillow
+          python -m unittest \
+            tests/test_clean_core_policy_v3.py \
+            tests/test_verified_facs_overlay.py \
+            tests/test_clean_core_repair_selector.py
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, 'tools')
+          from run_build_clean_core_v3_real_only import synthetic_reason
+          source=type('S',(),{'label':'catalog','catalog_id':'many-faces-clean-core-v3'})()
+          assert synthetic_reason(source, {'sourceKind':'verified-synthetic-facs','annotationVerified':True})
+          assert synthetic_reason(source, {'sourceCatalogId':'open-images-natural-photo','name':'portrait photo'}) is None
+          PY
+      - name: Download validated natural-image catalogs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: clean-v3-source-*
+          path: work/source-artifacts
+          repository: ${{ github.repository }}
+          run-id: ${{ env.OPEN_IMAGES_RUN_ID }}
+          github-token: ${{ github.token }}
+      - name: Build the real-photo-only physical 70k catalog
+        shell: bash
+        run: |
+          ARGS=(--catalog "current-site-seed=public/seed-catalog")
+          while IFS= read -r manifest; do
+            root=$(dirname "$manifest")
+            label=$(basename "$(dirname "$root")")
+            ARGS+=(--catalog "${label}=${root}")
+          done < <(find work/source-artifacts -path '*/supplement/manifest.json' -type f | sort)
+          python tools/run_build_clean_core_v3_real_only.py \
+            work/real-only --overwrite --target-total 70000 "${ARGS[@]}"
+      - name: Validate 70k and prove zero known synthetic runtime faces
+        run: |
+          node tools/validate_face_catalog.mjs work/real-only/catalog \
+            | tee work/real-only/catalog-validation.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          audit=json.loads(Path('work/real-only/audit.json').read_text())
+          manifest=json.loads(Path('work/real-only/catalog/manifest.json').read_text())
+          failures=list(audit.get('gateFailures',[]))
+          faces=int(manifest.get('searchableFaces',manifest.get('totalFaces',0)))
+          pose_cells=len(manifest.get('cells',{}))
+          synthetic=int(audit.get('knownSyntheticFacesSelected',-1))
+          if not audit.get('gatePassed'): failures.append('audit gatePassed is false')
+          if faces != 70000 or int(audit.get('selectedFaces',0)) != 70000:
+            failures.append(f"physical faces mismatch: manifest={faces} audit={audit.get('selectedFaces')}")
+          if pose_cells < 700: failures.append(f"pose cells={pose_cells} < 700")
+          if audit.get('runtimeImagePolicy') != 'real-photo-only-v1':
+            failures.append(f"wrong runtime policy: {audit.get('runtimeImagePolicy')}")
+          if synthetic != 0: failures.append(f"known synthetic runtime faces={synthetic}")
+          source_text=' '.join(audit.get('selectedSources',{})).lower()
+          if any(token in source_text for token in ('facs','synthetic-humans','verified-synthetic')):
+            failures.append(f"synthetic source remained selected: {source_text}")
+          if failures:
+            raise SystemExit('Real-photo-only gate failed:\n- '+'\n- '.join(dict.fromkeys(failures)))
+          print(json.dumps({
+            'faces':faces,
+            'poseCells':pose_cells,
+            'knownSyntheticFacesSelected':synthetic,
+            'knownSyntheticCandidatesExcluded':audit.get('knownSyntheticCandidatesExcluded',{}),
+            'strictProfiles':audit.get('strictProfiles',{}),
+            'selectedSources':audit.get('selectedSources',{}),
+          },indent=2))
+          PY
+      - name: Replace the contaminated site seed
+        run: |
+          rm -rf public/seed-catalog
+          mkdir -p public/seed-catalog
+          cp -a work/real-only/catalog/. public/seed-catalog/
+          cp work/real-only/audit.json public/seed-catalog/clean-core-audit.json
+          cp work/real-only/catalog-validation.json public/seed-catalog/catalog-validation.json
+      - name: Verify exactly what the Site will load
+        run: |
+          node tools/validate_face_catalog.mjs public/seed-catalog \
+            | tee /tmp/site-seed-validation.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest=json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          audit=json.loads(Path('public/seed-catalog/clean-core-audit.json').read_text())
+          clean=manifest.get('stats',{}).get('cleanCore',{})
+          faces=int(manifest.get('searchableFaces',manifest.get('totalFaces',0)))
+          if faces != 70000 or manifest.get('poseStep') != 3:
+            raise SystemExit(f"wrong Site payload: faces={faces} poseStep={manifest.get('poseStep')}")
+          if clean.get('runtimeImagePolicy') != 'real-photo-only-v1':
+            raise SystemExit(f"Site manifest is not real-only: {clean}")
+          if int(clean.get('knownSyntheticFaces',-1)) != 0:
+            raise SystemExit(f"Site manifest reports synthetic faces: {clean}")
+          if int(audit.get('knownSyntheticFacesSelected',-1)) != 0:
+            raise SystemExit('Site audit reports synthetic faces')
+          PY
+      - name: Write the transparent build receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          audit=json.loads(Path('public/seed-catalog/clean-core-audit.json').read_text())
+          manifest=json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          validation=json.loads(Path('public/seed-catalog/catalog-validation.json').read_text())
+          receipt={
+            'schemaVersion':2,
+            'siteSeedVerified':True,
+            'gatePassed':True,
+            'runtimeImagePolicy':'real-photo-only-v1',
+            'catalogId':manifest.get('catalogId'),
+            'searchableFaces':manifest.get('searchableFaces',manifest.get('totalFaces')),
+            'poseStep':manifest.get('poseStep'),
+            'poseCells':len(manifest.get('cells',{})),
+            'knownSyntheticFacesSelected':0,
+            'knownSyntheticCandidatesExcluded':audit.get('knownSyntheticCandidatesExcluded',{}),
+            'profileCounts':audit.get('strictProfiles',{}),
+            'profilePoseCells':audit.get('strictProfilePoseCells',{}),
+            'sourceCounts':audit.get('selectedSources',{}),
+            'rejections':audit.get('rejections',{}),
+            'openImagesSourceRunId':int('${{ env.OPEN_IMAGES_RUN_ID }}'),
+            'promotionWorkflowRunId':int('${{ github.run_id }}'),
+            'builtFromCommit':'${{ github.event.pull_request.head.sha || github.sha }}',
+            'validator':validation,
+            'sitePath':'public/seed-catalog',
+            'contaminatedSyntheticRuntimeCatalogRemoved':True,
+          }
+          Path('data/clean-core-v3-site-build.json').write_text(
+            json.dumps(receipt,ensure_ascii=False,indent=2)+'\n'
+          )
+          PY
+      - name: Commit the clean physical site seed to the work branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config http.version HTTP/1.1
+          git config http.postBuffer 1073741824
+          git add -A -- public/seed-catalog data/clean-core-v3-site-build.json
+          git commit -m "fix(dataset): remove synthetic people from runtime seed"
+          git push origin HEAD:work/coverage-driven-200k
+      - uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-clean-core-v3-real-photo-site-seed-${{ github.run_id }}
+          path: |
+            public/seed-catalog
+            data/clean-core-v3-site-build.json
+            work/real-only/review
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 6

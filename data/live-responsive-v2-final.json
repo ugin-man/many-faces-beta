@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "workflowRunId": 32758173012,
+  "validatedInputCommit": "6a9811d645f5e8fda3b37833a24587f9e6b04605",
+  "route": "/live",
+  "legacyRoute": "/live/legacy",
+  "pipeline": "motion-driven-pose-local-buffer-v2",
+  "catalogId": "many-faces-clean-core-v3-pose-local-v1",
+  "searchableFaces": 70000,
+  "poseStep": 3,
+  "poseCells": 775,
+  "packingPolicy": "one-pack-per-3-degree-pose-cell-v1",
+  "packCount": 775,
+  "medianPackBytes": 504222,
+  "p95PackBytes": 900210,
+  "maximumPackBytes": 1628290,
+  "runtimeImagePolicy": "real-photo-only-v1",
+  "knownSyntheticFaces": 0,
+  "browserBuffer": {
+    "maxImageUrls": 320,
+    "maxPackBytes": 50331648,
+    "preloadConcurrency": 6,
+    "maxCachedShards": 24,
+    "currentPoseCells": 9,
+    "predictedPoseCells": 6,
+    "maxNewPacksPerPass": 6
+  },
+  "targetMovingOutputFps": [
+    12,
+    20
+  ],
+  "staticBehavior": "hold-current-face",
+  "outcomes": {
+    "build": "success",
+    "tests": "success",
+    "lint": "success",
+    "catalogValidation": "success"
+  },
+  "passed": true
+}

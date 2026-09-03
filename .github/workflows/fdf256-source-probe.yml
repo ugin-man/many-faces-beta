@@ -1,0 +1,53 @@
+name: FDF256 source probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            /tools/fdf256-source.py
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Probe official metadata and image partitions
+        run: |
+          python tools/fdf256-source.py work/fdf-probe \
+            --probe-only \
+            --license cc-by-2 \
+            --license cc-by-sa-2 \
+            --license cc-by-nc-2 \
+            --license cc-by-nc-sa-2
+
+      - name: Summarize current upstream availability
+        run: |
+          {
+            echo "## FDF256 upstream availability"
+            echo
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("work/fdf-probe/source-report.json").read_text())
+          for source in report["sources"]:
+              info = source["probe"]
+              print(f"- {source['name']}: reachable={info.get('reachable')} status={info.get('status')} bytes={info.get('contentLength', 0)}")
+          PY
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload source report
+        uses: actions/upload-artifact@v4
+        with:
+          name: fdf256-source-probe-${{ github.run_id }}
+          path: work/fdf-probe/source-report.json
+          retention-days: 30

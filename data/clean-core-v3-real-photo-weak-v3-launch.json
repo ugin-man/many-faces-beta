@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 3,
+  "purpose": "bounded real-photo-only weak-profile enrichment and automatic Site promotion",
+  "provider": "openverse",
+  "pagesPerQuery": 1,
+  "maxParallel": 1,
+  "targetFaces": 70000,
+  "knownSyntheticFacesAllowed": 0,
+  "minimumImprovedProfiles": 3,
+  "minimumTotalPositiveGain": 20,
+  "nonce": 1
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 2,
+  "purpose": "finalize pose-local physical packing and a wider decoded-image working set for the responsive realtime route",
+  "route": "/live",
+  "targetMovingOutputFps": 20,
+  "minimumMovingOutputFps": 12,
+  "staticBehavior": "hold-current-face",
+  "knownSyntheticFacesAllowed": 0,
+  "nonce": 1
+}

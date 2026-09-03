@@ -1,0 +1,13 @@
+name: Catalog train collection (legacy manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  note:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Legacy 200k train collection is manual-only; active development moved to Clean Core v3."

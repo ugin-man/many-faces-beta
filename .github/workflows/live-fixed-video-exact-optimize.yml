@@ -32,31 +32,7 @@ jobs:
           node-version: 22.13.0
           cache: npm
 
-      - name: Require a passing deterministic browser baseline
-        run: |
-          mkdir -p work
-          cp data/live-fixed-video-e2e-result.json work/live-baseline.json
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          report=json.loads(Path('work/live-baseline.json').read_text())
-          final=report.get('finalReport') or {}
-          failures=[]
-          if not report.get('passed'): failures.append('outer E2E did not pass')
-          if not final.get('passed'): failures.append('runtime gate did not pass')
-          if not final.get('sequenceIds'): failures.append('ordered sequence IDs missing')
-          if not final.get('sequenceFingerprint'): failures.append('fingerprint missing')
-          if not final.get('phaseTimingsMs'): failures.append('phase timings missing')
-          if failures: raise SystemExit('Invalid baseline: '+', '.join(failures))
-          print(json.dumps({
-              'testedCommit': report.get('testedCommit'),
-              'fingerprint': final.get('sequenceFingerprint'),
-              'processingMs': final.get('processingMs'),
-              'phaseTimingsMs': final.get('phaseTimingsMs'),
-          }, indent=2))
-          PY
-
-      - name: Apply exact-output-preserving runtime optimizations
+      - name: Apply the shared verified runtime foundation
         run: |
           python tools/patch_worker_seed_mode.py
           python tools/patch_mediapipe_asset_mime.py
@@ -71,23 +47,57 @@ jobs:
           python tools/patch_live_fixed_video_source_name.py
           python tools/patch_live_verification_metrics.py
           python tools/patch_live_review_lite_lint.py
-          python tools/patch_live_pose_pool_cache.py
-          python tools/patch_projection_descriptor_cache.py
 
-      - name: Install application and browser runtime
+      - name: Install application and browser runtime once
         run: |
           npm ci
           npm install --no-save --package-lock=false playwright@1.55.0
           npx playwright install --with-deps chromium
           sudo apt-get update
           sudo apt-get install -y ffmpeg
+          bash tools/prepare_mediapipe_runtime.sh public/mediapipe
 
-      - name: Self-host MediaPipe runtime assets
-        run: bash tools/prepare_mediapipe_runtime.sh public/mediapipe
-
-      - name: Build and run deterministic unit gates
+      - name: Preserve the exact baseline source
         run: |
-          npm run build
+          mkdir -p work/source-baseline work/builds work/results
+          cp app/live/review-client-lite.tsx work/source-baseline/review-client-lite.tsx
+          cp app/projection-matching.ts work/source-baseline/projection-matching.ts
+
+      - name: Build baseline and three exact candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+          restore_source() {
+            cp work/source-baseline/review-client-lite.tsx app/live/review-client-lite.tsx
+            cp work/source-baseline/projection-matching.ts app/projection-matching.ts
+          }
+          save_build() {
+            local name="$1"
+            rm -rf "work/builds/${name}"
+            npm run build
+            cp -a dist "work/builds/${name}"
+          }
+
+          restore_source
+          save_build baseline
+
+          restore_source
+          python tools/patch_live_pose_pool_cache.py
+          save_build pose
+
+          restore_source
+          python tools/patch_projection_descriptor_cache.py
+          save_build descriptor
+
+          restore_source
+          python tools/patch_live_pose_pool_cache.py
+          python tools/patch_projection_descriptor_cache.py
+          save_build both
+
+          restore_source
+
+      - name: Run deterministic unit gates
+        run: |
           node --experimental-strip-types --test \
             tests/live-review-timeline.test.mjs \
             tests/live-review-local-catalog.test.mjs \
@@ -99,7 +109,7 @@ jobs:
             tests/mediapipe-worker.test.mjs
           npm run lint
 
-      - name: Prepare the same five-second fixture
+      - name: Prepare the fixed five-second fixture
         run: |
           ffmpeg -hide_banner -loglevel warning -y \
             -i public/test-fixtures/reference-face-motion.mp4 \
@@ -107,91 +117,211 @@ jobs:
             -c:v libvpx-vp9 -deadline good -cpu-used 4 -b:v 0 -crf 31 \
             work/reference-face-motion.webm
 
-      - name: Start the production Site locally
-        run: |
-          npm start > work/live-optimize-server.log 2>&1 &
-          echo $! > work/live-optimize-server.pid
-          ready=0
-          for attempt in $(seq 1 90); do
-            if curl --fail --silent --show-error \
-              'http://127.0.0.1:3000/api/catalog/manifest?source=seed' \
-              > work/seed-manifest.json; then
-              ready=1
-              break
-            fi
-            sleep 1
-          done
-          if [[ "$ready" != "1" ]]; then
-            cat work/live-optimize-server.log
-            exit 1
-          fi
-
-      - name: Run the optimized browser path
+      - name: Benchmark every variant three times on this runner
+        shell: bash
         env:
-          LIVE_E2E_BASE_URL: http://127.0.0.1:3000
           LIVE_E2E_VIDEO: work/reference-face-motion.webm
-          LIVE_E2E_OUTPUT: work/live-optimized
           LIVE_E2E_TIMEOUT_MS: "900000"
           LIVE_E2E_STALL_MS: "120000"
-        run: node tools/live_fixed_video_e2e.mjs
-
-      - name: Require exact output parity and a measurable speed gain
         run: |
-          python tools/compare_live_e2e_reports.py \
-            work/live-baseline.json \
-            work/live-optimized/live-fixed-video-e2e.json \
-            --output work/live-optimized/exact-parity-comparison.json
+          set -euo pipefail
+          run_variant() {
+            local variant="$1"
+            local round="$2"
+            local output="work/results/${variant}-${round}"
+            rm -rf dist "$output"
+            cp -a "work/builds/${variant}" dist
+            PORT=3000 npm start > "work/results/${variant}-${round}-server.log" 2>&1 &
+            local server_pid=$!
+            local ready=0
+            for attempt in $(seq 1 90); do
+              if curl --fail --silent --show-error \
+                'http://127.0.0.1:3000/api/catalog/manifest?source=seed' \
+                > "work/results/${variant}-${round}-manifest.json"; then
+                ready=1
+                break
+              fi
+              sleep 1
+            done
+            if [[ "$ready" != "1" ]]; then
+              cat "work/results/${variant}-${round}-server.log"
+              kill "$server_pid" || true
+              wait "$server_pid" || true
+              return 1
+            fi
+            LIVE_E2E_BASE_URL=http://127.0.0.1:3000 \
+            LIVE_E2E_OUTPUT="$output" \
+              node tools/live_fixed_video_e2e.mjs
+            kill "$server_pid" || true
+            wait "$server_pid" || true
+            sleep 1
+          }
+
+          # Rotate the order so runner drift and filesystem warming do not favor
+          # one implementation consistently.
+          for variant in baseline pose descriptor both; do run_variant "$variant" 1; done
+          for variant in descriptor both baseline pose; do run_variant "$variant" 2; done
+          for variant in both pose descriptor baseline; do run_variant "$variant" 3; done
+
+      - name: Select only a faster exact-parity implementation
+        run: |
           python - <<'PY'
           import json
+          import statistics
           from pathlib import Path
-          comparison=json.loads(Path('work/live-optimized/exact-parity-comparison.json').read_text())
-          baseline=json.loads(Path('work/live-baseline.json').read_text())['finalReport']
-          candidate=json.loads(Path('work/live-optimized/live-fixed-video-e2e.json').read_text())['finalReport']
-          before=float(baseline.get('processingMs') or 0)
-          after=float(candidate.get('processingMs') or 0)
-          before_search=float((baseline.get('phaseTimingsMs') or {}).get('candidateSearch') or 0)
-          after_search=float((candidate.get('phaseTimingsMs') or {}).get('candidateSearch') or 0)
-          failures=[]
-          if not comparison.get('exactSequenceParity'):
-              failures.append('ordered output sequence changed')
-          if before <= 0 or after <= 0:
-              failures.append('processing timing is missing')
-          elif after > before * 0.98:
-              failures.append(f'total processing did not improve by 2% ({before:.1f} -> {after:.1f} ms)')
-          if before_search <= 0 or after_search <= 0:
-              failures.append('candidate-search timing is missing')
-          elif after_search > before_search * 0.95:
-              failures.append(f'candidate search did not improve by 5% ({before_search:.1f} -> {after_search:.1f} ms)')
+
+          root=Path('work/results')
+          variants=('baseline','pose','descriptor','both')
+          reports={}
+          for variant in variants:
+              reports[variant]=[]
+              for round_number in (1,2,3):
+                  path=root/f'{variant}-{round_number}'/'live-fixed-video-e2e.json'
+                  payload=json.loads(path.read_text())
+                  final=payload.get('finalReport') or {}
+                  if not payload.get('passed') or not final.get('passed'):
+                      raise SystemExit(f'{variant}-{round_number} browser E2E failed')
+                  reports[variant].append(final)
+
+          reference=reports['baseline'][0]
+          reference_ids=reference.get('sequenceIds') or []
+          reference_fingerprint=reference.get('sequenceFingerprint')
+          if not reference_ids or not reference_fingerprint:
+              raise SystemExit('Baseline sequence evidence is missing')
+
+          parity_failures=[]
+          for variant, items in reports.items():
+              for index, report in enumerate(items, 1):
+                  if report.get('sequenceIds') != reference_ids:
+                      parity_failures.append(f'{variant}-{index}: ordered IDs changed')
+                  if report.get('sequenceFingerprint') != reference_fingerprint:
+                      parity_failures.append(f'{variant}-{index}: fingerprint changed')
+                  for key in (
+                      'plannedFrames','faceFrames','sequenceFrames','selectedImages',
+                      'outputChanges','uniqueFaces','imageFailures','canvasNonBlank',
+                  ):
+                      if report.get(key) != reference.get(key):
+                          parity_failures.append(
+                              f'{variant}-{index}: {key} changed '
+                              f'({reference.get(key)!r}->{report.get(key)!r})'
+                          )
+          if parity_failures:
+              raise SystemExit('Exact parity failed:\n'+'\n'.join(parity_failures))
+
+          def median_value(items, key):
+              return statistics.median(float(item.get(key) or 0) for item in items)
+
+          def median_phase(items, phase):
+              return statistics.median(
+                  float((item.get('phaseTimingsMs') or {}).get(phase) or 0)
+                  for item in items
+              )
+
+          metrics={}
+          for variant, items in reports.items():
+              total=median_value(items,'processingMs')
+              search=median_phase(items,'candidateSearch')
+              face=median_phase(items,'faceMesh')
+              metrics[variant]={
+                  'processingMedianMs': total,
+                  'candidateSearchMedianMs': search,
+                  'faceMeshMedianMs': face,
+                  'processingSamplesMs': [float(item.get('processingMs') or 0) for item in items],
+                  'candidateSearchSamplesMs': [
+                      float((item.get('phaseTimingsMs') or {}).get('candidateSearch') or 0)
+                      for item in items
+                  ],
+              }
+
+          baseline=metrics['baseline']
+          qualified=[]
+          for variant in ('pose','descriptor','both'):
+              metric=metrics[variant]
+              total_gain=(baseline['processingMedianMs']-metric['processingMedianMs'])/baseline['processingMedianMs']
+              search_gain=(baseline['candidateSearchMedianMs']-metric['candidateSearchMedianMs'])/baseline['candidateSearchMedianMs']
+              metric['processingGain']=total_gain
+              metric['candidateSearchGain']=search_gain
+              if total_gain >= 0.02 and search_gain >= 0.05:
+                  qualified.append(variant)
+
+          if not qualified:
+              result={
+                  'schemaVersion':2,
+                  'passed':False,
+                  'exactSequenceParity':True,
+                  'sequenceFingerprint':reference_fingerprint,
+                  'winner':None,
+                  'metrics':metrics,
+                  'reason':'No exact candidate improved total time by 2% and candidate search by 5%',
+              }
+              Path('work/results/exact-optimization-selection.json').write_text(
+                  json.dumps(result,indent=2)+'\n'
+              )
+              print(json.dumps(result,indent=2))
+              raise SystemExit(result['reason'])
+
+          winner=min(
+              qualified,
+              key=lambda name:(
+                  metrics[name]['candidateSearchMedianMs'],
+                  metrics[name]['processingMedianMs'],
+              ),
+          )
           result={
-              'exactSequenceParity': comparison.get('exactSequenceParity'),
-              'fingerprint': candidate.get('sequenceFingerprint'),
-              'baselineProcessingMs': before,
-              'optimizedProcessingMs': after,
-              'totalSpeedup': before/after if after else 0,
-              'baselineCandidateSearchMs': before_search,
-              'optimizedCandidateSearchMs': after_search,
-              'candidateSearchSpeedup': before_search/after_search if after_search else 0,
-              'failures': failures,
+              'schemaVersion':2,
+              'passed':True,
+              'exactSequenceParity':True,
+              'sequenceFingerprint':reference_fingerprint,
+              'winner':winner,
+              'metrics':metrics,
           }
-          Path('work/live-optimized/optimization-gate.json').write_text(json.dumps(result,indent=2)+'\n')
+          Path('work/results/exact-optimization-selection.json').write_text(
+              json.dumps(result,indent=2)+'\n'
+          )
           print(json.dumps(result,indent=2))
-          if failures: raise SystemExit('\n'.join(failures))
+          Path('work/results/winner.txt').write_text(winner+'\n')
           PY
 
-      - name: Commit only the verified exact-parity optimization
+      - name: Materialize and commit only the measured winner
         run: |
-          cp work/live-optimized/live-fixed-video-e2e.json \
-            data/live-fixed-video-optimized-result.json
-          cp work/live-optimized/exact-parity-comparison.json \
-            data/live-fixed-video-exact-parity.json
-          cp work/live-optimized/optimization-gate.json \
+          cp work/source-baseline/review-client-lite.tsx app/live/review-client-lite.tsx
+          cp work/source-baseline/projection-matching.ts app/projection-matching.ts
+          winner=$(cat work/results/winner.txt)
+          case "$winner" in
+            pose)
+              python tools/patch_live_pose_pool_cache.py
+              ;;
+            descriptor)
+              python tools/patch_projection_descriptor_cache.py
+              ;;
+            both)
+              python tools/patch_live_pose_pool_cache.py
+              python tools/patch_projection_descriptor_cache.py
+              ;;
+            *)
+              echo "Unknown winner: $winner" >&2
+              exit 1
+              ;;
+          esac
+          cp work/results/exact-optimization-selection.json \
             data/live-fixed-video-optimization-gate.json
+          best_round=$(python - <<'PY'
+          import json, statistics
+          from pathlib import Path
+          selection=json.loads(Path('work/results/exact-optimization-selection.json').read_text())
+          winner=selection['winner']
+          samples=selection['metrics'][winner]['processingSamplesMs']
+          median=statistics.median(samples)
+          print(min(range(3),key=lambda index:abs(samples[index]-median))+1)
+          PY
+          )
+          cp "work/results/${winner}-${best_round}/live-fixed-video-e2e.json" \
+            data/live-fixed-video-optimized-result.json
           python - <<'PY'
           import json
           from pathlib import Path
           for name in (
               'live-fixed-video-optimized-result.json',
-              'live-fixed-video-exact-parity.json',
               'live-fixed-video-optimization-gate.json',
           ):
               path=Path('data')/name
@@ -200,6 +330,8 @@ jobs:
               payload['workflowRunId']=int('${{ github.run_id }}')
               path.write_text(json.dumps(payload,indent=2)+'\n')
           PY
+          npm run build
+          npm run lint
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add \
@@ -208,23 +340,20 @@ jobs:
             worker/index.ts \
             public/mediapipe \
             data/live-fixed-video-optimized-result.json \
-            data/live-fixed-video-exact-parity.json \
             data/live-fixed-video-optimization-gate.json
-          git commit -m "perf(live): cache exact pose pools and geometry descriptors"
+          git commit -m "perf(live): apply measured exact-parity optimization"
           git fetch origin work/coverage-driven-200k
           git rebase origin/work/coverage-driven-200k
           git push origin HEAD:work/coverage-driven-200k
 
-      - name: Upload optimization evidence
+      - name: Upload complete A/B evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: many-faces-live-exact-optimize-${{ github.run_id }}
+          name: many-faces-live-exact-ab-${{ github.run_id }}
           path: |
-            work/live-baseline.json
-            work/live-optimized
-            work/live-optimize-server.log
-            work/seed-manifest.json
+            work/results
+            work/source-baseline
           if-no-files-found: warn
           retention-days: 14
           compression-level: 6

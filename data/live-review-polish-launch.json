@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "purpose": "apply user-facing review copy after deterministic browser verification passes",
+  "fixturePolicy": "private local video supplied outside the public repository",
+  "nonce": 1
+}

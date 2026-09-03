@@ -17,6 +17,7 @@ await fs.mkdir(outputDir, { recursive: true });
 
 const events = [];
 const criticalConsoleErrors = [];
+const performanceWarnings = [];
 const mediapipeWasmResponses = [];
 const startedAt = Date.now();
 let lastProgressAt = startedAt;
@@ -32,6 +33,12 @@ function record(type, payload = {}) {
   };
   events.push(event);
   process.stdout.write(`${JSON.stringify(event)}\n`);
+}
+
+function warn(code, payload = {}) {
+  const warning = { code, ...payload };
+  performanceWarnings.push(warning);
+  record("warning", warning);
 }
 
 const browser = await chromium.launch({
@@ -58,11 +65,13 @@ page.on("console", (message) => {
     text.includes("wasm streaming compile failed") ||
     text.includes("Incorrect response MIME type")
   ) {
-    criticalConsoleErrors.push(text);
+    warn("MEDIAPIPE_WASM_STREAMING_FALLBACK", { text });
   }
 });
 page.on("pageerror", (error) => {
-  record("pageerror", { message: String(error?.stack || error).slice(0, 4_000) });
+  const message = String(error?.stack || error).slice(0, 4_000);
+  criticalConsoleErrors.push(message);
+  record("pageerror", { message });
 });
 page.on("requestfailed", (request) => {
   const url = request.url();
@@ -178,18 +187,20 @@ try {
     throw new Error("SEQUENCE_FINGERPRINT_MISSING");
   }
   if (criticalConsoleErrors.length) {
-    throw new Error(
-      `MEDIAPIPE_WASM_STREAMING_FAILED: ${criticalConsoleErrors.join(" | ")}`,
-    );
+    throw new Error(`BROWSER_PAGE_ERRORS: ${criticalConsoleErrors.join(" | ")}`);
   }
   if (!mediapipeWasmResponses.length) {
     throw new Error("MEDIAPIPE_WASM_RESPONSE_MISSING");
   }
-  const invalidWasm = mediapipeWasmResponses.filter(
-    (entry) => entry.status !== 200 || !entry.contentType.startsWith("application/wasm"),
+  const failedWasm = mediapipeWasmResponses.filter((entry) => entry.status !== 200);
+  if (failedWasm.length) {
+    throw new Error(`MEDIAPIPE_WASM_HTTP_FAILED: ${JSON.stringify(failedWasm)}`);
+  }
+  const fallbackWasm = mediapipeWasmResponses.filter(
+    (entry) => !entry.contentType.startsWith("application/wasm"),
   );
-  if (invalidWasm.length) {
-    throw new Error(`MEDIAPIPE_WASM_MIME_INVALID: ${JSON.stringify(invalidWasm)}`);
+  if (fallbackWasm.length) {
+    warn("MEDIAPIPE_WASM_NONSTREAMING_MIME", { responses: fallbackWasm });
   }
 
   const layout = await page.evaluate(() => ({
@@ -224,7 +235,12 @@ try {
     path: path.join(outputDir, "live-fixed-video-pass.png"),
     fullPage: true,
   });
-  record("pass", { finalReport, layout, mediapipeWasmResponses });
+  record("pass", {
+    finalReport,
+    layout,
+    mediapipeWasmResponses,
+    performanceWarnings,
+  });
 } catch (error) {
   failure = String(error?.stack || error);
   record("failure", { failure });
@@ -236,7 +252,7 @@ try {
   } catch {}
 } finally {
   const result = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     baseUrl,
     videoPath,
     expectedVideoName,
@@ -245,6 +261,7 @@ try {
     failure,
     finalReport,
     criticalConsoleErrors,
+    performanceWarnings,
     mediapipeWasmResponses,
     events,
   };

@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "fixture": {
+    "id": "private-IMG_3665",
+    "storedInRepository": false,
+    "purpose": "deterministic face-motion browser verification"
+  },
+  "route": "/live",
+  "browser": "Playwright Chromium",
+  "frameDecodePolicy": "seek-requestVideoFrameCallback-canvas",
+  "matching": "offline-strict-two-stage-projection",
+  "sequence": "full-five-second-offline-strict-optimization",
+  "desktop": [
+    {
+      "analysisFps": 12,
+      "plannedFrames": 60,
+      "faceFrames": 60,
+      "sequenceFrames": 60,
+      "faceCoverage": 1.0,
+      "canvasNonBlank": true,
+      "imageFailures": 0,
+      "passed": true
+    },
+    {
+      "analysisFps": 20,
+      "plannedFrames": 100,
+      "faceFrames": 100,
+      "sequenceFrames": 100,
+      "faceCoverage": 1.0,
+      "canvasNonBlank": true,
+      "imageFailures": 0,
+      "passed": true
+    },
+    {
+      "analysisFps": 30,
+      "plannedFrames": 150,
+      "faceFrames": 150,
+      "sequenceFrames": 150,
+      "faceCoverage": 1.0,
+      "canvasNonBlank": true,
+      "imageFailures": 0,
+      "passed": true
+    }
+  ],
+  "mobileLayout": {
+    "viewport": "390x844",
+    "horizontalOverflow": false,
+    "outputCanvasVisible": true,
+    "runtimeGatePassed": true
+  },
+  "stallProtection": {
+    "heartbeat": true,
+    "failAfterNoProgressSeconds": 60
+  },
+  "status": "passed",
+  "limitations": [
+    "The physical camera path is still experimental and was not treated as verified by this receipt.",
+    "Visual preference and perceived face-match quality still require human review even when the runtime gate passes."
+  ]
+}

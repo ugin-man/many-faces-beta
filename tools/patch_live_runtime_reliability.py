@@ -89,7 +89,7 @@ refs_new = '''  const replayFpsRef = useRef(12);
   const modelStateRef = useRef<Readiness>("loading");
   const manifestStateRef = useRef<Readiness>("loading");
   const lastProgressSignatureRef = useRef("");
-  const lastProgressAtRef = useRef(Date.now());
+  const lastProgressAtRef = useRef(0);
 '''
 if refs_old in text:
     text = text.replace(refs_old, refs_new, 1)
@@ -123,7 +123,6 @@ heartbeat_effect = '''  useEffect(() => {
     if (signature !== lastProgressSignatureRef.current) {
       lastProgressSignatureRef.current = signature;
       lastProgressAtRef.current = Date.now();
-      setSecondsSinceProgress(0);
     }
     window.__MANY_FACES_RUNTIME__ = {
       phase,
@@ -148,10 +147,7 @@ memo_marker = '''  const readinessLabel = useMemo(() => {
 '''
 watchdog = memo_marker + '''
   useEffect(() => {
-    if (!busy) {
-      setSecondsSinceProgress(0);
-      return;
-    }
+    if (!busy) return;
     const tick = () => {
       const now = Date.now();
       const elapsed = Math.max(0, now - lastProgressAtRef.current);
@@ -171,9 +167,12 @@ watchdog = memo_marker + '''
         stalled: true,
       };
     };
-    tick();
+    const firstTick = window.setTimeout(tick, 0);
     const timer = window.setInterval(tick, 1_000);
-    return () => window.clearInterval(timer);
+    return () => {
+      window.clearTimeout(firstTick);
+      window.clearInterval(timer);
+    };
   }, [busy, phase]);
 '''
 if "operationIsStalled(true" not in text:

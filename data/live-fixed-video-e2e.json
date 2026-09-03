@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "purpose": "verify the complete /live browser pipeline with the fixed uploaded face-motion video before user review",
+  "fixture": "public/test-fixtures/reference-face-motion.mp4",
+  "analysisFps": 12,
+  "requires": {
+    "catalogSource": "seed",
+    "mediaPipeAssets": "same-origin",
+    "faceCoverageMinimum": 0.7,
+    "canvasNonBlank": true,
+    "noProgressTimeoutSeconds": 120,
+    "overallTimeoutSeconds": 900
+  },
+  "nonce": 1
+}

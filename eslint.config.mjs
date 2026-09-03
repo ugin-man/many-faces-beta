@@ -20,6 +20,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Copied verbatim from @mediapipe/tasks-vision for same-origin runtime use.
+    "public/mediapipe/**",
   ]),
 ]);
 

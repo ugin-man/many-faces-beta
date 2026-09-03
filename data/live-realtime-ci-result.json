@@ -1,7 +1,7 @@
 {
   "schemaVersion": 9,
-  "testedCommit": "04d377e861fedb212e08ad9bc7b9acebd4b31191",
-  "workflowRunId": 33748292390,
+  "testedCommit": "e777373681d4332c837e6d7fe9b89a95b691f998",
+  "workflowRunId": 33765852074,
   "route": "/live",
   "pipeline": "five-second-pose-local-review-v4",
   "deterministicVideoInput": true,

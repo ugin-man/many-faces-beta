@@ -20,7 +20,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
@@ -48,15 +48,18 @@ jobs:
       - name: Self-host MediaPipe runtime assets
         run: bash tools/prepare_mediapipe_runtime.sh public/mediapipe
 
-      - name: Run unit and build gates
+      - name: Build the exact patched runtime
+        run: npm run build
+
+      - name: Run unit and worker delivery gates
         run: |
           node --experimental-strip-types --test \
             tests/live-review-timeline.test.mjs \
             tests/live-review-local-catalog.test.mjs \
             tests/live-verification-gate.test.mjs \
             tests/live-runtime-liveness.test.mjs \
-            tests/catalog-worker.test.mjs
-          npm run build
+            tests/catalog-worker.test.mjs \
+            tests/catalog-worker-local-seed.test.mjs
           npm run lint
 
       - name: Prepare deterministic five-second WebM fixture
@@ -76,15 +79,20 @@ jobs:
         run: |
           npm start > work/live-e2e-server.log 2>&1 &
           echo $! > work/live-e2e-server.pid
+          ready=0
           for attempt in $(seq 1 90); do
             if curl --fail --silent --show-error \
               'http://127.0.0.1:3000/api/catalog/manifest?source=seed' \
               > work/seed-manifest.json; then
+              ready=1
               break
             fi
             sleep 1
           done
-          test -s work/seed-manifest.json
+          if [[ "$ready" != "1" ]]; then
+            cat work/live-e2e-server.log
+            exit 1
+          fi
           python - <<'PY'
           import json
           from pathlib import Path
@@ -123,6 +131,10 @@ jobs:
           report['fixture']='public/test-fixtures/reference-face-motion.mp4'
           report['mediaPipeAssets']='same-origin'
           report['catalogSource']='seed'
+          report['livenessPolicy']={
+              'preparationTimeoutSeconds':45,
+              'progressStallTimeoutSeconds':90,
+          }
           path.write_text(json.dumps(report,indent=2)+'\n')
           PY
           git config user.name "github-actions[bot]"

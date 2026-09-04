@@ -1,0 +1,70 @@
+name: Project audit
+on:
+  push:
+    branches: [work/audit-overhaul-20260905]
+    paths: [.github/workflows/project-audit.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: project-audit-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - name: Inventory and baseline checks
+        run: |
+          mkdir -p work/project-audit
+          python - <<'PY'
+          import collections, glob, json, pathlib, subprocess, time
+          out=pathlib.Path('work/project-audit')
+          files=subprocess.check_output(['git','ls-files'],text=True).splitlines()
+          sizes=sorted(((pathlib.Path(f).stat().st_size,f) for f in files if pathlib.Path(f).is_file()),reverse=True)
+          inventory={'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'trackedFiles':len(files),'trackedBytes':sum(x[0] for x in sizes),'byRoot':dict(collections.Counter(f.split('/')[0] for f in files)),'largestSourceFiles':[(size,f) for size,f in sizes if f.endswith(('.ts','.tsx','.mjs','.py','.yml'))][:25],'workflows':glob.glob('.github/workflows/*'),'tests':glob.glob('tests/*.test.mjs'),'patchScripts':glob.glob('tools/patch*'),'publicVideos':[f for f in files if f.startswith('public/') and f.endswith(('.mp4','.webm'))]}
+          (out/'inventory.json').write_text(json.dumps(inventory,indent=2))
+          print('INVENTORY',json.dumps(inventory))
+          checks={}
+          def run(name,args,timeout):
+            start=time.monotonic()
+            with (out/(name+'.log')).open('w') as log:
+              try:
+                p=subprocess.run(args,stdout=log,stderr=subprocess.STDOUT,timeout=timeout)
+                code=p.returncode
+              except subprocess.TimeoutExpired:
+                code=124
+            text=(out/(name+'.log')).read_text(errors='replace')
+            checks[name]={'exitCode':code,'seconds':round(time.monotonic()-start,2)}
+            print('CHECK',name,json.dumps(checks[name]),flush=True)
+            if name=='dependencies':
+              try:
+                audit=json.loads(text)
+                print('DEPENDENCIES',json.dumps({'metadata':audit.get('metadata'),'findings':{k:{x:v.get(x) for x in ['severity','isDirect','via','fixAvailable']} for k,v in audit.get('vulnerabilities',{}).items()}}))
+              except Exception:
+                print(text[-4000:])
+            else:
+              print('\n'.join(text.splitlines()[-(65 if code else 14):]))
+            return code
+          if run('install',['npm','ci'],600)==0:
+            run('build',['npm','run','build'],300)
+            run('types',['node','node_modules/typescript/bin/tsc','--noEmit','--pretty','false'],120)
+            run('tests',['node','--experimental-strip-types','--test',*sorted(glob.glob('tests/*.test.mjs'))],180)
+            run('lint',['npm','run','lint'],120)
+            run('dependencies',['npm','audit','--json'],90)
+          (out/'checks.json').write_text(json.dumps(checks,indent=2))
+          print('AUDIT_CHECKS',json.dumps(checks))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: project-audit-${{ github.sha }}
+          path: work/project-audit
+          retention-days: 14

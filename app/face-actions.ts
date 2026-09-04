@@ -70,7 +70,9 @@ export const FACE_ACTION_FEATURE_INDEX = Object.fromEntries(
 type ScoreSource = ReadonlyMap<string, number> | Record<string, number | undefined>;
 
 function scoreAt(scores: ScoreSource, key: string) {
-  const value = scores instanceof Map ? scores.get(key) : scores[key];
+  const value = typeof (scores as ReadonlyMap<string, number>).get === "function"
+    ? (scores as ReadonlyMap<string, number>).get(key)
+    : (scores as Record<string, number | undefined>)[key];
   return Number.isFinite(value) ? Number(value) : 0;
 }
 

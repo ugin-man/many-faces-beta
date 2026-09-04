@@ -19,17 +19,20 @@
     "benchmark:fixed-search": "node --experimental-strip-types tools/benchmark-fixed-candidate-search.mjs",
     "validate:artifact": "bash scripts/validate-artifact.sh",
     "lint": "bash scripts/sites-env.sh -- eslint . --ignore-pattern dist --ignore-pattern .next",
-    "db:generate": "bash scripts/sites-env.sh -- drizzle-kit generate"
+    "db:generate": "bash scripts/sites-env.sh -- drizzle-kit generate",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "node --experimental-strip-types --test tests/*.test.mjs"
   },
   "dependencies": {
-    "@mediapipe/tasks-vision": "^1.0.1",
+    "@mediapipe/tasks-vision": "1.0.1",
     "drizzle-orm": "0.45.2",
-    "next": "16.2.6",
-    "react": "19.2.6",
-    "react-dom": "19.2.6"
+    "next": "16.2.11",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",
+    "@cloudflare/workers-types": "4.20260702.1",
     "@napi-rs/canvas": "^0.1.80",
     "@tailwindcss/postcss": "4.2.1",
     "@types/node": "22.19.19",
@@ -39,12 +42,12 @@
     "@vitejs/plugin-rsc": "0.5.26",
     "drizzle-kit": "0.31.10",
     "eslint": "9.39.4",
-    "eslint-config-next": "16.2.6",
-    "react-server-dom-webpack": "19.2.6",
+    "eslint-config-next": "16.2.11",
+    "react-server-dom-webpack": "19.2.8",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
     "vinext": "0.0.50",
-    "vite": "8.0.13",
+    "vite": "8.0.16",
     "wrangler": "4.92.0"
   },
   "type": "module",

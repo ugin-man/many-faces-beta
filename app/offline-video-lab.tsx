@@ -508,7 +508,7 @@ async function searchProjectionBeams(
   isCancelled: () => boolean,
 ) {
   const beams = Object.fromEntries(
-    PROJECTION_RANK_MODES.map((mode) => [mode, []]),
+    PROJECTION_RANK_MODES.map((mode) => [mode, [] as RankedCandidate[][]]),
   ) as Record<ProjectionRankMode, RankedCandidate[][]>;
   let comparisons = 0;
   for (let frameIndex = 0; frameIndex < frames.length; frameIndex += 1) {
@@ -1089,7 +1089,7 @@ export default function OfflineVideoLab() {
         setProgress({ done: 2, total: 3, label: "ウィンク・上下姿勢を再評価中" });
         if (!useCachedStrictSequence) setPhase("geometry");
         const allRankedBeams = Object.fromEntries(
-          PROJECTION_RANK_MODES.map((mode) => [mode, []]),
+          PROJECTION_RANK_MODES.map((mode) => [mode, [] as RankedCandidate[][]]),
         ) as Record<ProjectionRankMode, RankedCandidate[][]>;
         const allCandidateBeams: OfflineCandidate[][] = [];
         for (let frameIndex = 0; frameIndex < frames.length; frameIndex += 1) {
@@ -1153,7 +1153,7 @@ export default function OfflineVideoLab() {
       const allFrames: SequenceFrame[] = [];
       const allCandidateBeams: OfflineCandidate[][] = [];
       const allRankedBeams = Object.fromEntries(
-        PROJECTION_RANK_MODES.map((mode) => [mode, []]),
+        PROJECTION_RANK_MODES.map((mode) => [mode, [] as RankedCandidate[][]]),
       ) as Record<ProjectionRankMode, RankedCandidate[][]>;
       const candidateCache = new Map<string, OfflineCandidate>();
       const hasFullIndex = Boolean(manifest.indexFiles?.length || manifest.indexFile);

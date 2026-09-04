@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "runtimeSourceCommit": "0b01e81bd203a229b1e8d290d26fb483744a1445",
+  "scope": "exact committed runtime; report HTTP and browser-console diagnostics",
+  "fixturePolicy": "existing public repository fixture only; no private uploads",
+  "nonce": 2
+}

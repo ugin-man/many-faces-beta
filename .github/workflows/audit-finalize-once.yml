@@ -1,0 +1,56 @@
+name: Finalize isolated audit repairs once
+on:
+  push:
+    branches: [work/audit-overhaul-20260905]
+    paths: [.github/workflows/audit-finalize-once.yml]
+permissions:
+  contents: write
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - name: Apply final source and dependency maintenance
+        run: python .github/scripts/audit-finalize-once.py
+      - name: Remove one-time mutation machinery and save source
+        run: |
+          rm .github/scripts/audit-overhaul-once.py .github/scripts/audit-finalize-once.py
+          rm .github/workflows/audit-apply-once.yml .github/workflows/audit-finalize-once.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app package.json package-lock.json .github docs
+          git diff --cached --stat
+          git commit -m 'fix(audit): preserve attribution, synchronize seeks and update compatible dependencies'
+          git push origin HEAD:work/audit-overhaul-20260905
+      - name: Verify the committed application
+        run: |
+          mkdir -p work/finalize
+          npm ci > work/finalize/install.log 2>&1 || { tail -50 work/finalize/install.log; exit 1; }
+          npm run build > work/finalize/build.log 2>&1 || { tail -70 work/finalize/build.log; exit 1; }
+          npm run typecheck > work/finalize/types.log 2>&1 || { cat work/finalize/types.log; exit 1; }
+          npm run test:unit > work/finalize/tests.log 2>&1 || { cat work/finalize/tests.log; exit 1; }
+          tail -12 work/finalize/tests.log
+          npm run lint > work/finalize/lint.log 2>&1 || { cat work/finalize/lint.log; exit 1; }
+          git diff --exit-code
+      - name: Record remaining dependency findings
+        if: always()
+        run: |
+          mkdir -p work/finalize
+          npm audit --json > work/finalize/dependencies.json || true
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          v=json.loads(Path('work/finalize/dependencies.json').read_text())
+          print('DEPENDENCY_REMAINDER',json.dumps({'metadata':v.get('metadata'),'packages':{k:{f:x.get(f) for f in ['severity','isDirect','via','fixAvailable']} for k,x in v.get('vulnerabilities',{}).items()}}))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audit-finalize-${{ github.run_id }}
+          path: work/finalize
+          retention-days: 14

@@ -42,6 +42,7 @@ import styles from "./review-client-lite.module.css";
 import { fetchJson, throwIfAborted, withDeadline } from "../runtime-io";
 import { seekDecodedVideoFrame } from "./video-frame";
 import { captureCameraClip } from "./camera-capture";
+import { CandidateAttribution, type Attribution } from "./candidate-attribution";
 
 const WASM_URL = "/api/mediapipe";
 const MODEL_URL = "/api/mediapipe/face_landmarker.task";
@@ -57,7 +58,7 @@ const STRICT_SEQUENCE_OPTIONS = {
   motionWeights: { mouth: 0.43, eyes: 0.39, brows: 0.18 },
 } as const;
 
-type CatalogEntry = {
+type CatalogEntry = Attribution & {
   id: string;
   name?: string;
   image?: string;
@@ -88,7 +89,7 @@ type CatalogManifest = ReviewCatalogManifest & {
   };
 };
 
-type Candidate = {
+type Candidate = Attribution & {
   id: string;
   name: string;
   url: string;
@@ -247,6 +248,9 @@ function candidateFromEntry(entry: CatalogEntry): Candidate | null {
     geometry: { structure, surface, projection, layout: entry.layout },
     sourceName: entry.sourceName,
     creator: entry.creator,
+    sourceUrl: entry.sourceUrl,
+    license: entry.license,
+    licenseUrl: entry.licenseUrl,
   };
 }
 
@@ -364,6 +368,7 @@ export default function LightweightReviewClient() {
   const processingTokenRef = useRef(0);
   const operationRef = useRef<AbortController | null>(null);
   const inputLockRef = useRef(false);
+  const seekControllerRef = useRef<AbortController | null>(null);
   const playbackRafRef = useRef<number | null>(null);
   const replayFpsRef = useRef(12);
   const lastOutputIdRef = useRef<string | null>(null);
@@ -393,6 +398,7 @@ export default function LightweightReviewClient() {
   const [imageFailures, setImageFailures] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [playbackTime, setPlaybackTime] = useState(0);
+  const [currentCandidate, setCurrentCandidate] = useState<Candidate | null>(null);
   const [currentOutputName, setCurrentOutputName] = useState("—");
   const [currentOutputSource, setCurrentOutputSource] = useState("—");
   const [currentError, setCurrentError] = useState<ProjectionError | null>(null);
@@ -459,6 +465,8 @@ export default function LightweightReviewClient() {
   }, [busy, phase]);
 
   const stopPlayback = useCallback(() => {
+    seekControllerRef.current?.abort(new DOMException("Playback changed", "AbortError"));
+    seekControllerRef.current = null;
     if (playbackRafRef.current !== null) {
       cancelAnimationFrame(playbackRafRef.current);
       playbackRafRef.current = null;
@@ -481,6 +489,7 @@ export default function LightweightReviewClient() {
     outputImagesRef.current.clear();
     sequenceRef.current = [];
     lastOutputIdRef.current = null;
+    setCurrentCandidate(null);
     setReport(null);
     window.__MANY_FACES_VERIFY__ = undefined;
     if (recordingUrlRef.current) {
@@ -672,6 +681,7 @@ export default function LightweightReviewClient() {
     if (image) drawContained(canvas, image);
     if (lastOutputIdRef.current !== item.choice.candidate.id) {
       lastOutputIdRef.current = item.choice.candidate.id;
+      setCurrentCandidate(item.choice.candidate);
       setCurrentOutputName(item.choice.candidate.name);
       setCurrentOutputSource(
         item.choice.candidate.sourceName || item.choice.candidate.creator || "—",
@@ -1039,6 +1049,7 @@ export default function LightweightReviewClient() {
   const togglePlayback = useCallback(async () => {
     const video = playbackVideoRef.current;
     if (!video || phase !== "review") return;
+    seekControllerRef.current?.abort(new DOMException("Playback started", "AbortError"));
     if (video.paused || video.ended) {
       if (video.ended || video.currentTime >= clipDuration) video.currentTime = 0;
       video.muted = true;
@@ -1056,9 +1067,15 @@ export default function LightweightReviewClient() {
     if (!video || phase !== "review") return;
     stopPlayback();
     const target = clamp(time, 0, clipDuration);
-    video.currentTime = target;
+    const token = processingTokenRef.current;
+    const controller = new AbortController();
+    seekControllerRef.current = controller;
     setPlaybackTime(target);
-    drawReviewAt(target);
+    void seekDecodedVideoFrame(video, target, controller.signal).then(() => {
+      if (!controller.signal.aborted && token === processingTokenRef.current) drawReviewAt(target);
+    }).catch((caught: unknown) => {
+      if (!controller.signal.aborted && token === processingTokenRef.current) setError(caught instanceof Error ? caught.message : "再生位置を変更できませんでした");
+    });
   }, [clipDuration, drawReviewAt, phase, stopPlayback]);
 
   const reset = useCallback(() => {
@@ -1186,6 +1203,7 @@ export default function LightweightReviewClient() {
               <span>{currentOutputName}</span>
               <b>{currentOutputSource}</b>
             </div>
+            <CandidateAttribution candidate={currentCandidate} />
           </article>
         )}
       </section>
@@ -1220,6 +1238,7 @@ export default function LightweightReviewClient() {
           <label>
             解析密度
             <select
+              aria-label="解析密度"
               value={analysisFps}
               onChange={(event) => setAnalysisFps(Number(event.target.value))}
               disabled={busy}
@@ -1249,6 +1268,7 @@ export default function LightweightReviewClient() {
               <label>
                 再生
                 <select
+                  aria-label="再生"
                   value={replayFps}
                   onChange={(event) => {
                     const next = Number(event.target.value);

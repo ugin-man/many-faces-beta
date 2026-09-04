@@ -32,7 +32,7 @@ jobs:
           p.write_text(json.dumps(v,indent=2)+'\n')
           p=Path('tsconfig.json');v=json.loads(p.read_text());v['compilerOptions']['types']=['node','@cloudflare/workers-types'];p.write_text(json.dumps(v,indent=2)+'\n')
           PY
-          npm install --package-lock-only --ignore-scripts --save-dev --save-exact @cloudflare/workers-types@latest > /tmp/audit-install.log 2>&1 || { tail -60 /tmp/audit-install.log; exit 1; }
+          npm install --package-lock-only --ignore-scripts --save-dev --save-exact @cloudflare/workers-types@4.20260702.1 > /tmp/audit-install.log 2>&1 || { tail -60 /tmp/audit-install.log; exit 1; }
       - name: Save reviewable source and lockfile on the isolated branch
         run: |
           git diff --stat
@@ -45,7 +45,7 @@ jobs:
         run: |
           mkdir -p work/audit-repairs
           python - <<'PY'
-          import glob,json,subprocess,pathlib,time
+          import json,subprocess,pathlib,time
           out=pathlib.Path('work/audit-repairs');checks={}
           commands={'install':['npm','ci'],'build':['npm','run','build'],'types':['npm','run','typecheck'],'tests':['npm','run','test:unit'],'lint':['npm','run','lint'],'audit':['npm','audit','--json']}
           for name,args in commands.items():

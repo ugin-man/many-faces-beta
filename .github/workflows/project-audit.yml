@@ -2,7 +2,7 @@ name: Project audit
 on:
   push:
     branches: [work/audit-overhaul-20260905]
-    paths: [.github/workflows/project-audit.yml]
+    paths: [.github/workflows/project-audit.yml, data/project-audit-request.json]
   workflow_dispatch:
 permissions:
   contents: read
@@ -10,9 +10,9 @@ concurrency:
   group: project-audit-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  audit:
+  verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,47 +21,50 @@ jobs:
         with:
           node-version: 22.13.0
           cache: npm
-      - name: Inventory and baseline checks
+      - name: Verify the exact committed source
         run: |
           mkdir -p work/project-audit
-          python - <<'PY'
-          import collections, glob, json, pathlib, subprocess, time
-          out=pathlib.Path('work/project-audit')
-          files=subprocess.check_output(['git','ls-files'],text=True).splitlines()
-          sizes=sorted(((pathlib.Path(f).stat().st_size,f) for f in files if pathlib.Path(f).is_file()),reverse=True)
-          inventory={'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'trackedFiles':len(files),'trackedBytes':sum(x[0] for x in sizes),'byRoot':dict(collections.Counter(f.split('/')[0] for f in files)),'largestSourceFiles':[(size,f) for size,f in sizes if f.endswith(('.ts','.tsx','.mjs','.py','.yml'))][:25],'workflows':glob.glob('.github/workflows/*'),'tests':glob.glob('tests/*.test.mjs'),'patchScripts':glob.glob('tools/patch*'),'publicVideos':[f for f in files if f.startswith('public/') and f.endswith(('.mp4','.webm'))]}
-          (out/'inventory.json').write_text(json.dumps(inventory,indent=2))
-          print('INVENTORY',json.dumps(inventory))
-          checks={}
-          def run(name,args,timeout):
-            start=time.monotonic()
-            with (out/(name+'.log')).open('w') as log:
-              try:
-                p=subprocess.run(args,stdout=log,stderr=subprocess.STDOUT,timeout=timeout)
-                code=p.returncode
-              except subprocess.TimeoutExpired:
-                code=124
-            text=(out/(name+'.log')).read_text(errors='replace')
-            checks[name]={'exitCode':code,'seconds':round(time.monotonic()-start,2)}
-            print('CHECK',name,json.dumps(checks[name]),flush=True)
-            if name=='dependencies':
-              try:
-                audit=json.loads(text)
-                print('DEPENDENCIES',json.dumps({'metadata':audit.get('metadata'),'findings':{k:{x:v.get(x) for x in ['severity','isDirect','via','fixAvailable']} for k,v in audit.get('vulnerabilities',{}).items()}}))
-              except Exception:
-                print(text[-4000:])
-            else:
-              print('\n'.join(text.splitlines()[-(65 if code else 14):]))
-            return code
-          if run('install',['npm','ci'],600)==0:
-            run('build',['npm','run','build'],300)
-            run('types',['node','node_modules/typescript/bin/tsc','--noEmit','--pretty','false'],120)
-            run('tests',['node','--experimental-strip-types','--test',*sorted(glob.glob('tests/*.test.mjs'))],180)
-            run('lint',['npm','run','lint'],120)
-            run('dependencies',['npm','audit','--json'],90)
-          (out/'checks.json').write_text(json.dumps(checks,indent=2))
-          print('AUDIT_CHECKS',json.dumps(checks))
-          PY
+          npm ci > work/project-audit/install.log 2>&1 || { tail -50 work/project-audit/install.log; exit 1; }
+          npm run build > work/project-audit/build.log 2>&1 || { tail -60 work/project-audit/build.log; exit 1; }
+          npm run typecheck > work/project-audit/types.log 2>&1 || { cat work/project-audit/types.log; exit 1; }
+          npm run test:unit > work/project-audit/tests.log 2>&1 || { cat work/project-audit/tests.log; exit 1; }
+          tail -12 work/project-audit/tests.log
+          grep CATALOG_AUDIT work/project-audit/tests.log
+          npm run lint > work/project-audit/lint.log 2>&1 || { cat work/project-audit/lint.log; exit 1; }
+          git diff --exit-code
+      - name: Install isolated browser tooling, without changing application dependencies
+        run: |
+          npm install --prefix /tmp/many-faces-browser --no-package-lock playwright@1.55.0 > work/project-audit/browser-install.log 2>&1
+          /tmp/many-faces-browser/node_modules/.bin/playwright install --with-deps chromium >> work/project-audit/browser-install.log 2>&1
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg > /dev/null
+      - name: Prepare a public seven-second fixture whose first five seconds are reviewed
+        run: |
+          ffmpeg -hide_banner -loglevel warning -y -ss 17.2 -i public/test-fixtures/reference-face-motion.mp4 -an -vf 'trim=duration=5,setpts=PTS-STARTPTS,scale=512:-2:flags=lanczos,tpad=stop_mode=clone:stop_duration=2' -c:v libvpx-vp9 -deadline good -cpu-used 4 -b:v 0 -crf 31 work/reference-face-motion.webm
+      - name: Serve the built Worker with local-only Cloudflare bindings
+        run: |
+          find dist -name wrangler.json -print
+          test -f dist/server/wrangler.json
+          node node_modules/wrangler/bin/wrangler.js dev --config dist/server/wrangler.json --local --port 3000 > work/project-audit/server.log 2>&1 &
+          echo $! > work/project-audit/server.pid
+          for i in $(seq 1 90); do
+            if curl --silent --fail 'http://127.0.0.1:3000/api/catalog/manifest?source=seed' > work/project-audit/manifest.json; then exit 0; fi
+            sleep 1
+          done
+          tail -80 work/project-audit/server.log
+          exit 1
+      - name: Exercise browser output, cancellation and playback boundaries
+        env:
+          PLAYWRIGHT_MODULE: /tmp/many-faces-browser/node_modules/playwright/index.mjs
+          AUDIT_RUNTIME: workerd-local-built-artifact
+        run: node tools/project-audit-browser.mjs
+      - name: Dependency report
+        if: always()
+        run: npm audit --json > work/project-audit/dependencies.json || true
+      - name: Stop local test services
+        if: always()
+        run: |
+          if test -f work/project-audit/server.pid; then kill "$(cat work/project-audit/server.pid)" || true; fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:

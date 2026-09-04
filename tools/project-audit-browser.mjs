@@ -9,7 +9,7 @@ const fixture = path.resolve(process.env.AUDIT_VIDEO || "work/reference-face-mot
 const output = path.resolve(process.env.AUDIT_OUTPUT || "work/project-audit/browser");
 await fs.mkdir(output, { recursive: true });
 const browser = await chromium.launch({ headless: true, args: ["--disable-dev-shm-usage", "--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--enable-webgl", "--autoplay-policy=no-user-gesture-required"] });
-const result = { schemaVersion: 1, sourceCommit: process.env.GITHUB_SHA || null, runtime: process.env.AUDIT_RUNTIME || "unspecified", browser: browser.version(), fixtureSha256: crypto.createHash("sha256").update(await fs.readFile(fixture)).digest("hex"), cases: [] };
+const result = { schemaVersion: 2, sourceCommit: process.env.GITHUB_SHA || null, runtime: process.env.AUDIT_RUNTIME || "unspecified", browser: browser.version(), fixtureSha256: crypto.createHash("sha256").update(await fs.readFile(fixture)).digest("hex"), cases: [] };
 const state = (page) => page.getByTestId("verification-root").getAttribute("data-state");
 async function open(page) {
   const response = await page.goto(`${base}/live`, { waitUntil: "domcontentloaded" });
@@ -27,10 +27,15 @@ async function run(name, width, height, fn) {
   const context = await browser.newContext({ viewport: { width, height }, locale: "ja-JP" });
   const page = await context.newPage();
   page.setDefaultTimeout(20_000);
-  const entry = { name, width, height, startedAt: new Date().toISOString(), pageErrors: [], writeRequests: [], wasm: [], passed: false };
-  page.on("pageerror", (error) => entry.pageErrors.push(String(error)));
+  const entry = { name, width, height, startedAt: new Date().toISOString(), pageErrors: [], consoleErrors: [], httpErrors: [], failedRequests: [], writeRequests: [], wasm: [], passed: false };
+  page.on("pageerror", (error) => entry.pageErrors.push(String(error?.stack || error)));
+  page.on("console", (message) => { if (message.type() === "error" && entry.consoleErrors.length < 16) entry.consoleErrors.push(message.text().slice(0, 2000)); });
+  page.on("requestfailed", (request) => { if (!request.url().startsWith("blob:") && entry.failedRequests.length < 16) entry.failedRequests.push({ url: request.url(), reason: request.failure()?.errorText }); });
   page.on("request", (request) => { if (["POST", "PUT", "PATCH"].includes(request.method())) entry.writeRequests.push({ method: request.method(), url: request.url() }); });
-  page.on("response", (response) => { if (new URL(response.url()).pathname.endsWith(".wasm")) entry.wasm.push({ status: response.status(), mime: response.headers()["content-type"] }); });
+  page.on("response", (response) => {
+    if (response.status() >= 400 && entry.httpErrors.length < 16) entry.httpErrors.push({ url: response.url(), status: response.status() });
+    if (new URL(response.url()).pathname.endsWith(".wasm")) entry.wasm.push({ status: response.status(), mime: response.headers()["content-type"] });
+  });
   try {
     await fn(page, entry);
     assert.deepEqual(entry.pageErrors, []);
@@ -40,10 +45,19 @@ async function run(name, width, height, fn) {
   } catch (error) {
     entry.failure = String(error?.stack || error);
     await page.screenshot({ path: path.join(output, `${name}-failure.png`), fullPage: true }).catch(() => undefined);
+    entry.assetDiagnostics = [];
+    for (const resource of ["/api/mediapipe/vision_wasm_internal.js", "/api/mediapipe/vision_wasm_internal.wasm", "/api/mediapipe/face_landmarker.task"]) {
+      try {
+        const response = await page.request.get(`${base}${resource}`, { timeout: 10_000 });
+        const body = await response.body();
+        entry.assetDiagnostics.push({ resource, status: response.status(), mime: response.headers()["content-type"], bytes: body.length, prefix: body.subarray(0, 24).toString("hex") });
+      } catch (caught) { entry.assetDiagnostics.push({ resource, error: String(caught) }); }
+    }
   } finally {
     entry.finishedAt = new Date().toISOString();
     result.cases.push(entry);
-    console.log("BROWSER_CASE", JSON.stringify(entry));
+    const summary = { ...entry, report: entry.report ? { ...entry.report, sequenceIds: undefined } : undefined };
+    console.log("BROWSER_CASE", JSON.stringify(summary));
     await fs.writeFile(path.join(output, "report.json"), JSON.stringify(result, null, 2));
     await context.close();
   }
@@ -67,6 +81,7 @@ const positive = async (page, entry, fps) => {
   assert.ok(entry.wasm.length > 0);
   assert.ok(entry.wasm.every((item) => item.status === 200 && item.mime?.startsWith("application/wasm")), JSON.stringify(entry.wasm));
   assert.equal(await page.getByLabel("再生", { exact: true }).inputValue(), String(fps));
+  await page.getByTestId("candidate-attribution").getByRole("link", { name: "出典", exact: true }).waitFor({ state: "visible" });
   entry.report = report;
   entry.layout = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth }));
   assert.ok(entry.layout.document <= entry.layout.viewport + 2);

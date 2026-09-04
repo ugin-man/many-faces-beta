@@ -1,8 +1,7 @@
 {
   "schemaVersion": 1,
   "runtimeSourceCommit": "0b01e81bd203a229b1e8d290d26fb483744a1445",
-  "scope": "exact committed runtime; no pre-test source patching",
+  "scope": "exact committed runtime; report HTTP and browser-console diagnostics",
   "fixturePolicy": "existing public repository fixture only; no private uploads",
-  "checks": ["types", "unit and catalog integrity", "built Worker HTTP", "12/20/30 fps analysis", "mobile viewport", "late camera cancellation", "cancel during image loading", "same-file reselection", "five-second playback boundary", "no input-video upload"],
-  "nonce": 1
+  "nonce": 2
 }

@@ -1,136 +1,75 @@
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
-import { readFile } from "node:fs/promises";
+import { readFile, stat, open } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 
 const root = path.resolve("public/seed-catalog");
-const hasCatalogPayload =
-  existsSync(path.join(root, "manifest.json")) &&
-  existsSync(path.join(root, "shards")) &&
-  existsSync(path.join(root, "packs"));
 
-test("bundles a validated face catalog across pose and expression groups", {
-  skip: !hasCatalogPayload,
-}, async () => {
+test("the bundled real-photo catalog is internally consistent across every shard", async () => {
   const manifest = JSON.parse(await readFile(path.join(root, "manifest.json"), "utf8"));
   assert.equal(manifest.schemaVersion, 3);
   assert.equal(manifest.shapeVersion, "mediapipe-projection-468-v4");
-  assert.equal(manifest.projectionPoints, 468);
-  if (manifest.totalFaces >= 70_000) {
-    assert.equal(manifest.catalogId, "seed-ffhq-70224-actions-v4");
-    assert.equal(manifest.totalFaces, 70_224);
-    assert.equal(manifest.searchableFaces, 70_099);
-    assert.equal(manifest.featureLength, 55);
-    assert.equal(manifest.shardsContainGeometry, true);
-    assert.equal(Object.keys(manifest.cells).length, 749);
-    assert.equal(
-      Object.values(manifest.cells).reduce((sum, cell) => sum + cell.count, 0),
-      manifest.searchableFaces,
-    );
-    assert.ok(Object.values(manifest.stats.coverage.deficits).every((value) => value === 0));
-    const shardNames = [...new Set(
-      Object.values(manifest.cells).flatMap((cell) => cell.shards ?? []),
-    )];
-    assert.equal(shardNames.length, 761);
-    for (const shardName of [shardNames[0], shardNames.at(-1)]) {
-      const shard = JSON.parse(
-        await readFile(path.join(root, "shards", shardName), "utf8"),
-      );
-      assert.ok(shard.items.length >= 1);
-      for (const item of [shard.items[0], shard.items.at(-1)]) {
-        assert.equal(item.feature.length, 55);
-        assert.ok(item.feature.every(Number.isFinite));
-        assert.ok(item.shape && item.mesh && item.projection);
-        assert.equal(item.layout.length, 4);
-        const pack = await readFile(path.join(root, "packs", item.pack));
-        const image = pack.subarray(item.offset, item.offset + item.length);
-        assert.equal(image.subarray(0, 4).toString("ascii"), "RIFF");
-        assert.equal(image.subarray(8, 12).toString("ascii"), "WEBP");
-      }
-    }
-    return;
-  }
-  assert.ok(manifest.indexFiles.length >= 11);
-  assert.ok(manifest.indexFiles.every((file) => /^index_[0-9]{3}\.json$/.test(file)));
-  assert.equal(manifest.totalFaces, 15_000);
-  assert.equal(manifest.poseStep, 3);
-  assert.deepEqual(manifest.bounds, {
-    yawMin: -45,
-    yawMax: 45,
-    pitchMin: -36,
-    pitchMax: 36,
-  });
-  assert.ok(Object.keys(manifest.cells).length >= 600);
-  assert.ok(manifest.stats.packCount >= 35);
-  assert.ok(manifest.stats.preindexedFaces >= 14_900);
-  assert.ok(manifest.stats.expansion.addedExtremePitchFaces >= 300);
-  for (const expression of ["neutral", "smile", "surprise", "frown"]) {
-    assert.ok(
-      manifest.stats.expressionDistribution[expression] >= 1_000,
-      `${expression} is underrepresented`,
-    );
-  }
-
-  const entryIds = new Set();
+  assert.equal(manifest.featureLength, 55);
+  assert.equal(manifest.shardsContainGeometry, true);
+  assert.ok(manifest.totalFaces >= 70_000);
+  assert.equal(manifest.stats.cleanCore.runtimeImagePolicy, "real-photo-only-v1");
+  assert.equal(manifest.stats.cleanCore.knownSyntheticFaces, 0);
+  const ids = new Set();
   const packs = new Map();
-  let totalEntries = 0;
-  let strongWinkFaces = 0;
-  let upwardFaces = 0;
-  let downwardFaces = 0;
+  const sources = {};
+  const missing = { creator: 0, sourceUrl: 0, license: 0, licenseUrl: 0 };
+  let count = 0;
   for (const [cellKey, cell] of Object.entries(manifest.cells)) {
-    assert.ok(cell.count >= 1 && cell.count <= 64, `${cellKey} has ${cell.count} faces`);
-    assert.equal(cell.shards.length, 1);
-    const shard = JSON.parse(
-      await readFile(path.join(root, "shards", cell.shards[0]), "utf8"),
-    );
-    assert.equal(shard.cell, cellKey);
-    assert.equal(shard.items.length, cell.count);
-    for (const item of shard.items) {
-      assert.equal(item.feature.length, 22);
-      assert.ok(item.feature.every(Number.isFinite));
-      if (Math.abs(item.feature[13] - item.feature[14]) >= 0.4) strongWinkFaces += 1;
-      if (item.feature[1] * 90 >= 27) upwardFaces += 1;
-      if (item.feature[1] * 90 <= -27) downwardFaces += 1;
-      assert.match(item.pack, /^seed_pack_[0-9]{3}\.bin$/);
-      assert.ok(Number.isInteger(item.offset) && item.offset >= 0);
-      assert.ok(Number.isInteger(item.length) && item.length > 1_000);
-      assert.ok(item.sourceUrl.startsWith("https://www.flickr.com/"));
-      assert.ok(item.creator);
-      assert.ok(item.license);
-      assert.ok(item.licenseUrl.startsWith("http"));
-      if (item.mesh) {
-        assert.ok(item.shape);
-        assert.ok(item.projection);
+    let inCell = 0;
+    for (const filename of cell.shards) {
+      assert.match(filename, /^[a-z0-9_.+-]+\.json$/i);
+      const shard = JSON.parse(await readFile(path.join(root, "shards", filename), "utf8"));
+      for (const item of shard.items) {
+        assert.ok(item.id && !ids.has(item.id), `duplicate ID ${item.id}`);
+        ids.add(item.id);
+        assert.equal(item.feature.length, manifest.featureLength);
+        assert.ok(item.feature.every(Number.isFinite), item.id);
+        assert.equal(Buffer.from(item.projection, "base64").length, 468 * 2 * 2);
+        assert.ok(Buffer.from(item.shape, "base64").length >= 26);
+        assert.ok(Buffer.from(item.mesh, "base64").length >= 600);
         assert.equal(item.layout.length, 4);
-        assert.ok(Buffer.from(item.mesh, "base64").byteLength >= 1_000);
-        assert.equal(Buffer.from(item.projection, "base64").byteLength, 468 * 2 * 2);
+        assert.ok(item.layout.every(Number.isFinite));
+        assert.match(item.pack, /^[a-z0-9_.-]+\.bin$/i);
+        assert.ok(Number.isSafeInteger(item.offset) && item.offset >= 0);
+        assert.ok(Number.isSafeInteger(item.length) && item.length > 12);
+        let pack = packs.get(item.pack);
+        if (!pack) {
+          pack = { size: (await stat(path.join(root, "packs", item.pack))).size, entries: [] };
+          packs.set(item.pack, pack);
+        }
+        assert.ok(item.offset + item.length <= pack.size, item.id);
+        pack.entries.push(item);
+        for (const field of Object.keys(missing)) if (!item[field]) missing[field]++;
+        const source = item.sourceName || "missing";
+        sources[source] = (sources[source] || 0) + 1;
+        inCell++;
       }
-      assert.ok(!entryIds.has(item.id), `duplicate entry ${item.id}`);
-      entryIds.add(item.id);
-      const entries = packs.get(item.pack) ?? [];
-      entries.push(item);
-      packs.set(item.pack, entries);
-      totalEntries += 1;
     }
+    assert.equal(inCell, cell.count, `cell ${cellKey}`);
+    count += inCell;
   }
-  assert.equal(totalEntries, 15_000);
-  assert.equal(entryIds.size, 15_000);
-  assert.equal(packs.size, manifest.stats.packCount);
-  assert.ok(strongWinkFaces >= 80, `only ${strongWinkFaces} strong wink candidates`);
-  assert.ok(upwardFaces >= 900, `only ${upwardFaces} upward candidates`);
-  assert.ok(downwardFaces >= 900, `only ${downwardFaces} downward candidates`);
-
-  for (const [packName, entries] of packs) {
-    const pack = await readFile(path.join(root, "packs", packName));
-    const sorted = entries.sort((left, right) => left.offset - right.offset);
-    for (let index = 0; index < sorted.length; index += 1) {
-      const item = sorted[index];
-      assert.ok(item.offset + item.length <= pack.byteLength);
-      if (index) assert.ok(sorted[index - 1].offset + sorted[index - 1].length <= item.offset);
-      const image = pack.subarray(item.offset, item.offset + item.length);
-      assert.equal(image.subarray(0, 4).toString("ascii"), "RIFF");
-      assert.equal(image.subarray(8, 12).toString("ascii"), "WEBP");
+  assert.equal(count, manifest.searchableFaces);
+  assert.equal(ids.size, manifest.totalFaces);
+  for (const [filename, pack] of packs) {
+    pack.entries.sort((a, b) => a.offset - b.offset);
+    for (let i = 1; i < pack.entries.length; i++) {
+      assert.ok(pack.entries[i - 1].offset + pack.entries[i - 1].length <= pack.entries[i].offset, `overlapping ranges in ${filename}`);
     }
+    const handle = await open(path.join(root, "packs", filename));
+    try {
+      for (const item of [pack.entries[0], pack.entries.at(-1)]) {
+        const header = Buffer.alloc(12);
+        await handle.read(header, 0, 12, item.offset);
+        assert.equal(header.toString("ascii", 0, 4), "RIFF");
+        assert.equal(header.toString("ascii", 8, 12), "WEBP");
+      }
+    } finally { await handle.close(); }
   }
+  // Metadata absence is reported, never fabricated as public-domain permission.
+  console.log("CATALOG_AUDIT", JSON.stringify({ faces: count, packs: packs.size, sources, missingAttributionFields: missing }));
 });

@@ -1,73 +1,90 @@
-# Many Faces — Astra realtime hardening
+# Many Faces realtime handoff — 2026-09-06 JST
 
-Audited base: `work/coverage-driven-200k` at `0ddb7a72a794f410424793a290a221d456739478`.
+## Current entry points
 
-## Current truth
+- Repository: `ugin-man/many-faces-beta`
+- Working branch: `astra/realtime-hardening`; draft PR #3 targets `work/coverage-driven-200k`.
+- Latest browser-tested application commit: `33e3ba843fc8e9ced7be2d3e836454112e99cd28`.
+- `/live/astra`: new continuous camera/video preview with worker-based inference.
+- `/live`: existing five-second fixed-video reference, not replaced by the realtime implementation.
+- No merge into `main` or `work/coverage-driven-200k`, and no hosted deployment, was performed.
 
-- `/live` is a verified fixed-video-first five-second review path.
-- The private fixed-video browser run previously reached 100% face coverage at 12/20/30 fps and mobile 390x844 layout verification.
-- `/live/fast` is the existing frame-responsive realtime experiment.
-- Physical-camera operation is still experimental and must not be represented as production-ready.
-- `main` is far behind the working branch; the current feature work lives in draft PR #1.
-- The working branch contains many historical write-capable workflows. Treat workflow churn and self-mutating CI as a reliability risk until release promotion is simplified.
+## What changed
 
-## End goal
+The previous `/live/astra` wrapper has been replaced by a working client and dedicated classic Web Worker. The worker performs Face Landmarker inference and the existing pose/projection matcher. The UI thread handles controls, frame acquisition, decoded output images, and drawing.
 
-A user opens one route, grants camera permission, and sees another catalog face follow pose/expression continuously without a record-then-process pause. The route must fail visibly rather than display stale state, and it must stay usable under ordinary desktop and mobile browser load.
+A module-worker implementation built successfully but failed in a real Chromium browser with `ModuleFactory not set`. The pinned MediaPipe WASM loader needs its classic-worker registration path. Both the production build and portable build now use the tested classic-worker path.
 
-## Remaining gates
+At most one frame is in flight. Busy incoming frames are dropped instead of queued; completed results older than 500 ms are not displayed. The UI remains able to stop a stuck worker. Input and inference have an 8-second runtime watchdog; engine initialization has a 30-second deadline.
 
-### G1 — Deterministic reference path hardening — IN PROGRESS
+Camera startup is generation-scoped. A permission result arriving after stop or timeout immediately releases every track. Stop and restart terminate old workers, abort requests, close bitmaps, stop media tracks, and revoke object URLs. Leaving the page stops capture instead of silently keeping the camera open. Physical-device unplug/background/rotation compatibility still needs real-device verification.
 
-Acceptance:
-- fixed-video decode/presentation barriers fail closed;
-- a timeout cannot silently be counted as a decoded target frame;
-- build, targeted tests, and lint pass on the hardening branch.
+Catalog reads are pinned to `source=seed`. The worker keeps at most 24 pose shards and 2,400 indexed candidates. It loads at most two shards concurrently. Output uses up to three concurrent individual image requests, an eight-candidate latest queue, a 64-image / 32 MiB decoded-image budget, bounded response reads, decode deadlines, and cleanup of late bitmaps. These are component budgets, not a claim that the entire browser uses only 32 MiB.
 
-This branch adds that timeout hardening and a regression guard.
+Static faces are held rather than rotated to inflate output FPS. Ready fallbacks must remain within a score bound of the current best candidate. The realtime search uses a bounded approximate candidate path, not a claim of the same matching quality as the expensive full-video sequence optimizer.
 
-### G2 — Physical camera contract
+A successfully created GPU engine can still be slow. After four persistently slow samples, the worker benchmarks a CPU engine on the same actual frame and switches only if it is at least 20% faster without losing a detected face. CPU-probe failure leaves the working engine intact.
 
-Acceptance:
-- camera start/stop/restart works repeatedly;
-- permission denial, missing camera, tab backgrounding, device rotation, track-ended, and visibility restoration have explicit states;
-- no stale `running` state survives a dead MediaStream or dead frame clock.
+The dedicated CI now validates the exact source commit without rewriting or pushing application code. Two malformed historical one-time patch workflows were moved byte-for-byte into `docs/archived-workflows/`.
 
-### G3 — Streaming matcher/output path
+## Executed verification
 
-Acceptance:
-- no five-second capture barrier;
-- camera frames feed MediaPipe directly;
-- pose-local shard loading and candidate ranking are incremental;
-- output changes while movement continues and stabilizes while the face is still.
+Run: https://github.com/ugin-man/many-faces-beta/actions/runs/33986973937
 
-Use `/live/fast` as the implementation donor, but promote only behavior that passes the acceptance gate.
+Install, production build, scoped unit tests, lint, production browser verification, portable browser verification, packaging, and the final no-source-rewrite check all passed.
 
-### G4 — Backpressure and latency budget
+The browser tests use native `getUserMedia` backed by a Chromium virtual camera. Its stimulus is three changing, existing public catalog photographs, not the user's private video, not mocked landmarks, and not a physical camera. This is a pipeline/lifecycle test, not a human-motion matching-quality benchmark.
 
-Acceptance:
-- analysis, search, decode, and display each have measured budgets;
-- slow devices shed analysis/search work instead of queueing stale frames;
-- image and pack caches have bounded memory;
-- target: visible response starts within 250 ms of meaningful motion after warmup, with a sustainable display cadence rather than a claimed FPS counter.
+Both full-catalog production and the exact portable preview passed:
 
-### G5 — Real-browser realtime E2E
+- Native camera start and non-blank output.
+- Actual output changes when the input changes.
+- Stop releases every media track.
+- Restart produces new output.
+- A delayed permission grant does not resurrect a cancelled session or leak tracks.
+- Permission denial produces a recoverable error and re-enables the start button.
+- One-frame in-flight bound and decoded-image memory/concurrency bounds.
+- 390×844 viewport output without horizontal overflow. This is Chromium at a mobile-sized viewport, not iPhone Safari testing.
 
-Acceptance:
-- Chromium desktop camera fixture or virtual-camera path exercises camera start -> movement -> output -> stop -> restart;
-- mobile viewport runs without horizontal overflow;
-- runtime heartbeat proves real progress;
-- screenshot/video artifact and JSON receipt are produced for human inspection.
+### Recorded desktop snapshots
 
-### G6 — Promotion and rollback
+These are the test's final one-second rate snapshots, not sustained benchmark guarantees.
 
-Acceptance:
-- one canonical realtime route;
-- fixed-video review retained as deterministic fallback/diagnostic route;
-- obsolete mutation workflows no longer run on ordinary pushes;
-- release commit has green CI and a documented rollback SHA;
-- only then promote from the draft branch toward `main`.
+| Metric | Full production catalog | Portable preview |
+| --- | ---: | ---: |
+| Catalog faces | 70,000 | 4,650 |
+| Processed / detected face frames | 57 / 57 | 140 / 140 |
+| Total actual output changes | 25 | 36 |
+| Detection rate at snapshot | 7 fps | 18 fps |
+| Output changes at snapshot | 3/s | 6/s |
+| Frame acquisition to draw, P95 | 330 ms | 205 ms |
+| Latest inference duration | 32 ms | 23 ms |
+| Latest candidate search | 2 ms | 3 ms |
+| Decoded image memory | 16 MiB | 16 MiB |
+| Image failures | 0 | 0 |
+| Maximum frames in flight | 1 | 1 |
+| Runtime delegate after measurement | CPU | CPU |
 
-## What the user can verify first
+The latency includes frame acquisition to a displayed candidate; it does not include physical sensor exposure and is not a camera-to-photon measurement. Initial model startup is outside the `firstOutputMs` timer. Discarded stale frames are not counted as displayed results.
 
-The nearest useful review target is not `main`. It is this hardening line plus `/live/fast` as the realtime experiment. The first user-visible checkpoint is reached when G1 is green and a browser preview of `/live/fast` can be opened with explicit camera-state telemetry. After that, G2 and G3 are the critical path; G4-G6 turn it from a demo into a reliable realtime route.
+## User preview
+
+Download: https://github.com/ugin-man/many-faces-beta/actions/runs/33986973937/artifacts/9975484787
+
+Artifact: `Many-Faces-Realtime-Preview`, 58,450,154 bytes. SHA-256 of the ZIP: `92777ce8abdeea5cba5dd321b1d80e40aca7ba07b9f64b018a1a4ec09332767c`.
+
+This is a local PC preview, not an already hosted website. It includes the model, WASM, application, server, evidence, and a 4,650-photo subset spanning 775 pose cells. The full 70,000-photo catalog remains unchanged in Git. The preview deliberately has fewer choices, so its matching quality must not be presented as full-catalog quality.
+
+Windows: install/use Node.js 22 or newer, extract the ZIP, and open `START-WINDOWS.cmd`. Open the camera and allow access. The local address is `http://127.0.0.1:4173/live/astra`. The server binds only to loopback and uses Node built-ins; no npm install is needed for this portable package. Stop the terminal process to close the local server.
+
+Use the live controls to start, stop, and restart. The diagnostic panel distinguishes inference rate from actual output changes. Input imagery is analyzed locally and is not sent to a server. The user's `IMG_3665.mp4` was not used or uploaded in this run.
+
+Screenshots and raw JSON reports are included under `verification/production` and `verification/portable` in the preview. Evidence-only artifact: https://github.com/ugin-man/many-faces-beta/actions/runs/33986973937/artifacts/9975485062
+
+## Remaining release gates
+
+1. Full-catalog responsiveness and quality: improve the full 70k path beyond the observed 7 fps, profile candidate-index rebuild/loading overhead, and evaluate real continuous head motion, blinking, mouth motion, matching fidelity, and end-to-end latency. The portable 18 fps result does not close this gate.
+2. Real-device and duration coverage: actual Windows/phone cameras, Safari, long sessions and memory stability, low light, camera removal, real tab background/return, and orientation changes. The current virtual-camera runs are short functional tests.
+3. Publication: review remaining upload authorization and historical workflow behavior, correct the production WASM MIME warning, verify fixed-video fallback using the private fixture locally, package the agreed full/compact configuration, and only then promote/deploy with rollback. No public production-readiness claim or main-branch merge yet.
+
+Known warnings: the production asset path logs a WASM MIME mismatch and falls back to ArrayBuffer instantiation; the portable run logs a missing-resource 404 plus MediaPipe informational messages. Browser runtime gates passed despite these, but the logs are not claimed to be error-free.

@@ -1,24 +1,14 @@
 name: Astra realtime hardening
-
 on:
   push:
     branches: [astra/realtime-hardening]
-    paths:
-      - 'app/**'
-      - 'worker/**'
-      - 'tests/**'
-      - 'scripts/**'
-      - 'package*.json'
-      - '.github/workflows/astra-realtime-hardening.yml'
+    paths: ['app/**', 'worker/**', 'tests/**', 'scripts/**', 'package*.json', '.github/workflows/astra-realtime-hardening.yml']
   workflow_dispatch:
-
 permissions:
   contents: read
-
 concurrency:
   group: astra-realtime-hardening-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -43,12 +33,7 @@ jobs:
         run: npm run build
       - id: tests
         run: |
-          node --experimental-strip-types --test \
-            tests/astra-runtime.test.mjs \
-            tests/astra-realtime-hardening.test.mjs \
-            tests/live-responsive-runtime.test.mjs \
-            tests/live-review-timeline.test.mjs \
-            tests/catalog-worker.test.mjs
+          node --experimental-strip-types --test tests/astra-runtime.test.mjs tests/astra-realtime-hardening.test.mjs tests/live-responsive-runtime.test.mjs tests/live-review-timeline.test.mjs tests/catalog-worker.test.mjs
       - id: lint
         run: npm run lint
       - name: Write factual receipt
@@ -64,14 +49,7 @@ jobs:
           import json, os
           from pathlib import Path
           outcomes = {k.lower(): os.environ[k] for k in ['INSTALL','BUILD','TESTS','LINT']}
-          Path('artifacts/checks.json').write_text(json.dumps({
-              'testedCommit': os.environ['GITHUB_SHA'],
-              'runId': os.environ['GITHUB_RUN_ID'],
-              'sourceModifiedByCI': False,
-              'outcomes': outcomes,
-              'passed': all(v == 'success' for v in outcomes.values()),
-              'physicalCameraVerified': False,
-          }, indent=2) + '\n')
+          Path('artifacts/checks.json').write_text(json.dumps({'testedCommit':os.environ['GITHUB_SHA'],'runId':os.environ['GITHUB_RUN_ID'],'sourceModifiedByCI':False,'outcomes':outcomes,'passed':all(v=='success' for v in outcomes.values()),'physicalCameraVerified':False},indent=2)+'\n')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
@@ -79,7 +57,6 @@ jobs:
           name: astra-checks-${{ github.run_id }}
           path: artifacts/checks.json
           retention-days: 7
-
   browser:
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -98,56 +75,22 @@ jobs:
           npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1 esbuild@0.25.12
           mkdir -p public/mediapipe/wasm public/models work/astra-fixtures work/astra-evidence
           cp -a node_modules/@mediapipe/tasks-vision/wasm/. public/mediapipe/wasm/
-          curl --fail --location --retry 3 --max-time 180 -o public/models/face_landmarker.task \
-            https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
+          curl --fail --location --retry 3 --max-time 180 -o public/models/face_landmarker.task https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
           echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
       - name: Generate a transparent virtual-camera fixture from real catalog photographs
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          root=Path('public/seed-catalog')
-          manifest=json.loads((root/'manifest.json').read_text())
-          chosen=[]
-          for n,target in enumerate([-18,0,18]):
-              keys=sorted(manifest['cells'],key=lambda k:(float(k.split(':')[0])-target)**2+float(k.split(':')[1])**2)
-              for key in keys:
-                  cell=manifest['cells'][key]
-                  files=cell.get('shards') or [cell['shard']]
-                  items=json.loads((root/'shards'/files[0]).read_text())['items']
-                  item=next((x for x in items if x.get('id') not in [v['id'] for v in chosen]),None)
-                  if item: break
-              if item.get('image'):
-                  data=(root/'images'/item['image']).read_bytes()
-              else:
-                  with (root/'packs'/item['pack']).open('rb') as f:
-                      f.seek(item['offset']); data=f.read(item['length'])
-              Path(f'work/astra-fixtures/face-{n}.webp').write_bytes(data)
-              chosen.append({'id':item['id'],'cell':key,'source':item.get('sourceUrl'),'creator':item.get('creator')})
-          Path('work/astra-evidence/fixture-provenance.json').write_text(json.dumps({'type':'three-real-photographs-not-physical-camera','privateUserVideoUsed':False,'faces':chosen},indent=2)+'\n')
-          PY
-          for n in 0 1 2; do
-            ffmpeg -hide_banner -loglevel error -y -loop 1 -i work/astra-fixtures/face-${n}.webp \
-              -t 1 -r 30 -vf "scale=480:480:force_original_aspect_ratio=decrease,pad=480:480:(ow-iw)/2:(oh-ih)/2,setsar=1,format=yuv420p" \
-              -an -c:v libx264 -preset ultrafast work/astra-fixtures/part-${n}.mp4
-          done
-          printf "file 'part-0.mp4'\nfile 'part-1.mp4'\nfile 'part-2.mp4'\n" > work/astra-fixtures/parts.txt
-          ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i work/astra-fixtures/parts.txt \
-            -pix_fmt yuv420p -f yuv4mpegpipe work/astra-fixtures/moving.y4m
+        run: bash scripts/prepare-astra-fixtures.sh
       - name: Build the production route without source patches
         run: npm run build
       - name: Start the production Site runtime
         run: |
           PORT=4173 HOST=127.0.0.1 nohup npm start > work/astra-evidence/production-server.log 2>&1 &
-          echo $! > work/astra-evidence/server.pid
           for attempt in $(seq 1 90); do
             if curl -fsS http://127.0.0.1:4173/live/astra > /dev/null; then exit 0; fi
             sleep 1
           done
           cat work/astra-evidence/production-server.log
           exit 1
-      - id: production_browser
-        name: Exercise native virtual camera, output, stop, restart, cancellation, denial and mobile viewport
+      - name: Verify native virtual camera in the production route
         env:
           MANY_FACES_BASE_URL: http://127.0.0.1:4173
           MANY_FACES_BROWSER_REPORT_DIR: work/astra-evidence/production
@@ -172,8 +115,7 @@ jobs:
             sleep 1
           done
           exit 1
-      - id: portable_browser
-        name: Verify the exact portable preview and its subset catalog
+      - name: Verify the exact portable preview and its subset catalog
         env:
           MANY_FACES_BASE_URL: http://127.0.0.1:4174
           MANY_FACES_BROWSER_REPORT_DIR: work/astra-evidence/portable

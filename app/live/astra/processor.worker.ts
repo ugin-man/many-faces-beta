@@ -5,12 +5,18 @@ import { calibrateExpressionFeature, createExpressionTracker } from "../../expre
 import { createLandmarkPitchTracker, landmarkPitchDegrees } from "../../landmark-pitch";
 import { faceGeometryFromLandmarks } from "../../offline-matching";
 import { buildLiveCandidateIndex, liveCandidateFromEntry, rankLiveCandidates, type LiveCandidate, type LiveCatalogEntry } from "../../live-matching";
+import { medianDuration, preferCpu, shouldProbeCpu } from "./delegate-policy";
 import type { FrameResult } from "./runtime";
 
 type Manifest = { totalFaces: number; searchableFaces?: number; catalogId?: string; cells: Record<string, { shards?: string[]; shard?: string }>; stats?: { cleanCore?: { knownSyntheticFaces?: number } } };
 type Input = { type: "init"; origin: string; mirror: boolean } | { type: "frame"; id: number; capturedAt: number; bitmap: ImageBitmap; currentId: string | null };
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 let landmarker: FaceLandmarker | null = null;
+let createEngine: ((delegate: "GPU" | "CPU") => Promise<FaceLandmarker>) | null = null;
+let delegate = "GPU";
+let cpuProbed = false;
+let processing = false;
+const inferenceSamples: number[] = [];
 let manifest: Manifest | null = null;
 let origin = "";
 let mirror = false;
@@ -76,7 +82,6 @@ async function drainShards() {
           const candidates = payload.items.flatMap((entry) => {
             const candidate = liveCandidateFromEntry(entry, file);
             if (!candidate) return [];
-            // The shared legacy matcher still omits source=seed in image URLs.
             const url = new URL(candidate.url, origin);
             url.searchParams.set("source", "seed");
             candidate.url = url.toString();
@@ -113,6 +118,10 @@ function featureFromResult(result: FaceLandmarkerResult) {
   return smoothed;
 }
 
+function announceReady() {
+  scope.postMessage({ type: "ready", delegate, catalogTotal: manifest?.searchableFaces ?? manifest?.totalFaces ?? 0 });
+}
+
 async function initialize(message: Extract<Input, { type: "init" }>) {
   origin = message.origin;
   mirror = message.mirror;
@@ -129,17 +138,43 @@ async function initialize(message: Extract<Input, { type: "init" }>) {
     outputFaceBlendshapes: true, outputFacialTransformationMatrixes: true,
     minFaceDetectionConfidence: 0.45, minFacePresenceConfidence: 0.45, minTrackingConfidence: 0.45,
   };
-  let delegate = "GPU";
-  try {
-    landmarker = await FaceLandmarker.createFromOptions(fileset, { ...options, baseOptions: { modelAssetPath: new URL("/api/mediapipe/face_landmarker.task", origin).href, delegate: "GPU" } });
-  } catch {
-    delegate = "CPU";
-    landmarker = await FaceLandmarker.createFromOptions(fileset, { ...options, baseOptions: { modelAssetPath: new URL("/api/mediapipe/face_landmarker.task", origin).href, delegate: "CPU" } });
-  }
-  scope.postMessage({ type: "ready", delegate, catalogTotal: catalog.searchableFaces ?? catalog.totalFaces });
+  createEngine = (selectedDelegate) => FaceLandmarker.createFromOptions(fileset, { ...options, baseOptions: { modelAssetPath: new URL("/api/mediapipe/face_landmarker.task", origin).href, delegate: selectedDelegate } });
+  try { landmarker = await createEngine("GPU"); }
+  catch { delegate = "CPU"; landmarker = await createEngine("CPU"); }
+  announceReady();
 }
 
-function processFrame(message: Extract<Input, { type: "frame" }>) {
+async function probeCpuIfSlow(currentCanvas: OffscreenCanvas, timestamp: number, gpuResult: FaceLandmarkerResult) {
+  if (!createEngine || !shouldProbeCpu(delegate, inferenceSamples, cpuProbed)) return;
+  cpuProbed = true;
+  let cpu: FaceLandmarker | null = null;
+  try {
+    cpu = await createEngine("CPU");
+    const timings: number[] = [];
+    let cpuResult: FaceLandmarkerResult | null = null;
+    // First invocation warms the new engine; the two following invocations
+    // measure the same real frame, not a blank canvas or synthetic landmarks.
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const started = performance.now();
+      cpuResult = cpu.detectForVideo(currentCanvas, timestamp + attempt * 0.001);
+      if (attempt > 0) timings.push(performance.now() - started);
+    }
+    if (preferCpu(medianDuration(inferenceSamples.slice(-4)), timings, Boolean(gpuResult.faceLandmarks[0]), Boolean(cpuResult?.faceLandmarks[0]))) {
+      const previous = landmarker;
+      landmarker = cpu;
+      cpu = null;
+      delegate = "CPU";
+      previous?.close();
+      inferenceSamples.length = 0;
+      announceReady();
+    }
+  } catch (error) {
+    // A failed optimization must not discard an otherwise functioning engine.
+    console.warn("CPU delegate probe failed; retaining the current engine.", error);
+  } finally { cpu?.close(); }
+}
+
+async function processFrame(message: Extract<Input, { type: "frame" }>) {
   const bitmap = message.bitmap;
   try {
     if (!landmarker) throw new Error("Tracking engine is not ready");
@@ -155,6 +190,9 @@ function processFrame(message: Extract<Input, { type: "frame" }>) {
     const started = performance.now();
     const result = landmarker.detectForVideo(canvas, message.capturedAt);
     const inferenceMs = performance.now() - started;
+    inferenceSamples.push(inferenceMs);
+    if (inferenceSamples.length > 8) inferenceSamples.shift();
+    await probeCpuIfSlow(canvas, message.capturedAt, result);
     const landmarks = result.faceLandmarks[0];
     const geometry = landmarks ? faceGeometryFromLandmarks(landmarks, width / height) : null;
     const feature = geometry && result.faceBlendshapes.length ? featureFromResult(result) : [];
@@ -176,10 +214,12 @@ function processFrame(message: Extract<Input, { type: "frame" }>) {
 }
 
 scope.onmessage = (event: MessageEvent<Input>) => {
+  const failed = (error: unknown) => scope.postMessage({ type: "error", message: error instanceof Error ? error.message : String(error) });
   if (event.data.type === "init") {
-    void initialize(event.data).catch((error) => scope.postMessage({ type: "error", message: error instanceof Error ? error.message : String(error) }));
+    void initialize(event.data).catch(failed);
   } else {
-    try { processFrame(event.data); }
-    catch (error) { scope.postMessage({ type: "error", message: error instanceof Error ? error.message : String(error) }); }
+    if (processing) { event.data.bitmap.close(); failed(new Error("Concurrent frame contract violated")); return; }
+    processing = true;
+    void processFrame(event.data).catch(failed).finally(() => { processing = false; });
   }
 };

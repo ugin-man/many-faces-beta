@@ -2,8 +2,54 @@ import type { DisplayCandidate } from "./runtime.ts";
 
 type Record = { bitmap: ImageBitmap; bytes: number };
 
-// This preview fetches only the selected candidates' byte-range image URLs.
-// It deliberately does not retain whole multi-megabyte packs in the UI thread.
+function decodeBitmap(blob: Blob, signal: AbortSignal) {
+  return new Promise<ImageBitmap>((resolve, reject) => {
+    let settled = false;
+    const aborted = () => {
+      if (settled) return;
+      settled = true;
+      signal.removeEventListener("abort", aborted);
+      reject(signal.reason ?? new DOMException("Cancelled", "AbortError"));
+    };
+    if (signal.aborted) { aborted(); return; }
+    signal.addEventListener("abort", aborted, { once: true });
+    void createImageBitmap(blob).then((bitmap) => {
+      if (settled) { bitmap.close(); return; }
+      settled = true;
+      signal.removeEventListener("abort", aborted);
+      resolve(bitmap);
+    }, (error) => {
+      if (settled) return;
+      settled = true;
+      signal.removeEventListener("abort", aborted);
+      reject(error);
+    });
+  });
+}
+
+async function boundedImageBlob(response: Response, signal: AbortSignal) {
+  const limit = 4 * 1024 * 1024;
+  if (Number(response.headers.get("content-length")) > limit || !response.body) throw new Error("Image exceeds limit or has no body");
+  const reader = response.body.getReader();
+  const chunks: Uint8Array<ArrayBuffer>[] = [];
+  let size = 0;
+  try {
+    for (;;) {
+      if (signal.aborted) throw signal.reason;
+      const { value, done } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > limit) throw new Error("Image exceeds limit");
+      chunks.push(new Uint8Array(value));
+    }
+  } catch (error) {
+    await reader.cancel().catch(() => undefined);
+    throw error;
+  } finally { reader.releaseLock(); }
+  return new Blob(chunks, { type: response.headers.get("content-type") || "image/webp" });
+}
+
+// Only selected byte-range images are retained, never their entire packs.
 export class DecodedImageCache {
   private images = new Map<string, Record>();
   private pending = new Map<string, AbortController>();
@@ -11,15 +57,21 @@ export class DecodedImageCache {
   private queue: DisplayCandidate[] = [];
   private generation = 0;
   private bytes = 0;
+  private readonly onReady: () => void;
+  private readonly maxBytes: number;
+  private readonly maxImages: number;
+  private readonly concurrency: number;
+  private readonly timeoutMs: number;
   failures = 0;
   requests = 0;
 
-  constructor(
-    private readonly onReady: () => void,
-    private readonly maxBytes = 32 * 1024 * 1024,
-    private readonly maxImages = 64,
-    private readonly concurrency = 3,
-  ) {}
+  constructor(onReady: () => void, maxBytes = 32 * 1024 * 1024, maxImages = 64, concurrency = 3, timeoutMs = 5000) {
+    this.onReady = onReady;
+    this.maxBytes = maxBytes;
+    this.maxImages = maxImages;
+    this.concurrency = concurrency;
+    this.timeoutMs = timeoutMs;
+  }
 
   has(candidate: DisplayCandidate) { return this.images.has(candidate.id); }
 
@@ -74,14 +126,11 @@ export class DecodedImageCache {
 
   private async load(candidate: DisplayCandidate, signal: AbortSignal, generation: number) {
     this.requests += 1;
-    const timeout = AbortSignal.timeout(5000);
-    const combined = AbortSignal.any([signal, timeout]);
+    const combined = AbortSignal.any([signal, AbortSignal.timeout(this.timeoutMs)]);
     const response = await fetch(candidate.url, { signal: combined, cache: "force-cache" });
     if (!response.ok) throw new Error(`IMAGE ${response.status}`);
-    if (Number(response.headers.get("content-length")) > 4 * 1024 * 1024) throw new Error("Image exceeds limit");
-    const blob = await response.blob();
-    if (blob.size > 4 * 1024 * 1024 || combined.aborted) throw new Error("Invalid image response");
-    const bitmap = await createImageBitmap(blob);
+    const blob = await boundedImageBlob(response, combined);
+    const bitmap = await decodeBitmap(blob, combined);
     if (generation !== this.generation || combined.aborted) { bitmap.close(); return; }
     const bytes = bitmap.width * bitmap.height * 4;
     if (bytes > this.maxBytes) { bitmap.close(); throw new Error("Decoded image exceeds cache budget"); }

@@ -32,8 +32,7 @@ jobs:
       - id: build
         run: npm run build
       - id: tests
-        run: |
-          node --experimental-strip-types --test tests/astra-runtime.test.mjs tests/astra-realtime-hardening.test.mjs tests/live-responsive-runtime.test.mjs tests/live-review-timeline.test.mjs tests/catalog-worker.test.mjs
+        run: node --experimental-strip-types --test tests/astra-*.test.mjs tests/live-responsive-runtime.test.mjs tests/live-review-timeline.test.mjs tests/catalog-worker.test.mjs
       - id: lint
         run: npm run lint
       - name: Write factual receipt
@@ -78,7 +77,7 @@ jobs:
           curl --fail --location --retry 3 --max-time 180 -o public/models/face_landmarker.task https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
           echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
       - name: Generate a transparent virtual-camera fixture from real catalog photographs
-        run: bash scripts/prepare-astra-fixtures.sh
+        run: bash scripts/prepare-astra-fixtures.sh > work/astra-evidence/fixture-build.log 2>&1
       - name: Build the production route without source patches
         run: npm run build
       - name: Start the production Site runtime
@@ -120,18 +119,15 @@ jobs:
           MANY_FACES_BASE_URL: http://127.0.0.1:4174
           MANY_FACES_BROWSER_REPORT_DIR: work/astra-evidence/portable
         run: node scripts/verify-astra-browser.mjs
-      - name: Package the user preview only after its browser tests pass
-        run: |
-          cp -a work/astra-evidence work/astra-preview/verification
-          cd work/astra-preview
-          zip -qr ../Many-Faces-Realtime-Preview.zip .
+      - name: Include verification evidence with the user preview
+        run: cp -a work/astra-evidence work/astra-preview/verification
       - uses: actions/upload-artifact@v4
         if: success()
         with:
           name: Many-Faces-Realtime-Preview
-          path: work/Many-Faces-Realtime-Preview.zip
+          path: work/astra-preview
           retention-days: 14
-          compression-level: 0
+          compression-level: 6
       - uses: actions/upload-artifact@v4
         if: always()
         with:

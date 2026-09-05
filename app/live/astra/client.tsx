@@ -208,7 +208,9 @@ export default function AstraRealtimeClient() {
       video.onerror = () => { if (isCurrent()) stop("入力映像を再生できませんでした。別の動画形式を試してください。", true); };
       await video.play();
       if (!isCurrent()) return;
-      const worker = new Worker(new URL("./processor.worker.ts", import.meta.url), { type: "module" });
+      // The pinned MediaPipe WASM loader registers ModuleFactory with
+      // importScripts. Vite bundles this entry as a classic IIFE worker.
+      const worker = new Worker(new URL("./processor.worker.ts", import.meta.url));
       workerRef.current = worker;
       cacheRef.current = new DecodedImageCache(() => { if (isCurrent()) presentRef.current(); });
       await new Promise<void>((resolve, reject) => {

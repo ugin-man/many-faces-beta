@@ -30,7 +30,7 @@ for (const [name, module] of [['astra','./app/live/astra/client.tsx'], ['review'
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><link rel="stylesheet" href="/assets/${name}.css"><style>html,body{margin:0;background:#0b0f17;color:#edf1f8;font-family:system-ui,sans-serif}a{color:inherit}</style><div id="root"></div><script type="module" src="/assets/${name}.js"></script></html>`;
   await fs.writeFile(path.join(out, name === 'astra' ? 'index.html' : 'review.html'), html);
 }
-await esbuild.build({ entryPoints:['app/live/astra/processor.worker.ts'], outfile:path.join(out,'assets/processor.worker.js'), bundle:true, minify:true, platform:'browser', format:'esm', define:{'process.env.NODE_ENV':'"production"'} });
+await esbuild.build({ entryPoints:['app/live/astra/processor.worker.ts'], outfile:path.join(out,'assets/processor.worker.js'), bundle:true, minify:true, platform:'browser', format:'iife', define:{'process.env.NODE_ENV':'"production"'} });
 await fs.copyFile('scripts/serve-astra-preview.mjs', path.join(out,'server.mjs'));
 await fs.writeFile(path.join(out,'START-WINDOWS.cmd'), '@echo off\r\ncd /d "%~dp0"\r\nwhere node >nul 2>nul\r\nif errorlevel 1 (echo Node.js 22 or newer is required. & pause & exit /b 1)\r\nstart "" http://127.0.0.1:4173/live/astra\r\nnode server.mjs\r\npause\r\n');
 await fs.writeFile(path.join(out,'start.sh'), '#!/bin/sh\ncd "$(dirname "$0")" || exit 1\nexec node server.mjs\n');

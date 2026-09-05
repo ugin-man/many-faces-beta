@@ -3,13 +3,25 @@ name: Astra realtime hardening
 on:
   push:
     branches: [astra/realtime-hardening]
+    paths:
+      - 'app/**'
+      - 'worker/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'package*.json'
+      - '.github/workflows/astra-realtime-hardening.yml'
   workflow_dispatch:
+    inputs:
+      export_workspace:
+        description: Export a reproducible local browser workspace (no private video)
+        type: boolean
+        default: false
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: astra-realtime-hardening
+  group: astra-realtime-hardening-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -19,29 +31,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: astra/realtime-hardening
-          fetch-depth: 2
+          ref: ${{ github.sha }}
+          persist-credentials: false
           sparse-checkout: |
             /*
             !/public/seed-catalog/*
             /public/seed-catalog/manifest.json
           sparse-checkout-cone-mode: false
-
-      - name: Apply idempotent hardening
-        run: python tools/astra_realtime_hardening.py
-
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.13.0
+          node-version: 22.16.0
           cache: npm
-
-      - name: Install dependencies
+      - id: install
         run: npm ci
-
-      - name: Build
+      - id: build
         run: npm run build
-
-      - name: Targeted realtime tests
+      - id: tests
         run: |
           node --experimental-strip-types --test \
             tests/astra-realtime-hardening.test.mjs \
@@ -51,43 +56,103 @@ jobs:
             tests/live-review-local-catalog.test.mjs \
             tests/live-verification-gate.test.mjs \
             tests/catalog-worker.test.mjs
-
-      - name: Lint
+      - id: lint
         run: npm run lint
-
-      - name: Write receipt
+      - name: Write factual receipt
         if: always()
+        env:
+          INSTALL: ${{ steps.install.outcome }}
+          BUILD: ${{ steps.build.outcome }}
+          TESTS: ${{ steps.tests.outcome }}
+          LINT: ${{ steps.lint.outcome }}
         run: |
           mkdir -p artifacts
-          cat > artifacts/astra-realtime-hardening.json <<JSON
-          {
-            "base": "0ddb7a72a794f410424793a290a221d456739478",
-            "testedCommit": "${{ github.sha }}",
-            "runId": ${{ github.run_id }},
-            "route": "/live",
-            "realtimeExperimentRoute": "/live/fast",
-            "fixedVideoStatus": "verified-reference-path",
-            "cameraStatus": "experimental",
-            "hardening": "decoded-frame-timeout-fails-closed"
-          }
-          JSON
-
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          outcomes = {k.lower(): os.environ[k] for k in ['INSTALL','BUILD','TESTS','LINT']}
+          Path('artifacts/astra-realtime-hardening.json').write_text(json.dumps({
+              'testedCommit': os.environ['GITHUB_SHA'],
+              'runId': os.environ['GITHUB_RUN_ID'],
+              'sourceModifiedByCI': False,
+              'outcomes': outcomes,
+              'passed': all(v == 'success' for v in outcomes.values()),
+              'physicalCameraVerified': False,
+          }, indent=2) + '\n')
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: astra-realtime-hardening-${{ github.run_id }}
+          name: astra-checks-${{ github.run_id }}
           path: artifacts/astra-realtime-hardening.json
+          retention-days: 7
 
-      - name: Commit hardening patch once
+  browser-workspace:
+    # Bootstrap export is restricted to this change or an explicit request.
+    if: contains(github.event.head_commit.message, 'export reproducible browser workspace') || inputs.export_workspace == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            /*
+            !/public/seed-catalog/*
+            /public/seed-catalog/manifest.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - name: Export exact source and file identities
         run: |
-          if git diff --quiet -- app/live/review-client-lite.tsx; then
-            echo "hardening source already committed"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/live/review-client-lite.tsx
-          git commit -m "fix(live): fail closed when decoded frame never arrives"
-          git fetch origin astra/realtime-hardening
-          git rebase origin/astra/realtime-hardening
-          git push origin HEAD:astra/realtime-hardening
+          mkdir -p artifacts
+          python - <<'PY'
+          import json, subprocess, zipfile
+          from pathlib import Path
+          entries = subprocess.check_output(['git','ls-files','-s','-z']).decode().split('\0')
+          inventory = {}
+          with zipfile.ZipFile('artifacts/source.zip','w',zipfile.ZIP_DEFLATED) as z:
+              for entry in filter(None, entries):
+                  meta, name = entry.split('\t',1)
+                  inventory[name] = meta.split()[1]
+                  p = Path(name)
+                  if p.is_file(): z.write(p, name)
+              z.writestr('SOURCE_IDENTITY.json', json.dumps({'commit':subprocess.check_output(['git','rev-parse','HEAD']).decode().strip(),'blobs':inventory}))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: astra-source-${{ github.run_id }}
+          path: artifacts/source.zip
+          retention-days: 3
+          compression-level: 0
+      - name: Prepare offline browser dependencies
+        run: |
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1 esbuild@0.25.12
+          mkdir -p public/mediapipe/wasm public/models
+          cp -a node_modules/@mediapipe/tasks-vision/wasm/. public/mediapipe/wasm/
+          curl --fail --location --retry 3 --max-time 180 \
+            --output public/models/face_landmarker.task \
+            https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
+          tar --use-compress-program='zstd -3 -T0' -cf artifacts/dependencies.tar.zst \
+            node_modules .browser-tools public/mediapipe public/models
+      - uses: actions/upload-artifact@v4
+        with:
+          name: astra-dependencies-${{ github.run_id }}
+          path: artifacts/dependencies.tar.zst
+          retention-days: 3
+          compression-level: 0
+      - name: Export real catalog without Git history
+        run: |
+          git sparse-checkout disable
+          tar --use-compress-program='zstd -3 -T0' -cf artifacts/catalog.tar.zst public/seed-catalog
+          du -sh public/seed-catalog artifacts/catalog.tar.zst
+      - uses: actions/upload-artifact@v4
+        with:
+          name: astra-catalog-${{ github.run_id }}
+          path: artifacts/catalog.tar.zst
+          retention-days: 3
+          compression-level: 0

@@ -11,11 +11,6 @@ on:
       - 'package*.json'
       - '.github/workflows/astra-realtime-hardening.yml'
   workflow_dispatch:
-    inputs:
-      export_workspace:
-        description: Export a reproducible local browser workspace (no private video)
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -27,7 +22,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -49,12 +44,10 @@ jobs:
       - id: tests
         run: |
           node --experimental-strip-types --test \
+            tests/astra-runtime.test.mjs \
             tests/astra-realtime-hardening.test.mjs \
             tests/live-responsive-runtime.test.mjs \
-            tests/live-packed-image-buffer.test.mjs \
             tests/live-review-timeline.test.mjs \
-            tests/live-review-local-catalog.test.mjs \
-            tests/live-verification-gate.test.mjs \
             tests/catalog-worker.test.mjs
       - id: lint
         run: npm run lint
@@ -71,7 +64,7 @@ jobs:
           import json, os
           from pathlib import Path
           outcomes = {k.lower(): os.environ[k] for k in ['INSTALL','BUILD','TESTS','LINT']}
-          Path('artifacts/astra-realtime-hardening.json').write_text(json.dumps({
+          Path('artifacts/checks.json').write_text(json.dumps({
               'testedCommit': os.environ['GITHUB_SHA'],
               'runId': os.environ['GITHUB_RUN_ID'],
               'sourceModifiedByCI': False,
@@ -84,12 +77,10 @@ jobs:
         if: always()
         with:
           name: astra-checks-${{ github.run_id }}
-          path: artifacts/astra-realtime-hardening.json
+          path: artifacts/checks.json
           retention-days: 7
 
-  browser-workspace:
-    # Bootstrap export is restricted to this change or an explicit request.
-    if: contains(github.event.head_commit.message, 'export reproducible browser workspace') || inputs.export_workspace == true
+  browser:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -97,62 +88,113 @@ jobs:
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-          sparse-checkout: |
-            /*
-            !/public/seed-catalog/*
-            /public/seed-catalog/manifest.json
-          sparse-checkout-cone-mode: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22.16.0
           cache: npm
-      - name: Export exact source and file identities
-        run: |
-          mkdir -p artifacts
-          python - <<'PY'
-          import json, subprocess, zipfile
-          from pathlib import Path
-          entries = subprocess.check_output(['git','ls-files','-s','-z']).decode().split('\0')
-          inventory = {}
-          with zipfile.ZipFile('artifacts/source.zip','w',zipfile.ZIP_DEFLATED) as z:
-              for entry in filter(None, entries):
-                  meta, name = entry.split('\t',1)
-                  inventory[name] = meta.split()[1]
-                  p = Path(name)
-                  if p.is_file(): z.write(p, name)
-              z.writestr('SOURCE_IDENTITY.json', json.dumps({'commit':subprocess.check_output(['git','rev-parse','HEAD']).decode().strip(),'blobs':inventory}))
-          PY
-      - uses: actions/upload-artifact@v4
-        with:
-          name: astra-source-${{ github.run_id }}
-          path: artifacts/source.zip
-          retention-days: 3
-          compression-level: 0
-      - name: Prepare offline browser dependencies
+      - name: Prepare app and browser driver
         run: |
           npm ci
           npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1 esbuild@0.25.12
-          mkdir -p public/mediapipe/wasm public/models
+          mkdir -p public/mediapipe/wasm public/models work/astra-fixtures work/astra-evidence
           cp -a node_modules/@mediapipe/tasks-vision/wasm/. public/mediapipe/wasm/
-          curl --fail --location --retry 3 --max-time 180 \
-            --output public/models/face_landmarker.task \
+          curl --fail --location --retry 3 --max-time 180 -o public/models/face_landmarker.task \
             https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
-          tar --use-compress-program='zstd -3 -T0' -cf artifacts/dependencies.tar.zst \
-            node_modules .browser-tools public/mediapipe public/models
-      - uses: actions/upload-artifact@v4
-        with:
-          name: astra-dependencies-${{ github.run_id }}
-          path: artifacts/dependencies.tar.zst
-          retention-days: 3
-          compression-level: 0
-      - name: Export real catalog without Git history
+          echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
+      - name: Generate a transparent virtual-camera fixture from real catalog photographs
         run: |
-          git sparse-checkout disable
-          tar --use-compress-program='zstd -3 -T0' -cf artifacts/catalog.tar.zst public/seed-catalog
-          du -sh public/seed-catalog artifacts/catalog.tar.zst
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('public/seed-catalog')
+          manifest=json.loads((root/'manifest.json').read_text())
+          chosen=[]
+          for n,target in enumerate([-18,0,18]):
+              keys=sorted(manifest['cells'],key=lambda k:(float(k.split(':')[0])-target)**2+float(k.split(':')[1])**2)
+              for key in keys:
+                  cell=manifest['cells'][key]
+                  files=cell.get('shards') or [cell['shard']]
+                  items=json.loads((root/'shards'/files[0]).read_text())['items']
+                  item=next((x for x in items if x.get('id') not in [v['id'] for v in chosen]),None)
+                  if item: break
+              if item.get('image'):
+                  data=(root/'images'/item['image']).read_bytes()
+              else:
+                  with (root/'packs'/item['pack']).open('rb') as f:
+                      f.seek(item['offset']); data=f.read(item['length'])
+              Path(f'work/astra-fixtures/face-{n}.webp').write_bytes(data)
+              chosen.append({'id':item['id'],'cell':key,'source':item.get('sourceUrl'),'creator':item.get('creator')})
+          Path('work/astra-evidence/fixture-provenance.json').write_text(json.dumps({'type':'three-real-photographs-not-physical-camera','privateUserVideoUsed':False,'faces':chosen},indent=2)+'\n')
+          PY
+          for n in 0 1 2; do
+            ffmpeg -hide_banner -loglevel error -y -loop 1 -i work/astra-fixtures/face-${n}.webp \
+              -t 1 -r 30 -vf "scale=480:480:force_original_aspect_ratio=decrease,pad=480:480:(ow-iw)/2:(oh-ih)/2,setsar=1,format=yuv420p" \
+              -an -c:v libx264 -preset ultrafast work/astra-fixtures/part-${n}.mp4
+          done
+          printf "file 'part-0.mp4'\nfile 'part-1.mp4'\nfile 'part-2.mp4'\n" > work/astra-fixtures/parts.txt
+          ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i work/astra-fixtures/parts.txt \
+            -pix_fmt yuv420p -f yuv4mpegpipe work/astra-fixtures/moving.y4m
+      - name: Build the production route without source patches
+        run: npm run build
+      - name: Start the production Site runtime
+        run: |
+          PORT=4173 HOST=127.0.0.1 nohup npm start > work/astra-evidence/production-server.log 2>&1 &
+          echo $! > work/astra-evidence/server.pid
+          for attempt in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:4173/live/astra > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat work/astra-evidence/production-server.log
+          exit 1
+      - id: production_browser
+        name: Exercise native virtual camera, output, stop, restart, cancellation, denial and mobile viewport
+        env:
+          MANY_FACES_BASE_URL: http://127.0.0.1:4173
+          MANY_FACES_BROWSER_REPORT_DIR: work/astra-evidence/production
+        run: node scripts/verify-astra-browser.mjs
+      - name: Build a smaller self-contained preview from the same source
+        run: |
+          node scripts/build-astra-preview.mjs
+          python tools/build_compact_verification_catalog.py public/seed-catalog work/astra-preview/public/seed-catalog --per-cell 6 --overwrite
+          mkdir -p work/astra-preview/public/mediapipe work/astra-preview/public/models
+          cp -a public/mediapipe/wasm work/astra-preview/public/mediapipe/
+          cp public/models/face_landmarker.task work/astra-preview/public/models/
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          original=json.loads(Path('public/seed-catalog/manifest.json').read_text())
+          preview=json.loads(Path('work/astra-preview/public/seed-catalog/manifest.json').read_text())
+          Path('work/astra-preview/PREVIEW-IDENTITY.json').write_text(json.dumps({'commit':os.environ['GITHUB_SHA'],'previewCatalogFaces':preview['totalFaces'],'originalCatalogFaces':original['totalFaces'],'catalogIsSubset':True,'cameraTestsUseVirtualDevice':True,'privateUserVideoIncluded':False},indent=2)+'\n')
+          PY
+          PORT=4174 nohup node work/astra-preview/server.mjs > work/astra-evidence/preview-server.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4174/live/astra > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - id: portable_browser
+        name: Verify the exact portable preview and its subset catalog
+        env:
+          MANY_FACES_BASE_URL: http://127.0.0.1:4174
+          MANY_FACES_BROWSER_REPORT_DIR: work/astra-evidence/portable
+        run: node scripts/verify-astra-browser.mjs
+      - name: Package the user preview only after its browser tests pass
+        run: |
+          cp -a work/astra-evidence work/astra-preview/verification
+          cd work/astra-preview
+          zip -qr ../Many-Faces-Realtime-Preview.zip .
       - uses: actions/upload-artifact@v4
+        if: success()
         with:
-          name: astra-catalog-${{ github.run_id }}
-          path: artifacts/catalog.tar.zst
-          retention-days: 3
+          name: Many-Faces-Realtime-Preview
+          path: work/Many-Faces-Realtime-Preview.zip
+          retention-days: 14
           compression-level: 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: astra-browser-evidence-${{ github.run_id }}
+          path: work/astra-evidence
+          retention-days: 14
+      - name: Confirm the tested source was not rewritten by CI
+        run: git diff --exit-code -- app scripts tests

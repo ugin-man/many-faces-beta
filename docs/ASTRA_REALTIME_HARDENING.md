@@ -1,56 +1,51 @@
-# Many Faces realtime handoff — 2026-09-07 JST
+# Many Faces realtime handoff — 2026-09-08 JST
 
-## Canonical development target
+## Canonical target
 
-- Repository: `ugin-man/many-faces-beta`
-- Working branch: `astra/realtime-hardening`; draft PR #3 targets `work/coverage-driven-200k`.
-- `/live/astra` is the realtime development route.
-- `/live` remains the existing fixed-video reference.
-- The canonical catalog is the existing full 70,000-face catalog. Do not create or use a reduced/portable catalog for development or user review.
-- User review is expected through ChatGPT Work's Site capability against the repository/site project, not through a separately packaged lightweight local preview.
-- No merge into `main` or `work/coverage-driven-200k`, and no hosted production deployment, has been performed.
+Repository: `ugin-man/many-faces-beta`. Working branch: `astra/realtime-hardening`. Draft PR #3 targets `work/coverage-driven-200k` and remains unmerged.
 
-## Realtime architecture now in the branch
+Use the existing full 70,000-face catalog and `/live/astra` for review in ChatGPT Work Site. `/live` remains the fixed-video reference. Do not create a reduced catalog, lightweight app ZIP or separate local-preview product. Neither main/base promotion nor hosted deployment was performed in this pass.
 
-The previous `/live/astra` wrapper was replaced by a continuous camera/video client and a dedicated classic Web Worker. The worker performs Face Landmarker inference and the existing pose/projection matcher. The UI thread handles controls, frame acquisition, decoded candidate images, and drawing.
+## Latest tested application
 
-A module-worker implementation built successfully but failed in real Chromium with `ModuleFactory not set`; the pinned MediaPipe WASM loader requires the tested classic-worker registration path.
+Application commit: `e71535d1480e0b61b8ff813e3cfd89312779f1ee`.
 
-At most one frame is in flight. Busy incoming frames are dropped rather than queued, and completed results older than 500 ms are not displayed. Input/inference have an 8-second runtime watchdog and engine startup has a 30-second deadline.
+Read [ASTRA_ADVERSARIAL_AUDIT.md](ASTRA_ADVERSARIAL_AUDIT.md) for exact baseline, reproduction cases, measurements, evidence links and limitations. Later handoff edits do not change the tested application.
 
-Camera startup is generation-scoped. A permission result arriving after stop or timeout releases every track. Stop/restart terminate old workers, abort requests, close bitmaps, stop media tracks, and revoke object URLs. Leaving the page stops capture rather than silently keeping the camera open.
+The standard run `34159127418` passed build, 43 scoped tests, lint and full-catalog browser lifecycle verification. Lint had zero errors and 13 existing warnings. The separate run `34159127550` passed adversarial baseline reproductions, every-record catalog audit and a paired before/after browser comparison. These checks completed; they are not merely queued.
 
-Catalog reads are pinned to `source=seed`. The worker keeps a bounded pose-local working set while the underlying source remains the full 70,000-face catalog. It keeps at most 24 pose shards and 2,400 indexed candidates at once, with at most two shard loads concurrently. Output image decode/cache is bounded to 64 images / 32 MiB with up to three individual image requests. These are runtime working-set limits, not a reduced catalog.
+## Current architecture
 
-Static faces are held rather than rotated merely to inflate output FPS. Ready fallbacks must remain within a score bound of the current best candidate. A persistently slow GPU path can be compared against CPU on the same real frame; CPU is selected only when materially faster without losing the detected face.
+A continuous camera/video client acquires fresh frames. A classic Web Worker performs MediaPipe face inference and candidate matching, leaving controls/drawing on the UI thread. At most one frame is in flight, and results older than 500 ms are discarded. Generation-scoped stop/restart closes workers, media tracks, image requests and native image resources. A cancelled late permission grant cannot resurrect capture.
 
-## Verification boundary
+The frame sampler preserves its target timing phase. Unlike the prior delay-after-accept sampler, a nominal 20 Hz target no longer silently becomes 15 Hz with a 30 Hz input. This does not guarantee that inference on every device can sustain 20 Hz.
 
-A successful GitHub Actions run on the full 70,000-face production catalog previously verified the continuous pipeline with Chromium's native `getUserMedia` backed by a file-based virtual camera. It covered non-blank output, actual candidate changes, camera stop/restart, delayed permission cancellation, permission denial recovery, a one-frame in-flight bound, decoded-image bounds, and a 390×844 viewport.
+Catalog reads stay on `source=seed`. A parsed LRU cache keeps at most 48 shards; the active pose working set uses at most 24. The old 2,400-candidate stride thinning is removed. Every candidate in the active set receives coarse scoring using reusable numerical descriptors, followed by detailed comparison of 48 shortlisted candidates. This is still pose-local approximate access, not a global all-70k detailed scan.
 
-Those tests are useful pipeline/lifecycle evidence, but they are not a replacement for ChatGPT Work Site review, a physical camera, Safari/iPhone behavior, long-duration stability, or real continuous human motion/matching-quality evaluation.
+Base64 geometry decoding uses a direct signed little-endian loop. All 132,930,000 geometry values across the full catalog matched the old decoder exactly in the executed audit. The source catalog tree did not change.
 
-The earlier compact/portable preview experiment is no longer part of the plan. Its generated artifacts may still exist in historical GitHub Actions runs until they expire, but no active workflow builds or publishes them now.
+Candidate image storage remains bounded at 64 decoded images / 32 MiB with at most three requests. Prefetch and display now share a quality envelope, so cached inferior faces cannot starve the new best image. A now-invalid static hold can settle to an eligible replacement after motion stops. Valid static images are not arbitrarily rotated to inflate output rate.
 
-## Current CI policy
+## Actual comparative result
 
-`.github/workflows/astra-realtime-hardening.yml` now has two purposes only:
+Two trials per revision, ABBA order, fresh Chromium processes, same full catalog and three-public-photo virtual camera. Rates use approximately 12-second frame/output deltas after warmup.
 
-1. build/test/lint the exact checked-out realtime source without modifying it;
-2. run browser verification against the full 70,000-face catalog and retain evidence.
+- Mean processed rate: 7.561 -> 18.332 fps.
+- Mean of session capture-to-draw P95s: 263 -> 86.5 ms.
+- Mean image requests per measured window: 82 -> 53.5.
+- Mean shard responses per measured window: 88 -> 172.5, an unresolved increase.
+- Mean actual face-image changes: 3.365 -> 2.827 per second; this is not proof of better motion correspondence.
 
-It no longer builds a 4,650-face subset, portable preview, local preview server, or downloadable lightweight package.
+These are GitHub Actions production-browser measurements, not Work Site/physical-camera performance guarantees. The fixture is not independent human-motion quality evaluation. The private IMG_3665.mp4 was not used or uploaded.
 
-Two malformed historical one-time source-rewriting workflows are archived under `docs/archived-workflows/` and are not executable workflows on this branch.
+## Audit and CI
 
-## Next work
+`.github/workflows/astra-realtime-hardening.yml` validates the exact source and full-catalog pipeline without rewriting or pushing code. `.github/workflows/astra-adversarial-audit.yml` reproduces baseline defects, scans the unchanged assets and executes a paired comparison. Both retain evidence only, not a reduced application.
 
-1. Use ChatGPT Work Site with `astra/realtime-hardening` and `/live/astra` as the immediate user-visible review path.
-2. Improve full-70k responsiveness without shrinking the catalog: profile inference, candidate-index rebuilds, shard loading, image decode/cache churn, and rendering latency.
-3. Evaluate actual continuous head movement, blink/mouth changes, matching fidelity, and responsiveness on the Site.
-4. Test physical Windows/phone cameras, Safari, long sessions, low light, camera removal, tab background/return, and orientation changes.
-5. Resolve remaining production warnings/permissions and only then decide promotion to the existing work branch and eventually `main`, with rollback preserved.
+Known malformed one-time source-rewriting workflows remain archived in `docs/archived-workflows/`.
 
-## Important interpretation
+## Remaining priorities
 
-Do not quote compact-preview performance as project performance. The target is the full 70,000-face system. Runtime locality (loading only relevant pose shards/candidates at a moment) is an optimization of how the 70k catalog is accessed, not a reduction in the catalog itself.
+First trace the increased shard traffic (unique/repeated reads, bytes and cache misses). Then evaluate a non-destructive all-catalog coarse/detail index split and independent real-motion quality tests, especially rare eye/mouth expressions. A nominal 70k count and legacy asset gates alone do not prove expression coverage.
+
+Before publication, review catalog-write authorization and trusted gateway headers; resolve startup/MIME warnings; test actual Work Site, real cameras, Safari, long sessions and background/orientation transitions. Do not promote or deploy merely because scoped CI is green.

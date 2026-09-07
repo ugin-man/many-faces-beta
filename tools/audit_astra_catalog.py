@@ -73,6 +73,8 @@ def main() -> int:
     shard_names = sorted(shard_to_cells)
     source_counts: collections.Counter[str] = collections.Counter()
     source_bytes: collections.Counter[str] = collections.Counter()
+    profile_counts: collections.Counter[str] = collections.Counter()
+    creator_counts: collections.Counter[str] = collections.Counter()
     pack_refs: collections.Counter[str] = collections.Counter()
     feature_lengths: collections.Counter[int] = collections.Counter()
     exact_ids: set[str] = set()
@@ -85,11 +87,16 @@ def main() -> int:
     cell_counts: collections.Counter[str] = collections.Counter()
 
     item_count = 0
-    geometry_json_bytes = 0
     feature_json_bytes = 0
+    shape_json_bytes = 0
+    mesh_json_bytes = 0
+    projection_json_bytes = 0
+    layout_json_bytes = 0
     item_json_bytes = 0
     image_referenced_bytes = 0
-    missing_geometry = 0
+    missing_shape = 0
+    missing_projection = 0
+    missing_surface = 0
     missing_feature = 0
     missing_image_reference = 0
     malformed_shards: list[str] = []
@@ -126,18 +133,32 @@ def main() -> int:
 
             source = str(item.get("sourceName") or item.get("source") or item.get("dataset") or "unknown")
             source_counts[source] += 1
+            profile = str(item.get("cleanProfile") or "unknown")
+            profile_counts[profile] += 1
+            creator = str(item.get("creator") or "").strip()
+            if creator:
+                creator_counts[creator] += 1
 
-            geometry = item.get("geometry")
             feature = item.get("feature")
-            geometry_size = compact_json_bytes(geometry)
-            feature_size = compact_json_bytes(feature)
-            geometry_json_bytes += geometry_size
-            feature_json_bytes += feature_size
+            shape = item.get("shape")
+            mesh = item.get("mesh")
+            projection = item.get("projection")
+            layout = item.get("layout")
+            feature_json_bytes += compact_json_bytes(feature)
+            shape_json_bytes += compact_json_bytes(shape)
+            mesh_json_bytes += compact_json_bytes(mesh)
+            projection_json_bytes += compact_json_bytes(projection)
+            layout_json_bytes += compact_json_bytes(layout)
             item_size = compact_json_bytes(item)
             item_json_bytes += item_size
             source_bytes[source] += item_size
-            if not geometry:
-                missing_geometry += 1
+
+            if not shape:
+                missing_shape += 1
+            if not projection:
+                missing_projection += 1
+            if not (mesh or projection):
+                missing_surface += 1
             if not isinstance(feature, list) or not feature:
                 missing_feature += 1
             else:
@@ -174,8 +195,9 @@ def main() -> int:
         }
 
     shard_payload_bytes = sum(shard_file_bytes)
+    detailed_vector_bytes = shape_json_bytes + mesh_json_bytes + projection_json_bytes + layout_json_bytes
     report = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "readOnlyAudit": True,
         "catalog": {
             "catalogId": manifest.get("catalogId"),
@@ -189,15 +211,19 @@ def main() -> int:
             "shards": len(shard_names),
             "indexFiles": manifest.get("indexFiles") or [],
             "indexComplete": bool(manifest.get("indexComplete")),
-            "allShardsContainGeometry": manifest.get("allShardsContainGeometry"),
+            "shardsContainGeometry": manifest.get("shardsContainGeometry"),
         },
         "payload": {
             "shardFileBytes": shard_payload_bytes,
-            "geometryJsonBytesInsideItems": geometry_json_bytes,
-            "featureJsonBytesInsideItems": feature_json_bytes,
             "itemJsonBytes": item_json_bytes,
-            "geometryShareOfItemJson": geometry_json_bytes / item_json_bytes if item_json_bytes else 0,
-            "geometryShareOfShardFiles": geometry_json_bytes / shard_payload_bytes if shard_payload_bytes else 0,
+            "featureJsonBytesInsideItems": feature_json_bytes,
+            "shapeJsonBytesInsideItems": shape_json_bytes,
+            "meshJsonBytesInsideItems": mesh_json_bytes,
+            "projectionJsonBytesInsideItems": projection_json_bytes,
+            "layoutJsonBytesInsideItems": layout_json_bytes,
+            "detailedVectorJsonBytesInsideItems": detailed_vector_bytes,
+            "featureShareOfItemJson": feature_json_bytes / item_json_bytes if item_json_bytes else 0,
+            "detailedVectorShareOfItemJson": detailed_vector_bytes / item_json_bytes if item_json_bytes else 0,
             "referencedImageBytes": image_referenced_bytes,
             "uniquePackFileBytes": sum(present_pack_sizes),
             "declaredImagePackBytes": manifest.get("imagePackBytes"),
@@ -211,13 +237,21 @@ def main() -> int:
         },
         "sourceCounts": source_counts.most_common(),
         "sourcePayloadBytes": source_bytes.most_common(),
+        "cleanProfileCounts": profile_counts.most_common(),
+        "creatorConcentration": {
+            "creatorsWithMetadata": len(creator_counts),
+            "top20": creator_counts.most_common(20),
+            "top20Faces": sum(count for _, count in creator_counts.most_common(20)),
+        },
         "featureRedundancySignals": {
             "rounded2Decimals": collision_report(quantized_2),
             "rounded3Decimals": collision_report(quantized_3),
             "note": "Collisions are a redundancy signal only; they do not prove visually duplicate faces.",
         },
         "integrity": {
-            "missingGeometry": missing_geometry,
+            "missingShape": missing_shape,
+            "missingProjection": missing_projection,
+            "missingSurface": missing_surface,
             "missingFeature": missing_feature,
             "missingImageReference": missing_image_reference,
             "missingPackFiles": sorted(pack for pack, size in unique_pack_sizes.items() if size is None),
@@ -225,7 +259,7 @@ def main() -> int:
         },
         "runtimeDesignSignals": {
             "hasSidecarIndex": bool(manifest.get("indexFiles")),
-            "coarseAndDetailedGeometryCoLocated": bool(manifest.get("allShardsContainGeometry")),
+            "detailedVectorsCoLocatedWithCoarseFeatures": detailed_vector_bytes > 0 and feature_json_bytes > 0,
             "uniquePacksReferenced": len(pack_refs),
             "largestPackReferenceCount": max(pack_refs.values(), default=0),
         },

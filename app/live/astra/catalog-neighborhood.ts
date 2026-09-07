@@ -12,11 +12,7 @@ export function compilePoseCells(cells: Record<string, ManifestCell>) {
   return compiled;
 }
 
-function insertClosest(
-  best: Array<{ distance: number; cell: CompiledPoseCell }>,
-  value: { distance: number; cell: CompiledPoseCell },
-  limit: number,
-) {
+function insertClosest(best: Array<{ distance: number; cell: CompiledPoseCell }>, value: { distance: number; cell: CompiledPoseCell }, limit: number) {
   let index = best.length;
   while (index > 0 && best[index - 1].distance > value.distance) index -= 1;
   if (index >= limit) return;
@@ -24,13 +20,7 @@ function insertClosest(
   if (best.length > limit) best.pop();
 }
 
-export function nearestPoseFiles(
-  cells: readonly CompiledPoseCell[],
-  yaw: number,
-  pitch: number,
-  maxCells = 9,
-  maxFiles = 18,
-) {
+export function nearestPoseFiles(cells: readonly CompiledPoseCell[], yaw: number, pitch: number, maxCells = 9, maxFiles = 18) {
   const best: Array<{ distance: number; cell: CompiledPoseCell }> = [];
   for (const cell of cells) {
     const distance = (cell.yaw - yaw) ** 2 + (cell.pitch - pitch) ** 2 * 0.82;
@@ -44,19 +34,14 @@ export class PoseNeighborhood {
   private readonly step: number;
   private anchor = "";
   private files: string[] = [];
-
   constructor(cells: readonly CompiledPoseCell[], step = 3) {
     this.cells = cells;
-    this.step = Math.max(1, step);
+    this.step = Number.isFinite(step) ? Math.max(1, step) : 3;
   }
-
   update(yaw: number, pitch: number) {
-    if (!Number.isFinite(yaw) || !Number.isFinite(pitch)) {
-      return { changed: false, files: this.files };
-    }
-    // Catalog cells live on a 3-degree grid. Sub-cell landmark jitter cannot
-    // change which discrete neighborhood we need, so do not churn network and
-    // index state until the face actually crosses a cell boundary.
+    if (!Number.isFinite(yaw) || !Number.isFinite(pitch)) return { changed: false, files: this.files };
+    // Quantization stabilizes access; it is an approximation, not a proof that
+    // the exact nearest continuous-pose neighborhood never changes in a cell.
     const quantizedYaw = Math.round(yaw / this.step) * this.step;
     const quantizedPitch = Math.round(pitch / this.step) * this.step;
     const nextAnchor = `${quantizedYaw}:${quantizedPitch}`;
@@ -72,12 +57,12 @@ export class PoseNeighborhood {
 export class ParsedShardCache<T> {
   private readonly entries = new Map<string, T>();
   private readonly maxEntries: number;
-
   constructor(maxEntries = 48) {
+    if (!Number.isInteger(maxEntries) || maxEntries < 1) throw new RangeError("Invalid shard cache capacity");
     this.maxEntries = maxEntries;
   }
-
   has(name: string) { return this.entries.has(name); }
+  peek(name: string) { return this.entries.get(name); }
   get(name: string) {
     const value = this.entries.get(name);
     if (value === undefined) return undefined;
@@ -89,16 +74,10 @@ export class ParsedShardCache<T> {
     this.entries.delete(name);
     this.entries.set(name, value);
     while (this.entries.size > this.maxEntries) {
-      const oldest = this.entries.keys().next().value as string | undefined;
-      if (oldest === undefined) break;
-      if (protectedNames.has(oldest)) {
-        const protectedValue = this.entries.get(oldest)!;
-        this.entries.delete(oldest);
-        this.entries.set(oldest, protectedValue);
-        if ([...this.entries.keys()].every((key) => protectedNames.has(key))) break;
-        continue;
-      }
-      this.entries.delete(oldest);
+      // Protection is a preference, never permission to exceed the hard cap.
+      const keys = [...this.entries.keys()];
+      const victim = keys.find((key) => !protectedNames.has(key)) ?? keys[0];
+      this.entries.delete(victim);
     }
   }
   touch(name: string) { void this.get(name); }

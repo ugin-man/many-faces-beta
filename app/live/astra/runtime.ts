@@ -21,14 +21,17 @@ export type FrameResult = {
   shards: number;
   pendingShards: number;
   catalogError: string | null;
+  diagnostics?: Record<string, number>;
 };
 
-// There is no FIFO: a busy processor drops incoming frames and samples the
-// next fresh video frame after completion. Memory and queue age are bounded.
+// A phase-preserving sampler, not a delay after every accepted frame. At a
+// 30 Hz input, resetting a 50 ms delay each time silently limits 20 Hz to 15 Hz.
+// Missed deadlines are skipped; there is still no FIFO or catch-up backlog.
 export class LatestFrameGate {
   private nextId = 0;
   private active: { id: number; capturedAt: number } | null = null;
-  private lastAcceptedAt = -Infinity;
+  private nextDueAt = -Infinity;
+  private intervalMs = 0;
   private lastMediaTime = -Infinity;
   busyDrops = 0;
   staleResults = 0;
@@ -36,10 +39,16 @@ export class LatestFrameGate {
   completed = 0;
 
   reserve(now: number, mediaTime: number, fps = 20) {
-    if (!Number.isFinite(now) || !Number.isFinite(mediaTime)) return null;
+    if (!Number.isFinite(now) || !Number.isFinite(mediaTime) || !Number.isFinite(fps) || fps <= 0) return null;
     if (this.active) { this.busyDrops += 1; return null; }
-    if (mediaTime === this.lastMediaTime || now - this.lastAcceptedAt < 1000 / fps - 1) return null;
-    this.lastAcceptedAt = now;
+    if (mediaTime === this.lastMediaTime) return null;
+    const interval = 1000 / Math.min(fps, 60);
+    if (interval !== this.intervalMs || !Number.isFinite(this.nextDueAt)) {
+      this.intervalMs = interval;
+      this.nextDueAt = now;
+    }
+    if (now + 0.001 < this.nextDueAt) return null;
+    this.nextDueAt += (Math.floor(Math.max(0, now + 0.001 - this.nextDueAt) / interval) + 1) * interval;
     this.lastMediaTime = mediaTime;
     this.active = { id: ++this.nextId, capturedAt: now };
     this.accepted += 1;
@@ -51,7 +60,7 @@ export class LatestFrameGate {
     const age = now - this.active.capturedAt;
     this.active = null;
     this.completed += 1;
-    if (age > maxAgeMs || age < 0) { this.staleResults += 1; return false; }
+    if (!Number.isFinite(age) || age > maxAgeMs || age < 0) { this.staleResults += 1; return false; }
     return true;
   }
 
@@ -70,13 +79,8 @@ export function cameraErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
 }
 
-// getUserMedia itself cannot be aborted. A late permission grant must not
-// resurrect a cancelled session or leave its camera indicator switched on.
-export async function acquireCurrentStream(
-  request: () => Promise<MediaStream>,
-  isCurrent: () => boolean,
-  timeoutMs = 25000,
-) {
+// getUserMedia itself cannot be aborted: cancelled late streams are released.
+export async function acquireCurrentStream(request: () => Promise<MediaStream>, isCurrent: () => boolean, timeoutMs = 25000) {
   let expired = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
   const streamPromise = request().then((stream) => {
@@ -87,30 +91,29 @@ export async function acquireCurrentStream(
     return stream;
   });
   try {
-    return await Promise.race([
-      streamPromise,
-      new Promise<never>((_resolve, reject) => {
-        timer = setTimeout(() => {
-          expired = true;
-          reject(new Error("カメラの許可待ちが長いため停止しました。許可を確認して再開してください。"));
-        }, timeoutMs);
-      }),
-    ]);
-  } finally {
-    if (timer) clearTimeout(timer);
-  }
+    return await Promise.race([streamPromise, new Promise<never>((_resolve, reject) => {
+      timer = setTimeout(() => { expired = true; reject(new Error("カメラの許可待ちが長いため停止しました。許可を確認して再開してください。")); }, timeoutMs);
+    })]);
+  } finally { if (timer) clearTimeout(timer); }
 }
 
-export function qualityBoundedReadyChoice(
-  ranked: readonly DisplayCandidate[],
-  ready: (candidate: DisplayCandidate) => boolean,
-  currentId: string | null,
-  allowChange: boolean,
-) {
-  if (!ranked.length) return null;
-  // Never choose an arbitrarily bad match just to inflate output FPS.
-  const ceiling = ranked[0].score + Math.max(0.025, Math.abs(ranked[0].score) * 0.15);
-  const eligible = ranked.filter((candidate) => Number.isFinite(candidate.score) && candidate.score <= ceiling);
-  if (currentId && !allowChange) return eligible.find((candidate) => candidate.id === currentId && ready(candidate)) ?? null;
+// Prefetch and presentation must use the same quality envelope. Otherwise
+// three ready but unusable images can prevent the actual winner loading forever.
+export function qualityEligibleCandidates(ranked: readonly DisplayCandidate[]) {
+  const finite = ranked.filter((candidate) => Number.isFinite(candidate.score));
+  if (!finite.length) return [];
+  const best = Math.min(...finite.map((candidate) => candidate.score));
+  const ceiling = best + Math.max(0.025, Math.abs(best) * 0.15);
+  return finite.filter((candidate) => candidate.score <= ceiling);
+}
+
+export function qualityBoundedReadyChoice(ranked: readonly DisplayCandidate[], ready: (candidate: DisplayCandidate) => boolean, currentId: string | null, allowChange: boolean) {
+  const eligible = qualityEligibleCandidates(ranked);
+  if (currentId && !allowChange) {
+    const held = eligible.find((candidate) => candidate.id === currentId && ready(candidate));
+    if (held) return held;
+    // Motion may end before a slow image download completes. Holding an
+    // out-of-envelope face forever is a freeze, not useful static hysteresis.
+  }
   return eligible.find(ready) ?? null;
 }

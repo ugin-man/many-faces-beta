@@ -4,8 +4,9 @@ import { faceFeatureFromScores } from "../../face-actions";
 import { calibrateExpressionFeature, createExpressionTracker } from "../../expression-matching";
 import { createLandmarkPitchTracker, landmarkPitchDegrees } from "../../landmark-pitch";
 import { faceGeometryFromLandmarks } from "../../offline-matching";
-import { buildLiveCandidateIndex, liveCandidateFromEntry, rankLiveCandidates, type LiveCandidate, type LiveCatalogEntry } from "../../live-matching";
+import { liveCandidateFromEntry, rankLiveCandidates, type LiveCandidate, type LiveCatalogEntry } from "../../live-matching";
 import { compilePoseCells, ParsedShardCache, PoseNeighborhood } from "./catalog-neighborhood";
+import { ReusableLiveSearchIndex } from "./live-search-index";
 import { medianDuration, preferCpu, shouldProbeCpu } from "./delegate-policy";
 import type { FrameResult } from "./runtime";
 
@@ -23,7 +24,8 @@ let neighborhood: PoseNeighborhood | null = null;
 let origin = "";
 let mirror = false;
 let canvas: OffscreenCanvas | null = null;
-let index: ReturnType<typeof buildLiveCandidateIndex> | null = null;
+let index: ReusableLiveSearchIndex<LiveCandidate> | null = null;
+let indexSignature = "";
 let poolSize = 0;
 let desired: string[] = [];
 let draining = false;
@@ -34,19 +36,30 @@ const pending = new Set<string>();
 const pitchTracker = createLandmarkPitchTracker();
 const expressionTracker = createExpressionTracker();
 let previousFeature: number[] | null = null;
+const counters = { shardRequests: 0, shardParseMs: 0, candidateDecodeMs: 0, decodedCandidates: 0, indexBuilds: 0, indexBuildMs: 0 };
 
 async function readJson(path: string) {
   const response = await fetch(new URL(path, origin), { signal: AbortSignal.timeout(15000), cache: "force-cache" });
   if (!response.ok) throw new Error(`CATALOG ${response.status}`);
-  return response.json();
+  const started = performance.now();
+  const result = await response.json();
+  counters.shardParseMs += performance.now() - started;
+  return result;
 }
 
 function rebuildIndex() {
   const files = [...new Set([...desired, ...shards.keysNewestFirst()])].filter((file) => shards.has(file)).slice(0, 24);
-  const unique = [...new Map(files.flatMap((file) => shards.get(file) ?? []).map((candidate) => [candidate.id, candidate])).values()];
-  const limited = unique.length <= 2400 ? unique : Array.from({ length: 2400 }, (_, i) => unique[Math.floor(i * unique.length / 2400)]);
-  index = limited.length ? buildLiveCandidateIndex(limited) : null;
-  poolSize = limited.length;
+  // File membership, not the order of equal-distance neighbors, controls the
+  // index. peek must not turn this read into an LRU recency mutation.
+  const signature = files.slice().sort().join("|");
+  if (signature === indexSignature) return;
+  indexSignature = signature;
+  const started = performance.now();
+  const unique = [...new Map(files.flatMap((file) => shards.peek(file) ?? []).map((candidate) => [candidate.id, candidate])).values()];
+  index = unique.length ? new ReusableLiveSearchIndex(unique) : null;
+  poolSize = unique.length;
+  counters.indexBuilds += 1;
+  counters.indexBuildMs += performance.now() - started;
 }
 
 function focusNeighborhood(feature: number[]) {
@@ -68,19 +81,26 @@ async function drainShards() {
       if (!batch.length) break;
       await Promise.all(batch.map(async (file) => {
         pending.add(file);
+        counters.shardRequests += 1;
         try {
           const version = encodeURIComponent(manifest?.catalogId ?? "seed");
           const payload = await readJson(`/api/catalog/shard?source=seed&file=${encodeURIComponent(file)}&catalog=${version}`) as { items?: LiveCatalogEntry[] };
           if (!Array.isArray(payload.items)) throw new Error("Invalid catalog shard");
+          const started = performance.now();
           const candidates = payload.items.flatMap((entry) => {
             const candidate = liveCandidateFromEntry(entry, file);
             if (!candidate) return [];
             const url = new URL(candidate.url, origin);
             url.searchParams.set("source", "seed");
+            url.searchParams.set("catalog", manifest?.catalogId ?? "seed");
             candidate.url = url.toString();
             return [candidate];
           });
+          counters.candidateDecodeMs += performance.now() - started;
+          counters.decodedCandidates += candidates.length;
           shards.set(file, candidates, new Set(desired));
+          // A reloaded file may have the same name but new object identities.
+          indexSignature = "";
           catalogError = null;
         } catch (error) {
           catalogError = error instanceof Error ? error.message : String(error);
@@ -159,13 +179,13 @@ async function probeCpuIfSlow(currentCanvas: OffscreenCanvas, timestamp: number,
       inferenceSamples.length = 0;
       announceReady();
     }
-  } catch (error) {
-    console.warn("CPU delegate probe failed; retaining the current engine.", error);
-  } finally { cpu?.close(); }
+  } catch (error) { console.warn("CPU delegate probe failed; retaining the current engine.", error); }
+  finally { cpu?.close(); }
 }
 
 async function processFrame(message: Extract<Input, { type: "frame" }>) {
   const bitmap = message.bitmap;
+  const processStarted = performance.now();
   try {
     if (!landmarker) throw new Error("Tracking engine is not ready");
     const scale = Math.min(1, 480 / Math.max(bitmap.width, bitmap.height));
@@ -192,12 +212,10 @@ async function processFrame(message: Extract<Input, { type: "frame" }>) {
     const output: FrameResult = {
       type: "frame", id: message.id, capturedAt: message.capturedAt,
       face: feature.length > 0, feature,
-      ranked: (ranked?.ranked ?? []).slice(0, 12).map(({ candidate, score }) => ({
-        id: candidate.id, name: candidate.name, url: candidate.url, score,
-        sourceName: candidate.sourceName, sourceUrl: candidate.sourceUrl, creator: candidate.creator,
-      })),
+      ranked: (ranked?.ranked ?? []).slice(0, 12).map(({ candidate, score }) => ({ id: candidate.id, name: candidate.name, url: candidate.url, score, sourceName: candidate.sourceName, sourceUrl: candidate.sourceUrl, creator: candidate.creator })),
       inferenceMs, searchMs: performance.now() - searchStarted,
       candidates: poolSize, shards: shards.size, pendingShards: pending.size, catalogError,
+      diagnostics: { ...counters, activeCandidates: poolSize, coarseInspected: ranked?.inspected ?? 0, workerProcessMs: performance.now() - processStarted },
     };
     scope.postMessage(output);
   } finally { bitmap.close(); }
@@ -205,9 +223,8 @@ async function processFrame(message: Extract<Input, { type: "frame" }>) {
 
 scope.onmessage = (event: MessageEvent<Input>) => {
   const failed = (error: unknown) => scope.postMessage({ type: "error", message: error instanceof Error ? error.message : String(error) });
-  if (event.data.type === "init") {
-    void initialize(event.data).catch(failed);
-  } else {
+  if (event.data.type === "init") void initialize(event.data).catch(failed);
+  else {
     if (processing) { event.data.bitmap.close(); failed(new Error("Concurrent frame contract violated")); return; }
     processing = true;
     void processFrame(event.data).catch(failed).finally(() => { processing = false; });

@@ -1,4 +1,4 @@
-import type { DisplayCandidate } from "./runtime.ts";
+import { qualityEligibleCandidates, type DisplayCandidate } from "./runtime.ts";
 
 type Record = { bitmap: ImageBitmap; bytes: number };
 
@@ -49,11 +49,11 @@ async function boundedImageBlob(response: Response, signal: AbortSignal) {
   return new Blob(chunks, { type: response.headers.get("content-type") || "image/webp" });
 }
 
-// Only selected byte-range images are retained, never their entire packs.
 export class DecodedImageCache {
   private images = new Map<string, Record>();
   private pending = new Map<string, AbortController>();
   private retryAfter = new Map<string, number>();
+  private latest: DisplayCandidate[] = [];
   private queue: DisplayCandidate[] = [];
   private generation = 0;
   private bytes = 0;
@@ -62,22 +62,18 @@ export class DecodedImageCache {
   private readonly maxImages: number;
   private readonly concurrency: number;
   private readonly timeoutMs: number;
-  private readonly readyTarget = 3;
-  private readonly primeWindow = 6;
-  private readonly retainWindow = 12;
   failures = 0;
   requests = 0;
 
   constructor(onReady: () => void, maxBytes = 32 * 1024 * 1024, maxImages = 64, concurrency = 3, timeoutMs = 5000) {
+    if (!Number.isFinite(maxBytes) || maxBytes <= 0 || !Number.isInteger(maxImages) || maxImages < 1 || !Number.isInteger(concurrency) || concurrency < 1) throw new RangeError("Invalid image cache budget");
     this.onReady = onReady;
     this.maxBytes = maxBytes;
     this.maxImages = maxImages;
     this.concurrency = concurrency;
     this.timeoutMs = timeoutMs;
   }
-
   has(candidate: DisplayCandidate) { return this.images.has(candidate.id); }
-
   get(id: string) {
     const record = this.images.get(id);
     if (!record) return null;
@@ -85,46 +81,31 @@ export class DecodedImageCache {
     this.images.set(id, record);
     return record.bitmap;
   }
-
   stats() {
     return { readyImages: this.images.size, pendingImages: this.pending.size, imageBytes: this.bytes, imageFailures: this.failures, imageRequests: this.requests };
   }
-
   prime(ranked: readonly DisplayCandidate[]) {
-    const now = performance.now();
-    const unique = [...new Map(ranked.map((candidate) => [candidate.id, candidate])).values()];
-    const retain = new Set(unique.slice(0, this.retainWindow).map((candidate) => candidate.id));
-
-    // A result that has completely fallen out of the current ranked window is
-    // no longer worth occupying one of our three network/decode slots.
-    for (const [id, controller] of this.pending) {
-      if (!retain.has(id)) controller.abort();
-    }
-
-    const window = unique.slice(0, this.primeWindow);
-    const alreadyUseful = window.filter((candidate) => this.images.has(candidate.id) || this.pending.has(candidate.id)).length;
-    const needed = Math.max(0, Math.min(this.readyTarget, window.length) - alreadyUseful);
-
-    // Previous code queued the top eight on every detection frame. With a
-    // moving face that could fetch ~10 images for one visible switch. Keep a
-    // small quality-ranked reserve instead; all 70k remain searchable.
-    this.queue = window
-      .filter((candidate) => !this.images.has(candidate.id) && !this.pending.has(candidate.id) && (this.retryAfter.get(candidate.id) ?? 0) <= now)
-      .slice(0, needed);
+    this.latest = [...new Map(ranked.slice(0, 12).map((candidate) => [candidate.id, candidate])).values()];
+    const retain = new Set(this.latest.map((candidate) => candidate.id));
+    for (const [id, controller] of this.pending) if (!retain.has(id)) controller.abort();
+    this.plan();
     this.drain();
   }
-
+  private plan() {
+    const now = performance.now();
+    // Do not count lower-scoring cached faces as a reason to starve the winner.
+    const desired = qualityEligibleCandidates(this.latest)
+      .filter((candidate) => (this.retryAfter.get(candidate.id) ?? 0) <= now).slice(0, 3);
+    this.queue = desired.filter((candidate) => !this.images.has(candidate.id) && !this.pending.has(candidate.id));
+  }
   clear() {
     this.generation += 1;
+    this.latest = [];
     this.queue = [];
     for (const controller of this.pending.values()) controller.abort();
     for (const record of this.images.values()) record.bitmap.close();
-    this.pending.clear();
-    this.images.clear();
-    this.retryAfter.clear();
-    this.bytes = 0;
+    this.pending.clear(); this.images.clear(); this.retryAfter.clear(); this.bytes = 0;
   }
-
   private drain() {
     while (this.pending.size < this.concurrency && this.queue.length) {
       const candidate = this.queue.shift()!;
@@ -139,11 +120,15 @@ export class DecodedImageCache {
         while (this.retryAfter.size > 128) this.retryAfter.delete(this.retryAfter.keys().next().value!);
       }).finally(() => {
         if (this.pending.get(candidate.id) === controller) this.pending.delete(candidate.id);
-        if (generation === this.generation) this.drain();
+        if (generation === this.generation) {
+          // Re-plan cancelled slots for A->B->A races. Do not re-plan every
+          // successful eviction, which could loop with deliberately tiny caches.
+          if (controller.signal.aborted) this.plan();
+          this.drain();
+        }
       });
     }
   }
-
   private async load(candidate: DisplayCandidate, signal: AbortSignal, generation: number) {
     this.requests += 1;
     const combined = AbortSignal.any([signal, AbortSignal.timeout(this.timeoutMs)]);
@@ -157,9 +142,7 @@ export class DecodedImageCache {
     while (this.images.size && (this.bytes + bytes > this.maxBytes || this.images.size >= this.maxImages)) {
       const id = this.images.keys().next().value!;
       const oldest = this.images.get(id)!;
-      this.bytes -= oldest.bytes;
-      oldest.bitmap.close();
-      this.images.delete(id);
+      this.bytes -= oldest.bytes; oldest.bitmap.close(); this.images.delete(id);
     }
     this.images.set(candidate.id, { bitmap, bytes });
     this.bytes += bytes;

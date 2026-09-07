@@ -71,7 +71,11 @@ export class PoseNeighborhood {
 
 export class ParsedShardCache<T> {
   private readonly entries = new Map<string, T>();
-  constructor(private readonly maxEntries = 48) {}
+  private readonly maxEntries: number;
+
+  constructor(maxEntries = 48) {
+    this.maxEntries = maxEntries;
+  }
 
   has(name: string) { return this.entries.has(name); }
   get(name: string) {

@@ -5,10 +5,11 @@ import { calibrateExpressionFeature, createExpressionTracker } from "../../expre
 import { createLandmarkPitchTracker, landmarkPitchDegrees } from "../../landmark-pitch";
 import { faceGeometryFromLandmarks } from "../../offline-matching";
 import { buildLiveCandidateIndex, liveCandidateFromEntry, rankLiveCandidates, type LiveCandidate, type LiveCatalogEntry } from "../../live-matching";
+import { compilePoseCells, ParsedShardCache, PoseNeighborhood } from "./catalog-neighborhood";
 import { medianDuration, preferCpu, shouldProbeCpu } from "./delegate-policy";
 import type { FrameResult } from "./runtime";
 
-type Manifest = { totalFaces: number; searchableFaces?: number; catalogId?: string; cells: Record<string, { shards?: string[]; shard?: string }>; stats?: { cleanCore?: { knownSyntheticFaces?: number } } };
+type Manifest = { totalFaces: number; searchableFaces?: number; catalogId?: string; poseStep?: number; cells: Record<string, { shards?: string[]; shard?: string }>; stats?: { cleanCore?: { knownSyntheticFaces?: number } } };
 type Input = { type: "init"; origin: string; mirror: boolean } | { type: "frame"; id: number; capturedAt: number; bitmap: ImageBitmap; currentId: string | null };
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 let landmarker: FaceLandmarker | null = null;
@@ -18,6 +19,7 @@ let cpuProbed = false;
 let processing = false;
 const inferenceSamples: number[] = [];
 let manifest: Manifest | null = null;
+let neighborhood: PoseNeighborhood | null = null;
 let origin = "";
 let mirror = false;
 let canvas: OffscreenCanvas | null = null;
@@ -26,7 +28,7 @@ let poolSize = 0;
 let desired: string[] = [];
 let draining = false;
 let catalogError: string | null = null;
-const shards = new Map<string, LiveCandidate[]>();
+const shards = new ParsedShardCache<LiveCandidate[]>(48);
 const retryAfter = new Map<string, number>();
 const pending = new Set<string>();
 const pitchTracker = createLandmarkPitchTracker();
@@ -40,8 +42,7 @@ async function readJson(path: string) {
 }
 
 function rebuildIndex() {
-  const files = [...new Set([...desired, ...[...shards.keys()].reverse()])].filter((file) => shards.has(file)).slice(0, 24);
-  for (const file of shards.keys()) if (!files.includes(file)) shards.delete(file);
+  const files = [...new Set([...desired, ...shards.keysNewestFirst()])].filter((file) => shards.has(file)).slice(0, 24);
   const unique = [...new Map(files.flatMap((file) => shards.get(file) ?? []).map((candidate) => [candidate.id, candidate])).values()];
   const limited = unique.length <= 2400 ? unique : Array.from({ length: 2400 }, (_, i) => unique[Math.floor(i * unique.length / 2400)]);
   index = limited.length ? buildLiveCandidateIndex(limited) : null;
@@ -49,19 +50,11 @@ function rebuildIndex() {
 }
 
 function focusNeighborhood(feature: number[]) {
-  if (!manifest) return;
-  const yaw = feature[0] * 90;
-  const pitch = feature[1] * 90;
-  const keys = Object.keys(manifest.cells).map((key) => {
-    const [y, p] = key.split(":").map(Number);
-    return { key, distance: (y - yaw) ** 2 + (p - pitch) ** 2 * 0.82 };
-  }).filter((item) => Number.isFinite(item.distance)).sort((a, b) => a.distance - b.distance).slice(0, 9);
-  const next = [...new Set(keys.flatMap(({ key }) => {
-    const cell = manifest!.cells[key];
-    return cell.shards ?? (cell.shard ? [cell.shard] : []);
-  }))].slice(0, 18);
-  if (next.join("|") !== desired.join("|")) {
-    desired = next;
+  if (!manifest || !neighborhood) return;
+  const update = neighborhood.update(feature[0] * 90, feature[1] * 90);
+  if (update.changed) {
+    desired = [...update.files];
+    for (const file of desired) shards.touch(file);
     rebuildIndex();
   }
   if (!draining) void drainShards();
@@ -87,8 +80,7 @@ async function drainShards() {
             candidate.url = url.toString();
             return [candidate];
           });
-          shards.delete(file);
-          shards.set(file, candidates);
+          shards.set(file, candidates, new Set(desired));
           catalogError = null;
         } catch (error) {
           catalogError = error instanceof Error ? error.message : String(error);
@@ -133,6 +125,7 @@ async function initialize(message: Extract<Input, { type: "init" }>) {
   if (!catalog?.cells || !Number.isFinite(catalog.totalFaces) || catalog.totalFaces <= 0) throw new Error("Invalid catalog manifest");
   if (Number(catalog.stats?.cleanCore?.knownSyntheticFaces ?? 0) !== 0) throw new Error("Real-photo catalog policy violated");
   manifest = catalog;
+  neighborhood = new PoseNeighborhood(compilePoseCells(catalog.cells), Number(catalog.poseStep) || 3);
   const options = {
     runningMode: "VIDEO" as const, numFaces: 1,
     outputFaceBlendshapes: true, outputFacialTransformationMatrixes: true,
@@ -152,8 +145,6 @@ async function probeCpuIfSlow(currentCanvas: OffscreenCanvas, timestamp: number,
     cpu = await createEngine("CPU");
     const timings: number[] = [];
     let cpuResult: FaceLandmarkerResult | null = null;
-    // First invocation warms the new engine; the two following invocations
-    // measure the same real frame, not a blank canvas or synthetic landmarks.
     for (let attempt = 0; attempt < 3; attempt += 1) {
       const started = performance.now();
       cpuResult = cpu.detectForVideo(currentCanvas, timestamp + attempt * 0.001);
@@ -169,7 +160,6 @@ async function probeCpuIfSlow(currentCanvas: OffscreenCanvas, timestamp: number,
       announceReady();
     }
   } catch (error) {
-    // A failed optimization must not discard an otherwise functioning engine.
     console.warn("CPU delegate probe failed; retaining the current engine.", error);
   } finally { cpu?.close(); }
 }

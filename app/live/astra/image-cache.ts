@@ -62,6 +62,9 @@ export class DecodedImageCache {
   private readonly maxImages: number;
   private readonly concurrency: number;
   private readonly timeoutMs: number;
+  private readonly readyTarget = 3;
+  private readonly primeWindow = 6;
+  private readonly retainWindow = 12;
   failures = 0;
   requests = 0;
 
@@ -89,8 +92,25 @@ export class DecodedImageCache {
 
   prime(ranked: readonly DisplayCandidate[]) {
     const now = performance.now();
-    this.queue = [...new Map(ranked.slice(0, 8).map((candidate) => [candidate.id, candidate])).values()]
-      .filter((candidate) => !this.images.has(candidate.id) && !this.pending.has(candidate.id) && (this.retryAfter.get(candidate.id) ?? 0) <= now);
+    const unique = [...new Map(ranked.map((candidate) => [candidate.id, candidate])).values()];
+    const retain = new Set(unique.slice(0, this.retainWindow).map((candidate) => candidate.id));
+
+    // A result that has completely fallen out of the current ranked window is
+    // no longer worth occupying one of our three network/decode slots.
+    for (const [id, controller] of this.pending) {
+      if (!retain.has(id)) controller.abort();
+    }
+
+    const window = unique.slice(0, this.primeWindow);
+    const alreadyUseful = window.filter((candidate) => this.images.has(candidate.id) || this.pending.has(candidate.id)).length;
+    const needed = Math.max(0, Math.min(this.readyTarget, window.length) - alreadyUseful);
+
+    // Previous code queued the top eight on every detection frame. With a
+    // moving face that could fetch ~10 images for one visible switch. Keep a
+    // small quality-ranked reserve instead; all 70k remain searchable.
+    this.queue = window
+      .filter((candidate) => !this.images.has(candidate.id) && !this.pending.has(candidate.id) && (this.retryAfter.get(candidate.id) ?? 0) <= now)
+      .slice(0, needed);
     this.drain();
   }
 

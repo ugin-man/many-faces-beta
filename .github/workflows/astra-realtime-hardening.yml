@@ -2,7 +2,7 @@ name: Astra realtime hardening
 on:
   push:
     branches: [astra/realtime-hardening]
-    paths: ['app/**', 'worker/**', 'tests/**', 'scripts/**', 'package*.json', '.github/workflows/astra-realtime-hardening.yml']
+    paths: ['app/**', 'worker/**', 'tests/**', 'scripts/**', 'tools/**', 'package*.json', '.github/workflows/astra-realtime-hardening.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -67,7 +67,7 @@ jobs:
 
   browser:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
@@ -85,6 +85,8 @@ jobs:
           cp -a node_modules/@mediapipe/tasks-vision/wasm/. public/mediapipe/wasm/
           curl --fail --location --retry 3 --max-time 180 -o public/models/face_landmarker.task https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
           echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
+      - name: Audit the full 70k asset as-is
+        run: python tools/audit_astra_catalog.py public/seed-catalog --output work/astra-evidence/catalog-audit.json
       - name: Generate virtual-camera fixture from existing real catalog photographs
         run: bash scripts/prepare-astra-fixtures.sh > work/astra-evidence/fixture-build.log 2>&1
       - name: Build the full production route without source patches
@@ -103,6 +105,11 @@ jobs:
           MANY_FACES_BASE_URL: http://127.0.0.1:4173
           MANY_FACES_BROWSER_REPORT_DIR: work/astra-evidence/production
         run: node scripts/verify-astra-browser.mjs
+      - name: Profile full-catalog network and resource pressure
+        env:
+          MANY_FACES_BASE_URL: http://127.0.0.1:4173
+          MANY_FACES_BROWSER_REPORT_DIR: work/astra-evidence/production
+        run: node scripts/profile-astra-resources.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -110,4 +117,4 @@ jobs:
           path: work/astra-evidence
           retention-days: 14
       - name: Confirm the tested source was not rewritten by CI
-        run: git diff --exit-code -- app scripts tests
+        run: git diff --exit-code -- app scripts tests tools

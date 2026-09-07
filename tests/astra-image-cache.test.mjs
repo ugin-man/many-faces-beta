@@ -58,3 +58,36 @@ test('clearing a session aborts image requests and never dispatches its queued w
   assert.equal(active,0);
   assert.equal(cache.stats().pendingImages,0);
 });
+
+test('stable ranked windows keep a small reserve instead of fetching eight candidates per frame', async (t) => {
+  const oldFetch=globalThis.fetch, oldDecode=globalThis.createImageBitmap;
+  t.after(()=>{globalThis.fetch=oldFetch;globalThis.createImageBitmap=oldDecode;});
+  let requests=0;
+  globalThis.fetch=async()=>{requests++;return new Response(new Uint8Array([1]));};
+  globalThis.createImageBitmap=async()=>({width:2,height:2,close(){}});
+  const cache=new DecodedImageCache(()=>{},4096,64,3);
+  t.after(()=>cache.clear());
+  const ranked=Array.from({length:12},(_,i)=>candidate(String(i)));
+  for(let frame=0;frame<20;frame++) cache.prime(ranked);
+  await delay(30);
+  for(let frame=0;frame<20;frame++) cache.prime(ranked);
+  await delay(10);
+  assert.equal(requests,3);
+  assert.equal(cache.stats().readyImages,3);
+});
+
+test('obsolete pending image work is aborted when it leaves the ranked retain window', async (t) => {
+  const oldFetch=globalThis.fetch;
+  t.after(()=>{globalThis.fetch=oldFetch;});
+  const aborted=[];
+  globalThis.fetch=(url,{signal})=>new Promise((_resolve,reject)=>{
+    signal.addEventListener('abort',()=>{aborted.push(String(url));reject(signal.reason);},{once:true});
+  });
+  const cache=new DecodedImageCache(()=>{},4096,64,3);
+  t.after(()=>cache.clear());
+  cache.prime(Array.from({length:12},(_,i)=>candidate(`old-${i}`)));
+  cache.prime(Array.from({length:12},(_,i)=>candidate(`new-${i}`)));
+  await delay(0);
+  assert.equal(aborted.length,3);
+  assert.equal(cache.stats().pendingImages,3);
+});

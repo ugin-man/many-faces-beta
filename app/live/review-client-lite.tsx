@@ -295,7 +295,7 @@ function waitForDecodedVideoFrame(
   video: HTMLVideoElement,
   targetTime: number,
 ) {
-  return new Promise<void>((resolve) => {
+  return new Promise<void>((resolve, reject) => {
     const source = video as VideoWithFrameCallback;
     let callbackId: number | null = null;
     let settled = false;
@@ -306,7 +306,12 @@ function waitForDecodedVideoFrame(
       if (callbackId !== null) source.cancelVideoFrameCallback?.(callbackId);
       requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
     };
-    const timeout = window.setTimeout(finish, 2_500);
+    const timeout = window.setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      if (callbackId !== null) source.cancelVideoFrameCallback?.(callbackId);
+      reject(new Error("目的フレームの描画待ちがタイムアウトしました"));
+    }, 2_500);
 
     if (source.requestVideoFrameCallback) {
       callbackId = source.requestVideoFrameCallback((_now, metadata) => {

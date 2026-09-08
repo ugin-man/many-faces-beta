@@ -1,0 +1,53 @@
+.page { color: #edf1f8; background: #0b0f17; min-height: 100dvh; padding: 32px clamp(18px, 4vw, 64px) 40px; font-family: system-ui, sans-serif; max-width: 1480px; margin: auto; box-sizing: border-box; }
+.page * { box-sizing: border-box; }
+.header { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
+.eyebrow { font-size: 11px; letter-spacing: .16em; color: #92d8c7; }
+.header h1 { font-size: clamp(32px, 4vw, 52px); font-weight: 600; letter-spacing: -.04em; line-height: 1.15; margin: 8px 0; }
+.header p { color: #a9b4c6; font-size: 14px; margin: 0; }
+.back { color: #a9b4c6; font-size: 13px; white-space: nowrap; text-decoration: none; border-bottom: 1px solid #3b4556; padding: 8px 0; }
+.toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.page button, .file { color: #eaf0fb; background: #192131; border: 1px solid #344055; border-radius: 10px; padding: 12px 20px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.page button:hover:not(:disabled), .file:hover:not(.disabled) { border-color: #99dacb; }
+.page .primary { color: #09201c; background: #a8e8d7; border-color: #a8e8d7; }
+.page button:disabled, .disabled { opacity: .45; cursor: not-allowed; }
+.file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.file:focus-within { outline: 2px solid #a8e8d7; outline-offset: 3px; }
+.badge { margin-left: auto; border: 1px solid #394457; border-radius: 100px; font-size: 11px; letter-spacing: .08em; padding: 8px 12px; color: #aab6c8; }
+.badge[data-phase="running"] { color: #a8e8d7; border-color: #4b8d7c; }
+.badge[data-phase="error"] { color: #f3aaa4; border-color: #975b59; }
+.status { font-size: 13px; line-height: 1.7; color: #b6c2d4; min-height: 24px; margin: 16px 0; overflow-wrap: anywhere; }
+.status[role="alert"] { color: #f4b3ad; }
+.stages { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.panel { min-width: 0; border: 1px solid #293447; border-radius: 16px; background: #111823; overflow: hidden; }
+.panelTitle { display: flex; justify-content: space-between; gap: 12px; padding: 14px 18px; font-size: 14px; }
+.panelTitle small { color: #8090a7; font-size: 11px; }
+.stage { aspect-ratio: 1; background: #070a10; position: relative; }
+.stage video, .stage canvas { width: 100%; height: 100%; object-fit: contain; display: block; }
+.mirror { transform: scaleX(-1); }
+.empty { position: absolute; inset: 0; display: grid; place-items: center; color: #78889e; font-size: 14px; pointer-events: none; }
+.notice { position: absolute; bottom: 12px; left: 12px; border-radius: 8px; background: #101722d9; padding: 8px 12px; font-size: 12px; }
+.attribution { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 12px 18px; color: #98a8bc; font-size: 11px; min-height: 38px; overflow-wrap: anywhere; }
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 24px 0; margin-top: 8px; border-bottom: 1px solid #263143; }
+.metrics div { min-width: 0; }
+.metrics small { display: block; font-size: 11px; color: #8797ad; margin-bottom: 8px; }
+.metrics strong { font-size: 28px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.metrics em { font-size: 11px; margin-left: 7px; font-style: normal; color: #91a2b8; }
+.hint, .footer { line-height: 1.8; color: #94a4b9; font-size: 12px; margin: 18px 0; }
+.diagnostics { font-size: 12px; color: #98a8bd; border: 1px solid #293447; border-radius: 12px; padding: 14px 18px; overflow-wrap: anywhere; }
+.diagnostics summary { cursor: pointer; }
+.diagnostics p { line-height: 1.8; }
+.diagnostics button { font-size: 12px; padding: 8px 12px; }
+.footer { color: #65758b; }
+@media (max-width: 640px) {
+  .page { padding: 22px 16px; }
+  .header { align-items: flex-start; gap: 12px; }
+  .back { font-size: 11px; }
+  .stages { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .panelTitle { padding: 10px; font-size: 12px; flex-direction: column; gap: 3px; }
+  .panelTitle small { font-size: 9px; }
+  .attribution { padding: 8px; font-size: 9px; }
+  .empty { font-size: 10px; text-align: center; padding: 8px; }
+  .metrics { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .page button, .file { padding: 11px 13px; font-size: 12px; }
+  .badge { margin-left: 0; }
+}

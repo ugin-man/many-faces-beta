@@ -57,28 +57,67 @@ export class PoseNeighborhood {
 export class ParsedShardCache<T> {
   private readonly entries = new Map<string, T>();
   private readonly maxEntries: number;
-  constructor(maxEntries = 48) {
+  private readonly policy: "lru" | "frequency";
+  private readonly history = new Map<string, number>();
+  private observations = 0;
+  private hits = 0;
+  private misses = 0;
+  private evictions = 0;
+  private admissionDrops = 0;
+  constructor(maxEntries = 48, policy: "lru" | "frequency" = "frequency") {
     if (!Number.isInteger(maxEntries) || maxEntries < 1) throw new RangeError("Invalid shard cache capacity");
     this.maxEntries = maxEntries;
+    this.policy = policy;
   }
   has(name: string) { return this.entries.has(name); }
   peek(name: string) { return this.entries.get(name); }
   get(name: string) {
+    this.observe(name);
     const value = this.entries.get(name);
-    if (value === undefined) return undefined;
+    if (value === undefined) { this.misses += 1; return undefined; }
+    this.hits += 1;
     this.entries.delete(name);
     this.entries.set(name, value);
     return value;
   }
   set(name: string, value: T, protectedNames: ReadonlySet<string> = new Set()) {
+    if (this.policy === "frequency" && !this.history.has(name)) this.observe(name);
     this.entries.delete(name);
     this.entries.set(name, value);
     while (this.entries.size > this.maxEntries) {
       // Protection is a preference, never permission to exceed the hard cap.
       const keys = [...this.entries.keys()];
-      const victim = keys.find((key) => !protectedNames.has(key)) ?? keys[0];
+      let victim = keys.find((key) => !protectedNames.has(key)) ?? keys[0];
+      if (this.policy === "frequency" && !protectedNames.has(victim)) {
+        // Repeatedly useful pose shards outlive one-pass transition shards.
+        // Equal frequencies retain LRU order; protected current demand wins.
+        for (const key of keys) {
+          if (!protectedNames.has(key) && (this.history.get(key) ?? 0) < (this.history.get(victim) ?? 0)) victim = key;
+        }
+      }
       this.entries.delete(victim);
+      this.evictions += 1;
+      if (victim === name) this.admissionDrops += 1;
     }
+  }
+  private observe(name: string) {
+    if (this.policy !== "frequency") return;
+    this.observations += 1;
+    // Decay demand, not wall-clock time: old popular poses cannot lock out a
+    // new session phase. History holds counts only, never extra shard payloads.
+    if (this.observations % (this.maxEntries * 8) === 0) {
+      for (const [key, count] of this.history) {
+        if (count <= 1) this.history.delete(key);
+        else this.history.set(key, count >> 1);
+      }
+    }
+    const count = Math.min(15, (this.history.get(name) ?? 0) + 1);
+    this.history.delete(name);
+    this.history.set(name, count);
+    while (this.history.size > Math.max(256, this.maxEntries * 16)) this.history.delete(this.history.keys().next().value!);
+  }
+  stats() {
+    return { shardCacheHits: this.hits, shardCacheMisses: this.misses, shardEvictions: this.evictions, shardAdmissionDrops: this.admissionDrops, shardHistoryEntries: this.history.size };
   }
   touch(name: string) { void this.get(name); }
   keysNewestFirst() { return [...this.entries.keys()].reverse(); }

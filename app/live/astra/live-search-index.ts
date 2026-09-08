@@ -1,3 +1,4 @@
+import { TopK } from "./top-k.ts";
 import { FACE_ACTION_FEATURE_INDEX } from "../../face-actions.ts";
 import type { FixedSearchCandidate, FixedSearchFrame, FixedCandidateQueryOptions, FixedCandidateQueryResult } from "../../fixed-candidate-search.ts";
 
@@ -23,15 +24,20 @@ function prepare(value: FixedSearchCandidate | FixedSearchFrame): Prepared {
   return { values: v, structureLength: structure.length > 9 ? 27 : head };
 }
 
-function distance(a: Prepared, b: Prepared) {
+function poseDistance(a: Prepared, b: Prepared) {
   const x = a.values, y = b.values;
   const yaw = (x[0] - y[0]) / 18, pitch = (x[1] - y[1]) / 21, roll = (x[2] - y[2]) / 45;
+  return yaw * yaw * 0.72 + pitch * pitch + roll * roll * 0.08;
+}
+
+function distance(a: Prepared, b: Prepared, pose: number) {
+  const x = a.values, y = b.values;
   const count = Math.min(a.structureLength, b.structureLength);
   let structure = 0, action = 0, local = 0;
   for (let i = 3; i < 3 + count; i++) { const d = x[i] - y[i]; structure += d * d; }
   for (let i = 30; i < 52; i++) { const d = x[i] - y[i]; action += d * d; }
   for (let i = 52; i < 94; i++) { const d = x[i] - y[i]; local += d * d; }
-  return yaw * yaw * 0.72 + pitch * pitch + roll * roll * 0.08 + (count ? structure / count : 0) * 1.55 + action / 22 * 1.3 + local / 42 * 0.42;
+  return pose + (count ? structure / count : 0) * 1.55 + action / 22 * 1.3 + local / 42 * 0.42;
 }
 
 // Catalog candidate objects are immutable. Weak keys let evicted shards and
@@ -41,6 +47,7 @@ const preparedCandidates = new WeakMap<object, Prepared>();
 
 export class ReusableLiveSearchIndex<T extends FixedSearchCandidate> {
   readonly size: number;
+  lastFullyScored = 0;
   private readonly candidates: readonly T[];
   private readonly prepared: Prepared[];
 
@@ -59,15 +66,25 @@ export class ReusableLiveSearchIndex<T extends FixedSearchCandidate> {
     const budget = Math.min(this.size, Math.max(1, Math.round(options.budget ?? 128)));
     const query = prepare(frame);
     const previous = new Set(options.previousIds ?? []);
-    // Exhaustive coarse scoring of the bounded ACTIVE working set. No stride
-    // thinning or hash-bucket subsampling can silently erase its rare entries.
-    // This is not a claim of exhaustive detailed search across all 70,000 faces.
-    const measured = this.candidates.map((candidate, i) => ({ i, score: distance(query, this.prepared[i]) - (previous.has(candidate.id) ? 0.035 : 0) }));
-    measured.sort((a, b) => a.score - b.score || a.i - b.i);
+    const best = new TopK(budget);
     const reserve = Math.min(previous.size, Math.max(1, Math.floor(budget / 4)));
-    const forced = measured.filter(({ i }) => previous.has(this.candidates[i].id)).slice(0, reserve);
+    const recent = reserve ? new TopK(reserve) : null;
+    this.lastFullyScored = 0;
+    for (let i = 0; i < this.size; i++) {
+      const isPrevious = previous.has(this.candidates[i].id);
+      const pose = poseDistance(query, this.prepared[i]);
+      // All remaining terms are nonnegative. A strictly worse pose bound
+      // cannot beat the kth complete score. Equality is retained for tie order.
+      // Recent IDs are always evaluated, even outside the ordinary shortlist.
+      if (!isPrevious && best.full && pose > best.worstScore) continue;
+      const score = distance(query, this.prepared[i], pose) - (isPrevious ? 0.035 : 0);
+      this.lastFullyScored += 1;
+      best.offer(i, score);
+      if (isPrevious) recent?.offer(i, score);
+    }
+    const forced = recent?.sorted() ?? [];
     const forcedIds = new Set(forced.map(({ i }) => i));
-    const selected = [...forced, ...measured.filter(({ i }) => !forcedIds.has(i)).slice(0, budget - forced.length)];
+    const selected = [...forced, ...best.sorted().filter(({ i }) => !forcedIds.has(i)).slice(0, budget - forced.length)];
     return { candidates: selected.map(({ i }) => this.candidates[i]), inspected: this.size, bucketHits: 0, fallbackCandidates: 0 };
   }
 }

@@ -5,9 +5,10 @@ on:
     paths:
       - 'app/live/astra/**'
       - 'app/live-matching.ts'
-      - 'tests/astra-adversarial.test.mjs'
-      - 'scripts/audit-astra-adversarial.mjs'
-      - 'scripts/compare-astra-browser.mjs'
+      - 'tests/astra-*.test.mjs'
+      - 'tests/helpers/astra-*.mjs'
+      - 'scripts/audit-astra-*.mjs'
+      - 'scripts/compare-astra-*.mjs'
       - '.github/workflows/astra-adversarial-audit.yml'
   workflow_dispatch:
 permissions:
@@ -21,6 +22,7 @@ jobs:
     timeout-minutes: 25
     env:
       ASTRA_BASELINE_DIR: /tmp/many-faces-astra-baseline
+      ASTRA_BASELINE_COMMIT: a2b9bcde2d2be2c6b84e0ee88a6845ce37f86d77
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,37 +36,39 @@ jobs:
         run: |
           npm ci
           npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1
-          git fetch --depth=1 origin e6e380a1b4f585a1b0836b262c991e4c8b188939
-          git worktree add --detach "$ASTRA_BASELINE_DIR" e6e380a1b4f585a1b0836b262c991e4c8b188939
+          git fetch --depth=1 origin "$ASTRA_BASELINE_COMMIT"
+          git worktree add --detach "$ASTRA_BASELINE_DIR" "$ASTRA_BASELINE_COMMIT"
           (cd "$ASTRA_BASELINE_DIR" && npm ci)
-          mkdir -p work/astra-adversarial work/astra-evidence public/mediapipe/wasm public/models
+          mkdir -p work/astra-resource-audit work/astra-evidence public/mediapipe/wasm public/models
           cp -a node_modules/@mediapipe/tasks-vision/wasm/. public/mediapipe/wasm/
           curl --fail --location --retry 3 --max-time 180 -o public/models/face_landmarker.task https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
           mkdir -p "$ASTRA_BASELINE_DIR/public/mediapipe" "$ASTRA_BASELINE_DIR/public/models"
           cp -a public/mediapipe/. "$ASTRA_BASELINE_DIR/public/mediapipe/"
           cp -a public/models/. "$ASTRA_BASELINE_DIR/public/models/"
           echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
-      - name: Execute adversarial invariants on corrected implementation
+      - name: Execute all Astra invariants including exact top-k and cache pressure
         run: node --experimental-strip-types --test tests/astra-*.test.mjs
-      - name: Reproduce baseline failures and audit every catalog record
-        run: node --experimental-strip-types scripts/audit-astra-adversarial.mjs
+      - name: Stress exact ranking across all 70000 records and replay fixed-budget cache demand
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: node --experimental-strip-types scripts/audit-astra-resource-cache.mjs
       - name: Prepare unchanged public-photo stimulus
-        run: bash scripts/prepare-astra-fixtures.sh > work/astra-adversarial/fixture-build.log 2>&1
+        run: bash scripts/prepare-astra-fixtures.sh > work/astra-resource-audit/fixture-build.log 2>&1
       - name: Build both exact source revisions
         run: |
-          npm run build > work/astra-adversarial/current-build.log 2>&1
-          (cd "$ASTRA_BASELINE_DIR" && npm run build) > work/astra-adversarial/baseline-build.log 2>&1
+          npm run build > work/astra-resource-audit/current-build.log 2>&1
+          (cd "$ASTRA_BASELINE_DIR" && npm run build) > work/astra-resource-audit/baseline-build.log 2>&1
       - name: Start production servers for paired comparison
         run: |
-          PORT=4173 HOST=127.0.0.1 nohup npm start > work/astra-adversarial/current-server.log 2>&1 &
-          (cd "$ASTRA_BASELINE_DIR" && PORT=4175 HOST=127.0.0.1 nohup npm start > "$GITHUB_WORKSPACE/work/astra-adversarial/baseline-server.log" 2>&1) &
+          PORT=4173 HOST=127.0.0.1 nohup npm start > work/astra-resource-audit/current-server.log 2>&1 &
+          (cd "$ASTRA_BASELINE_DIR" && PORT=4175 HOST=127.0.0.1 nohup npm start > "$GITHUB_WORKSPACE/work/astra-resource-audit/baseline-server.log" 2>&1) &
           for attempt in $(seq 1 90); do
             if curl -fsS http://127.0.0.1:4173/live/astra >/dev/null && curl -fsS http://127.0.0.1:4175/live/astra >/dev/null; then exit 0; fi
             sleep 1
           done
           exit 1
-      - name: ABBA full-70k browser comparison, not last-second FPS snapshots
-        run: node scripts/compare-astra-browser.mjs
+      - name: ABBA browser comparison with actual resource timing and cache-hit accounting
+        run: node scripts/compare-astra-resources.mjs
       - name: Verify catalog and tracked source remained unchanged by execution
         if: always()
         run: |
@@ -73,6 +77,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: astra-adversarial-${{ github.run_id }}
-          path: work/astra-adversarial
+          name: astra-resource-audit-${{ github.run_id }}
+          path: work/astra-resource-audit
           retention-days: 14

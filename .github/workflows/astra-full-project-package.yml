@@ -1,0 +1,222 @@
+name: Package full Many Faces Site project
+
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths: ['.github/workflows/astra-full-project-package.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: astra-full-project-package-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Package every tracked source file and the unchanged full catalog
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: |
+          mkdir -p outgoing
+          python - <<'PY'
+          import hashlib, json, os, subprocess, time, zipfile
+          from pathlib import Path, PurePosixPath
+
+          def git(*args):
+              return subprocess.check_output(['git', *args]).decode().strip()
+
+          commit = git('rev-parse', 'HEAD')
+          assert commit == os.environ['GITHUB_SHA']
+          catalog_tree = git('rev-parse', 'HEAD:public/seed-catalog')
+          root = Path('public/seed-catalog')
+          manifest = json.loads((root/'manifest.json').read_text())
+          assert manifest['totalFaces'] == 70000, 'Full 70000-face catalog required'
+          cells = manifest['cells']
+          files = sorted({name for cell in cells.values() for name in (cell.get('shards') or [cell['shard']])})
+          ids = set()
+          count = 0
+          for filename in files:
+              assert PurePosixPath(filename).name == filename
+              payload = json.loads((root/'shards'/filename).read_text())
+              for item in payload['items']:
+                  count += 1
+                  assert item['id'] not in ids, 'Duplicate catalog ID'
+                  ids.add(item['id'])
+                  if item.get('image'):
+                      assert (root/'images'/item['image']).is_file()
+                  else:
+                      pack = root/'packs'/item['pack']
+                      assert pack.is_file()
+                      assert isinstance(item['offset'], int) and item['offset'] >= 0
+                      assert isinstance(item['length'], int) and item['length'] > 0
+                      assert item['offset'] + item['length'] <= pack.stat().st_size
+          assert count == len(ids) == 70000
+
+          entries = []
+          raw = subprocess.check_output(['git','ls-tree','-r','-z','--full-tree','HEAD']).decode()
+          for row in filter(None, raw.split('\0')):
+              meta, name = row.split('\t',1)
+              mode, kind, expected = meta.split()
+              p = PurePosixPath(name)
+              assert kind == 'blob' and mode in ('100644','100755'), f'Unsupported Git object: {name}'
+              assert not p.is_absolute() and '..' not in p.parts and '\\' not in name
+              assert p.suffix.lower() not in {'.ttf','.otf','.woff','.woff2','.eot'}, f'Unexpected font: {name}'
+              assert not (p.name.startswith('.env') and p.name not in {'.env.example','.env.sample'}), f'Unexpected environment file: {name}'
+              assert p.name != 'IMG_3665.mp4', 'Private user video must not be packaged'
+              assert not ({'.git','node_modules','.wrangler','.sites-runtime'} & set(p.parts))
+              entries.append((name, mode, expected))
+
+          prefix = 'Many-Faces-Full-70k'
+          archive = Path('outgoing')/f'Many-Faces-Full-70k-{commit[:8]}.zip'
+          stamp = time.gmtime(int(git('show','-s','--format=%ct','HEAD')))[:6]
+          inventory = []
+          def put(z, name, data, mode='100644'):
+              info = zipfile.ZipInfo(prefix+'/'+name, stamp)
+              info.create_system = 3
+              info.external_attr = int(mode,8) << 16
+              info.compress_type = zipfile.ZIP_DEFLATED
+              z.writestr(info, data, compresslevel=6)
+
+          with zipfile.ZipFile(archive,'w',allowZip64=True) as z:
+              for i,(name,mode,expected) in enumerate(entries):
+                  data = Path(name).read_bytes()
+                  actual = hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+                  assert actual == expected, f'Tracked file changed during packaging: {name}'
+                  inventory.append({'path':name,'mode':mode,'gitBlob':expected,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+                  put(z,name,data,mode)
+                  if i % 250 == 0: print(f'Packaged {i}/{len(entries)} source files')
+              identity = {
+                  'schemaVersion':1,
+                  'repository':'ugin-man/many-faces-beta',
+                  'branch':os.environ['GITHUB_REF_NAME'],
+                  'commit':commit,
+                  'rootTree':git('rev-parse','HEAD^{tree}'),
+                  'catalogTree':catalog_tree,
+                  'catalogFaces':count,
+                  'catalogPoseCells':len(cells),
+                  'catalogShards':len(files),
+                  'trackedFileCount':len(entries),
+                  'trackedBytes':sum(item['bytes'] for item in inventory),
+                  'format':'exact Git source snapshot plus package identity and guide',
+                  'primaryRoute':'/live/astra',
+                  'referenceRoute':'/live',
+                  'reducedCatalog':False,
+                  'privateUserVideoIncluded':False,
+                  'nodeModulesIncluded':False,
+                  'prebuiltDeploymentIncluded':False,
+                  'runId':os.environ['GITHUB_RUN_ID'],
+                  'files':inventory,
+              }
+              put(z,'PACKAGE_IDENTITY.json',(json.dumps(identity,ensure_ascii=False,indent=2)+'\n').encode())
+              guide = '''# Many Faces — full 70,000-photo Site project
+
+This is the existing full project, not the removed compact/portable preview.
+All tracked source files, hidden Site settings, model assets, licenses, tests,
+and the entire 70,000-photo catalog are included without modification.
+
+## Review target
+
+Repository: ugin-man/many-faces-beta
+Branch: astra/realtime-hardening
+Primary route: /live/astra
+Fixed-video reference: /live
+Exact commit and per-file hashes: PACKAGE_IDENTITY.json
+
+Read docs/ASTRA_REALTIME_HARDENING.md and docs/ASTRA_RESOURCE_AUDIT.md before editing.
+Use this project in the existing ChatGPT Work Site workflow. Preserve .openai,
+build, worker, package-lock.json, and public/seed-catalog when transferring it.
+
+This is a source project, not a standalone HTML file or an installer.
+The existing package.json commands require Node.js >=22.13.0 and a Bash-capable
+build environment. Install dependencies with npm ci, build with npm run build,
+and start the existing production runtime with npm start. npm run dev is the
+existing development entry. No alternate preview server has been added.
+
+Dependencies are not bundled; package installation needs registry access.
+Model assets tracked under public/mediapipe are included. The fixed-video
+reference may still use external asset URLs; this is not an offline guarantee.
+Open /live/astra on the started Site to review realtime behavior.
+
+The package adds no local .env, credentials, node_modules, Git history, build
+cache, or private user video. Environment bindings belong to the target Site.
+
+## Verification boundary
+
+Existing CI evidence and remaining release gates are described in the audit
+documents. A complete source package is not a claim that physical cameras,
+Safari, the user's Work Site, or continuous-human-motion matching fidelity
+have been verified. No base/main merge or hosted deployment is performed here.
+'''
+              put(z,'PACKAGE_START_HERE.md',guide.encode())
+          with zipfile.ZipFile(archive) as z:
+              assert z.testzip() is None, 'ZIP CRC validation failed'
+              assert len(z.namelist()) == len(entries)+2
+
+          # Transport chunks keep individual connector downloads manageable.
+          # Rejoining them reproduces the single complete ZIP byte-for-byte;
+          # these are not smaller/subset versions of the application.
+          chunks = []
+          whole = hashlib.sha256()
+          with archive.open('rb') as src:
+              for i in range(4):
+                  block = src.read(240*1024*1024)
+                  if not block: break
+                  name = f'full-project.part{i:02d}'
+                  (Path('outgoing')/name).write_bytes(block)
+                  whole.update(block)
+                  chunks.append({'name':name,'bytes':len(block),'sha256':hashlib.sha256(block).hexdigest()})
+              assert src.read(1) == b'', 'Archive exceeds transport budget'
+          receipt = {k:v for k,v in identity.items() if k!='files'}
+          receipt.update({'archive':archive.name,'archiveBytes':archive.stat().st_size,'archiveSha256':whole.hexdigest(),'zipCrcVerified':True,'chunks':chunks})
+          Path('outgoing/receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          print(json.dumps(receipt,indent=2))
+          PY
+      - name: Verify that packaging did not rewrite source or assets
+        run: git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-full-package-receipt-${{ github.run_id }}
+          path: outgoing/receipt.json
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-full-package-part00-${{ github.run_id }}
+          path: outgoing/full-project.part00
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: hashFiles('outgoing/full-project.part01') != ''
+        with:
+          name: many-faces-full-package-part01-${{ github.run_id }}
+          path: outgoing/full-project.part01
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: hashFiles('outgoing/full-project.part02') != ''
+        with:
+          name: many-faces-full-package-part02-${{ github.run_id }}
+          path: outgoing/full-project.part02
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: hashFiles('outgoing/full-project.part03') != ''
+        with:
+          name: many-faces-full-package-part03-${{ github.run_id }}
+          path: outgoing/full-project.part03
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7

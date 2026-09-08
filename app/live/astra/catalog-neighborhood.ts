@@ -64,7 +64,9 @@ export class ParsedShardCache<T> {
   private misses = 0;
   private evictions = 0;
   private admissionDrops = 0;
-  constructor(maxEntries = 48, policy: "lru" | "frequency" = "frequency") {
+  // Frequency admission remains experimental: paired testing reduced request
+  // count but increased transferred shard bytes. Keep production on LRU.
+  constructor(maxEntries = 48, policy: "lru" | "frequency" = "lru") {
     if (!Number.isInteger(maxEntries) || maxEntries < 1) throw new RangeError("Invalid shard cache capacity");
     this.maxEntries = maxEntries;
     this.policy = policy;

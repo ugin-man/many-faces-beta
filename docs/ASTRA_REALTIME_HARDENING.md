@@ -1,51 +1,48 @@
-# Many Faces realtime handoff — 2026-09-08 JST
+# Many Faces realtime handoff — 2026-09-09 JST
 
 ## Canonical target
 
 Repository: `ugin-man/many-faces-beta`. Working branch: `astra/realtime-hardening`. Draft PR #3 targets `work/coverage-driven-200k` and remains unmerged.
 
-Use the existing full 70,000-face catalog and `/live/astra` for review in ChatGPT Work Site. `/live` remains the fixed-video reference. Do not create a reduced catalog, lightweight app ZIP or separate local-preview product. Neither main/base promotion nor hosted deployment was performed in this pass.
+Use the unchanged full 70,000-photo catalog and `/live/astra` for review in ChatGPT Work Site. `/live` remains the fixed-video reference. No reduced catalog, lightweight app ZIP, separate local-preview product, main/base merge or hosted deployment was made.
 
 ## Latest tested application
 
-Application commit: `e71535d1480e0b61b8ff813e3cfd89312779f1ee`.
+`fe83ed35988ac18c0805987a176b3aac5adca203`.
 
-Read [ASTRA_ADVERSARIAL_AUDIT.md](ASTRA_ADVERSARIAL_AUDIT.md) for exact baseline, reproduction cases, measurements, evidence links and limitations. Later handoff edits do not change the tested application.
+Read [ASTRA_RESOURCE_AUDIT.md](ASTRA_RESOURCE_AUDIT.md) for this round's accepted and rejected changes, exact revision identities, measurements, evidence and limitations. [ASTRA_ADVERSARIAL_AUDIT.md](ASTRA_ADVERSARIAL_AUDIT.md) records the earlier e71535d round; its numbers are historical, not current comparative results.
 
-The standard run `34159127418` passed build, 43 scoped tests, lint and full-catalog browser lifecycle verification. Lint had zero errors and 13 existing warnings. The separate run `34159127550` passed adversarial baseline reproductions, every-record catalog audit and a paired before/after browser comparison. These checks completed; they are not merely queued.
+Final runs completed successfully: repository CI `34262147315`, realtime validation `34262141157`, and resource/paired audit `34262141175`. These include configured npm tests, lint, Python-tool checks, full-catalog lifecycle checks, numerical ranking comparisons and paired production-browser measurements. This is not a warning-free, real-camera or production-ready claim. Subsequent handoff-only changes do not alter the tested application.
 
 ## Current architecture
 
-A continuous camera/video client acquires fresh frames. A classic Web Worker performs MediaPipe face inference and candidate matching, leaving controls/drawing on the UI thread. At most one frame is in flight, and results older than 500 ms are discarded. Generation-scoped stop/restart closes workers, media tracks, image requests and native image resources. A cancelled late permission grant cannot resurrect capture.
+Fresh camera/video frames go to a classic MediaPipe Worker. At most one frame is in flight; results over 500 ms old are discarded. Phase-preserving sampling targets 20 Hz without the old 30-to-15 Hz quantization bug. Stop/restart is generation-scoped and releases tracks, workers, image requests and native resources.
 
-The frame sampler preserves its target timing phase. Unlike the prior delay-after-accept sampler, a nominal 20 Hz target no longer silently becomes 15 Hz with a 30 Hz input. This does not guarantee that inference on every device can sustain 20 Hz.
+Catalog reads use `source=seed`. The default parsed cache is still 48-shard LRU; the active pose working set uses at most 24 shards. Frequency-aware cache admission was tested but is not enabled in the live worker. Its reduced request count did not establish reduced transfer bytes or improved visual quality.
 
-Catalog reads stay on `source=seed`. A parsed LRU cache keeps at most 48 shards; the active pose working set uses at most 24. The old 2,400-candidate stride thinning is removed. Every candidate in the active set receives coarse scoring using reusable numerical descriptors, followed by detailed comparison of 48 shortlisted candidates. This is still pose-local approximate access, not a global all-70k detailed scan.
+No arbitrary 2,400-candidate thinning remains. Reusable numerical descriptors, an exact bounded top-k heap and a safe pose lower bound preserve the coarse shortlist for a given active candidate set while avoiding unnecessary complete scoring/sorting. Recent-ID reservation and tie order are retained. Detailed projection scoring uses 48 finalists. This is still pose-local access, not globally exhaustive all-70k live matching.
 
-Base64 geometry decoding uses a direct signed little-endian loop. All 132,930,000 geometry values across the full catalog matched the old decoder exactly in the executed audit. The source catalog tree did not change.
+The new offline stress test queried all 70,000 candidates for 32 perturbed inputs with zero shortlist mismatches against the previous implementation. Independent randomized oracle tests cover additional edge cases. These validate numerical equivalence, not perceptual correctness. All catalog assets remain unchanged (Git tree `559f7f39e3a8eed452ef7eb6a3355a318235c307`).
 
-Candidate image storage remains bounded at 64 decoded images / 32 MiB with at most three requests. Prefetch and display now share a quality envelope, so cached inferior faces cannot starve the new best image. A now-invalid static hold can settle to an eligible replacement after motion stops. Valid static images are not arbitrarily rotated to inflate output rate.
+Image caching remains bounded to 64 images / 32 MiB with at most three requests. Prefetch and display share a quality envelope; an invalid static hold can settle after movement ends. These component limits are not total-browser memory guarantees.
 
-## Actual comparative result
+## Current measured result
 
-Two trials per revision, ABBA order, fresh Chromium processes, same full catalog and three-public-photo virtual camera. Rates use approximately 12-second frame/output deltas after warmup.
+Against baseline `a2b9bcde...`, two trials each, ABBA order, approximately 20-second windows after warmup:
 
-- Mean processed rate: 7.561 -> 18.332 fps.
-- Mean of session capture-to-draw P95s: 263 -> 86.5 ms.
-- Mean image requests per measured window: 82 -> 53.5.
-- Mean shard responses per measured window: 88 -> 172.5, an unresolved increase.
-- Mean actual face-image changes: 3.365 -> 2.827 per second; this is not proof of better motion correspondence.
+- Mean processed rate: 18.456 -> 18.985 fps.
+- Mean session capture-to-draw P95: 92.5 -> 91.0 ms.
+- Mean actual photo changes: 2.644 -> 2.744/s, not a visual-quality measure.
+- Mean shard resource entries: 285 -> 265; most were local-cache service.
+- Mean browser-reported shard transfer: 8.910 -> 10.391 MB. Network-byte reduction remains unachieved.
+- A Node coarse-query component benchmark (24 queries over 6,364 prepared candidates) improved from 81.944 to 16.192 ms median; not an application-wide multiplier.
 
-These are GitHub Actions production-browser measurements, not Work Site/physical-camera performance guarantees. The fixture is not independent human-motion quality evaluation. The private IMG_3665.mp4 was not used or uploaded.
+GitHub Actions Chrome used the same three-photo native virtual-camera stimulus, not the user's Work Site or real continuous human movement. No private IMG_3665.mp4 was used/uploaded. No physical-camera, Safari, long-session or perceptual matching claim is made.
 
-## Audit and CI
+## Audit and next work
 
-`.github/workflows/astra-realtime-hardening.yml` validates the exact source and full-catalog pipeline without rewriting or pushing code. `.github/workflows/astra-adversarial-audit.yml` reproduces baseline defects, scans the unchanged assets and executes a paired comparison. Both retain evidence only, not a reduced application.
+CI validates exact revisions without source rewriting, retains diagnostic evidence, and no longer produces reduced applications. The resource audit distinguishes window/worker resource entries, local-cache reads, browser-reported transfer and decoded-body volume. Fixture preparation in the paired workflow has a three-minute deadline.
 
-Known malformed one-time source-rewriting workflows remain archived in `docs/archived-workflows/`.
+The next architectural candidate is a non-destructive all-catalog coarse/detail index split to avoid repeatedly consuming/reconstructing geometry-heavy JSON. It is not implemented yet. Evaluate rare-expression recall and held-out head/eye/mouth motion alongside cost. Also test actual Work Site and cameras, Japanese typography, Safari, long sessions and background/orientation transitions.
 
-## Remaining priorities
-
-First trace the increased shard traffic (unique/repeated reads, bytes and cache misses). Then evaluate a non-destructive all-catalog coarse/detail index split and independent real-motion quality tests, especially rare eye/mouth expressions. A nominal 70k count and legacy asset gates alone do not prove expression coverage.
-
-Before publication, review catalog-write authorization and trusted gateway headers; resolve startup/MIME warnings; test actual Work Site, real cameras, Safari, long sessions and background/orientation transitions. Do not promote or deploy merely because scoped CI is green.
+Before publication, resolve catalog-write authorization/trusted-header concerns and startup/MIME warnings. Main/base promotion requires a separate decision and rollback; green CI alone is not a release authorization.

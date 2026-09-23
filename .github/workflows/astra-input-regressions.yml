@@ -1,0 +1,68 @@
+name: Astra input regressions
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths:
+      - 'app/live/astra/**'
+      - 'app/live/review-client-lite*'
+      - 'app/live/video-frame*'
+      - 'app/live/media-input*'
+      - 'app/catalog-pose*'
+      - 'tests/astra-input*'
+      - 'scripts/audit-input*'
+      - '.github/workflows/astra-input-regressions.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: astra-input-regressions-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - name: Prepare exact application and public-only diagnostic fixtures
+        run: |
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1 esbuild@0.25.12
+          mkdir -p work/input-audit
+          timeout 240 bash scripts/prepare-astra-fixtures.sh > work/input-audit/fixture.log 2>&1
+          node scripts/audit-input-regressions.mjs --prepare
+      - name: Check input invariants
+        run: node --experimental-strip-types --test tests/astra-input-recovery.test.mjs tests/astra-realtime-hardening.test.mjs
+      - name: Build exact source
+        run: npm run build > work/input-audit/build.log 2>&1
+      - id: server
+        name: Start production server
+        run: |
+          PORT=4173 HOST=127.0.0.1 nohup npm start > work/input-audit/server.log 2>&1 &
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:4173/live/astra >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Check real-photo yaw convention and decoded-frame pixels
+        run: node scripts/audit-input-regressions.mjs
+      - name: Verify injected camera API failures and the actual fixed-video screen
+        # Retain independent evidence even when the pixel test fails. The failed
+        # step remains failed; this does not turn a failing run green.
+        if: ${{ !cancelled() && steps.server.outcome == 'success' }}
+        run: node scripts/audit-input-lifecycle.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: astra-input-evidence-${{ github.run_id }}
+          path: work/input-audit
+          retention-days: 14
+      - name: Confirm no tracked source or full-catalog asset was rewritten
+        if: always()
+        run: git diff --exit-code -- app scripts tests public/seed-catalog

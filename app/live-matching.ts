@@ -79,20 +79,17 @@ function finite(value: unknown) {
 export function decodeCatalogVector(encoded: string | undefined) {
   if (!encoded) return null;
   try {
-    const bytes = Uint8Array.from(
-      atob(encoded),
-      (character) => character.charCodeAt(0),
-    );
-    if (!bytes.byteLength || bytes.byteLength % 2) return null;
-    const values = new Int16Array(
-      bytes.buffer,
-      bytes.byteOffset,
-      bytes.byteLength / 2,
-    );
-    return Float32Array.from(values, (value) => value / 4096);
-  } catch {
-    return null;
-  }
+    const binary = atob(encoded);
+    if (!binary.length || binary.length % 2) return null;
+    const values = new Float32Array(binary.length / 2);
+    // Catalog vectors are signed little-endian int16 / 4096. Decode directly:
+    // avoid per-character iterator callbacks and two temporary typed arrays.
+    for (let i = 0; i < values.length; i++) {
+      const unsigned = binary.charCodeAt(i * 2) | (binary.charCodeAt(i * 2 + 1) << 8);
+      values[i] = ((unsigned << 16) >> 16) / 4096;
+    }
+    return values;
+  } catch { return null; }
 }
 
 function validLayout(value: unknown): value is [number, number, number, number] {
@@ -100,67 +97,30 @@ function validLayout(value: unknown): value is [number, number, number, number] 
 }
 
 function entryImageUrl(entry: LiveCatalogEntry) {
-  if (entry.image) {
-    return `/api/catalog/image?id=${encodeURIComponent(entry.image)}`;
-  }
-  if (
-    !entry.pack ||
-    !Number.isSafeInteger(entry.offset) ||
-    !Number.isSafeInteger(entry.length) ||
-    Number(entry.offset) < 0 ||
-    Number(entry.length) < 1
-  ) {
-    return null;
-  }
+  if (entry.image) return `/api/catalog/image?id=${encodeURIComponent(entry.image)}`;
+  if (!entry.pack || !Number.isSafeInteger(entry.offset) || !Number.isSafeInteger(entry.length) || Number(entry.offset) < 0 || Number(entry.length) < 1) return null;
   return `/api/catalog/image?pack=${encodeURIComponent(entry.pack)}&offset=${entry.offset}&length=${entry.length}`;
 }
 
-export function liveCandidateFromEntry(
-  entry: LiveCatalogEntry,
-  shard?: string,
-): LiveCandidate | null {
-  if (!entry.id || !Array.isArray(entry.feature) || entry.feature.length < 22) {
-    return null;
-  }
+export function liveCandidateFromEntry(entry: LiveCatalogEntry, shard?: string): LiveCandidate | null {
+  if (!entry.id || !Array.isArray(entry.feature) || entry.feature.length < 22) return null;
   const structure = decodeCatalogVector(entry.shape);
   const projection = decodeCatalogVector(entry.projection);
   const surface = decodeCatalogVector(entry.mesh) ?? projection;
   const url = entryImageUrl(entry);
-  if (
-    !structure || structure.length < 13 ||
-    !projection || projection.length < 936 ||
-    !surface ||
-    !url
-  ) {
-    return null;
-  }
-  const layout = validLayout(entry.layout)
-    ? entry.layout
-    : [0.5, 0.5, 1, 1] as [number, number, number, number];
+  if (!structure || structure.length < 13 || !projection || projection.length < 936 || !surface || !url) return null;
+  const layout = validLayout(entry.layout) ? entry.layout : [0.5, 0.5, 1, 1] as [number, number, number, number];
   return {
-    id: entry.id,
-    name: entry.name || entry.id,
-    url,
-    image: entry.image,
-    pack: entry.pack,
-    offset: entry.offset,
-    length: entry.length,
-    feature: entry.feature.map(finite),
-    geometry: { structure, surface, projection, layout },
-    sourceName: entry.sourceName,
-    sourceUrl: entry.sourceUrl,
-    creator: entry.creator,
-    license: entry.license,
-    licenseUrl: entry.licenseUrl,
-    shard,
+    id: entry.id, name: entry.name || entry.id, url,
+    image: entry.image, pack: entry.pack, offset: entry.offset, length: entry.length,
+    feature: entry.feature.map(finite), geometry: { structure, surface, projection, layout },
+    sourceName: entry.sourceName, sourceUrl: entry.sourceUrl, creator: entry.creator,
+    license: entry.license, licenseUrl: entry.licenseUrl, shard,
   };
 }
 
 export function buildLiveCandidateIndex(candidates: readonly LiveCandidate[]) {
-  return new FixedCandidateSearchIndex(candidates, {
-    poseStepDegrees: 6,
-    maxBucketEntries: 64,
-  });
+  return new FixedCandidateSearchIndex(candidates, { poseStepDegrees: 6, maxBucketEntries: 64 });
 }
 
 function scoreForMode(error: ProjectionError, mode: ProjectionRankMode) {
@@ -175,70 +135,32 @@ function scoreForMode(error: ProjectionError, mode: ProjectionRankMode) {
 }
 
 export function rankLiveCandidates(
-  index: FixedCandidateSearchIndex<LiveCandidate> | null,
+  index: Pick<FixedCandidateSearchIndex<LiveCandidate>, "size" | "query"> | null,
   frame: FixedSearchFrame,
   options: LiveRankOptions = {},
 ): LiveRankResult {
-  if (!index || !index.size) {
-    return {
-      winner: null,
-      ranked: [],
-      inspected: 0,
-      bucketHits: 0,
-      fallbackCandidates: 0,
-    };
-  }
+  if (!index || !index.size) return { winner: null, ranked: [], inspected: 0, bucketHits: 0, fallbackCandidates: 0 };
   const mode = options.mode ?? "strict";
   const recentIds = [...new Set(options.recentIds ?? [])];
   const query = index.query(frame, {
     budget: options.budget ?? 96,
     maxInspected: Math.max(256, (options.budget ?? 96) * 4),
-    yawRadiusDegrees: 15,
-    pitchRadiusDegrees: 18,
-    previousIds: [options.currentId, ...recentIds].filter(
-      (value): value is string => Boolean(value),
-    ),
+    yawRadiusDegrees: 15, pitchRadiusDegrees: 18,
+    previousIds: [options.currentId, ...recentIds].filter((value): value is string => Boolean(value)),
   });
-  const detailedLimit = Math.max(8, Math.min(
-    query.candidates.length,
-    options.detailedLimit ?? 40,
-  ));
+  const detailedLimit = Math.max(8, Math.min(query.candidates.length, options.detailedLimit ?? 40));
   const holdBias = options.holdBias ?? 0.012;
   const diversityPenalty = options.diversityPenalty ?? 0.012;
   const measured = query.candidates.slice(0, detailedLimit).map((candidate) => {
-    const error = projectionError(
-      {
-        time: 0,
-        feature: Array.from(frame.feature),
-        geometry: frame.geometry as FaceGeometry,
-      },
-      candidate,
-    );
+    const error = projectionError({ time: 0, feature: Array.from(frame.feature), geometry: frame.geometry as FaceGeometry }, candidate);
     let score = scoreForMode(error, mode);
     if (candidate.id === options.currentId) score -= holdBias;
     const recentIndex = recentIds.indexOf(candidate.id);
-    if (recentIndex >= 0 && candidate.id !== options.currentId) {
-      score += diversityPenalty * (recentIds.length - recentIndex) / Math.max(1, recentIds.length);
-    }
+    if (recentIndex >= 0 && candidate.id !== options.currentId) score += diversityPenalty * (recentIds.length - recentIndex) / Math.max(1, recentIds.length);
     return { candidate, error: { ...error, total: score }, score };
   }).sort((left, right) => left.score - right.score || left.candidate.id.localeCompare(right.candidate.id));
-
   let winner = measured[0] ?? null;
-  const current = options.currentId
-    ? measured.find((item) => item.candidate.id === options.currentId) ?? null
-    : null;
-  if (
-    winner &&
-    current &&
-    current.score <= winner.score + (options.hysteresis ?? 0.01)
-  ) {
-    winner = current;
-  }
-  return {
-    winner,
-    ranked: measured.slice(0, 24),
-    inspected: query.inspected,
-    bucketHits: query.bucketHits,
-    fallbackCandidates: query.fallbackCandidates,
-  };
+  const current = options.currentId ? measured.find((item) => item.candidate.id === options.currentId) ?? null : null;
+  if (winner && current && current.score <= winner.score + (options.hysteresis ?? 0.01)) winner = current;
+  return { winner, ranked: measured.slice(0, 24), inspected: query.inspected, bucketHits: query.bucketHits, fallbackCandidates: query.fallbackCandidates };
 }

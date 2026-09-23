@@ -1,48 +1,49 @@
-# Many Faces realtime handoff — 2026-09-09 JST
+# Many Faces realtime handoff — 2026-09-24 JST
 
 ## Canonical target
 
-Repository: `ugin-man/many-faces-beta`. Working branch: `astra/realtime-hardening`. Draft PR #3 targets `work/coverage-driven-200k` and remains unmerged.
+Repository: `ugin-man/many-faces-beta`. Branch: `astra/realtime-hardening`. Draft PR #3 targets `work/coverage-driven-200k`; base/main are not merged by this work.
 
-Use the unchanged full 70,000-photo catalog and `/live/astra` for review in ChatGPT Work Site. `/live` remains the fixed-video reference. No reduced catalog, lightweight app ZIP, separate local-preview product, main/base merge or hosted deployment was made.
+Keep the existing full 70,000-image catalog. Realtime review is `/live/astra` in the existing ChatGPT Work Site flow; `/live` is the fixed-video reference. Do not create a reduced catalog or alternate portable application. No hosted Site deployment or new ZIP was performed in this input-repair pass.
 
-## Latest tested application
+## Current user-facing repair
 
-`fe83ed35988ac18c0805987a176b3aac5adca203`.
+Read [ASTRA_INPUT_RECOVERY.md](ASTRA_INPUT_RECOVERY.md) first. It supersedes earlier input/orientation assumptions and records exact reproduction cases, executed checks and limitations.
 
-Read [ASTRA_RESOURCE_AUDIT.md](ASTRA_RESOURCE_AUDIT.md) for this round's accepted and rejected changes, exact revision identities, measurements, evidence and limitations. [ASTRA_ADVERSARIAL_AUDIT.md](ASTRA_ADVERSARIAL_AUDIT.md) records the earlier e71535d round; its numbers are historical, not current comparative results.
+The input implementation completed specialized browser verification at `5f0a0b136f9d5a5898608f75aa3d4ad7849438b1`. The subsequent CSS-only revision `99548fe830adfa81d0dc6d01947684926ed2dd77` passed repository CI and full-catalog realtime browser verification, including the 390x844 viewport. Its JavaScript is identical to the specialized-tested revision. Later documentation updates do not change that application.
 
-Final runs completed successfully: repository CI `34262147315`, realtime validation `34262141157`, and resource/paired audit `34262141175`. These include configured npm tests, lint, Python-tool checks, full-catalog lifecycle checks, numerical ranking comparisons and paired production-browser measurements. This is not a warning-free, real-camera or production-ready claim. Subsequent handoff-only changes do not alter the tested application.
+The screen marker is **INPUT RECOVERY V1** and diagnostic build is `input-recovery-v1`. The old ZIP built from `8eb47b7d...` does not contain these repairs. Updating Git does not update a previously downloaded package or an already built Site: rebuild the Site from this branch and confirm the marker before reporting results.
 
-## Current architecture
+### Changes
 
-Fresh camera/video frames go to a classic MediaPipe Worker. At most one frame is in flight; results over 500 ms old are discarded. Phase-preserving sampling targets 20 Hz without the old 30-to-15 Hz quantization bug. Stop/restart is generation-scoped and releases tracks, workers, image requests and native resources.
+The browser had read MediaPipe's packed transformation matrix with Python row-major offsets. A shared catalog-pose helper now translates the Web column-major representation. On 18 real catalog photographs, yaw-sign agreement with stored catalog values changed from 0/18 to 18/18. This is a yaw convention check, not a guarantee of all pose components or final matching quality.
 
-Catalog reads use `source=seed`. The default parsed cache is still 48-shard LRU; the active pose working set uses at most 24 shards. Frequency-aware cache admission was tested but is not enabled in the live worker. Its reduced request count did not establish reduced transfer bytes or improved visual quality.
+Camera/video analysis now uses original unmirrored pixels. Camera mirror presentation affects BOTH panes; video defaults to original orientation. A checkbox changes presentation only.
 
-No arbitrary 2,400-candidate thinning remains. Reusable numerical descriptors, an exact bounded top-k heap and a safe pose lower bound preserve the coarse shortlist for a given active candidate set while avoiding unnecessary complete scoring/sorting. Recent-ID reservation and tie order are retained. Detailed projection scoring uses 48 finalists. This is still pose-local access, not globally exhaustive all-70k live matching.
+Fixed-video acquisition is atomic: callback registration precedes seeking, followed by actual decoded-frame readback with position/source/readiness checks. Already displayed paused frames no longer require a nonexistent future callback. Cancellation and timeout remain fail-closed. The previous 「目的フレームの描画待ちがタイムアウトしました」 was reproduced in the old code.
 
-The new offline stress test queried all 70,000 candidates for 32 perturbed inputs with zero shortlist mismatches against the previous implementation. Independent randomized oracle tests cover additional edge cases. These validate numerical equivalence, not perceptual correctness. All catalog assets remain unchanged (Git tree `559f7f39e3a8eed452ef7eb6a3355a318235c307`).
+Camera startup now separates permission, input-video readiness, model startup and running stages. It includes explicit device selection, constrained permission retry rules, late-grant cleanup, a decoded-canvas bitmap path, a stalled-presentation-callback fallback and error-coded diagnostics. Embedded camera-policy denial explains the restriction and offers 「サイトを別タブで開く」.
 
-Image caching remains bounded to 64 images / 32 MiB with at most three requests. Prefetch and display share a quality envelope; an invalid static hold can settle after movement ends. These component limits are not total-browser memory guarantees.
+## Executed verification and boundary
 
-## Current measured result
+The specialized suite ran actual MediaPipe on 18 public photographs, checked expected pixels for nine File-equivalent WebM acquisitions, injected two live-browser API failures while preserving real capture/inference, checked native iframe policy denial and permission denial, and exercised the actual fixed-video screen at 12/20/30-fps analysis densities.
 
-Against baseline `a2b9bcde...`, two trials each, ABBA order, approximately 20-second windows after warmup:
+For a five-second public-photo MP4, planned/face-detected/sequence counts were 60/60/60, 100/100/100 and 150/150/150, with zero image failures and non-blank output. Playback/pause/frame-step checks passed. Those analysis densities are not realtime performance measurements.
 
-- Mean processed rate: 18.456 -> 18.985 fps.
-- Mean session capture-to-draw P95: 92.5 -> 91.0 ms.
-- Mean actual photo changes: 2.644 -> 2.744/s, not a visual-quality measure.
-- Mean shard resource entries: 285 -> 265; most were local-cache service.
-- Mean browser-reported shard transfer: 8.910 -> 10.391 MB. Network-byte reduction remains unachieved.
-- A Node coarse-query component benchmark (24 queries over 6,364 prepared candidates) improved from 81.944 to 16.192 ms median; not an application-wide multiplier.
+The user's physical camera/OS/hosted iframe was not accessible. Its exact failure remains unconfirmed. The compatibility checks are not evidence that the user's hardware is fixed. No private IMG_3665.mp4 was used or uploaded. Actual Work Site, Safari, continuous human movement and long sessions remain unverified.
 
-GitHub Actions Chrome used the same three-photo native virtual-camera stimulus, not the user's Work Site or real continuous human movement. No private IMG_3665.mp4 was used/uploaded. No physical-camera, Safari, long-session or perceptual matching claim is made.
+## Retained architecture and assets
 
-## Audit and next work
+The classic worker remains responsible for MediaPipe and candidate matching. The UI remains responsible for input capture, controls, bounded image cache and presentation. One frame is in flight; old results are discarded. Camera stop/restart cancels old sessions and releases media/worker/bitmap resources.
 
-CI validates exact revisions without source rewriting, retains diagnostic evidence, and no longer produces reduced applications. The resource audit distinguishes window/worker resource entries, local-cache reads, browser-reported transfer and decoded-body volume. Fixture preparation in the paired workflow has a three-minute deadline.
+Catalog reads remain pinned to the full seed. The parsed cache remains 48 shards with default LRU, the active set at most 24 pose-local shards, and every active candidate is considered by the exact bounded coarse top-k calculation before detailed comparison of 48 candidates. This is not global exhaustive detailed search of all 70,000 faces. Image storage remains bounded to 64 decoded images / 32 MiB and up to three requests.
 
-The next architectural candidate is a non-destructive all-catalog coarse/detail index split to avoid repeatedly consuming/reconstructing geometry-heavy JSON. It is not implemented yet. Evaluate rare-expression recall and held-out head/eye/mouth motion alongside cost. Also test actual Work Site and cameras, Japanese typography, Safari, long sessions and background/orientation transitions.
+The catalog assets are unchanged from the packaged baseline, whose catalog tree is `559f7f39e3a8eed452ef7eb6a3355a318235c307`.
 
-Before publication, resolve catalog-write authorization/trusted-header concerns and startup/MIME warnings. Main/base promotion requires a separate decision and rollback; green CI alone is not a release authorization.
+For historical numerical/performance work, see [ASTRA_RESOURCE_AUDIT.md](ASTRA_RESOURCE_AUDIT.md) and [ASTRA_ADVERSARIAL_AUDIT.md](ASTRA_ADVERSARIAL_AUDIT.md). Their measured throughput precedes the yaw correction; a green non-blank/performance test did not prove correct orientation. Do not use those numbers as certification of the repaired matching fidelity.
+
+## Next priority
+
+User review should run the rebuilt **INPUT RECOVERY V1** Site. A remaining camera failure should be accompanied by its visible code or scalar diagnostic JSON, not guessed from the generic word "camera". Then evaluate held-out head/eye/mouth motion and matching quality before more optimization.
+
+Non-destructive coarse/detail asset separation, rare-expression coverage, startup/MIME behavior, physical-device/Safari/long-session coverage and catalog-write authorization remain open. Do not promote or deploy merely because functional CI passes.

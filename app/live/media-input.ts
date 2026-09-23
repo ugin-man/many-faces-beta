@@ -80,15 +80,13 @@ export function waitForPlayableVideo(video: HTMLVideoElement, signal: AbortSigna
   return new Promise<void>((resolve, reject) => {
     let settled = false;
     let played = false;
-    let timer: ReturnType<typeof setTimeout>;
-    let poll: ReturnType<typeof setInterval>;
     const clean = () => { clearTimeout(timer); clearInterval(poll); signal.removeEventListener("abort", cancel); video.removeEventListener("error", failed); };
     const finish = (error?: Error) => { if (settled) return; settled = true; clean(); if (error) reject(error); else resolve(); };
     const cancel = () => finish(aborted());
     const failed = () => finish(new MediaInputError("VIDEO_DECODE_ERROR", `入力映像を再生できませんでした（media code ${video.error?.code ?? 0}）。`));
     const ready = () => { if (played && !video.paused && video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) finish(); };
-    timer = setTimeout(() => finish(new MediaInputError("VIDEO_START_TIMEOUT", "カメラは取得しましたが映像が届きません。使用するカメラ、OSの許可、他のアプリとの競合を確認してください。")), timeoutMs);
-    poll = setInterval(ready, 50);
+    const timer = setTimeout(() => finish(new MediaInputError("VIDEO_START_TIMEOUT", "入力映像が届きません。カメラの選択、OSの許可、または動画形式を確認して再開してください。")), timeoutMs);
+    const poll = setInterval(ready, 50);
     signal.addEventListener("abort", cancel, { once: true });
     video.addEventListener("error", failed, { once: true });
     if (signal.aborted) { cancel(); return; }

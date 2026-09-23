@@ -164,12 +164,20 @@ export default function AstraRealtimeClient() {
   useEffect(() => { presentRef.current = present; }, [present]);
   useEffect(() => () => dispose(), [dispose]);
   useEffect(() => {
-    const environment = cameraEnvironment();
-    setEmbedded(environment.embedded); setDirectUrl(window.location.href);
-    dataRef.current.environment = environment;
-    void refreshDevices();
+    const syncEnvironment = () => {
+      const environment = cameraEnvironment();
+      setEmbedded(environment.embedded); setDirectUrl(window.location.href);
+      dataRef.current.environment = environment;
+      void refreshDevices();
+    };
+    // Browser-only state is read after hydration; the scheduled initial sync
+    // and device-change subscription both have explicit cleanup.
+    const initialSync = window.setTimeout(syncEnvironment, 0);
     navigator.mediaDevices?.addEventListener?.("devicechange", refreshDevices);
-    return () => navigator.mediaDevices?.removeEventListener?.("devicechange", refreshDevices);
+    return () => {
+      clearTimeout(initialSync);
+      navigator.mediaDevices?.removeEventListener?.("devicechange", refreshDevices);
+    };
   }, [refreshDevices]);
   useEffect(() => {
     const hidden = () => {

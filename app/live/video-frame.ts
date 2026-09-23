@@ -44,7 +44,8 @@ export async function captureVideoFrameAt(
   const signal = controller.signal;
   const cancel = () => controller.abort(abortError());
   options.signal?.addEventListener("abort", cancel, { once: true });
-  const deadline = setTimeout(() => controller.abort(new Error("VIDEO_FRAME_TIMEOUT: 指定時刻の映像を取得できませんでした。再生可能な動画で、ページを開いたまま再試行してください。")), options.timeoutMs ?? 8000);
+  let stage = "position";
+  const deadline = setTimeout(() => controller.abort(new Error(`VIDEO_FRAME_TIMEOUT: 指定時刻の映像を取得できませんでした（${stage}; request=${time.toFixed(4)}, current=${video.currentTime.toFixed(4)}, ready=${video.readyState}, seeking=${video.seeking}）。ページを開いたまま再試行してください。`)), options.timeoutMs ?? 8000);
   const duration = Number.isFinite(video.duration) ? video.duration : Math.max(5, time + 1);
   const target = Math.max(0, Math.min(time, Math.max(0, duration - 0.001)));
   let callbackId: number | null = null;
@@ -81,14 +82,15 @@ export async function captureVideoFrameAt(
         if (signal.aborted) abort();
       } catch (error) { cleanup(); reject(error); }
     });
-    // Give a pending compositor notification a chance to arrive. Its absence
-    // is not an error for an unchanged decoded frame; readback is then required.
+    stage = "presentation";
     let grace: ReturnType<typeof setTimeout> | undefined;
     try { await abortable(Promise.race([presented, new Promise<void>(resolve => { grace = setTimeout(resolve, 100); })]), signal); }
     finally { if (grace) clearTimeout(grace); }
+    stage = "paint";
     await paint(signal);
     await paint(signal);
     if (!positioned() || !video.paused) throw new Error("VIDEO_POSITION_CHANGED: 取得中に動画の時刻が変わりました");
+    stage = "bitmap";
     const snapshot = createImageBitmap(video);
     void snapshot.then(bitmap => { if (signal.aborted) bitmap.close(); }, () => undefined);
     const bitmap = await abortable(snapshot, signal);

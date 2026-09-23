@@ -41,7 +41,8 @@ jobs:
         run: node --experimental-strip-types --test tests/astra-input-recovery.test.mjs tests/astra-realtime-hardening.test.mjs
       - name: Build exact source
         run: npm run build > work/input-audit/build.log 2>&1
-      - name: Start production server
+      - id: server
+        name: Start production server
         run: |
           PORT=4173 HOST=127.0.0.1 nohup npm start > work/input-audit/server.log 2>&1 &
           for attempt in $(seq 1 60); do
@@ -52,6 +53,9 @@ jobs:
       - name: Check real-photo yaw convention and decoded-frame pixels
         run: node scripts/audit-input-regressions.mjs
       - name: Verify injected camera API failures and the actual fixed-video screen
+        # Retain independent evidence even when the pixel test fails. The failed
+        # step remains failed; this does not turn a failing run green.
+        if: ${{ !cancelled() && steps.server.outcome == 'success' }}
         run: node scripts/audit-input-lifecycle.mjs
       - uses: actions/upload-artifact@v4
         if: always()

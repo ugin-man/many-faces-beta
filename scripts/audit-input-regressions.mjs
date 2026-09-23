@@ -45,7 +45,14 @@ window.__frameAudit=async()=>{
   const video=document.createElement('video');video.muted=true;video.playsInline=true;video.style.cssText='width:192px;height:192px';document.body.append(video);
   video.src='/__input_audit/colors.webm';await new Promise((resolve,reject)=>{video.onloadeddata=resolve;video.onerror=reject;video.load();});video.pause();await sleep(120);
   const rows=[];
-  try{for(const time of [0,0,0.04,0.04,0.5,1.2,2.2,0.4,2.999]){const frame=await captureVideoFrameAt(video,time);const canvas=document.createElement('canvas');canvas.width=frame.bitmap.width;canvas.height=frame.bitmap.height;const ctx=canvas.getContext('2d');ctx.drawImage(frame.bitmap,0,0);frame.bitmap.close();const rgb=[...ctx.getImageData(48,48,1,1).data].slice(0,3);const expected=time<1?0:time<2?1:2;rows.push({time,passed:rgb[expected]>80&&rgb[expected]>Math.max(...rgb.filter((_,i)=>i!==expected))*2,rgb,evidence:frame.evidence});}}finally{video.remove();}
+  try{for(const time of [0,0,0.04,0.04,0.5,1.2,2.2,0.4,2.999]){
+    const started=performance.now();
+    try{
+      const frame=await captureVideoFrameAt(video,time);const canvas=document.createElement('canvas');canvas.width=frame.bitmap.width;canvas.height=frame.bitmap.height;const ctx=canvas.getContext('2d');ctx.drawImage(frame.bitmap,0,0);frame.bitmap.close();
+      const rgb=[...ctx.getImageData(48,48,1,1).data].slice(0,3),expected=time<1?0:time<2?1:2;
+      rows.push({time,passed:rgb[expected]>80&&rgb[expected]>Math.max(...rgb.filter((_,i)=>i!==expected))*2,rgb,evidence:frame.evidence,elapsedMs:performance.now()-started});
+    }catch(error){rows.push({time,passed:false,error:error.message,currentTime:video.currentTime,duration:video.duration,ready:video.readyState,seeking:video.seeking,paused:video.paused,elapsedMs:performance.now()-started});break;}
+  }}finally{video.remove();}
   return rows;
 };
 `;
@@ -71,7 +78,7 @@ try{
   check(detected.length===18,'Expected all 18 real catalog photos to be detected');
   check(report.correctedYawSignMatches===18,'Corrected yaw no longer agrees with the stored catalog');
   check(report.correctedYawMAE<8,'Unexpected yaw magnitude regression');
-  check(report.frames.length===9&&report.frames.every(row=>row.passed),'A decoded frame contains the wrong color/time');
+  check(report.frames.length===9&&report.frames.every(row=>row.passed),'A decoded frame contains the wrong color/time or could not be acquired');
   check(report.errors.length===0,'Page runtime errors');
   report.passed=true;
 }catch(error){report.error=error.stack||String(error);process.exitCode=1;}

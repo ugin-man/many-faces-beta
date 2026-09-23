@@ -1,6 +1,7 @@
 /// <reference lib="webworker" />
 import type { FaceLandmarker, FaceLandmarkerResult } from "@mediapipe/tasks-vision";
 import { faceFeatureFromScores } from "../../face-actions";
+import { catalogPoseFromWebMatrix } from "../../catalog-pose";
 import { calibrateExpressionFeature, createExpressionTracker } from "../../expression-matching";
 import { createLandmarkPitchTracker, landmarkPitchDegrees } from "../../landmark-pitch";
 import { faceGeometryFromLandmarks } from "../../offline-matching";
@@ -11,7 +12,7 @@ import { medianDuration, preferCpu, shouldProbeCpu } from "./delegate-policy";
 import type { FrameResult } from "./runtime";
 
 type Manifest = { totalFaces: number; searchableFaces?: number; catalogId?: string; poseStep?: number; cells: Record<string, { shards?: string[]; shard?: string }>; stats?: { cleanCore?: { knownSyntheticFaces?: number } } };
-type Input = { type: "init"; origin: string; mirror: boolean } | { type: "frame"; id: number; capturedAt: number; bitmap: ImageBitmap; currentId: string | null };
+type Input = { type: "init"; origin: string; mirror?: boolean } | { type: "frame"; id: number; capturedAt: number; bitmap: ImageBitmap; currentId: string | null };
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 let landmarker: FaceLandmarker | null = null;
 let createEngine: ((delegate: "GPU" | "CPU") => Promise<FaceLandmarker>) | null = null;
@@ -22,7 +23,6 @@ const inferenceSamples: number[] = [];
 let manifest: Manifest | null = null;
 let neighborhood: PoseNeighborhood | null = null;
 let origin = "";
-let mirror = false;
 let canvas: OffscreenCanvas | null = null;
 let index: ReusableLiveSearchIndex<LiveCandidate> | null = null;
 let indexSignature = "";
@@ -115,12 +115,7 @@ async function drainShards() {
 
 function featureFromResult(result: FaceLandmarkerResult) {
   const matrix = result.facialTransformationMatrixes[0]?.data;
-  const pose = [0, 0, 0];
-  if (matrix && matrix.length >= 11) {
-    pose[0] = Math.atan2(-matrix[8], Math.hypot(matrix[9], matrix[10])) / (Math.PI / 2);
-    pose[1] = Math.atan2(matrix[9], matrix[10]) * 1.4 / (Math.PI / 2);
-    pose[2] = Math.atan2(matrix[4], matrix[0]) / (Math.PI / 2);
-  }
+  const pose = catalogPoseFromWebMatrix(matrix) ?? [0, 0, 0];
   const pitch = landmarkPitchDegrees(result.faceLandmarks[0], pitchTracker, 1);
   if (pitch !== null) pose[1] = pitch / 90;
   const scores = new Map((result.faceBlendshapes[0]?.categories ?? []).map((category) => [category.categoryName, category.score]));
@@ -136,7 +131,6 @@ function announceReady() {
 
 async function initialize(message: Extract<Input, { type: "init" }>) {
   origin = message.origin;
-  mirror = message.mirror;
   const { FaceLandmarker, FilesetResolver } = await import("@mediapipe/tasks-vision");
   const [fileset, catalog] = await Promise.all([
     FilesetResolver.forVisionTasks(new URL("/api/mediapipe", origin).href),
@@ -194,9 +188,10 @@ async function processFrame(message: Extract<Input, { type: "frame" }>) {
     if (!canvas || canvas.width !== width || canvas.height !== height) canvas = new OffscreenCanvas(width, height);
     const context = canvas.getContext("2d", { alpha: false });
     if (!context) throw new Error("OffscreenCanvas is unavailable");
-    context.setTransform(mirror ? -1 : 1, 0, 0, 1, mirror ? width : 0, 0);
+    // The camera/video input and catalog all use original pixel coordinates.
+    // Mirroring is a paired display operation in the client only.
+    context.setTransform(1, 0, 0, 1, 0, 0);
     context.drawImage(bitmap, 0, 0, width, height);
-    context.resetTransform();
     const started = performance.now();
     const result = landmarker.detectForVideo(canvas, message.capturedAt);
     const inferenceMs = performance.now() - started;

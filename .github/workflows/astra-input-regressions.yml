@@ -37,6 +37,8 @@ jobs:
           mkdir -p work/input-audit
           timeout 240 bash scripts/prepare-astra-fixtures.sh > work/input-audit/fixture.log 2>&1
           node scripts/audit-input-regressions.mjs --prepare
+      - name: Check input invariants
+        run: node --experimental-strip-types --test tests/astra-input-recovery.test.mjs tests/astra-realtime-hardening.test.mjs
       - name: Build exact source
         run: npm run build > work/input-audit/build.log 2>&1
       - name: Start production server
@@ -47,8 +49,10 @@ jobs:
             sleep 1
           done
           exit 1
-      - name: Reproduce frame and pose behavior without a private video
+      - name: Check real-photo yaw convention and decoded-frame pixels
         run: node scripts/audit-input-regressions.mjs
+      - name: Verify injected camera API failures and the actual fixed-video screen
+        run: node scripts/audit-input-lifecycle.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

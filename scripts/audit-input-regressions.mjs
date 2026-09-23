@@ -34,6 +34,7 @@ import {FaceLandmarker,FilesetResolver} from '@mediapipe/tasks-vision';
 import {captureVideoFrameAt} from './app/live/video-frame.ts';
 import {catalogPoseFromWebMatrix} from './app/catalog-pose.ts';
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const ranges=value=>Array.from({length:value.length},(_,i)=>[value.start(i),value.end(i)]);
 const oldPose=m=>[Math.atan2(-m[8],Math.hypot(m[9],m[10])),Math.atan2(m[9],m[10])*1.4,Math.atan2(m[4],m[0])].map(v=>v*180/Math.PI);
 window.__poseAudit=async()=>{
   const engine=await FaceLandmarker.createFromOptions(await FilesetResolver.forVisionTasks(location.origin+'/api/mediapipe'),{baseOptions:{modelAssetPath:location.origin+'/api/mediapipe/face_landmarker.task',delegate:'CPU'},runningMode:'IMAGE',numFaces:1,outputFaceBlendshapes:true,outputFacialTransformationMatrixes:true});
@@ -41,18 +42,36 @@ window.__poseAudit=async()=>{
   try{for(const c of cases){const image=new Image();image.src=c.url;await image.decode();const result=engine.detect(image),m=result.facialTransformationMatrixes[0]?.data;rows.push({...c,url:undefined,detected:!!m,old:m?oldPose(m):null,corrected:catalogPoseFromWebMatrix(m)?.map(v=>v*90)||null});}}finally{engine.close();}
   return rows;
 };
+window.__httpSeekAudit=async()=>{
+  const response=await fetch('/__input_audit/colors.webm',{headers:{Range:'bytes=0-31'}});
+  const headers={status:response.status,type:response.headers.get('content-type'),acceptRanges:response.headers.get('accept-ranges'),contentRange:response.headers.get('content-range')};await response.arrayBuffer();
+  const video=document.createElement('video');video.muted=true;video.preload='auto';document.body.append(video);
+  video.src='/__input_audit/colors.webm';await new Promise((resolve,reject)=>{video.onloadeddata=resolve;video.onerror=reject;video.load();});video.pause();await sleep(120);
+  const rows=[];
+  try{for(const requested of [0.04,1.2]){
+    const before={currentTime:video.currentTime,seekable:ranges(video.seekable),buffered:ranges(video.buffered)};
+    const event=await new Promise(resolve=>{let timer;const done=()=>{clearTimeout(timer);video.removeEventListener('seeked',done);resolve('seeked');};video.addEventListener('seeked',done);timer=setTimeout(()=>{video.removeEventListener('seeked',done);resolve('deadline');},1500);video.currentTime=requested;});
+    rows.push({requested,event,before,after:{currentTime:video.currentTime,seekable:ranges(video.seekable),buffered:ranges(video.buffered),ready:video.readyState,seeking:video.seeking}});
+  }}finally{video.remove();}
+  return {headers,rows};
+};
 window.__frameAudit=async()=>{
   const video=document.createElement('video');video.muted=true;video.playsInline=true;video.style.cssText='width:192px;height:192px';document.body.append(video);
-  video.src='/__input_audit/colors.webm';await new Promise((resolve,reject)=>{video.onloadeddata=resolve;video.onerror=reject;video.load();});video.pause();await sleep(120);
+  // The application consumes user-selected Files through object URLs. Keep the
+  // exact pixel assertions, but do not confuse HTTP server range support with
+  // the file-decoder contract. HTTP seekability is diagnosed separately above.
+  const response=await fetch('/__input_audit/colors.webm');if(!response.ok)throw new Error('Fixture unavailable');
+  const url=URL.createObjectURL(new Blob([await response.arrayBuffer()],{type:'video/webm'}));
+  video.src=url;await new Promise((resolve,reject)=>{video.onloadeddata=resolve;video.onerror=reject;video.load();});video.pause();await sleep(120);
   const rows=[];
   try{for(const time of [0,0,0.04,0.04,0.5,1.2,2.2,0.4,2.999]){
     const started=performance.now();
     try{
       const frame=await captureVideoFrameAt(video,time);const canvas=document.createElement('canvas');canvas.width=frame.bitmap.width;canvas.height=frame.bitmap.height;const ctx=canvas.getContext('2d');ctx.drawImage(frame.bitmap,0,0);frame.bitmap.close();
       const rgb=[...ctx.getImageData(48,48,1,1).data].slice(0,3),expected=time<1?0:time<2?1:2;
-      rows.push({time,passed:rgb[expected]>80&&rgb[expected]>Math.max(...rgb.filter((_,i)=>i!==expected))*2,rgb,evidence:frame.evidence,elapsedMs:performance.now()-started});
-    }catch(error){rows.push({time,passed:false,error:error.message,currentTime:video.currentTime,duration:video.duration,ready:video.readyState,seeking:video.seeking,paused:video.paused,elapsedMs:performance.now()-started});break;}
-  }}finally{video.remove();}
+      rows.push({time,passed:rgb[expected]>80&&rgb[expected]>Math.max(...rgb.filter((_,i)=>i!==expected))*2,rgb,evidence:frame.evidence,currentTime:video.currentTime,seekable:ranges(video.seekable),elapsedMs:performance.now()-started});
+    }catch(error){rows.push({time,passed:false,error:error.message,currentTime:video.currentTime,duration:video.duration,ready:video.readyState,seeking:video.seeking,seekable:ranges(video.seekable),paused:video.paused,elapsedMs:performance.now()-started});break;}
+  }}finally{video.remove();URL.revokeObjectURL(url);}
   return rows;
 };
 `;
@@ -61,7 +80,7 @@ window.__frameAudit=async()=>{
   console.log('Prepared public-only pixel tests and exact application helper probes');process.exit(0);
 }
 const check=(value,message)=>{if(!value)throw new Error(message);};
-const report={testedCommit:process.env.GITHUB_SHA||null,physicalCameraVerified:false,privateUserVideoUsed:false,mode:'regression',pose:[],frames:[],errors:[],passed:false};
+const report={testedCommit:process.env.GITHUB_SHA||null,physicalCameraVerified:false,privateUserVideoUsed:false,mode:'regression',frameSource:'File-equivalent Blob URL, 12fps WebM',pose:[],frames:[],errors:[],passed:false};
 const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader']});
 try{
   const page=await browser.newPage();page.on('pageerror',error=>report.errors.push(error.message));
@@ -69,6 +88,7 @@ try{
   await page.addScriptTag({url:base+'/__input_audit/probe.js',type:'module'});
   await page.waitForFunction(()=>typeof window.__poseAudit==='function');
   report.pose=await page.evaluate(()=>window.__poseAudit());
+  report.httpSeekability=await page.evaluate(()=>window.__httpSeekAudit());
   report.frames=await page.evaluate(()=>window.__frameAudit());
   const detected=report.pose.filter(row=>row.detected);
   for(const variant of ['old','corrected']){

@@ -33,15 +33,17 @@ try{
   check((await snapshot(rp)).frameClock==='playback-clock','Live stream callback fallback was not used');
   check(await rp.evaluate(()=>window.__videoBitmapAttempts===0),'Live input still calls createImageBitmap(video)');
   let mirror=await transforms(rp);check(mirror[0]===mirror[1]&&mirror[0]!=='none','Mirroring differs between camera and output');
-  await rp.getByTestId('mirror-toggle').uncheck();mirror=await transforms(rp);check(mirror[0]===mirror[1]&&mirror[0]==='none','Mirror-off differs between panes');
+  await rp.getByTestId('settings').click();await rp.getByTestId('mirror-toggle').uncheck();await rp.getByRole('button',{name:'閉じる',exact:true}).click();mirror=await transforms(rp);check(mirror[0]===mirror[1]&&mirror[0]==='none','Mirror-off differs between panes');
   await rp.screenshot({path:path.join(out,'camera-recovery.png'),fullPage:true});
   await rp.getByTestId('stop').click();
   check(await rp.evaluate(()=>window.__streams.every(stream=>stream.getTracks().every(track=>track.readyState==='ended'))),'Stop leaked a camera track');
   await rp.getByTestId('camera-start').click();await waitLive(rp);await rp.getByTestId('stop').click();
   report.checks.injectedApiRecovery=true;report.checks.pairedPresentationMirror=true;report.checks.restart=true;
-  await rp.getByTestId('video-input').setInputFiles(path.resolve('public/__input_audit/face.mp4'));await waitLive(rp);
-  mirror=await transforms(rp);check(mirror[0]===mirror[1]&&mirror[0]==='none','Video defaults to a reflected source');
-  report.checks.videoStillWorks=true;await rp.getByTestId('stop').click();await recovery.close();
+  // Video-file input is now the single video-review mode, tested below;
+  // the removed second video picker is not a hidden third product path.
+  await rp.getByTestId('mode-video').click();await rp.getByTestId('sample-video').waitFor();
+  check(await rp.evaluate(()=>window.__streams.every(stream=>stream.getTracks().every(track=>track.readyState==='ended'))),'Mode change leaked a camera track');
+  report.checks.modeSwitchReleasesTracks=true;await recovery.close();
 
   const policy=await browser.newContext({permissions:['camera']});
   const pp=activePage=await policy.newPage();await pp.goto(base+'/live/astra');
@@ -62,8 +64,8 @@ try{
   const fp=activePage=await fixed.newPage();fp.on('pageerror',e=>report.errors.push(e.message));
   for(const fps of [12,20,30]){
     await fp.goto(base+'/live',{waitUntil:'networkidle'});
-    await fp.getByLabel('解析密度',{exact:true}).selectOption(String(fps));
-    await fp.getByTestId('verification-file-input').setInputFiles(path.resolve('public/__input_audit/face-five-seconds.mp4'));
+    await fp.getByTestId('settings').click();await fp.getByLabel('解析密度',{exact:true}).selectOption(String(fps));await fp.getByRole('button',{name:'閉じる',exact:true}).click();
+    await fp.getByTestId('video-input').setInputFiles(path.resolve('public/__input_audit/face-five-seconds.mp4'));
     await fp.waitForFunction(()=>Boolean(window.__MANY_FACES_VERIFY__)||window.__MANY_FACES_RUNTIME__?.phase==='error',null,{timeout:240000});
     const result=await fp.evaluate(()=>({report:window.__MANY_FACES_VERIFY__,runtime:window.__MANY_FACES_RUNTIME__,alert:document.querySelector('[role="alert"]')?.textContent}));
     check(result.report?.passed,JSON.stringify(result));
@@ -72,7 +74,7 @@ try{
     check(result.report.sequenceFrames===result.report.faceFrames&&result.report.imageFailures===0&&result.report.canvasNonBlank,'Incomplete fixed-video output');
     report.fixedVideo.push({fps,...result.report});
     await fp.screenshot({path:path.join(out,`fixed-${fps}.png`),fullPage:true});
-    await fp.getByRole('button',{name:'+1 frame',exact:true}).click();
+    await fp.getByTestId('step-forward').click();
     await fp.getByRole('button',{name:'再生',exact:true}).click();await fp.waitForTimeout(300);
     await fp.getByRole('button',{name:'一時停止',exact:true}).click();
   }

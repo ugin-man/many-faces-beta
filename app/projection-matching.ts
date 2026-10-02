@@ -52,6 +52,8 @@ export type ProjectionChoice<T extends ProjectionCandidate> = SequenceChoice<T> 
 };
 
 export type ProjectionSequenceOptions = {
+  /** Preserve the closest face when distinct identities would reduce fidelity. */
+  allowRepeats?: boolean;
   cooldown?: number;
   beamWidth?: number;
   qualityThreshold?: number;
@@ -695,7 +697,7 @@ type PathState<T extends ProjectionCandidate> = {
   previous: PathState<T> | null;
 };
 
-/** Selects a different identity every frame; shape continuity is the only continuity signal. */
+/** Distinct by default; review can admit repeated identities to preserve fidelity. */
 export function optimizeDistinctProjectionSequence<T extends ProjectionCandidate>(
   frames: SequenceFrame[],
   rankedBeams: Array<Array<{ candidate: T; error: ProjectionError }>>,
@@ -738,7 +740,7 @@ export function optimizeDistinctProjectionSequence<T extends ProjectionCandidate
     const next: PathState<T>[] = [];
     for (const path of paths) {
       for (const { candidate, error } of rankedBeams[frameIndex]) {
-        if (path.history.includes(candidate.id)) continue;
+        if (!options.allowRepeats && path.history.includes(candidate.id)) continue;
         const continuity = residualMotionAtIndexes(
           frames[frameIndex - 1], path.choice.candidate,
           frames[frameIndex], candidate,
@@ -770,7 +772,7 @@ export function optimizeDistinctProjectionSequence<T extends ProjectionCandidate
     if (!next.length) {
       for (const path of paths) {
         for (const { candidate, error } of rankedBeams[frameIndex]) {
-          if (path.choice.candidate.id === candidate.id) continue;
+          if (!options.allowRepeats && path.choice.candidate.id === candidate.id) continue;
           next.push({
             cost: path.cost + error.total,
             history: [candidate.id],
@@ -784,7 +786,14 @@ export function optimizeDistinctProjectionSequence<T extends ProjectionCandidate
         }
       }
     }
-    paths = next.sort((left, right) => left.cost - right.cost).slice(0, beamWidth);
+    const ordered = next.sort((left, right) => left.cost - right.cost);
+    if (options.allowRepeats) {
+      // Without the identity cooldown, only the last candidate affects the next
+      // transition. Keep its cheapest history, not many copies of the same state.
+      const bestByCandidate = new Map<string, PathState<T>>();
+      for (const path of ordered) if (!bestByCandidate.has(path.choice.candidate.id)) bestByCandidate.set(path.choice.candidate.id, path);
+      paths = [...bestByCandidate.values()].slice(0, beamWidth);
+    } else paths = ordered.slice(0, beamWidth);
     if (!paths.length) return [];
   }
   const choices: ProjectionChoice<T>[] = [];

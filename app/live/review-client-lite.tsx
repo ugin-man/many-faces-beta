@@ -1,9 +1,10 @@
 "use client";
-import Link from "next/link";
+import CallStage, { type StudioClientProps } from "../call-stage";
+import { Icon } from "../studio-icons";
+import { timeLabel } from "../studio-controls";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { FaceLandmarker, FaceLandmarkerResult } from "@mediapipe/tasks-vision";
-import { faceFeatureFromScores } from "../face-actions";
-import { catalogPoseFromWebMatrix } from "../catalog-pose";
+import type { FaceLandmarker } from "@mediapipe/tasks-vision";
+import { catalogFeatureFromResult as featureFromResult } from "../catalog-feature";
 import { faceGeometryFromLandmarks, type FaceGeometry, type SequenceFrame } from "../offline-matching";
 import { optimizeDistinctProjectionSequence, rankProjectionCandidateModesTwoStage, type ProjectionChoice, type ProjectionError } from "../projection-matching";
 import { poseWindowCellKeys, shardFilesForCells, shouldExpandPoseWindow, type ReviewCatalogManifest } from "./review-local-catalog";
@@ -12,8 +13,7 @@ import { evaluateVerificationGate } from "./verification-gate";
 import { emptyReviewPhaseTimings, reviewSequenceFingerprint, roundedReviewPhaseTimings, type ReviewPhaseTimings } from "./review-sequence-metrics";
 import { OPERATION_STALL_TIMEOUT_MS, operationIsStalled, preparationFailureReason, progressSignature } from "./runtime-liveness";
 import { captureVideoFrameAt } from "./video-frame";
-import { assertCameraEnvironment, cameraEnvironment, inputError, openCameraStream, waitForPlayableVideo } from "./media-input";
-import styles from "./review-client-lite.module.css";
+import styles from "../studio.module.css";
 
 const WASM_URL = "/api/mediapipe";
 const MODEL_URL = "/api/mediapipe/face_landmarker.task";
@@ -21,7 +21,7 @@ const CAPTURE_SECONDS = 5;
 const INDEX_BEAM_PER_FRAME = 64;
 const SHARD_CONCURRENCY = 4;
 const STRICT_SEQUENCE_OPTIONS = {
-  cooldown: 12, beamWidth: 24, qualityThreshold: 0.055, residualCoherence: 0.46,
+  allowRepeats: true, cooldown: 12, beamWidth: 24, qualityThreshold: 0.055, residualCoherence: 0.46,
   expressionMotionWeight: 6.2, motionWeights: { mouth: 0.43, eyes: 0.39, brows: 0.18 },
 } as const;
 
@@ -41,7 +41,7 @@ type Candidate = {
 };
 type ReviewChoice = ProjectionChoice<Candidate>;
 type ReviewTimelineItem = { time: number; choice: ReviewChoice };
-type Phase = "idle" | "recording" | "waiting" | "analyzing" | "searching" | "optimizing" | "preloading" | "review" | "error";
+type Phase = "idle" | "waiting" | "analyzing" | "searching" | "optimizing" | "preloading" | "review" | "error";
 type Readiness = "loading" | "ready" | "failed";
 type Progress = { done: number; total: number; label: string };
 type VerificationReport = {
@@ -52,6 +52,7 @@ type VerificationReport = {
   passed: boolean; reasons: string[];
   frameEvidence: { presentationCallbacks: number; decodedPausedReadbacks: number };
   inputBuild: string;
+  matching: { meanYawErrorDegrees: number; meanPitchErrorDegrees: number; meanMouthError: number; meanEyeError: number; meanProjectionError: number };
 };
 declare global {
   interface Window {
@@ -61,12 +62,6 @@ declare global {
 }
 const cancelled = () => new DOMException("Cancelled", "AbortError");
 function clamp(value: number, min: number, max: number) { return Math.max(min, Math.min(max, value)); }
-function quantizePose(value: number) { return Math.round(clamp(value * 90, -45, 45) / 3) * 3 / 90; }
-function featureFromResult(result: FaceLandmarkerResult) {
-  const scores = new Map((result.faceBlendshapes[0]?.categories ?? []).map(category => [category.categoryName, category.score]));
-  const pose = (catalogPoseFromWebMatrix(result.facialTransformationMatrixes[0]?.data) ?? [0, 0, 0]).map(quantizePose);
-  return faceFeatureFromScores(pose, scores);
-}
 function decodeVector(encoded: string | undefined) {
   if (!encoded) return null;
   try {
@@ -87,10 +82,6 @@ function candidateFromEntry(entry: CatalogEntry): Candidate | null {
   if (!entry.id || !Array.isArray(entry.feature) || entry.feature.length < 22 || !structure || structure.length < 13 || !surface || surface.length < 300 || !projection || projection.length < 936 || !entry.layout || entry.layout.length !== 4 || !url) return null;
   return { id: entry.id, name: entry.name || entry.id, url, feature: entry.feature,
     geometry: { structure, surface, projection, layout: entry.layout }, sourceName: entry.sourceName, creator: entry.creator };
-}
-function chooseRecorderMimeType() {
-  if (typeof MediaRecorder === "undefined") return "";
-  return ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm", "video/mp4"].find(type => MediaRecorder.isTypeSupported(type)) ?? "";
 }
 function waitForVideoMetadata(video: HTMLVideoElement, signal?: AbortSignal) {
   return new Promise<void>((resolve, reject) => {
@@ -149,26 +140,23 @@ function canvasHasVisiblePixels(canvas: HTMLCanvasElement) {
 }
 function phaseText(phase: Phase) {
   switch (phase) {
-    case "recording": return "5秒間を録画中";
     case "waiting": return "解析エンジンを待っています";
     case "analyzing": return "録画をFace Meshで解析中";
     case "searching": return "必要な角度の顔だけ読み込み・照合中";
-    case "optimizing": return "5秒全体の経路を確定中";
+    case "optimizing": return "再生する顔を選択中";
     case "preloading": return "採用画像を再生前に準備中";
     case "review": return "レビューできます";
     case "error": return "処理を完了できませんでした";
-    default: return "5秒撮って、あとから連続再生";
+    default: return "動画を選んで検証";
   }
 }
 
-export default function LightweightReviewClient() {
-  const previewVideoRef = useRef<HTMLVideoElement | null>(null);
+export default function VideoReviewClient({ onModeChange }: StudioClientProps = {}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [mirror, setMirror] = useState(false);
   const playbackVideoRef = useRef<HTMLVideoElement | null>(null);
   const outputCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const analysisCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const recorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
   const recordingUrlRef = useRef<string | null>(null);
   const manifestRef = useRef<CatalogManifest | null>(null);
   const landmarkerRef = useRef<FaceLandmarker | null>(null);
@@ -177,9 +165,8 @@ export default function LightweightReviewClient() {
   const sequenceRef = useRef<ReviewTimelineItem[]>([]);
   const processingTokenRef = useRef(0);
   const captureAbortRef = useRef<AbortController | null>(null);
-  const recordingAbortRef = useRef<AbortController | null>(null);
   const playbackRafRef = useRef<number | null>(null);
-  const replayFpsRef = useRef(12);
+  const replayFpsRef = useRef(20);
   const lastOutputIdRef = useRef<string | null>(null);
   const modelStateRef = useRef<Readiness>("loading");
   const manifestStateRef = useRef<Readiness>("loading");
@@ -192,9 +179,8 @@ export default function LightweightReviewClient() {
   const [catalogTotal, setCatalogTotal] = useState(0);
   const [sourceName, setSourceName] = useState("");
   const [report, setReport] = useState<VerificationReport | null>(null);
-  const [analysisFps, setAnalysisFps] = useState(12);
-  const [replayFps, setReplayFps] = useState(12);
-  const [recordingRemaining, setRecordingRemaining] = useState(CAPTURE_SECONDS);
+  const [analysisFps, setAnalysisFps] = useState(20);
+  const [replayFps, setReplayFps] = useState(20);
   const [progress, setProgress] = useState<Progress | null>(null);
   const [clipDuration, setClipDuration] = useState(CAPTURE_SECONDS);
   const [plannedFrames, setPlannedFrames] = useState(0);
@@ -233,7 +219,7 @@ export default function LightweightReviewClient() {
       setSecondsSinceProgress(Math.floor(Math.max(0, now - lastProgressAtRef.current) / 1000));
       if (!operationIsStalled(true, now, lastProgressAtRef.current)) return;
       processingTokenRef.current += 1;
-      captureAbortRef.current?.abort(); recordingAbortRef.current?.abort();
+      captureAbortRef.current?.abort();
       const message = `「${phaseText(phase)}」で${Math.ceil(OPERATION_STALL_TIMEOUT_MS / 1000)}秒以上進捗がありません。処理を停止しました。`;
       setError(message); setProgress(null); setPhase("error");
       window.__MANY_FACES_RUNTIME__ = { phase: "error", label: message, updatedAt: now, stalled: true };
@@ -244,13 +230,6 @@ export default function LightweightReviewClient() {
   const stopPlayback = useCallback(() => {
     if (playbackRafRef.current !== null) cancelAnimationFrame(playbackRafRef.current);
     playbackRafRef.current = null; playbackVideoRef.current?.pause(); setPlaying(false);
-  }, []);
-  const cleanupRecording = useCallback(() => {
-    recordingAbortRef.current?.abort(); recordingAbortRef.current = null;
-    const recorder = recorderRef.current; recorderRef.current = null;
-    if (recorder && recorder.state !== "inactive") recorder.stop();
-    streamRef.current?.getTracks().forEach(track => track.stop()); streamRef.current = null;
-    if (previewVideoRef.current) previewVideoRef.current.srcObject = null;
   }, []);
   const clearReview = useCallback(() => {
     stopPlayback(); processingTokenRef.current += 1;
@@ -289,8 +268,8 @@ export default function LightweightReviewClient() {
       } catch (caught) { console.error("Review model setup failed.", caught); if (!disposed) { modelStateRef.current = "failed"; setModelState("failed"); } }
     }
     void prepareManifest(); void prepareModel();
-    return () => { disposed = true; cleanupRecording(); clearReview(); landmarkerRef.current?.close(); landmarkerRef.current = null; };
-  }, [cleanupRecording, clearReview]);
+    return () => { disposed = true; clearReview(); landmarkerRef.current?.close(); landmarkerRef.current = null; };
+  }, [clearReview]);
 
   const waitUntilPrepared = useCallback(async (token: number) => {
     const startedAt = Date.now();
@@ -361,10 +340,12 @@ export default function LightweightReviewClient() {
     const tick = () => {
       const video = playbackVideoRef.current;
       if (!video || video.paused || video.ended) { playbackRafRef.current = null; setPlaying(false); return; }
-      drawReviewAt(video.currentTime); setPlaybackTime(video.currentTime); playbackRafRef.current = requestAnimationFrame(tick);
+      if (video.currentTime >= clipDuration) { video.currentTime = 0; drawReviewAt(0); setPlaybackTime(0); }
+      else { drawReviewAt(video.currentTime); setPlaybackTime(video.currentTime); }
+      playbackRafRef.current = requestAnimationFrame(tick);
     };
     playbackRafRef.current = requestAnimationFrame(tick);
-  }, [drawReviewAt]);
+  }, [clipDuration, drawReviewAt]);
 
   const processRecording = useCallback(async (videoUrl: string, duration: number, inputName: string) => {
     const token = ++processingTokenRef.current;
@@ -377,6 +358,7 @@ export default function LightweightReviewClient() {
     setError(null); setProgress(null); setFaceFrames(0); setLoadedShards(0); setPeakCandidates(0);
     setProcessingMs(0); setOutputChanges(0); setUniqueFaces(0); setImageFailures(0);
     shardCacheRef.current.clear(); outputImagesRef.current.clear(); sequenceRef.current = [];
+    lastOutputIdRef.current = null;
     try {
       setPhase("waiting"); await waitUntilPrepared(token);
       phaseTimings.preparation = performance.now() - phaseStarted;
@@ -433,7 +415,7 @@ export default function LightweightReviewClient() {
       // Final beams retain required candidates; release the rest of the shards.
       shardCacheRef.current.clear();
       phaseStarted = performance.now(); setPhase("optimizing");
-      setProgress({ done: 0, total: 1, label: "5秒全体のstrict経路を計算中" }); await nextPaint(); checkCurrent();
+      setProgress({ done: 0, total: 1, label: "再生する顔を選択中" }); await nextPaint(); checkCurrent();
       const choices = optimizeDistinctProjectionSequence(frames, beams, STRICT_SEQUENCE_OPTIONS);
       if (!choices.length) throw new Error("連続経路を作れませんでした");
       phaseTimings.pathOptimization = performance.now() - phaseStarted;
@@ -468,7 +450,14 @@ export default function LightweightReviewClient() {
         outputChanges: changes, uniqueFaces: selected.length, processingMs: elapsed,
         phaseTimingsMs: roundedReviewPhaseTimings(phaseTimings), sequenceIds, sequenceFingerprint,
         canvasNonBlank, faceCoverage: gate.faceCoverage, passed: gate.passed, reasons: gate.reasons,
-        frameEvidence, inputBuild: "input-recovery-v1",
+        frameEvidence, inputBuild: "fullscreen-v1",
+        matching: {
+          meanYawErrorDegrees: choices.reduce((sum, choice) => sum + Math.abs(choice.error.yawDegrees), 0) / choices.length,
+          meanPitchErrorDegrees: choices.reduce((sum, choice) => sum + Math.abs(choice.error.pitchDegrees), 0) / choices.length,
+          meanMouthError: choices.reduce((sum, choice) => sum + choice.error.mouth, 0) / choices.length,
+          meanEyeError: choices.reduce((sum, choice) => sum + choice.error.eyes, 0) / choices.length,
+          meanProjectionError: choices.reduce((sum, choice) => sum + choice.error.total, 0) / choices.length,
+        },
       };
       setReport(nextReport); window.__MANY_FACES_VERIFY__ = nextReport;
     } catch (caught) {
@@ -480,7 +469,8 @@ export default function LightweightReviewClient() {
 
   const verifyVideoFile = useCallback(async (file: File | null) => {
     if (!file || busy) return;
-    clearReview(); cleanupRecording(); setError(null); setSourceName(file.name); setPhase("waiting");
+    if (file.size === 0) { setError("空の動画ファイルです。別の動画を選んでください。"); setPhase("error"); return; }
+    clearReview(); setError(null); setSourceName(file.name); setPhase("waiting");
     const token = processingTokenRef.current;
     const cancellation = new AbortController(); captureAbortRef.current = cancellation;
     try {
@@ -489,114 +479,91 @@ export default function LightweightReviewClient() {
       if (!video) throw new Error("検証用動画を準備できませんでした");
       video.src = url; video.load(); await waitForVideoMetadata(video, cancellation.signal);
       if (processingTokenRef.current !== token) return;
-      const duration = Number.isFinite(video.duration) && video.duration > 0 ? Math.min(CAPTURE_SECONDS, video.duration) : CAPTURE_SECONDS;
+      const duration = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : CAPTURE_SECONDS;
       setClipDuration(duration); void processRecording(url, duration, file.name);
     } catch (caught) {
       if (processingTokenRef.current !== token) return;
       console.error("Fixed video verification failed.", caught);
       setError(caught instanceof Error ? caught.message : "動画を開けませんでした"); setPhase("error"); setProgress(null);
     }
-  }, [busy, cleanupRecording, clearReview, processRecording]);
+  }, [busy, clearReview, processRecording]);
 
-  const recordFiveSeconds = useCallback(async () => {
-    if (busy) return;
-    clearReview(); cleanupRecording(); setError(null); setSourceName("camera-five-seconds.webm");
-    setRecordingRemaining(CAPTURE_SECONDS); setPhase("recording");
-    setProgress({ done: 0, total: CAPTURE_SECONDS * 10, label: "カメラの許可を待っています" });
-    const token = processingTokenRef.current;
-    const cancellation = new AbortController(); recordingAbortRef.current = cancellation;
-    const check = () => { if (processingTokenRef.current !== token || cancellation.signal.aborted) throw cancelled(); };
-    let timer: ReturnType<typeof setInterval> | undefined;
-    try {
-      assertCameraEnvironment(cameraEnvironment());
-      if (typeof MediaRecorder === "undefined") throw new Error("このブラウザは録画に対応していません。固定動画を選んでください。");
-      const stream = await openCameraStream(constraints => navigator.mediaDevices.getUserMedia(constraints), { signal: cancellation.signal });
-      check(); streamRef.current = stream;
-      const preview = previewVideoRef.current;
-      if (!preview) throw new Error("カメラ表示を準備できませんでした");
-      preview.srcObject = stream; await waitForPlayableVideo(preview, cancellation.signal); check();
-      const mimeType = chooseRecorderMimeType();
-      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
-      recorderRef.current = recorder; chunksRef.current = [];
-      recorder.ondataavailable = event => { if (event.data.size) chunksRef.current.push(event.data); };
-      const stopped = new Promise<void>((resolve, reject) => {
-        recorder.addEventListener("stop", () => resolve(), { once: true });
-        recorder.addEventListener("error", () => reject(new Error("カメラ録画に失敗しました")), { once: true });
-      });
-      recorder.start(250);
-      const started = performance.now();
-      timer = setInterval(() => {
-        const elapsed = (performance.now() - started) / 1000, remaining = Math.max(0, CAPTURE_SECONDS - elapsed);
-        setRecordingRemaining(remaining); setProgress({ done: Math.min(CAPTURE_SECONDS * 10, Math.round(elapsed * 10)), total: CAPTURE_SECONDS * 10, label: `${remaining.toFixed(1)}秒` });
-      }, 100);
-      await new Promise<void>(resolve => setTimeout(resolve, CAPTURE_SECONDS * 1000)); check();
-      clearInterval(timer); timer = undefined;
-      if (recorder.state !== "inactive") recorder.stop();
-      await stopped; check();
-      const blob = new Blob(chunksRef.current, { type: recorder.mimeType || mimeType || "video/webm" });
-      cleanupRecording();
-      if (!blob.size) throw new Error("録画データを作れませんでした");
-      const url = URL.createObjectURL(blob); recordingUrlRef.current = url;
-      const video = playbackVideoRef.current;
-      if (!video) throw new Error("レビュー映像を準備できませんでした");
-      video.src = url; video.load(); await waitForVideoMetadata(video);
-      if (processingTokenRef.current !== token) return;
-      const duration = Number.isFinite(video.duration) && video.duration > 0 ? Math.min(CAPTURE_SECONDS, video.duration) : CAPTURE_SECONDS;
-      setClipDuration(duration); setRecordingRemaining(0); void processRecording(url, duration, "camera-five-seconds.webm");
-    } catch (caught) {
-      cleanupRecording();
-      if (processingTokenRef.current !== token) return;
-      const detail = inputError(caught); setError(`${detail.message} [${detail.code}]`); setPhase("error"); setProgress(null);
-    } finally { if (timer) clearInterval(timer); }
-  }, [busy, cleanupRecording, clearReview, processRecording]);
   const togglePlayback = useCallback(async () => {
     const video = playbackVideoRef.current;
     if (!video || phase !== "review") return;
-    if (video.paused || video.ended) { if (video.ended) video.currentTime = 0; video.muted = true; await video.play(); setPlaying(true); startPlaybackLoop(); }
+    if (video.paused || video.ended) { if (video.ended || video.currentTime >= clipDuration - 0.01) video.currentTime = 0; video.muted = true; await video.play(); setPlaying(true); startPlaybackLoop(); }
     else { stopPlayback(); drawReviewAt(video.currentTime); }
-  }, [drawReviewAt, phase, startPlaybackLoop, stopPlayback]);
+  }, [clipDuration, drawReviewAt, phase, startPlaybackLoop, stopPlayback]);
   const seekReview = useCallback((time: number) => {
     const video = playbackVideoRef.current;
     if (!video || phase !== "review") return;
     stopPlayback(); const target = clamp(time, 0, clipDuration); video.currentTime = target; setPlaybackTime(target); drawReviewAt(target);
   }, [clipDuration, drawReviewAt, phase, stopPlayback]);
   const reset = useCallback(() => {
-    cleanupRecording(); clearReview(); setPhase("idle"); setProgress(null); setError(null); setPlaybackTime(0);
+    clearReview(); setPhase("idle"); setProgress(null); setError(null); setPlaybackTime(0);
     setFaceFrames(0); setLoadedShards(0); setPeakCandidates(0); setProcessingMs(0); setOutputChanges(0);
     setUniqueFaces(0); setImageFailures(0); setCurrentOutputName("—"); setCurrentOutputSource("—");
     setCurrentError(null); setSourceName(""); setReport(null);
-  }, [cleanupRecording, clearReview]);
+  }, [clearReview]);
+  const verifySample = async () => {
+    if (busy) return;
+    clearReview(); setError(null); setPhase("waiting");
+    setProgress({ done: 0, total: 1, label: "固定動画を読み込み中" });
+    const token = processingTokenRef.current;
+    const cancellation = new AbortController(); captureAbortRef.current = cancellation;
+    try {
+      const response = await fetchWithTimeout("/test-fixtures/reference-face-motion.mp4", { signal: cancellation.signal }, 45000);
+      if (!response.ok) throw new Error(`固定動画を読み込めませんでした (${response.status})`);
+      const blob = await response.blob();
+      if (processingTokenRef.current !== token || cancellation.signal.aborted) return;
+      await verifyVideoFile(new File([blob], "reference-face-motion.mp4", { type: "video/mp4" }));
+    } catch (caught) {
+      if (processingTokenRef.current !== token || cancellation.signal.aborted) return;
+      setError(caught instanceof Error ? caught.message : "固定動画を開けませんでした"); setPhase("error"); setProgress(null);
+    }
+  };
   const progressRatio = progress?.total ? clamp(progress.done / progress.total, 0, 1) : 0;
   const perSecond = processingSecondsPerOutputSecond(processingMs, clipDuration);
-  const sourceVisible = ["waiting", "analyzing", "searching", "optimizing", "preloading", "review"].includes(phase);
-
-  return <main className={styles.shell} data-testid="verification-root" data-state={phase} data-verdict={report ? (report.passed ? "passed" : "failed") : "pending"}>
-    <header className={styles.header}><div><p className={styles.eyebrow}>MANY FACES / FIXED VIDEO · INPUT RECOVERY V1</p><h1>同じ動画で、向きと表情を確かめる。</h1><p className={styles.lead}>固定動画を「入力 → 解析 → 再生」の順に確認します。元動画と結果は同じ向きで表示します。カメラ録画は実験機能です。</p></div><nav className={styles.nav}><Link href="/">VIDEO</Link><Link href="/live/astra">REALTIME</Link><Link href="/live/fast">FAST</Link></nav></header>
-    <section className={styles.statusStrip} aria-live="polite"><div className={styles.steps}><span className={phase === "recording" ? styles.activeStep : ""}>1 入力</span><span className={["waiting", "analyzing", "searching", "optimizing", "preloading"].includes(phase) ? styles.activeStep : ""}>2 解析</span><span className={phase === "review" ? styles.activeStep : ""}>3 再生</span></div><strong>{phaseText(phase)}</strong><div className={styles.readiness}><span data-state={modelState}>MODEL</span><span data-state={manifestState}>CATALOG</span><b>{readinessLabel}</b></div></section>
-    <section className={phase === "review" ? styles.reviewGrid : styles.captureGrid}>
-      <article className={styles.panel}><div className={styles.panelHeader}><span>{phase === "review" ? "SOURCE VIDEO" : "INPUT"}</span><b>{phase === "recording" ? `${recordingRemaining.toFixed(1)}s` : sourceName || "NO VIDEO"}</b></div><div className={styles.viewport}>
-        <video ref={previewVideoRef} className={`${styles.media} ${phase === "recording" ? "" : styles.hiddenMedia}`} muted playsInline />
-        <video ref={playbackVideoRef} className={`${styles.media} ${sourceVisible ? "" : styles.hiddenMedia}`} muted playsInline data-testid="verification-source-video" onEnded={() => { setPlaying(false); setPlaybackTime(clipDuration); drawReviewAt(clipDuration); }} />
-        {phase !== "recording" && !sourceVisible && <div className={styles.placeholder}><strong>5秒レビュー</strong><span>固定動画を選んでください。リアルタイムは上のREALTIMEから確認できます。</span></div>}
-        {phase === "recording" && <span className={styles.recordBadge}>REC</span>}
-      </div></article>
-      {phase === "review" && <article className={styles.panel}><div className={styles.panelHeader}><span>MANY FACES</span><b>{replayFps} FPS</b></div><div className={styles.viewport}><canvas ref={outputCanvasRef} className={styles.canvas} width={768} height={512} data-testid="verification-output-canvas" /></div><div className={styles.outputMeta}><span>{currentOutputName}</span><b>{currentOutputSource}</b></div></article>}
-    </section>
-    <section className={styles.commandBar}><div className={styles.primaryRow}>
-      <label className={styles.filePicker}><span>固定動画で検証</span><input type="file" accept="video/*" data-testid="verification-file-input" onChange={event => { const file = event.target.files?.[0] ?? null; event.target.value = ""; void verifyVideoFile(file); }} disabled={busy} /></label>
-      <button type="button" className={styles.cameraButton} onClick={recordFiveSeconds} disabled={busy}>{phase === "recording" ? "録画中" : "カメラで5秒（実験）"}</button>
-      <button type="button" onClick={reset}>リセット</button>
-      <label>解析密度<select value={analysisFps} aria-label="解析密度" onChange={event => setAnalysisFps(Number(event.target.value))} disabled={busy}><option value="12">12fps</option><option value="20">20fps</option><option value="30">30fps 動画版基準</option></select></label>
-      {phase === "review" && <><button type="button" onClick={togglePlayback}>{playing ? "一時停止" : "再生"}</button><button type="button" onClick={() => seekReview(playbackTime - 1 / replayFps)}>−1 frame</button><button type="button" onClick={() => seekReview(playbackTime + 1 / replayFps)}>+1 frame</button><label>再生<select value={replayFps} onChange={event => { const next = Number(event.target.value); setReplayFps(next); replayFpsRef.current = next; drawReviewAt(playbackTime); }}><option value="12">12fps</option><option value="20">20fps</option><option value="30">30fps</option></select></label></>}
-    </div>
-    {progress && <div className={styles.progressBox}><div><strong>{progress.label}</strong><span>{Math.round(progressRatio * 100)}%</span></div><i style={{ width: `${progressRatio * 100}%` }} /></div>}
-    {phase === "review" && <input className={styles.scrubber} type="range" min="0" max={clipDuration} step={1 / Math.max(1, replayFps)} value={playbackTime} onChange={event => seekReview(Number(event.target.value))} />}
-    {report && <div className={report.passed ? styles.passBox : styles.failBox}><strong>{report.passed ? "自動検証 PASS" : "自動検証で問題を検出"}</strong><span>顔検出 {(report.faceCoverage * 100).toFixed(1)}% · {report.sequenceFrames} frames · {report.uniqueFaces} faces · {(report.processingMs / 1000).toFixed(1)}秒</span>{!report.passed && report.reasons.map(reason => <small key={reason}>{reason}</small>)}</div>}
-    {error && <p className={styles.error} role="alert">{error}</p>}
-    </section>
-    <details className={styles.diagnostics}><summary>処理の詳細</summary><div className={styles.metrics}>
-      <div><span>CATALOG</span><strong>{catalogTotal.toLocaleString()}</strong></div><div><span>ANALYSIS</span><strong>{analysisFps} fps / {plannedFrames}</strong></div><div><span>FACE FRAMES</span><strong>{faceFrames}</strong></div><div><span>LOADED SHARDS</span><strong>{loadedShards}</strong></div><div><span>PEAK LOCAL FACES</span><strong>{peakCandidates.toLocaleString()}</strong></div><div><span>PROCESSING</span><strong>{(processingMs / 1000).toFixed(1)} s</strong></div><div><span>PER OUTPUT SEC</span><strong>{perSecond.toFixed(1)} s</strong></div><div><span>CHANGES</span><strong>{outputChanges}</strong></div><div><span>UNIQUE FACES</span><strong>{uniqueFaces}</strong></div><div><span>IMAGE FAILURES</span><strong>{imageFailures}</strong></div><div><span>STRICT ERROR</span><strong>{currentError?.strictTotal.toFixed(4) ?? "—"}</strong></div><div><span>HEARTBEAT</span><strong>{busy ? `${secondsSinceProgress}s ago` : "idle"}</strong></div>
-    </div>{report && <p>描画通知 {report.frameEvidence.presentationCallbacks} / 停止フレーム取得 {report.frameEvidence.decodedPausedReadbacks} · {report.inputBuild}</p>}</details>
-    <output hidden data-testid="verification-report">{report ? JSON.stringify(report) : ""}</output>
-  </main>;
+  const downloadDiagnostics = () => {
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url; a.download = "many-faces-video-diagnostics.json"; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+  const presentationClass = mirror ? styles.mirror : "";
+  return <CallStage mode="video" onModeChange={onModeChange} onBack={reset}
+    active={busy || phase === "review"} hasOutput={phase === "review"} sourceVisible={Boolean(sourceName) && phase !== "waiting"}
+    status={busy ? `${phase === "waiting" ? "準備中" : phase === "analyzing" ? "動画を解析中" : phase === "searching" ? "顔を照合中" : "再生を準備中"}${progress ? ` ${progress.done} / ${progress.total}` : "…"}` : undefined}
+    error={error || (modelState === "failed" || manifestState === "failed" ? "準備に失敗しました。ページを再読み込みしてください。" : undefined)}
+    progress={busy && progress ? progressRatio : undefined}
+    empty={<><Icon name="video" /><span>{busy ? "動画を処理しています" : "動画を選んで検証"}</span></>}
+    preview={<video ref={playbackVideoRef} muted playsInline loop preload="auto" className={presentationClass} data-testid="input-video" onEnded={() => { setPlaying(false); setPlaybackTime(clipDuration); }} />}
+    timeline={phase === "review" ? <><time>{timeLabel(playbackTime)}</time><input type="range" min="0" max={clipDuration} step={1 / analysisFps} value={playbackTime} aria-label="再生位置" data-testid="review-seek" onChange={event => seekReview(Number(event.target.value))} /><time>{timeLabel(clipDuration)}</time></> : undefined}
+    controls={<>
+      <input ref={fileInputRef} type="file" accept="video/*" className={styles.hiddenInput} data-testid="video-input" onChange={event => { const file = event.target.files?.[0] ?? null; event.target.value = ""; void verifyVideoFile(file); }} />
+      {busy ? <button className={`${styles.tool} ${styles.danger}`} onClick={reset} data-testid="cancel-analysis"><Icon name="stop" /><span>中止</span></button>
+        : phase === "review" ? <>
+          <button className={styles.tool} onClick={() => seekReview(playbackTime - 1 / analysisFps)} aria-label="1フレーム戻る" data-testid="step-back"><Icon name="previous" /><span>1コマ戻る</span></button>
+          <button className={`${styles.tool} ${styles.primary}`} onClick={() => void togglePlayback().catch(() => setError("再生できませんでした。もう一度お試しください。"))} aria-label={playing ? "一時停止" : "再生"} data-testid="play-pause"><Icon name={playing ? "pause" : "play"} /><span>{playing ? "一時停止" : "再生"}</span></button>
+          <button className={styles.tool} onClick={() => seekReview(playbackTime + 1 / analysisFps)} aria-label="1フレーム進む" data-testid="step-forward"><Icon name="next" /><span>1コマ進む</span></button>
+          <button className={styles.tool} onClick={() => fileInputRef.current?.click()}><Icon name="upload" /><span>動画を変更</span></button>
+        </> : <>
+          <button className={`${styles.tool} ${styles.primary}`} onClick={() => fileInputRef.current?.click()}><Icon name="upload" /><span>動画を選ぶ</span></button>
+          <button className={styles.tool} onClick={() => void verifySample()} data-testid="sample-video"><Icon name="sample" /><span>固定動画</span></button>
+        </>}
+    </>}
+    settings={<>
+      <label className={styles.settingRow}><span>解析密度</span><select aria-label="解析密度" data-testid="analysis-fps" value={analysisFps} disabled={busy} onChange={event => { const value = Number(event.target.value); setAnalysisFps(value); setReplayFps(value); }}><option value={12}>12 fps</option><option value={20}>20 fps</option><option value={30}>30 fps</option></select></label>
+      <label className={styles.settingRow}><span>鏡表示</span><input type="checkbox" checked={mirror} data-testid="mirror-toggle" onChange={event => setMirror(event.target.checked)} /></label>
+    </>}
+    details={<>
+      <p>{currentOutputName}<br />{currentOutputSource}</p>
+      <p>{sourceName || "動画未選択"} ／ {clipDuration.toFixed(1)} 秒<br />{readinessLabel} ／ カタログ {catalogTotal.toLocaleString()}枚</p>
+      <p>顔検出 {faceFrames} / {plannedFrames} ／ 出力切替 {outputChanges} ／ 採用 {uniqueFaces} 枚<br />画像失敗 {imageFailures} ／ 読み込み {loadedShards} ／ 最大候補 {peakCandidates}</p>
+      <p>処理 {(processingMs / 1000).toFixed(1)} 秒 ／ 出力1秒あたり {perSecond.toFixed(1)} 秒<br />最終進捗から {secondsSinceProgress} 秒</p>
+      {currentError && <p>投影誤差 {currentError.total.toFixed(4)}</p>}
+      {report && <><p>{report.passed ? "処理完了" : report.reasons.join("・")}</p><button onClick={downloadDiagnostics}>診断データを保存</button></>}
+    </>}>
+    <canvas ref={outputCanvasRef} width={768} height={768} className={presentationClass} data-testid="output-canvas" aria-label="Many Facesの出力" />
+  </CallStage>;
 }

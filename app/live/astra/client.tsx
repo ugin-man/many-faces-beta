@@ -1,12 +1,13 @@
 "use client";
 
-import Link from "next/link";
+import CallStage, { type StudioClientProps } from "../../call-stage";
+import { Icon } from "../../studio-icons";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ResponsiveSwitchController, type ResponsiveSwitchDecision } from "../../live-responsive-runtime";
 import { LatestFrameGate, qualityBoundedReadyChoice, type FrameResult } from "./runtime";
 import { assertCameraEnvironment, cameraEnvironment, createInputFrame, inputError, MediaInputError, openCameraStream, startVideoFramePump, waitForPlayableVideo, type CameraEnvironment } from "../media-input";
 import { DecodedImageCache } from "./image-cache";
-import styles from "./client.module.css";
+import styles from "../../studio.module.css";
 
 type Phase = "idle" | "starting" | "running" | "error";
 type Snapshot = {
@@ -32,15 +33,14 @@ const initialSnapshot = (): Snapshot => ({
   firstOutputMs: null, face: false, currentName: "—", currentSource: "—", catalogError: null,
   stage: "idle", errorCode: null, frameClock: "—", videoWidth: 0, videoHeight: 0,
   videoReadyState: 0, videoPaused: true, trackState: "none", trackMuted: false,
-  environment: null, mirrorPresentation: false, build: "input-recovery-v1",
+  environment: null, mirrorPresentation: false, build: "fullscreen-v1",
 });
 
 declare global { interface Window { __MANY_FACES_REALTIME__?: Snapshot; } }
 
-export default function AstraRealtimeClient() {
+export default function AstraRealtimeClient({ onModeChange }: StudioClientProps = {}) {
   const [snapshot, setSnapshot] = useState(initialSnapshot);
-  const [kind, setKind] = useState<"camera" | "video" | null>(null);
-  const [mirror, setMirror] = useState(false);
+  const [mirror, setMirror] = useState(true);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [deviceId, setDeviceId] = useState("");
   const [directUrl, setDirectUrl] = useState("");
@@ -204,8 +204,8 @@ export default function AstraRealtimeClient() {
     const video = videoRef.current;
     if (!video) return;
     const cancellation = new AbortController(); inputAbortRef.current = cancellation;
-    kindRef.current = sourceKind; setKind(sourceKind);
-    const mirrored = sourceKind === "camera"; setMirror(mirrored);
+    kindRef.current = sourceKind;
+    const mirrored = mirror;
     phaseRef.current = "starting";
     dataRef.current = { ...initialSnapshot(), environment: cameraEnvironment(), mirrorPresentation: mirrored, source: sourceKind, stage: "preflight", message: "入力を確認中…" };
     frameTimesRef.current = []; outputTimesRef.current = []; latencyRef.current = [];
@@ -290,7 +290,7 @@ export default function AstraRealtimeClient() {
       });
       publish();
     } catch (error) { if (isCurrent()) { const detail = inputError(error); stop(detail.message, true, detail.code); } }
-  }, [deviceId, dispose, publish, refreshDevices, stop]);
+  }, [deviceId, dispose, mirror, publish, refreshDevices, stop]);
 
   const busy = snapshot.phase === "starting" || snapshot.phase === "running";
   const downloadDiagnostics = () => {
@@ -301,27 +301,29 @@ export default function AstraRealtimeClient() {
   };
   const presentationClass = mirror ? styles.mirror : "";
 
-  return <main className={styles.page}>
-    <header className={styles.header}><div><span className={styles.eyebrow}>ASTRA / REALTIME · INPUT RECOVERY V1</span><h1>Many Faces</h1><p>カメラの動きに、その場で追従。</p></div><Link href="/live" className={styles.back}>固定動画版へ</Link></header>
-    <section className={styles.toolbar} aria-label="入力の操作">
-      <button className={styles.primary} onClick={() => void start("camera")} disabled={busy} data-testid="camera-start">カメラを開始</button>
-      <label className={`${styles.file} ${busy ? styles.disabled : ""}`}>動画で試す<input type="file" accept="video/*" disabled={busy} data-testid="video-input" onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void start("video", file); }} /></label>
-      <button onClick={() => stop()} disabled={!busy} data-testid="stop">停止</button>
-      <span className={styles.badge} data-phase={snapshot.phase} data-testid="phase">{snapshot.phase === "running" ? "LIVE" : snapshot.phase === "starting" ? "準備中" : snapshot.phase === "error" ? "停止・エラー" : "待機中"}</span>
-    </section>
-    <div className={styles.hint} style={{display:"flex", flexWrap:"wrap", gap:16, alignItems:"center"}}>
-      <label>使用するカメラ <select aria-label="使用するカメラ" value={deviceId} disabled={busy} onChange={event => setDeviceId(event.target.value)}><option value="">自動選択</option>{devices.map((device,index) => <option key={device.deviceId || index} value={device.deviceId}>{device.label || `カメラ ${index + 1}`}</option>)}</select></label>
-      <label><input type="checkbox" checked={mirror} data-testid="mirror-toggle" onChange={event => { setMirror(event.target.checked); dataRef.current.mirrorPresentation = event.target.checked; publish(); }} />入力・結果を両方とも鏡表示</label>
-      {embedded && directUrl && <a href={directUrl} target="_blank" rel="noopener noreferrer" data-testid="open-direct">サイトを別タブで開く</a>}
-    </div>
-    <p className={styles.status} role={snapshot.phase === "error" ? "alert" : "status"}>{snapshot.message}{snapshot.errorCode && <small> [{snapshot.errorCode}]</small>}</p>
-    <section className={styles.stages}>
-      <div className={styles.panel}><div className={styles.panelTitle}><span>入力</span><small>{kind === "camera" ? "カメラ" : kind === "video" ? "動画 / 連続再生" : "CAMERA OR VIDEO"} · {mirror ? "鏡表示" : "元の向き"}</small></div><div className={styles.stage}><video ref={videoRef} autoPlay muted playsInline controls={kind === "video"} className={presentationClass} data-testid="input-video" />{!busy && <span className={styles.empty}>カメラ・動画を選択</span>}</div></div>
-      <div className={styles.panel}><div className={styles.panelTitle}><span>Many Faces</span><small>入力と同じ表示方向</small></div><div className={styles.stage}><canvas ref={canvasRef} width={512} height={512} className={presentationClass} data-testid="output-canvas" />{snapshot.outputChanges === 0 && <span className={styles.empty}>{snapshot.phase === "starting" ? "解析エンジンを準備中" : snapshot.phase === "running" ? (snapshot.face ? "候補画像を準備中" : "顔を探しています") : "ここに結果が表示されます"}</span>}{snapshot.phase === "running" && snapshot.frames > 0 && !snapshot.face && snapshot.outputChanges > 0 && <span className={styles.notice}>顔を見失いました</span>}</div><div className={styles.attribution}>{snapshot.currentName} <span>{snapshot.currentSource}</span></div></div>
-    </section>
-    <section className={styles.metrics} aria-label="実測値"><div><small>解析</small><strong>{snapshot.detectionFps}<em>fps</em></strong></div><div><small>実際の顔の切替</small><strong>{snapshot.outputFps}<em>回/秒</em></strong></div><div><small>取得から描画まで・95%</small><strong>{snapshot.latencyP95Ms}<em>ms</em></strong></div><div><small>読み込み済みの候補</small><strong>{snapshot.candidates.toLocaleString()}<em>顔</em></strong></div></section>
-    <p className={styles.hint}>止まっている間は同じ顔を保ちます。遅いフレームは捨て、新しい動きから処理します。入力映像は端末内で解析し、サーバーには送りません。</p>
-    <details className={styles.diagnostics}><summary>動作の詳細・診断</summary><p>段階 {snapshot.stage} · 映像 {snapshot.videoWidth}×{snapshot.videoHeight} · readyState {snapshot.videoReadyState} · {snapshot.frameClock}</p><p>カメラ {snapshot.trackState} · 入力ミュート {String(snapshot.trackMuted)} · 再生停止 {String(snapshot.videoPaused)} · エラー {snapshot.errorCode ?? "なし"}</p><p>顔検出 {snapshot.faceFrames} / {snapshot.frames} フレーム · 出力切替 {snapshot.outputChanges} 回 · {snapshot.delegate} / Web Worker</p><p>カタログ {snapshot.catalogTotal.toLocaleString()} 顔 · {snapshot.shards} shards · 画像 {snapshot.readyImages} 枚 / {(snapshot.imageBytes / 1048576).toFixed(1)} MB · 読み込み待ち {snapshot.pendingImages}</p><p>解析中の最大フレーム数 {snapshot.maxInFlight} · 混雑で省略 {snapshot.busyDrops} · 遅延で破棄 {snapshot.staleResults} · 画像失敗 {snapshot.imageFailures}</p><p>推論 {snapshot.inferenceMs} ms · 検索 {snapshot.searchMs} ms · 最初の表示 {snapshot.firstOutputMs === null ? "未表示" : `${snapshot.firstOutputMs} ms`}</p>{snapshot.catalogError && <p role="alert">カタログ通信: {snapshot.catalogError}</p>}<button onClick={downloadDiagnostics}>診断データを保存</button></details>
-    <footer className={styles.footer}>実機カメラの相性と顔の一致品質は引き続き確認が必要です。静止中の「0回/秒」は正常です。診断データには映像や55次元の顔特徴量を含めません。</footer>
-  </main>;
+  const leave = () => { stop(); const canvas = canvasRef.current; if (canvas) canvas.width = 512; dataRef.current = initialSnapshot(); publish(); };
+  return <CallStage mode="camera" onModeChange={onModeChange} onBack={leave}
+    active={busy} hasOutput={snapshot.outputChanges > 0} sourceVisible={busy}
+    status={snapshot.phase === "starting" ? snapshot.message : snapshot.phase === "running" && !snapshot.face ? "顔を探しています…" : undefined}
+    error={snapshot.phase === "error" ? <>{snapshot.message} {snapshot.errorCode && <span>[{snapshot.errorCode}]</span>}{embedded && directUrl && <a href={directUrl} target="_blank" rel="noopener noreferrer" data-testid="open-direct">サイトを別タブで開く</a>}</> : undefined}
+    empty={<><Icon name="camera" /><span>{snapshot.phase === "running" ? "顔を探しています" : snapshot.phase === "starting" ? "カメラを準備中" : "カメラを開始"}</span></>}
+    preview={<video ref={videoRef} autoPlay muted playsInline className={presentationClass} data-testid="input-video" />}
+    controls={<>
+      {!busy ? <button className={`${styles.tool} ${styles.primary}`} onClick={() => void start("camera")} data-testid="camera-start"><Icon name="camera" /><span>カメラを開始</span></button>
+        : <button className={`${styles.tool} ${styles.danger}`} onClick={leave} data-testid="stop"><Icon name="stop" /><span>停止</span></button>}
+    </>}
+    settings={<>
+      <label className={styles.settingRow}><span>カメラ</span><select aria-label="使用するカメラ" value={deviceId} disabled={busy} onChange={event => setDeviceId(event.target.value)}><option value="">自動選択</option>{devices.map((device, index) => <option key={device.deviceId || index} value={device.deviceId}>{device.label || `カメラ ${index + 1}`}</option>)}</select></label>
+      <label className={styles.settingRow}><span>鏡表示</span><input type="checkbox" checked={mirror} data-testid="mirror-toggle" onChange={event => { setMirror(event.target.checked); dataRef.current.mirrorPresentation = event.target.checked; publish(); }} /></label>
+      {embedded && directUrl && <a className={styles.settingRow} href={directUrl} target="_blank" rel="noopener noreferrer">サイトを別タブで開く</a>}
+    </>}
+    details={<>
+      <p>{snapshot.currentName}<br />{snapshot.currentSource}</p>
+      <p>解析 {snapshot.detectionFps} fps ／ 出力切替 {snapshot.outputFps} 回/秒<br />取得から表示 P95 {snapshot.latencyP95Ms} ms</p>
+      <p>顔検出 {snapshot.faceFrames} / {snapshot.frames} ／ カタログ {snapshot.catalogTotal.toLocaleString()}枚<br />候補 {snapshot.candidates.toLocaleString()} ／ 画像失敗 {snapshot.imageFailures}</p>
+      <p>段階 {snapshot.stage} ／ {snapshot.frameClock}<br />{snapshot.videoWidth}×{snapshot.videoHeight} ／ {snapshot.delegate}<br />{snapshot.errorCode || snapshot.catalogError || "エラーなし"}</p>
+      <button onClick={downloadDiagnostics}>診断データを保存</button>
+    </>}>
+    <canvas ref={canvasRef} width={512} height={512} className={presentationClass} data-testid="output-canvas" aria-label="Many Facesの出力" />
+  </CallStage>;
 }

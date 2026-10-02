@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 const source=await readFile(new URL('../app/live/review-client-lite.tsx',import.meta.url),'utf8');
+const featureSource=await readFile(new URL('../app/catalog-feature.ts',import.meta.url),'utf8');
 const frames=await readFile(new URL('../app/live/video-frame.ts',import.meta.url),'utf8');
 
 test('fixed-video uses an atomic capture rather than a post-seek future-notification barrier',()=>{
@@ -17,5 +18,6 @@ test('fixed-video reads only the acquired snapshot and releases it before infere
   const close=source.indexOf('captured.bitmap.close();');
   const detect=source.indexOf('const result = landmarker.detect(canvas);');
   assert.ok(acquire>=0&&draw>acquire&&close>draw&&detect>close);
-  assert.match(source,/catalogPoseFromWebMatrix\(result\.facialTransformationMatrixes/);
+  assert.match(source,/catalogFeatureFromResult as featureFromResult/);
+  assert.match(featureSource,/catalogPoseFromWebMatrix\(result\.facialTransformationMatrixes/);
 });

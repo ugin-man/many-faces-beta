@@ -1,9 +1,6 @@
 /// <reference lib="webworker" />
 import type { FaceLandmarker, FaceLandmarkerResult } from "@mediapipe/tasks-vision";
-import { faceFeatureFromScores } from "../../face-actions";
-import { catalogPoseFromWebMatrix } from "../../catalog-pose";
-import { calibrateExpressionFeature, createExpressionTracker } from "../../expression-matching";
-import { createLandmarkPitchTracker, landmarkPitchDegrees } from "../../landmark-pitch";
+import { catalogFeatureFromResult } from "../../catalog-feature";
 import { faceGeometryFromLandmarks } from "../../offline-matching";
 import { liveCandidateFromEntry, rankLiveCandidates, type LiveCandidate, type LiveCatalogEntry } from "../../live-matching";
 import { compilePoseCells, ParsedShardCache, PoseNeighborhood } from "./catalog-neighborhood";
@@ -33,8 +30,6 @@ let catalogError: string | null = null;
 const shards = new ParsedShardCache<LiveCandidate[]>(48);
 const retryAfter = new Map<string, number>();
 const pending = new Set<string>();
-const pitchTracker = createLandmarkPitchTracker();
-const expressionTracker = createExpressionTracker();
 let previousFeature: number[] | null = null;
 const counters = { shardRequests: 0, shardParseMs: 0, candidateDecodeMs: 0, decodedCandidates: 0, indexBuilds: 0, indexBuildMs: 0 };
 
@@ -114,12 +109,7 @@ async function drainShards() {
 }
 
 function featureFromResult(result: FaceLandmarkerResult) {
-  const matrix = result.facialTransformationMatrixes[0]?.data;
-  const pose = catalogPoseFromWebMatrix(matrix) ?? [0, 0, 0];
-  const pitch = landmarkPitchDegrees(result.faceLandmarks[0], pitchTracker, 1);
-  if (pitch !== null) pose[1] = pitch / 90;
-  const scores = new Map((result.faceBlendshapes[0]?.categories ?? []).map((category) => [category.categoryName, category.score]));
-  const raw = calibrateExpressionFeature(faceFeatureFromScores(pose, scores), expressionTracker);
+  const raw = catalogFeatureFromResult(result);
   const smoothed = raw.map((value, i) => previousFeature ? previousFeature[i] * (i < 3 ? 0.35 : 0.18) + value * (i < 3 ? 0.65 : 0.82) : value);
   previousFeature = smoothed;
   return smoothed;

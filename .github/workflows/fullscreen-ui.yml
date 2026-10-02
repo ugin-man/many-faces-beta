@@ -70,6 +70,8 @@ jobs:
           test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
           git rev-parse HEAD > work/fullscreen-evidence/tested-commit.txt
           sha256sum public/test-fixtures/reference-face-motion.mp4 > work/fullscreen-evidence/fixed-video.sha256
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-noto-cjk > work/fullscreen-evidence/system-dependencies.log 2>&1
           npm ci
           npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1
           cp -a node_modules/@mediapipe/tasks-vision/wasm/. public/mediapipe/wasm/

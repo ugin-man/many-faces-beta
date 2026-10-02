@@ -35,6 +35,16 @@ try{
  const duration=await page.getByTestId('input-video').evaluate(video=>video.duration);
  check(duration>20&&v.plannedFrames===Math.floor(duration*12)&&v.sequenceFrames===v.faceFrames,'the full existing reference recording is retained, not truncated to five seconds');
  await page.screenshot({path:path.join(out,'video-result-mobile.png')});
+ report.reviewPositions=[];
+ for (const fraction of [.25,.5,.75,.94]) {
+   const slider=page.getByTestId('review-seek'),box=await slider.boundingBox();
+   await slider.click({position:{x:8+(box.width-16)*fraction,y:box.height/2}});
+   await page.waitForFunction(()=>{const video=document.querySelector('[data-testid="input-video"]');return !video.seeking&&video.readyState>=2;});
+   const time=await page.getByTestId('input-video').evaluate(video=>video.currentTime);
+   report.reviewPositions.push(time);
+   await page.screenshot({path:path.join(out,`video-motion-${Math.round(fraction*100)}.png`)});
+ }
+ await page.getByTestId('review-seek').focus();await page.keyboard.press('Home');
  l=await layout();check(l.pip.x>l.width/2&&l.pip.y<40&&l.pip.w*l.pip.h<l.width*l.height*.12,'source is a small top-right picture-in-picture');
  await page.getByTestId('play-pause').click();await page.waitForTimeout(6500);
  check(await page.getByTestId('input-video').evaluate(video=>video.currentTime>5&&video.currentTime<video.duration),'source and result continue past five seconds through the analyzed recording');

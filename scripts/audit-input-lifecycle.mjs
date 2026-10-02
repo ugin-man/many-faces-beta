@@ -47,7 +47,7 @@ try{
 
   const policy=await browser.newContext({permissions:['camera']});
   const pp=activePage=await policy.newPage();await pp.goto(base+'/live/astra');
-  await pp.evaluate(()=>{const iframe=document.createElement('iframe');iframe.name='blocked';iframe.allow="camera 'none'";iframe.src='/live/astra';document.body.append(iframe);});
+  await pp.evaluate(()=>{const iframe=document.createElement('iframe');iframe.name='blocked';iframe.allow="camera 'none'";iframe.src='/live/astra';iframe.style.cssText='position:fixed;inset:0;width:800px;height:650px;z-index:1000;background:#08090b';document.body.append(iframe);});
   const child=pp.frameLocator('iframe[name="blocked"]');await child.getByTestId('camera-start').click();
   await child.getByRole('alert').filter({hasText:'CAMERA_POLICY_BLOCKED'}).waitFor({timeout:15000});
   check(await child.getByTestId('open-direct').isVisible(),'Missing user-visible direct Site link');

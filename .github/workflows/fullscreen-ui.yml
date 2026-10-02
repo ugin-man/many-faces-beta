@@ -1,0 +1,54 @@
+name: Fullscreen UI verification
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths:
+      - '.github/workflows/fullscreen-ui.yml'
+      - 'app/**'
+      - 'tests/fullscreen-*'
+      - 'scripts/verify-fullscreen-*'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fullscreen-ui-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            /*
+            !/public/seed-catalog/*
+            /public/seed-catalog/manifest.json
+          sparse-checkout-cone-mode: false
+      - name: Export exact development source, not a reduced app
+        run: |
+          mkdir -p /tmp/fullscreen-source
+          python - <<'PY'
+          import hashlib, json, subprocess, zipfile
+          from pathlib import Path
+          files = subprocess.check_output(['git','ls-files','-z']).decode().split('\0')
+          inventory = []
+          with zipfile.ZipFile('/tmp/fullscreen-source/source.zip','w',zipfile.ZIP_DEFLATED) as z:
+              for name in filter(None, files):
+                  if name.startswith('public/seed-catalog/') and name != 'public/seed-catalog/manifest.json':
+                      continue
+                  p = Path(name)
+                  if p.suffix.lower() in {'.ttf','.otf','.woff','.woff2','.eot'}:
+                      continue
+                  data = p.read_bytes()
+                  z.writestr(name, data)
+                  inventory.append({'path':name,'sha256':hashlib.sha256(data).hexdigest()})
+              z.writestr('SOURCE_TRANSPORT.json',json.dumps({'commit':subprocess.check_output(['git','rev-parse','HEAD']).decode().strip(),'catalogTree':subprocess.check_output(['git','rev-parse','HEAD:public/seed-catalog']).decode().strip(),'purpose':'Development-only source synchronization. Reuse the exact unchanged full catalog; this is not a runnable reduced application.','files':inventory}))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fullscreen-development-source-${{ github.run_id }}
+          path: /tmp/fullscreen-source/source.zip
+          retention-days: 3

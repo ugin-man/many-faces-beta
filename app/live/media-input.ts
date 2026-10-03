@@ -1,3 +1,5 @@
+import { FrameArrivalTracker, type FrameArrival } from "./frame-arrival.ts";
+
 export class MediaInputError extends Error {
   readonly code: string;
   constructor(code: string, message: string) {
@@ -98,34 +100,69 @@ export function waitForPlayableVideo(video: HTMLVideoElement, signal: AbortSigna
 
 export type FrameClock = "video-callback" | "playback-clock";
 
-// Some live MediaStreams play normally but fail to dispatch rVFC. A bounded
-// watchdog samples their advancing playback clock instead. LatestFrameGate
-// still rejects duplicate frames and keeps the entire pipeline single-flight.
-export function startVideoFramePump(video: HTMLVideoElement, onFrame: (now: number, mediaTime: number, mode: FrameClock) => void) {
+function decodedFrameCount(video: HTMLVideoElement): number | undefined {
+  const legacy = (video as HTMLVideoElement & { webkitDecodedFrameCount?: number }).webkitDecodedFrameCount;
+  if (typeof legacy === "number" && Number.isFinite(legacy) && legacy > 0) return legacy;
+  try {
+    const quality = video.getVideoPlaybackQuality?.();
+    if (quality && Number.isFinite(quality.totalVideoFrames) && quality.totalVideoFrames >= 0) {
+      return Math.max(0, quality.totalVideoFrames - (Number.isFinite(quality.droppedVideoFrames) ? quality.droppedVideoFrames : 0));
+    }
+  } catch { /* Older engines may expose an unusable quality method. */ }
+  return typeof legacy === "number" && Number.isFinite(legacy) && legacy >= 0 ? legacy : undefined;
+}
+
+/** The second onFrame argument is an opaque arrival sequence, NOT media time.
+ * Existing gates need equality/uniqueness only. Actual mediaTime is retained in
+ * evidence: a valid live stream may repeatedly report mediaTime=0.
+ * Fallback depends on a NEW frame, not merely on whether callbacks were called.
+ * The legacy playback-clock label names the fallback route; inspect().evidence
+ * distinguishes a decoded-frame counter from a last-resort playback timestamp.
+ */
+export function startVideoFramePump(video: HTMLVideoElement, onFrame: (now: number, frameSequence: number, mode: FrameClock, evidence: FrameArrival) => void) {
   let stopped = false;
   let callbackId: number | null = null;
-  let lastCallbackAt = performance.now();
-  const sample = (now: number, time: number, mode: FrameClock) => {
-    if (!stopped && !video.paused && !video.ended && !video.seeking && video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) onFrame(now, time, mode);
+  let callbacksAvailable = typeof video.requestVideoFrameCallback === "function";
+  let lastFreshCallbackAt = performance.now();
+  const tracker = new FrameArrivalTracker();
+  const sample = (now: number, metadata?: VideoFrameCallbackMetadata) => {
+    if (stopped || video.paused || video.ended || video.seeking || video.readyState < 2 || video.videoWidth <= 0 || video.videoHeight <= 0) return;
+    const stream = video.srcObject as MediaStream | null;
+    const track = typeof stream?.getVideoTracks === "function" ? stream.getVideoTracks()[0] : undefined;
+    if (track && (track.readyState === "ended" || track.muted || !track.enabled)) return;
+    const arrival = tracker.observe(now, {
+      presentedFrames: metadata?.presentedFrames,
+      decodedFrames: decodedFrameCount(video),
+      presentationTime: metadata?.presentationTime,
+      mediaTime: metadata?.mediaTime ?? video.currentTime,
+    });
+    if (!arrival) return;
+    if (metadata) lastFreshCallbackAt = now;
+    onFrame(now, arrival.sequence, metadata ? "video-callback" : "playback-clock", arrival);
   };
   const schedule = () => {
-    if (stopped || typeof video.requestVideoFrameCallback !== "function") return;
-    callbackId = video.requestVideoFrameCallback((_now, metadata) => {
-      lastCallbackAt = performance.now();
-      sample(lastCallbackAt, metadata.mediaTime, "video-callback");
-      schedule();
-    });
+    if (stopped || !callbacksAvailable) return;
+    try {
+      callbackId = video.requestVideoFrameCallback((_now, metadata) => {
+        callbackId = null;
+        sample(performance.now(), metadata);
+        schedule();
+      });
+    } catch { callbacksAvailable = false; }
   };
   schedule();
   const timer = setInterval(() => {
     const now = performance.now();
-    if (typeof video.requestVideoFrameCallback !== "function" || now - lastCallbackAt > 500) sample(now, video.currentTime, "playback-clock");
+    if (!callbacksAvailable || now - lastFreshCallbackAt > 500) sample(now);
   }, 33);
-  return () => {
+  const stop = () => {
+    if (stopped) return;
     stopped = true;
     clearInterval(timer);
-    if (callbackId !== null) video.cancelVideoFrameCallback?.(callbackId);
+    if (callbackId !== null) { try { video.cancelVideoFrameCallback?.(callbackId); } catch { /* Already closed by the browser. */ } }
+    callbackId = null;
   };
+  return Object.assign(stop, { inspect: () => tracker.snapshot() });
 }
 
 // Draw from the decoder into a reusable canvas before bitmap conversion.

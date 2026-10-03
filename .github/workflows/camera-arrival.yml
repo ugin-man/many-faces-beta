@@ -10,6 +10,25 @@ concurrency:
   group: camera-arrival-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  previous-failure:
+    # Recover the original redirected assertion once; do not infer its cause
+    # from the later passing jobs or silently discard a failed test result.
+    if: contains(github.event.head_commit.message, 'expose failing assertions')
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 37139901320
+          name: camera-arrival-37139901320
+          path: previous
+      - name: Show original unit failure
+        run: |
+          grep -B 5 -A 35 'not ok' previous/unit.log || true
+          tail -n 15 previous/unit.log
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 18
@@ -25,6 +44,7 @@ jobs:
       - name: Prepare original full catalog and native camera fixture
         run: |
           mkdir -p work/camera-arrival
+          git fetch --depth=1 origin de063df626617178c6296f660eb3931d73feb3c8
           git rev-parse HEAD > work/camera-arrival/tested-commit.txt
           test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
           npm ci
@@ -34,16 +54,16 @@ jobs:
           echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
       - name: Test and build exact current source
         run: |
-          node --experimental-strip-types --test tests/*.test.mjs > work/camera-arrival/unit.log 2>&1
-          npm run build > work/camera-arrival/build.log 2>&1
-          npm run lint > work/camera-arrival/lint.log 2>&1
+          node --experimental-strip-types --test tests/*.test.mjs > work/camera-arrival/unit.log 2>&1 || { cat work/camera-arrival/unit.log; exit 1; }
+          tail -n 12 work/camera-arrival/unit.log
+          npm run build > work/camera-arrival/build.log 2>&1 || { cat work/camera-arrival/build.log; exit 1; }
+          npm run lint > work/camera-arrival/lint.log 2>&1 || { cat work/camera-arrival/lint.log; exit 1; }
       - name: Build exact prior revision without application patches
         run: |
-          git fetch --depth=1 origin de063df626617178c6296f660eb3931d73feb3c8
           mkdir -p /tmp/mf-camera-baseline
           git archive de063df626617178c6296f660eb3931d73feb3c8 | tar -x -C /tmp/mf-camera-baseline
           ln -s "$PWD/node_modules" /tmp/mf-camera-baseline/node_modules
-          (cd /tmp/mf-camera-baseline && npm run build) > work/camera-arrival/baseline-build.log 2>&1
+          (cd /tmp/mf-camera-baseline && npm run build) > work/camera-arrival/baseline-build.log 2>&1 || { cat work/camera-arrival/baseline-build.log; exit 1; }
           PORT=4185 HOST=127.0.0.1 nohup bash -c 'cd /tmp/mf-camera-baseline && npm start' > work/camera-arrival/baseline-server.log 2>&1 &
           PORT=4183 HOST=127.0.0.1 nohup npm start > work/camera-arrival/server.log 2>&1 &
           for port in 4183 4185; do

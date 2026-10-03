@@ -1,31 +1,21 @@
-# Many Faces current handoff — 2026-10-03 JST
+# Many Faces current handoff — 2026-10-04 JST
 
-## Canonical target
+Read [VERIFICATION_RECOVERY.md](VERIFICATION_RECOVERY.md) first. Machine-readable receipt: [VERIFICATION_RECOVERY_RESULT.json](VERIFICATION_RECOVERY_RESULT.json).
 
-Repository: `ugin-man/many-faces-beta`. Branch: `astra/realtime-hardening`. Draft PR #3 targets `work/coverage-driven-200k`. No base/main merge or hosted Site deployment was performed.
+Repository `ugin-man/many-faces-beta`, branch `astra/realtime-hardening`, draft PR #3 targeting `work/coverage-driven-200k`. No base/main merge or hosted Site deployment was performed.
 
-Keep the unchanged full 70,000-image catalog. Rebuild the EXISTING ChatGPT Work Site from this branch; do not create a reduced catalog or alternate portable app.
+Tested application commit: `c1d5faa883f139beb9c51d41402cf87c87e76e2d`. Source-content build ID `3268c1736ea0d3fd`, version `verification-recovery-v2`. Later documentation-only commits do not change this application fingerprint.
 
-## Current application: fullscreen two-mode studio
+Keep the existing full-screen two-mode studio, all 70,000 photographs and the entire 23.3-second fixed recording. `/` and `/live` open video validation, `/live/astra` opens camera. Do not create a smaller catalog, alternate app or extra UI modes. Rebuild the EXISTING Work Site from this branch. Verify the client/server/worker identity under Settings > Image information / diagnostics; the new `/api/runtime` endpoint must return the same build. The previously used hosted URL returned 404 for this endpoint and was not redeployed here.
 
-Read [FULLSCREEN_UI_OVERHAUL.md](FULLSCREEN_UI_OVERHAUL.md) first. It supersedes the old three-tab layout and visible INPUT RECOVERY V1 marker. The root `/` and `/live` open video verification; `/live/astra` opens realtime. Both share a viewport-filling result canvas with a small top-right input preview. Controls are buttons; diagnostics and configuration are in a settings sheet. Only video verification and realtime are active modes.
+## Latest repair
 
-The fixed-recording button retains the entire existing 23.3-second reference video. The active studio reanalyzes it with the current matcher; the old reference analysis/ranking files remain unchanged but are not silently reused. All 70k catalog assets remain unchanged.
+The original false 90-second video timeout was reproduced using a real slow HTTP body. Video search now runs in a cancellable worker and emits real byte/file/decode/frame progress without reducing its pose window. The UI's liveness clock advances on those events, not only on a completed matched frame. Stalled streams, invalid responses and cancellation have explicit bounded handling.
 
-Current application commit: `11312d2a83d2574d1c400a141fa6f7e8dc2f1147`. Test-only commits 19874826 and e9e5c29c have identical application source. Completed checks and inspected screenshots are documented in FULLSCREEN_UI_OVERHAUL.md. Current diagnostic build is `fullscreen-v1` / `Fullscreen UI v1`, under Settings > Image information / diagnostics.
+Camera startup now downloads and initializes one CPU model with progress, performs the first actual inference during preparation, and only then starts the live frame watchdog. Mid-frame GPU-to-CPU probing was removed. The 8-second live-frame watchdog remains; unrelated background progress does not mask a hung inference. This fixes testable startup coupling, but the user's precise physical-camera cause remains unconfirmed.
 
-Git updates do not automatically update an old ZIP or an already built Site. No hosted deployment was made. Full-catalog native virtual-camera testing is not a claim that the user's physical camera or hosted iframe has been verified.
+All six recorded workflows completed successfully, including real slow-body old/new comparison, 156 unit tests, full-recording playback, native virtual-camera lifecycle, input regressions and adversarial audit. These are not a hosted-deployment, physical-camera, Safari, sustained-performance or perceptual-fidelity certification. Initial detailed-JSON loading remains large.
 
-## Retained engine and matching corrections
+## Historical context
 
-Realtime remains a classic MediaPipe worker with one in-flight frame, stale-result rejection, bounded shard/image caches and generation-scoped lifecycle cleanup. Stop, back/swipe and mode changes release camera tracks and engine resources. Video retains the atomic decoded-frame acquisition fix and cancellation checks.
-
-Both modes now use absolute catalog-compatible pose/actions without source-only startup expression subtraction or a relative pitch origin. Video sequence matching may keep a better repeated identity rather than force a worse different face. Fine expression fidelity and source-image resolution remain unresolved quality limits; functional test success does not establish perceptual acceptance.
-
-## Historical evidence
-
-[ASTRA_INPUT_RECOVERY.md](ASTRA_INPUT_RECOVERY.md) documents the earlier yaw-sign and paused-frame failure reproduction and repair. Its old UI screenshots/version marker and statements about which stimulus was used apply to that historical pass, not the current full-recording test.
-
-[ASTRA_RESOURCE_AUDIT.md](ASTRA_RESOURCE_AUDIT.md) and [ASTRA_ADVERSARIAL_AUDIT.md](ASTRA_ADVERSARIAL_AUDIT.md) contain older resource comparisons. Do not present historical rates as current improvement measurements.
-
-Before production publication: review physical cameras/Safari/long sessions, fine head/eye/mouth fidelity, startup MIME warnings and catalog-write authorization. Promotion to base/main is a separate decision.
+[FULLSCREEN_UI_OVERHAUL.md](FULLSCREEN_UI_OVERHAUL.md) documents the interface reconstruction. Its old `fullscreen-v1` runtime identity and GPU-probe description are superseded by this recovery. [ASTRA_INPUT_RECOVERY.md](ASTRA_INPUT_RECOVERY.md) records the earlier yaw and decoded-frame fixes. [ASTRA_RESOURCE_AUDIT.md](ASTRA_RESOURCE_AUDIT.md) and [ASTRA_ADVERSARIAL_AUDIT.md](ASTRA_ADVERSARIAL_AUDIT.md) contain historical benchmarks, not current speed guarantees.

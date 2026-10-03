@@ -1,0 +1,65 @@
+name: Video speed and identical-output gate
+on:
+  push:
+    branches: [astra/video-speed, astra/realtime-hardening]
+    paths: ['app/live/review-search.worker.ts', 'app/live/review-work-cache.ts', 'app/live/review-ranking.ts', 'scripts/verify-video-speed.mjs', 'tests/video-speed.test.mjs', '.github/workflows/video-speed.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: video-speed-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - name: Prepare unchanged full assets and exact baseline
+        run: |
+          mkdir -p work/video-speed
+          git fetch --depth=1 origin 7eff666803fa5143e154995fae280453d21ec5f6
+          test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
+          git diff --exit-code 7eff666803fa5143e154995fae280453d21ec5f6 HEAD -- app/live/astra app/live/media-input.ts app/live/frame-arrival.ts app/live/stable-landmarker.ts app/projection-matching.ts app/live/review-client-lite.tsx app/live/video-frame.ts app/runtime-identity.ts public
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1
+          echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          mkdir -p /tmp/mf-video-baseline
+          git archive 7eff666803fa5143e154995fae280453d21ec5f6 | tar -x -C /tmp/mf-video-baseline
+          ln -s "$PWD/node_modules" /tmp/mf-video-baseline/node_modules
+      - name: Build before integration tests; do not patch source during CI
+        run: |
+          npm run build > work/video-speed/build.log 2>&1 || { cat work/video-speed/build.log; exit 1; }
+          node --experimental-strip-types --test tests/*.test.mjs > work/video-speed/unit.log 2>&1 || { cat work/video-speed/unit.log; exit 1; }
+          tail -n 12 work/video-speed/unit.log
+          npm run lint > work/video-speed/lint.log 2>&1 || { cat work/video-speed/lint.log; exit 1; }
+          (cd /tmp/mf-video-baseline && npm run build) > work/video-speed/baseline-build.log 2>&1 || { cat work/video-speed/baseline-build.log; exit 1; }
+      - name: Serve both exact builds
+        run: |
+          PORT=4183 HOST=127.0.0.1 nohup npm start > work/video-speed/server.log 2>&1 &
+          PORT=4185 HOST=127.0.0.1 nohup bash -c 'cd /tmp/mf-video-baseline && npm start' > work/video-speed/baseline-server.log 2>&1 &
+          for port in 4183 4185; do
+            for attempt in $(seq 1 90); do
+              if curl -fsS "http://127.0.0.1:$port/live" >/dev/null; then break; fi
+              sleep 1
+            done
+            curl -fsS "http://127.0.0.1:$port/api/runtime" > "work/video-speed/identity-$port.json"
+          done
+      - name: ABBA full-video timings and exact same-frame worker comparison
+        run: node scripts/verify-video-speed.mjs
+      - name: Verify no runtime or original asset was rewritten
+        if: always()
+        run: git diff --exit-code -- app worker scripts tests build public
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: video-speed-${{ github.run_id }}
+          path: work/video-speed
+          retention-days: 14

@@ -1,0 +1,185 @@
+name: Package full Many Faces Site project
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths: ['.github/workflows/astra-full-project-package.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: astra-full-project-package-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Package exact source and full catalog
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: |
+          mkdir -p outgoing
+          python - <<'PY'
+          import hashlib, json, os, subprocess, time, zipfile
+          from pathlib import Path, PurePosixPath
+          def git(*args):
+              return subprocess.check_output(['git', *args]).decode().strip()
+          commit = git('rev-parse', 'HEAD')
+          assert commit == os.environ['GITHUB_SHA']
+          root = Path('public/seed-catalog')
+          manifest = json.loads((root/'manifest.json').read_text())
+          assert manifest['totalFaces'] == 70000
+          files = sorted({f for c in manifest['cells'].values() for f in (c.get('shards') or [c['shard']])})
+          ids = set()
+          count = 0
+          for name in files:
+              assert PurePosixPath(name).name == name
+              for item in json.loads((root/'shards'/name).read_text())['items']:
+                  count += 1
+                  assert item['id'] not in ids
+                  ids.add(item['id'])
+                  if item.get('image'):
+                      assert (root/'images'/item['image']).is_file()
+                  else:
+                      pack = root/'packs'/item['pack']
+                      assert pack.is_file()
+                      assert isinstance(item['offset'], int) and item['offset'] >= 0
+                      assert isinstance(item['length'], int) and item['length'] > 0
+                      assert item['offset'] + item['length'] <= pack.stat().st_size
+          assert count == len(ids) == 70000
+          entries = []
+          for row in filter(None, subprocess.check_output(['git','ls-tree','-r','-z','--full-tree','HEAD']).decode().split('\0')):
+              meta, name = row.split('\t',1)
+              mode, kind, expected = meta.split()
+              p = PurePosixPath(name)
+              assert kind == 'blob' and mode in ('100644','100755'), name
+              assert not p.is_absolute() and '..' not in p.parts and '\\' not in name
+              assert p.suffix.lower() not in {'.ttf','.otf','.woff','.woff2','.eot'}, name
+              assert not (p.name.startswith('.env') and p.name not in {'.env.example','.env.sample'}), name
+              assert p.name != 'IMG_3665.mp4'
+              assert not ({'.git','node_modules','.wrangler','.sites-runtime'} & set(p.parts))
+              entries.append((name,mode,expected))
+          prefix = 'Many-Faces-Full-70k'
+          archive = Path('outgoing')/f'Many-Faces-Full-70k-{commit[:8]}.zip'
+          stamp = time.gmtime(int(git('show','-s','--format=%ct','HEAD')))[:6]
+          inventory = []
+          def put(z,name,data,mode='100644'):
+              info = zipfile.ZipInfo(prefix+'/'+name, stamp)
+              info.create_system = 3
+              info.external_attr = int(mode,8) << 16
+              info.compress_type = zipfile.ZIP_DEFLATED
+              z.writestr(info,data,compresslevel=6)
+          with zipfile.ZipFile(archive,'w',allowZip64=True) as z:
+              for i,(name,mode,expected) in enumerate(entries):
+                  data = Path(name).read_bytes()
+                  actual = hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+                  assert actual == expected, name
+                  inventory.append({'path':name,'mode':mode,'gitBlob':expected,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+                  put(z,name,data,mode)
+                  if i % 250 == 0: print(f'Packaged {i}/{len(entries)} source files')
+              identity = {
+                  'schemaVersion':1, 'repository':'ugin-man/many-faces-beta',
+                  'branch':os.environ['GITHUB_REF_NAME'], 'commit':commit,
+                  'rootTree':git('rev-parse','HEAD^{tree}'),
+                  'catalogTree':git('rev-parse','HEAD:public/seed-catalog'),
+                  'catalogFaces':count, 'catalogPoseCells':len(manifest['cells']),
+                  'catalogShards':len(files), 'trackedFileCount':len(entries),
+                  'trackedBytes':sum(x['bytes'] for x in inventory),
+                  'format':'exact Git source snapshot plus package identity and Japanese guide',
+                  'primaryRoute':'/live/astra', 'referenceRoute':'/live',
+                  'reducedCatalog':False, 'privateUserVideoIncluded':False,
+                  'nodeModulesIncluded':False, 'prebuiltDeploymentIncluded':False,
+                  'runId':os.environ['GITHUB_RUN_ID'], 'files':inventory,
+              }
+              put(z,'PACKAGE_IDENTITY.json',(json.dumps(identity,ensure_ascii=False,indent=2)+'\n').encode())
+              guide = '\n'.join([
+                  '# Many Faces フルプロジェクト（70,000枚）', '',
+                  '軽量版ではありません。Gitにあるソースと7万枚の画像資産を変更せずに収録しています。',
+                  '画像は public/seed-catalog/packs のパックファイルに格納され、shards 内の索引から参照されます。',
+                  '個別の画像ファイルが7万個並ぶ構成ではありません。', '',
+                  '## WorkのSiteで引き継ぐ', '',
+                  'ZIPを展開した Many-Faces-Full-70k がプロジェクトのルートです。',
+                  'このプロジェクトを既存のWork Siteの作業フローへ渡してください。',
+                  '.openai、build、worker、package-lock.json、public/seed-catalog を省略しないでください。',
+                  '起動後の確認画面は /live/astra、固定動画の参照画面は /live です。',
+                  'リポジトリ: ugin-man/many-faces-beta',
+                  'ブランチ: astra/realtime-hardening',
+                  'コミットと全ファイルの照合情報: PACKAGE_IDENTITY.json', '',
+                  '## 既存の実行コマンド', '',
+                  'これはソースプロジェクトです。HTMLのダブルクリックやインストーラーでは起動しません。',
+                  'Node.js 22.13.0以降とBashを使える実行環境で、npm ci → npm run build → npm start を実行します。',
+                  '開発用の入口は npm run dev です。別の簡易サーバーは追加していません。',
+                  'node_modulesは同梱していないため、依存パッケージの初回導入には通信が必要です。',
+                  'public/mediapipe 内でGit管理されているモデル資産は同梱しています。',
+                  '固定動画側などに外部URL参照が残るため、完全オフライン動作を保証するパッケージではありません。', '',
+                  '## 監査と未完了項目', '',
+                  '最初に docs/ASTRA_REALTIME_HARDENING.md と docs/ASTRA_RESOURCE_AUDIT.md を読んでください。',
+                  '実機カメラ、Safari、実際のWork Site、連続した人の動きに対する一致品質などの確認は残っています。',
+                  '公開前のアップロード権限確認も残っています。パッケージ化は本番公開の承認ではありません。',
+                  'Git履歴、node_modules、ローカルの環境変数や認証情報、作業キャッシュ、私用動画は追加していません。',
+                  '環境固有のバインディングや設定は移行先のSite側で管理してください。', '',
+              ])
+              put(z,'PACKAGE_START_HERE_JA.md',guide.encode())
+          with zipfile.ZipFile(archive) as z:
+              assert z.testzip() is None
+              assert len(z.namelist()) == len(entries)+2
+          chunks = []
+          whole = hashlib.sha256()
+          with archive.open('rb') as src:
+              for i in range(4):
+                  block = src.read(240*1024*1024)
+                  if not block: break
+                  name = f'full-project.part{i:02d}'
+                  (Path('outgoing')/name).write_bytes(block)
+                  whole.update(block)
+                  chunks.append({'name':name,'bytes':len(block),'sha256':hashlib.sha256(block).hexdigest()})
+              assert src.read(1) == b'', 'Archive exceeds transport budget'
+          receipt = {k:v for k,v in identity.items() if k!='files'}
+          receipt.update({'archive':archive.name,'archiveBytes':archive.stat().st_size,'archiveSha256':whole.hexdigest(),'zipCrcVerified':True,'chunks':chunks})
+          Path('outgoing/receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          print(json.dumps(receipt,indent=2))
+          PY
+      - name: Verify source was not rewritten
+        run: git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-full-package-receipt-${{ github.run_id }}
+          path: outgoing/receipt.json
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        with:
+          name: many-faces-full-package-part00-${{ github.run_id }}
+          path: outgoing/full-project.part00
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: hashFiles('outgoing/full-project.part01') != ''
+        with:
+          name: many-faces-full-package-part01-${{ github.run_id }}
+          path: outgoing/full-project.part01
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: hashFiles('outgoing/full-project.part02') != ''
+        with:
+          name: many-faces-full-package-part02-${{ github.run_id }}
+          path: outgoing/full-project.part02
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: hashFiles('outgoing/full-project.part03') != ''
+        with:
+          name: many-faces-full-package-part03-${{ github.run_id }}
+          path: outgoing/full-project.part03
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7

@@ -10,25 +10,6 @@ concurrency:
   group: camera-arrival-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  previous-failure:
-    # Recover the original redirected assertion once; do not infer its cause
-    # from the later passing jobs or silently discard a failed test result.
-    if: contains(github.event.head_commit.message, 'expose failing assertions')
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          github-token: ${{ github.token }}
-          run-id: 37139901320
-          name: camera-arrival-37139901320
-          path: previous
-      - name: Show original unit failure
-        run: |
-          grep -B 5 -A 35 'not ok' previous/unit.log || true
-          tail -n 15 previous/unit.log
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 18
@@ -52,11 +33,11 @@ jobs:
           bash scripts/prepare-astra-fixtures.sh > work/camera-arrival/fixture.log 2>&1
           cp work/astra-evidence/fixture-provenance.json work/camera-arrival/
           echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
-      - name: Test and build exact current source
+      - name: Build and test exact current source
         run: |
+          npm run build > work/camera-arrival/build.log 2>&1 || { cat work/camera-arrival/build.log; exit 1; }
           node --experimental-strip-types --test tests/*.test.mjs > work/camera-arrival/unit.log 2>&1 || { cat work/camera-arrival/unit.log; exit 1; }
           tail -n 12 work/camera-arrival/unit.log
-          npm run build > work/camera-arrival/build.log 2>&1 || { cat work/camera-arrival/build.log; exit 1; }
           npm run lint > work/camera-arrival/lint.log 2>&1 || { cat work/camera-arrival/lint.log; exit 1; }
       - name: Build exact prior revision without application patches
         run: |

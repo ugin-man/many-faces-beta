@@ -1,5 +1,6 @@
 "use client";
 
+import RuntimeCheck from "../../runtime-check";
 import CallStage, { type StudioClientProps } from "../../call-stage";
 import { Icon } from "../../studio-icons";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -7,6 +8,8 @@ import { ResponsiveSwitchController, type ResponsiveSwitchDecision } from "../..
 import { LatestFrameGate, qualityBoundedReadyChoice, type FrameResult } from "./runtime";
 import { assertCameraEnvironment, cameraEnvironment, createInputFrame, inputError, MediaInputError, openCameraStream, startVideoFramePump, waitForPlayableVideo, type CameraEnvironment } from "../media-input";
 import { DecodedImageCache } from "./image-cache";
+import { ProgressDeadline } from "../asset-reader";
+import { runtimeIdentity } from "../../runtime-identity";
 import styles from "../../studio.module.css";
 
 type Phase = "idle" | "starting" | "running" | "error";
@@ -22,7 +25,7 @@ type Snapshot = {
   stage: string; errorCode: string | null; frameClock: string;
   videoWidth: number; videoHeight: number; videoReadyState: number; videoPaused: boolean;
   trackState: string; trackMuted: boolean; environment: CameraEnvironment | null;
-  mirrorPresentation: boolean; build: string;
+  mirrorPresentation: boolean; build: string; version: string; receivedBytes: number; workerStage: string; workerBuild: string;
 };
 const initialSnapshot = (): Snapshot => ({
   phase: "idle", message: "カメラ、または動画を選んで開始", delegate: "—", source: "—",
@@ -33,7 +36,7 @@ const initialSnapshot = (): Snapshot => ({
   firstOutputMs: null, face: false, currentName: "—", currentSource: "—", catalogError: null,
   stage: "idle", errorCode: null, frameClock: "—", videoWidth: 0, videoHeight: 0,
   videoReadyState: 0, videoPaused: true, trackState: "none", trackMuted: false,
-  environment: null, mirrorPresentation: false, build: "fullscreen-v1",
+  environment: null, mirrorPresentation: false, build: runtimeIdentity.build, version: runtimeIdentity.version, receivedBytes: 0, workerStage: "idle", workerBuild: "—",
 });
 
 declare global { interface Window { __MANY_FACES_REALTIME__?: Snapshot; } }
@@ -72,6 +75,7 @@ export default function AstraRealtimeClient({ onModeChange }: StudioClientProps 
   const frameTimesRef = useRef<number[]>([]);
   const outputTimesRef = useRef<number[]>([]);
   const latencyRef = useRef<number[]>([]);
+  const catalogActivityRef = useRef(0);
 
   const publish = useCallback(() => {
     const now = performance.now();
@@ -101,7 +105,7 @@ export default function AstraRealtimeClient({ onModeChange }: StudioClientProps 
     sessionRef.current += 1;
     stopPumpRef.current?.(); stopPumpRef.current = null;
     inputAbortRef.current?.abort(); inputAbortRef.current = null;
-    if (startupTimerRef.current) clearTimeout(startupTimerRef.current);
+    if (startupTimerRef.current) clearInterval(startupTimerRef.current);
     startupTimerRef.current = null;
     rejectStartRef.current?.(new DOMException("Cancelled", "AbortError"));
     rejectStartRef.current = null;
@@ -190,7 +194,7 @@ export default function AstraRealtimeClient({ onModeChange }: StudioClientProps 
         const now = performance.now(), video = videoRef.current;
         if (gateRef.current.stalled(now)) { stop("顔解析の応答が8秒間ありません。安全のため停止しました。", true, "INFERENCE_STALLED"); return; }
         if (video && (kindRef.current === "camera" || !video.paused) && now - lastFrameAtRef.current > 8000) { stop("入力映像が8秒間更新されていません。カメラの選択、接続、使用中のアプリを確認して再開してください。", true, "VIDEO_FRAMES_STALLED"); return; }
-        if (dataRef.current.faceFrames > 20 && dataRef.current.outputChanges === 0 && now - startedAtRef.current > 30000) { stop("顔は検出できましたが、候補画像を表示できませんでした。通信状態を確認してください。", true, "OUTPUT_UNAVAILABLE"); return; }
+        if (dataRef.current.faceFrames > 20 && dataRef.current.outputChanges === 0 && now - Math.max(startedAtRef.current, catalogActivityRef.current) > 30000) { stop("顔は検出できましたが、候補画像を表示できませんでした。通信状態を確認してください。", true, "OUTPUT_UNAVAILABLE"); return; }
       }
       publish();
     }, 250);
@@ -235,16 +239,33 @@ export default function AstraRealtimeClient({ onModeChange }: StudioClientProps 
       if (!isCurrent()) return;
       dataRef.current.stage = "model-start"; dataRef.current.message = "映像を受信しました。顔解析エンジンを準備中…"; publish();
       const worker = new Worker(new URL("./processor.worker.ts", import.meta.url));
+      const startupDeadline = new ProgressDeadline(performance.now());
       workerRef.current = worker;
       cacheRef.current = new DecodedImageCache(() => { if (isCurrent()) presentRef.current(); });
       await new Promise<void>((resolve, reject) => {
         rejectStartRef.current = reject;
-        startupTimerRef.current = setTimeout(() => reject(new MediaInputError("MODEL_START_TIMEOUT", "解析エンジンの準備が30秒以内に完了しませんでした。再度開始してください。")), 30000);
-        worker.onmessage = (event: MessageEvent<FrameResult | { type: "ready"; delegate: string; catalogTotal: number } | { type: "error"; message: string }>) => {
+        startupTimerRef.current = setInterval(() => {
+          if (startupDeadline.expired(performance.now(), 45000, 600000)) reject(new MediaInputError("MODEL_START_TIMEOUT", `解析エンジンの準備が進んでいません（${dataRef.current.workerStage}）。`));
+        }, 250);
+        worker.onmessage = (event: MessageEvent<FrameResult | { type: "ready"; delegate: string; catalogTotal: number; build: string } | { type: "progress"; sequence: number; stage: string; bytes: number; build: string } | { type: "error"; message: string }>) => {
           if (!isCurrent()) return;
           const message = event.data;
-          if (message.type === "ready") {
-            if (startupTimerRef.current) clearTimeout(startupTimerRef.current);
+          if (message.type === "progress") {
+            if (message.build !== runtimeIdentity.build) { reject(new MediaInputError("BUILD_MISMATCH", "画面と解析処理の版が異なります。ページを再読み込みしてください。")); return; }
+            if (startupDeadline.observe(message.sequence, performance.now())) {
+              dataRef.current.workerStage = message.stage; dataRef.current.workerBuild = message.build;
+              dataRef.current.receivedBytes = message.bytes;
+              if (message.stage === "catalog") catalogActivityRef.current = performance.now();
+              if (phaseRef.current === "starting") {
+                const label = message.stage === "engine-warmup" ? "最初の映像を解析中" : message.stage.includes("download") ? "解析エンジンを受信中" : "解析エンジンを準備中";
+                dataRef.current.message = `${label}${message.bytes ? ` ${(message.bytes / 1048576).toFixed(1)} MB` : "…"}`;
+              }
+              publish();
+            }
+          } else if (message.type === "ready") {
+            if (message.build !== runtimeIdentity.build) { reject(new MediaInputError("BUILD_MISMATCH", "画面と解析処理の版が異なります。ページを再読み込みしてください。")); return; }
+            dataRef.current.workerBuild = message.build; dataRef.current.workerStage = "ready";
+            if (startupTimerRef.current) clearInterval(startupTimerRef.current);
             startupTimerRef.current = null; rejectStartRef.current = null;
             dataRef.current.delegate = message.delegate; dataRef.current.catalogTotal = message.catalogTotal; resolve();
           } else if (message.type === "error") {
@@ -266,10 +287,15 @@ export default function AstraRealtimeClient({ onModeChange }: StudioClientProps 
         };
         // Analysis always sees original pixels. Mirror presentation applies to
         // BOTH panes and never changes the matching coordinate system.
-        worker.postMessage({ type: "init", origin: window.location.origin, mirror: false });
+        captureCanvasRef.current ??= document.createElement("canvas");
+        void createInputFrame(video, captureCanvasRef.current).then(warmup => {
+          if (!isCurrent()) { warmup.close(); return; }
+          try { worker.postMessage({ type: "init", origin: window.location.origin, mirror: false, warmup, build: runtimeIdentity.build }, [warmup]); }
+          catch (error) { warmup.close(); reject(error); }
+        }).catch(reject);
       });
       if (!isCurrent()) return;
-      phaseRef.current = "running"; dataRef.current.stage = "running";
+      phaseRef.current = "running"; dataRef.current.stage = "running"; dataRef.current.workerStage = "running";
       startedAtRef.current = performance.now(); lastFrameAtRef.current = startedAtRef.current;
       dataRef.current.message = "動きに合わせて検索中。入力と結果は同じ向きで表示します。";
       captureCanvasRef.current ??= document.createElement("canvas");
@@ -318,6 +344,7 @@ export default function AstraRealtimeClient({ onModeChange }: StudioClientProps 
       {embedded && directUrl && <a className={styles.settingRow} href={directUrl} target="_blank" rel="noopener noreferrer">サイトを別タブで開く</a>}
     </>}
     details={<>
+      <RuntimeCheck /><p>解析 {snapshot.workerBuild} / {snapshot.workerStage}</p>
       <p>{snapshot.currentName}<br />{snapshot.currentSource}</p>
       <p>解析 {snapshot.detectionFps} fps ／ 出力切替 {snapshot.outputFps} 回/秒<br />取得から表示 P95 {snapshot.latencyP95Ms} ms</p>
       <p>顔検出 {snapshot.faceFrames} / {snapshot.frames} ／ カタログ {snapshot.catalogTotal.toLocaleString()}枚<br />候補 {snapshot.candidates.toLocaleString()} ／ 画像失敗 {snapshot.imageFailures}</p>

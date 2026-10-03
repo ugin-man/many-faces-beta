@@ -5,18 +5,26 @@ import { faceGeometryFromLandmarks } from "../../offline-matching";
 import { liveCandidateFromEntry, rankLiveCandidates, type LiveCandidate, type LiveCatalogEntry } from "../../live-matching";
 import { compilePoseCells, ParsedShardCache, PoseNeighborhood } from "./catalog-neighborhood";
 import { ReusableLiveSearchIndex } from "./live-search-index";
-import { medianDuration, preferCpu, shouldProbeCpu } from "./delegate-policy";
+import { createStableLandmarker } from "../stable-landmarker";
+import { readAssetJson } from "../asset-reader";
+import { runtimeIdentity } from "../../runtime-identity";
 import type { FrameResult } from "./runtime";
 
 type Manifest = { totalFaces: number; searchableFaces?: number; catalogId?: string; poseStep?: number; cells: Record<string, { shards?: string[]; shard?: string }>; stats?: { cleanCore?: { knownSyntheticFaces?: number } } };
-type Input = { type: "init"; origin: string; mirror?: boolean } | { type: "frame"; id: number; capturedAt: number; bitmap: ImageBitmap; currentId: string | null };
+type Input = { type: "init"; origin: string; mirror?: boolean; warmup: ImageBitmap; build: string } | { type: "frame"; id: number; capturedAt: number; bitmap: ImageBitmap; currentId: string | null };
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 let landmarker: FaceLandmarker | null = null;
-let createEngine: ((delegate: "GPU" | "CPU") => Promise<FaceLandmarker>) | null = null;
-let delegate = "GPU";
-let cpuProbed = false;
 let processing = false;
-const inferenceSamples: number[] = [];
+let progressSequence = 0;
+let lastCatalogReport = -Infinity;
+let catalogBytes = 0;
+function catalogProgress(delta: number, force = false) {
+  catalogBytes += delta;
+  if (force || performance.now() - lastCatalogReport > 100) {
+    lastCatalogReport = performance.now();
+    scope.postMessage({ type: "progress", sequence: ++progressSequence, stage: "catalog", bytes: catalogBytes, files: shards.size, build: runtimeIdentity.build });
+  }
+}
 let manifest: Manifest | null = null;
 let neighborhood: PoseNeighborhood | null = null;
 let origin = "";
@@ -33,11 +41,9 @@ const pending = new Set<string>();
 let previousFeature: number[] | null = null;
 const counters = { shardRequests: 0, shardParseMs: 0, candidateDecodeMs: 0, decodedCandidates: 0, indexBuilds: 0, indexBuildMs: 0 };
 
-async function readJson(path: string) {
-  const response = await fetch(new URL(path, origin), { signal: AbortSignal.timeout(15000), cache: "force-cache" });
-  if (!response.ok) throw new Error(`CATALOG ${response.status}`);
+async function readJson<T>(path: string): Promise<T> {
   const started = performance.now();
-  const result = await response.json();
+  const result = await readAssetJson<T>(new URL(path, origin).href, { onBytes: (_received, delta) => catalogProgress(delta) });
   counters.shardParseMs += performance.now() - started;
   return result;
 }
@@ -82,21 +88,25 @@ async function drainShards() {
           const payload = await readJson(`/api/catalog/shard?source=seed&file=${encodeURIComponent(file)}&catalog=${version}`) as { items?: LiveCatalogEntry[] };
           if (!Array.isArray(payload.items)) throw new Error("Invalid catalog shard");
           const started = performance.now();
-          const candidates = payload.items.flatMap((entry) => {
-            const candidate = liveCandidateFromEntry(entry, file);
-            if (!candidate) return [];
-            const url = new URL(candidate.url, origin);
-            url.searchParams.set("source", "seed");
-            url.searchParams.set("catalog", manifest?.catalogId ?? "seed");
-            candidate.url = url.toString();
-            return [candidate];
-          });
+          const candidates: LiveCandidate[] = [];
+          for (let offset = 0; offset < payload.items.length; offset += 32) {
+            for (const entry of payload.items.slice(offset, offset + 32)) {
+              const candidate = liveCandidateFromEntry(entry, file);
+              if (!candidate) continue;
+              const url = new URL(candidate.url, origin);
+              url.searchParams.set("source", "seed"); url.searchParams.set("catalog", manifest?.catalogId ?? "seed");
+              candidate.url = url.toString(); candidates.push(candidate);
+            }
+            // Yield between decoding batches so camera frames and stop/error
+            // messages do not queue behind an entire detailed catalog shard.
+            await new Promise<void>(resolve => setTimeout(resolve, 0));
+          }
           counters.candidateDecodeMs += performance.now() - started;
           counters.decodedCandidates += candidates.length;
           shards.set(file, candidates, new Set(desired));
           // A reloaded file may have the same name but new object identities.
           indexSignature = "";
-          catalogError = null;
+          catalogError = null; catalogProgress(0, true);
         } catch (error) {
           catalogError = error instanceof Error ? error.message : String(error);
           retryAfter.set(file, performance.now() + 5000);
@@ -115,56 +125,26 @@ function featureFromResult(result: FaceLandmarkerResult) {
   return smoothed;
 }
 
-function announceReady() {
-  scope.postMessage({ type: "ready", delegate, catalogTotal: manifest?.searchableFaces ?? manifest?.totalFaces ?? 0 });
-}
-
 async function initialize(message: Extract<Input, { type: "init" }>) {
   origin = message.origin;
-  const { FaceLandmarker, FilesetResolver } = await import("@mediapipe/tasks-vision");
-  const [fileset, catalog] = await Promise.all([
-    FilesetResolver.forVisionTasks(new URL("/api/mediapipe", origin).href),
-    readJson("/api/catalog/manifest?source=seed"),
-  ]);
-  if (!catalog?.cells || !Number.isFinite(catalog.totalFaces) || catalog.totalFaces <= 0) throw new Error("Invalid catalog manifest");
-  if (Number(catalog.stats?.cleanCore?.knownSyntheticFaces ?? 0) !== 0) throw new Error("Real-photo catalog policy violated");
-  manifest = catalog;
-  neighborhood = new PoseNeighborhood(compilePoseCells(catalog.cells), Number(catalog.poseStep) || 3);
-  const options = {
-    runningMode: "VIDEO" as const, numFaces: 1,
-    outputFaceBlendshapes: true, outputFacialTransformationMatrixes: true,
-    minFaceDetectionConfidence: 0.45, minFacePresenceConfidence: 0.45, minTrackingConfidence: 0.45,
-  };
-  createEngine = (selectedDelegate) => FaceLandmarker.createFromOptions(fileset, { ...options, baseOptions: { modelAssetPath: new URL("/api/mediapipe/face_landmarker.task", origin).href, delegate: selectedDelegate } });
-  try { landmarker = await createEngine("GPU"); }
-  catch { delegate = "CPU"; landmarker = await createEngine("CPU"); }
-  announceReady();
-}
-
-async function probeCpuIfSlow(currentCanvas: OffscreenCanvas, timestamp: number, gpuResult: FaceLandmarkerResult) {
-  if (!createEngine || !shouldProbeCpu(delegate, inferenceSamples, cpuProbed)) return;
-  cpuProbed = true;
-  let cpu: FaceLandmarker | null = null;
+  const bitmap = message.warmup;
   try {
-    cpu = await createEngine("CPU");
-    const timings: number[] = [];
-    let cpuResult: FaceLandmarkerResult | null = null;
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      const started = performance.now();
-      cpuResult = cpu.detectForVideo(currentCanvas, timestamp + attempt * 0.001);
-      if (attempt > 0) timings.push(performance.now() - started);
-    }
-    if (preferCpu(medianDuration(inferenceSamples.slice(-4)), timings, Boolean(gpuResult.faceLandmarks[0]), Boolean(cpuResult?.faceLandmarks[0]))) {
-      const previous = landmarker;
-      landmarker = cpu;
-      cpu = null;
-      delegate = "CPU";
-      previous?.close();
-      inferenceSamples.length = 0;
-      announceReady();
-    }
-  } catch (error) { console.warn("CPU delegate probe failed; retaining the current engine.", error); }
-  finally { cpu?.close(); }
+    if (message.build !== runtimeIdentity.build) throw new Error("BUILD_MISMATCH: 解析処理が古い版です。再読み込みしてください。");
+    manifest = await readJson<Manifest>("/api/catalog/manifest?source=seed");
+    if (!manifest.cells || (manifest.searchableFaces ?? manifest.totalFaces) !== 70000 || Number(manifest.stats?.cleanCore?.knownSyntheticFaces ?? 0) !== 0) throw new Error("CATALOG_INVALID: 7万枚のカタログを確認できません。");
+    neighborhood = new PoseNeighborhood(compilePoseCells(manifest.cells), Number(manifest.poseStep) || 3);
+    landmarker = await createStableLandmarker("VIDEO", event => scope.postMessage({ type: "progress", sequence: ++progressSequence, ...event, build: runtimeIdentity.build }));
+    scope.postMessage({ type: "progress", sequence: ++progressSequence, stage: "engine-warmup", bytes: 0, build: runtimeIdentity.build });
+    if (!bitmap?.width || !bitmap.height) throw new Error("WARMUP_FRAME_MISSING: 入力映像がありません。");
+    const warmCanvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+    const context = warmCanvas.getContext("2d");
+    if (!context) throw new Error("WARMUP_CANVAS_FAILED");
+    context.drawImage(bitmap, 0, 0);
+    // Startup includes the first actual inference. The 8-second live-frame
+    // watchdog must never include network/model compilation or CPU probing.
+    landmarker.detectForVideo(warmCanvas, 0);
+    scope.postMessage({ type: "ready", delegate: "CPU", catalogTotal: manifest.searchableFaces ?? manifest.totalFaces, build: runtimeIdentity.build });
+  } finally { bitmap?.close(); }
 }
 
 async function processFrame(message: Extract<Input, { type: "frame" }>) {
@@ -185,9 +165,6 @@ async function processFrame(message: Extract<Input, { type: "frame" }>) {
     const started = performance.now();
     const result = landmarker.detectForVideo(canvas, message.capturedAt);
     const inferenceMs = performance.now() - started;
-    inferenceSamples.push(inferenceMs);
-    if (inferenceSamples.length > 8) inferenceSamples.shift();
-    await probeCpuIfSlow(canvas, message.capturedAt, result);
     const landmarks = result.faceLandmarks[0];
     const geometry = landmarks ? faceGeometryFromLandmarks(landmarks, width / height) : null;
     const feature = geometry && result.faceBlendshapes.length ? featureFromResult(result) : [];

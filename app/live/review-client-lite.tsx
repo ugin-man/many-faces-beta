@@ -1,4 +1,5 @@
 "use client";
+import RuntimeCheck from "../runtime-check";
 import CallStage, { type StudioClientProps } from "../call-stage";
 import { Icon } from "../studio-icons";
 import { timeLabel } from "../studio-controls";
@@ -6,8 +7,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FaceLandmarker } from "@mediapipe/tasks-vision";
 import { catalogFeatureFromResult as featureFromResult } from "../catalog-feature";
 import { faceGeometryFromLandmarks, type FaceGeometry, type SequenceFrame } from "../offline-matching";
-import { optimizeDistinctProjectionSequence, rankProjectionCandidateModesTwoStage, type ProjectionChoice, type ProjectionError } from "../projection-matching";
-import { poseWindowCellKeys, shardFilesForCells, shouldExpandPoseWindow, type ReviewCatalogManifest } from "./review-local-catalog";
+import type { ProjectionChoice, ProjectionError } from "../projection-matching";
+import { searchReviewFrames } from "./review-search";
+import { createStableLandmarker } from "./stable-landmarker";
+import { runtimeIdentity } from "../runtime-identity";
+import { readAssetBytes } from "./asset-reader";
+import { type ReviewCatalogManifest } from "./review-local-catalog";
 import { processingSecondsPerOutputSecond, quantizeReviewTime, reviewItemAtTime } from "./review-timeline";
 import { evaluateVerificationGate } from "./verification-gate";
 import { emptyReviewPhaseTimings, reviewSequenceFingerprint, roundedReviewPhaseTimings, type ReviewPhaseTimings } from "./review-sequence-metrics";
@@ -15,21 +20,8 @@ import { OPERATION_STALL_TIMEOUT_MS, operationIsStalled, preparationFailureReaso
 import { captureVideoFrameAt } from "./video-frame";
 import styles from "../studio.module.css";
 
-const WASM_URL = "/api/mediapipe";
-const MODEL_URL = "/api/mediapipe/face_landmarker.task";
 const CAPTURE_SECONDS = 5;
-const INDEX_BEAM_PER_FRAME = 64;
-const SHARD_CONCURRENCY = 4;
-const STRICT_SEQUENCE_OPTIONS = {
-  allowRepeats: true, cooldown: 12, beamWidth: 24, qualityThreshold: 0.055, residualCoherence: 0.46,
-  expressionMotionWeight: 6.2, motionWeights: { mouth: 0.43, eyes: 0.39, brows: 0.18 },
-} as const;
 
-type CatalogEntry = {
-  id: string; name?: string; image?: string; pack?: string; offset?: number; length?: number;
-  feature: number[]; shape?: string; mesh?: string; projection?: string;
-  layout?: [number, number, number, number]; sourceName?: string; creator?: string;
-};
 type CatalogManifest = ReviewCatalogManifest & {
   schemaVersion: 1 | 2 | 3; catalogId?: string; generatedAt?: string;
   totalFaces: number; searchableFaces?: number; poseStep: number;
@@ -52,37 +44,18 @@ type VerificationReport = {
   passed: boolean; reasons: string[];
   frameEvidence: { presentationCallbacks: number; decodedPausedReadbacks: number };
   inputBuild: string;
+  build: string;
+  searchTraffic: { bytes: number; files: number; decoded: number };
   matching: { meanYawErrorDegrees: number; meanPitchErrorDegrees: number; meanMouthError: number; meanEyeError: number; meanProjectionError: number };
 };
 declare global {
   interface Window {
     __MANY_FACES_VERIFY__?: VerificationReport;
-    __MANY_FACES_RUNTIME__?: { phase: Phase; label: string; updatedAt: number; stalled: boolean };
+    __MANY_FACES_RUNTIME__?: { phase: Phase; label: string; updatedAt: number; stalled: boolean; version?: string; build?: string; revision?: string; receivedBytes?: number; loadedFiles?: number; decodedCandidates?: number; completedFrames?: number };
   }
 }
 const cancelled = () => new DOMException("Cancelled", "AbortError");
 function clamp(value: number, min: number, max: number) { return Math.max(min, Math.min(max, value)); }
-function decodeVector(encoded: string | undefined) {
-  if (!encoded) return null;
-  try {
-    const bytes = Uint8Array.from(atob(encoded), character => character.charCodeAt(0));
-    if (!bytes.byteLength || bytes.byteLength % 2) return null;
-    const values = new Int16Array(bytes.buffer, bytes.byteOffset, bytes.byteLength / 2);
-    return Float32Array.from(values, value => value / 4096);
-  } catch { return null; }
-}
-function candidateUrl(entry: CatalogEntry) {
-  if (entry.image) return `/api/catalog/image?source=seed&id=${encodeURIComponent(entry.image)}`;
-  if (!entry.pack || entry.offset == null || entry.length == null) return null;
-  return `/api/catalog/image?source=seed&pack=${encodeURIComponent(entry.pack)}&offset=${entry.offset}&length=${entry.length}`;
-}
-function candidateFromEntry(entry: CatalogEntry): Candidate | null {
-  const structure = decodeVector(entry.shape), surface = decodeVector(entry.mesh), projection = decodeVector(entry.projection);
-  const url = candidateUrl(entry);
-  if (!entry.id || !Array.isArray(entry.feature) || entry.feature.length < 22 || !structure || structure.length < 13 || !surface || surface.length < 300 || !projection || projection.length < 936 || !entry.layout || entry.layout.length !== 4 || !url) return null;
-  return { id: entry.id, name: entry.name || entry.id, url, feature: entry.feature,
-    geometry: { structure, surface, projection, layout: entry.layout }, sourceName: entry.sourceName, creator: entry.creator };
-}
 function waitForVideoMetadata(video: HTMLVideoElement, signal?: AbortSignal) {
   return new Promise<void>((resolve, reject) => {
     if (signal?.aborted) { reject(cancelled()); return; }
@@ -97,7 +70,6 @@ function waitForVideoMetadata(video: HTMLVideoElement, signal?: AbortSignal) {
     signal?.addEventListener("abort", abort, { once: true });
   });
 }
-function nextTask() { return new Promise<void>(resolve => window.setTimeout(resolve, 0)); }
 function nextPaint() { return new Promise<void>(resolve => requestAnimationFrame(() => resolve())); }
 async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit = {}, timeoutMs = 20000) {
   const controller = new AbortController();
@@ -160,7 +132,6 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
   const recordingUrlRef = useRef<string | null>(null);
   const manifestRef = useRef<CatalogManifest | null>(null);
   const landmarkerRef = useRef<FaceLandmarker | null>(null);
-  const shardCacheRef = useRef(new Map<string, Promise<Candidate[]>>());
   const outputImagesRef = useRef(new Map<string, HTMLImageElement>());
   const sequenceRef = useRef<ReviewTimelineItem[]>([]);
   const processingTokenRef = useRef(0);
@@ -172,6 +143,8 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
   const manifestStateRef = useRef<Readiness>("loading");
   const lastProgressSignatureRef = useRef("");
   const lastProgressAtRef = useRef(0);
+  const searchTrafficRef = useRef({ bytes: 0, files: 0, decoded: 0 });
+  const modelProgressAtRef = useRef(0);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [modelState, setModelState] = useState<Readiness>("loading");
@@ -204,7 +177,7 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
   useEffect(() => {
     const signature = progressSignature(phase, progress);
     if (signature !== lastProgressSignatureRef.current) { lastProgressSignatureRef.current = signature; lastProgressAtRef.current = Date.now(); }
-    window.__MANY_FACES_RUNTIME__ = { phase, label: progress?.label ?? phaseText(phase), updatedAt: lastProgressAtRef.current, stalled: false };
+    window.__MANY_FACES_RUNTIME__ = { ...window.__MANY_FACES_RUNTIME__, ...runtimeIdentity, phase, label: progress?.label ?? phaseText(phase), updatedAt: lastProgressAtRef.current, stalled: false };
   }, [phase, progress]);
   const busy = !["idle", "review", "error"].includes(phase);
   const readinessLabel = useMemo(() => {
@@ -234,7 +207,7 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
   const clearReview = useCallback(() => {
     stopPlayback(); processingTokenRef.current += 1;
     captureAbortRef.current?.abort(); captureAbortRef.current = null;
-    shardCacheRef.current.clear(); outputImagesRef.current.clear(); sequenceRef.current = [];
+    outputImagesRef.current.clear(); sequenceRef.current = [];
     lastOutputIdRef.current = null; setReport(null); window.__MANY_FACES_VERIFY__ = undefined;
     if (recordingUrlRef.current) URL.revokeObjectURL(recordingUrlRef.current);
     recordingUrlRef.current = null;
@@ -244,6 +217,7 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
 
   useEffect(() => {
     let disposed = false;
+    const preparationAbort = new AbortController();
     modelStateRef.current = "loading"; manifestStateRef.current = "loading";
     async function prepareManifest() {
       try {
@@ -257,72 +231,30 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
     }
     async function prepareModel() {
       try {
-        const { FaceLandmarker, FilesetResolver } = await import("@mediapipe/tasks-vision");
-        const fileset = await FilesetResolver.forVisionTasks(WASM_URL);
-        const options = { runningMode: "IMAGE" as const, numFaces: 1, outputFaceBlendshapes: true, outputFacialTransformationMatrixes: true, minFaceDetectionConfidence: 0.45, minFacePresenceConfidence: 0.45, minTrackingConfidence: 0.45 };
-        let landmarker: FaceLandmarker;
-        try { landmarker = await FaceLandmarker.createFromOptions(fileset, { ...options, baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" } }); }
-        catch { landmarker = await FaceLandmarker.createFromOptions(fileset, { ...options, baseOptions: { modelAssetPath: MODEL_URL, delegate: "CPU" } }); }
+        const landmarker = await createStableLandmarker("IMAGE", event => {
+          if (disposed) return;
+          modelProgressAtRef.current = Date.now();
+          lastProgressAtRef.current = Date.now();
+          const stage = event.stage.includes("download") ? "解析エンジンを受信中" : "解析エンジンを準備中";
+          if (window.__MANY_FACES_RUNTIME__?.phase === "waiting") setProgress({ done: 0, total: 0, label: `${stage} ${(event.bytes / 1048576).toFixed(1)} MB` });
+        }, preparationAbort.signal);
         if (disposed) { landmarker.close(); return; }
         landmarkerRef.current = landmarker; modelStateRef.current = "ready"; setModelState("ready");
       } catch (caught) { console.error("Review model setup failed.", caught); if (!disposed) { modelStateRef.current = "failed"; setModelState("failed"); } }
     }
     void prepareManifest(); void prepareModel();
-    return () => { disposed = true; clearReview(); landmarkerRef.current?.close(); landmarkerRef.current = null; };
+    return () => { disposed = true; preparationAbort.abort(); clearReview(); landmarkerRef.current?.close(); landmarkerRef.current = null; };
   }, [clearReview]);
 
   const waitUntilPrepared = useCallback(async (token: number) => {
     const startedAt = Date.now();
     while (processingTokenRef.current === token && (!manifestRef.current || !landmarkerRef.current)) {
-      const reason = preparationFailureReason(modelStateRef.current, manifestStateRef.current, Date.now() - startedAt);
+      const reason = preparationFailureReason(modelStateRef.current, manifestStateRef.current, Date.now() - Math.max(startedAt, modelProgressAtRef.current));
       if (reason) throw new Error(reason);
       await new Promise<void>(resolve => setTimeout(resolve, 100));
     }
     if (processingTokenRef.current !== token) throw cancelled();
   }, []);
-  const loadShard = useCallback((file: string, token: number) => {
-    const cached = shardCacheRef.current.get(file);
-    if (cached) return cached;
-    const promise = (async () => {
-      const manifest = manifestRef.current;
-      if (!manifest) throw new Error("CATALOG MANIFEST MISSING");
-      const catalog = manifest.catalogId || manifest.generatedAt || "current";
-      const response = await fetchWithTimeout(`/api/catalog/shard?source=seed&file=${encodeURIComponent(file)}&catalog=${encodeURIComponent(catalog)}`, { cache: "force-cache", signal: captureAbortRef.current?.signal }, 20000);
-      if (!response.ok) throw new Error(`SHARD ${response.status}`);
-      const payload = await response.json() as { items?: CatalogEntry[] };
-      if (processingTokenRef.current !== token) throw cancelled();
-      const candidates: Candidate[] = [], items = payload.items ?? [];
-      for (let index = 0; index < items.length; index++) {
-        if (processingTokenRef.current !== token) throw cancelled();
-        const candidate = candidateFromEntry(items[index]);
-        if (candidate) candidates.push(candidate);
-        if (index > 0 && index % 64 === 0) await nextTask();
-      }
-      return candidates;
-    })();
-    shardCacheRef.current.set(file, promise);
-    return promise;
-  }, []);
-  const loadCells = useCallback(async (cellKeys: readonly string[], token: number) => {
-    const manifest = manifestRef.current;
-    if (!manifest) throw new Error("CATALOG MANIFEST MISSING");
-    const files = shardFilesForCells(manifest, cellKeys), candidates: Candidate[] = [];
-    for (let index = 0; index < files.length; index += SHARD_CONCURRENCY) {
-      if (processingTokenRef.current !== token) throw cancelled();
-      const payloads = await Promise.all(files.slice(index, index + SHARD_CONCURRENCY).map(file => loadShard(file, token)));
-      payloads.forEach(items => candidates.push(...items));
-      setLoadedShards(shardCacheRef.current.size); await nextTask();
-    }
-    return [...new Map(candidates.map(item => [item.id, item])).values()];
-  }, [loadShard]);
-  const loadFrameCandidates = useCallback(async (frame: SequenceFrame, token: number) => {
-    const manifest = manifestRef.current;
-    if (!manifest) throw new Error("CATALOG MANIFEST MISSING");
-    let candidates = await loadCells(poseWindowCellKeys(manifest, frame.feature, 12, 15), token);
-    if (shouldExpandPoseWindow(candidates.length, 384)) candidates = await loadCells(poseWindowCellKeys(manifest, frame.feature, 18, 21), token);
-    setPeakCandidates(current => Math.max(current, candidates.length));
-    return candidates;
-  }, [loadCells]);
   const drawReviewAt = useCallback((time: number) => {
     const canvas = outputCanvasRef.current;
     if (!canvas) return;
@@ -355,9 +287,10 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
     const started = performance.now(), phaseTimings = emptyReviewPhaseTimings();
     const frameEvidence = { presentationCallbacks: 0, decodedPausedReadbacks: 0 };
     let phaseStarted = started;
+    lastProgressAtRef.current = Date.now(); searchTrafficRef.current = { bytes: 0, files: 0, decoded: 0 };
     setError(null); setProgress(null); setFaceFrames(0); setLoadedShards(0); setPeakCandidates(0);
     setProcessingMs(0); setOutputChanges(0); setUniqueFaces(0); setImageFailures(0);
-    shardCacheRef.current.clear(); outputImagesRef.current.clear(); sequenceRef.current = [];
+    outputImagesRef.current.clear(); sequenceRef.current = [];
     lastOutputIdRef.current = null;
     try {
       setPhase("waiting"); await waitUntilPrepared(token);
@@ -400,25 +333,23 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
       }
       phaseTimings.faceMesh = performance.now() - phaseStarted; setFaceFrames(frames.length);
       if (frames.length < 2) throw new Error("顔を十分に検出できませんでした。明るい場所で撮り直してください");
-      phaseStarted = performance.now(); setPhase("searching");
-      const beams: Array<Array<{ candidate: Candidate; error: ProjectionError }>> = [];
-      for (let index = 0; index < frames.length; index++) {
-        checkCurrent();
-        const candidates = await loadFrameCandidates(frames[index], token);
-        checkCurrent();
-        const ranked = rankProjectionCandidateModesTwoStage(frames[index], candidates, INDEX_BEAM_PER_FRAME, Math.min(1024, candidates.length)).strict;
-        if (!ranked.length) throw new Error("比較できる顔候補がありませんでした");
-        beams.push(ranked);
-        setProgress({ done: index + 1, total: frames.length, label: `3D照合 ${index + 1} / ${frames.length} · ${candidates.length.toLocaleString()}候補` }); await nextPaint();
-      }
-      phaseTimings.candidateSearch = performance.now() - phaseStarted;
-      // Final beams retain required candidates; release the rest of the shards.
-      shardCacheRef.current.clear();
-      phaseStarted = performance.now(); setPhase("optimizing");
-      setProgress({ done: 0, total: 1, label: "再生する顔を選択中" }); await nextPaint(); checkCurrent();
-      const choices = optimizeDistinctProjectionSequence(frames, beams, STRICT_SEQUENCE_OPTIONS);
-      if (!choices.length) throw new Error("連続経路を作れませんでした");
-      phaseTimings.pathOptimization = performance.now() - phaseStarted;
+      setPhase("searching");
+      const searched = await searchReviewFrames(frames, cancellation.signal, event => {
+        if (processingTokenRef.current !== token || cancellation.signal.aborted) return;
+        // This is actual received bytes / decoded entries / completed frames,
+        // not a timer heartbeat or a changing spinner label.
+        lastProgressAtRef.current = Date.now();
+        searchTrafficRef.current = { bytes: event.bytes, files: event.files, decoded: event.decoded };
+        setPhase(event.phase); setLoadedShards(event.files); setPeakCandidates(event.peakCandidates);
+        setProgress({ done: event.completed, total: event.total,
+          label: `${event.label} · ${event.files}ファイル / ${(event.bytes / 1048576).toFixed(1)} MB · ${event.completed}/${event.total}コマ` });
+        window.__MANY_FACES_RUNTIME__ = { phase: event.phase, label: event.label, updatedAt: lastProgressAtRef.current, stalled: false,
+          ...runtimeIdentity, receivedBytes: event.bytes, loadedFiles: event.files, decodedCandidates: event.decoded, completedFrames: event.completed };
+      });
+      checkCurrent();
+      const choices = searched.choices;
+      phaseTimings.candidateSearch = searched.candidateSearchMs;
+      phaseTimings.pathOptimization = searched.pathOptimizationMs;
       sequenceRef.current = choices.map(choice => ({ time: choice.frame.time, choice }));
       phaseStarted = performance.now(); setPhase("preloading");
       const selected = [...new Map(choices.map(choice => [choice.candidate.id, choice.candidate])).values()];
@@ -450,7 +381,7 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
         outputChanges: changes, uniqueFaces: selected.length, processingMs: elapsed,
         phaseTimingsMs: roundedReviewPhaseTimings(phaseTimings), sequenceIds, sequenceFingerprint,
         canvasNonBlank, faceCoverage: gate.faceCoverage, passed: gate.passed, reasons: gate.reasons,
-        frameEvidence, inputBuild: "fullscreen-v1",
+        frameEvidence, inputBuild: runtimeIdentity.version, build: runtimeIdentity.build, searchTraffic: { ...searchTrafficRef.current },
         matching: {
           meanYawErrorDegrees: choices.reduce((sum, choice) => sum + Math.abs(choice.error.yawDegrees), 0) / choices.length,
           meanPitchErrorDegrees: choices.reduce((sum, choice) => sum + Math.abs(choice.error.pitchDegrees), 0) / choices.length,
@@ -465,12 +396,12 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
       console.error("Fixed-video review failed.", caught);
       setError(caught instanceof Error ? caught.message : "処理に失敗しました"); setPhase("error"); setProgress(null);
     } finally { if (captureAbortRef.current === cancellation) captureAbortRef.current = null; }
-  }, [analysisFps, drawReviewAt, loadFrameCandidates, waitUntilPrepared]);
+  }, [analysisFps, drawReviewAt, waitUntilPrepared]);
 
   const verifyVideoFile = useCallback(async (file: File | null) => {
     if (!file || busy) return;
     if (file.size === 0) { setError("空の動画ファイルです。別の動画を選んでください。"); setPhase("error"); return; }
-    clearReview(); setError(null); setSourceName(file.name); setPhase("waiting");
+    clearReview(); setError(null); setSourceName(file.name); setPhase("waiting"); lastProgressAtRef.current = Date.now();
     const token = processingTokenRef.current;
     const cancellation = new AbortController(); captureAbortRef.current = cancellation;
     try {
@@ -503,7 +434,7 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
     clearReview(); setPhase("idle"); setProgress(null); setError(null); setPlaybackTime(0);
     setFaceFrames(0); setLoadedShards(0); setPeakCandidates(0); setProcessingMs(0); setOutputChanges(0);
     setUniqueFaces(0); setImageFailures(0); setCurrentOutputName("—"); setCurrentOutputSource("—");
-    setCurrentError(null); setSourceName(""); setReport(null);
+    setCurrentError(null); setSourceName(""); setReport(null); searchTrafficRef.current = { bytes: 0, files: 0, decoded: 0 };
   }, [clearReview]);
   const verifySample = async () => {
     if (busy) return;
@@ -512,9 +443,12 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
     const token = processingTokenRef.current;
     const cancellation = new AbortController(); captureAbortRef.current = cancellation;
     try {
-      const response = await fetchWithTimeout("/test-fixtures/reference-face-motion.mp4", { signal: cancellation.signal }, 45000);
-      if (!response.ok) throw new Error(`固定動画を読み込めませんでした (${response.status})`);
-      const blob = await response.blob();
+      const bytes = await readAssetBytes("/test-fixtures/reference-face-motion.mp4", { signal: cancellation.signal, maxBytes: 256 * 1024 * 1024, onBytes: received => {
+        if (processingTokenRef.current !== token) return;
+        lastProgressAtRef.current = Date.now();
+        setProgress({ done: 0, total: 0, label: `固定動画を受信中 ${(received / 1048576).toFixed(1)} MB` });
+      } });
+      const blob = new Blob([bytes], { type: "video/mp4" });
       if (processingTokenRef.current !== token || cancellation.signal.aborted) return;
       await verifyVideoFile(new File([blob], "reference-face-motion.mp4", { type: "video/mp4" }));
     } catch (caught) {
@@ -533,7 +467,7 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
   const presentationClass = mirror ? styles.mirror : "";
   return <CallStage mode="video" onModeChange={onModeChange} onBack={reset}
     active={busy || phase === "review"} hasOutput={phase === "review"} sourceVisible={Boolean(sourceName) && phase !== "waiting"}
-    status={busy ? `${phase === "waiting" ? "準備中" : phase === "analyzing" ? "動画を解析中" : phase === "searching" ? "顔を照合中" : "再生を準備中"}${progress ? ` ${progress.done} / ${progress.total}` : "…"}` : undefined}
+    status={busy ? progress?.label ?? phaseText(phase) : undefined}
     error={error || (modelState === "failed" || manifestState === "failed" ? "準備に失敗しました。ページを再読み込みしてください。" : undefined)}
     progress={busy && progress ? progressRatio : undefined}
     empty={<><Icon name="video" /><span>{busy ? "動画を処理しています" : "動画を選んで検証"}</span></>}
@@ -558,6 +492,7 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
     </>}
     details={<>
       <p>{currentOutputName}<br />{currentOutputSource}</p>
+      <RuntimeCheck />
       <p>{sourceName || "動画未選択"} ／ {clipDuration.toFixed(1)} 秒<br />{readinessLabel} ／ カタログ {catalogTotal.toLocaleString()}枚</p>
       <p>顔検出 {faceFrames} / {plannedFrames} ／ 出力切替 {outputChanges} ／ 採用 {uniqueFaces} 枚<br />画像失敗 {imageFailures} ／ 読み込み {loadedShards} ／ 最大候補 {peakCandidates}</p>
       <p>処理 {(processingMs / 1000).toFixed(1)} 秒 ／ 出力1秒あたり {perSecond.toFixed(1)} 秒<br />最終進捗から {secondsSinceProgress} 秒</p>

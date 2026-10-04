@@ -1,0 +1,825 @@
+{
+  "rechecked": [
+    {
+      "id": "clean-v3-clean-v3-source-train-280000-d4e30488b9efb8aa2d4eabff",
+      "expected": "right",
+      "stored": {
+        "left": 0.25617,
+        "right": 0.71332
+      },
+      "fresh": {
+        "left": 0.712504506111145,
+        "right": 0.11158765852451324,
+        "evidence": null,
+        "side": null,
+        "yaw": -24.374593267790235,
+        "pitch": -24.463648302929695
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-360000-c2695545044c0fd85a088ec7",
+      "expected": "left",
+      "stored": {
+        "left": 0.5688,
+        "right": 0.0246
+      },
+      "fresh": null
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-000000-105e950c85b940090c551dc5",
+      "expected": "right",
+      "stored": {
+        "left": 0.014,
+        "right": 0.64971
+      },
+      "fresh": {
+        "left": 0.0005322013166733086,
+        "right": 0.7960842847824097,
+        "evidence": null,
+        "side": null,
+        "yaw": -28.62689700669148,
+        "pitch": 17.451942572197943
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-160000-ca0284e4e0f3c05d13a7e474",
+      "expected": "left",
+      "stored": {
+        "left": 0.65609,
+        "right": 0.11704
+      },
+      "fresh": {
+        "left": 0.5785861015319824,
+        "right": 0.12391931563615799,
+        "evidence": {
+          "side": "left",
+          "leftBlink": 0.5785861015319824,
+          "rightBlink": 0.12391931563615799,
+          "leftAperture": 0.049152657263406965,
+          "rightAperture": 0.2638898042155109
+        },
+        "side": "left",
+        "yaw": -21.77775730619273,
+        "pitch": 18.45031927126257
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-160000-dd2bbb7b597551023f87ba27",
+      "expected": "left",
+      "stored": {
+        "left": 0.6093,
+        "right": 0.05991
+      },
+      "fresh": {
+        "left": 0.7220039367675781,
+        "right": 0.1993994414806366,
+        "evidence": {
+          "side": "left",
+          "leftBlink": 0.7220039367675781,
+          "rightBlink": 0.1993994414806366,
+          "leftAperture": 0.10381407947480267,
+          "rightAperture": 0.23216199097950801
+        },
+        "side": "left",
+        "yaw": -27.391225134024946,
+        "pitch": 23.71036908296581
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-test-000000--52a119e8795b55c47a349e58",
+      "expected": "left",
+      "stored": {
+        "left": 0.62225,
+        "right": 0.02751
+      },
+      "fresh": {
+        "left": 0.5065710544586182,
+        "right": 0.1835879385471344,
+        "evidence": null,
+        "side": null,
+        "yaw": -15.941022250736912,
+        "pitch": 17.14963982544439
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-400000-7af40cb91a79737041791155",
+      "expected": "left",
+      "stored": {
+        "left": 0.80318,
+        "right": 0.17871
+      },
+      "fresh": {
+        "left": 0.8632807731628418,
+        "right": 0.12740656733512878,
+        "evidence": {
+          "side": "left",
+          "leftBlink": 0.8632807731628418,
+          "rightBlink": 0.12740656733512878,
+          "leftAperture": 0.07675499799281928,
+          "rightAperture": 0.1838025498403336
+        },
+        "side": "left",
+        "yaw": -25.011803597518746,
+        "pitch": -27.713420374904935
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-120000-2d217ec7bffb76c05a5e7d81",
+      "expected": "left",
+      "stored": {
+        "left": 0.73926,
+        "right": 0.16244
+      },
+      "fresh": {
+        "left": 0.8151018619537354,
+        "right": 0.30360665917396545,
+        "evidence": {
+          "side": "left",
+          "leftBlink": 0.8151018619537354,
+          "rightBlink": 0.30360665917396545,
+          "leftAperture": 0.06185397055569758,
+          "rightAperture": 0.18807558944428285
+        },
+        "side": "left",
+        "yaw": -20.96509810775111,
+        "pitch": 21.511148699851486
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-test-000000--7c41c68b4a7492a05af0d789",
+      "expected": "left",
+      "stored": {
+        "left": 0.62399,
+        "right": 0.01919
+      },
+      "fresh": {
+        "left": 0.5380270481109619,
+        "right": 0.013139343820512295,
+        "evidence": {
+          "side": "left",
+          "leftBlink": 0.5380270481109619,
+          "rightBlink": 0.013139343820512295,
+          "leftAperture": 0.138227289691092,
+          "rightAperture": 0.43178500400433417
+        },
+        "side": "left",
+        "yaw": -21.146080422178315,
+        "pitch": 20.580781775666154
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-080000-6cccce0bafd0eb0b5e3a7ccb",
+      "expected": "left",
+      "stored": {
+        "left": 0.75611,
+        "right": 0.21806
+      },
+      "fresh": {
+        "left": 0.6005309820175171,
+        "right": 0.3652898669242859,
+        "evidence": null,
+        "side": null,
+        "yaw": -16.67293903035414,
+        "pitch": -15.993016503578561
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-280000-2fc36c0415b46581a98beef7",
+      "expected": "left",
+      "stored": {
+        "left": 0.75894,
+        "right": 0.2821
+      },
+      "fresh": {
+        "left": 0.7795548439025879,
+        "right": 0.33538198471069336,
+        "evidence": null,
+        "side": null,
+        "yaw": -17.10977412218599,
+        "pitch": 21.902863288885715
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-400000-c351db22784ab40e9a8af8d4",
+      "expected": "right",
+      "stored": {
+        "left": 0.2181,
+        "right": 0.68937
+      },
+      "fresh": {
+        "left": 0.4917922914028168,
+        "right": 0.5849381685256958,
+        "evidence": null,
+        "side": null,
+        "yaw": -6.98685000698499,
+        "pitch": -17.079934032299466
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-validation-0-4398f8fa818e98ca43597b7e",
+      "expected": "left",
+      "stored": {
+        "left": 0.58,
+        "right": 0.0958
+      },
+      "fresh": {
+        "left": 0.38288673758506775,
+        "right": 0.13800978660583496,
+        "evidence": null,
+        "side": null,
+        "yaw": 2.112456604727375,
+        "pitch": -14.916136793047247
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-160000-c9799bc97345ad12100d1fc0",
+      "expected": "left",
+      "stored": {
+        "left": 0.85931,
+        "right": 0.29451
+      },
+      "fresh": {
+        "left": 0.26507219672203064,
+        "right": 0.06715210527181625,
+        "evidence": null,
+        "side": null,
+        "yaw": 7.489375069787991,
+        "pitch": 1.607953602386919
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-200000-f3db8c5f2eb9d4b130a0a58d",
+      "expected": "left",
+      "stored": {
+        "left": 0.57838,
+        "right": 0.05
+      },
+      "fresh": {
+        "left": 0.5285298824310303,
+        "right": 0.11149253696203232,
+        "evidence": null,
+        "side": null,
+        "yaw": 5.3003035873777495,
+        "pitch": -9.537282223125626
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-160000-bd097e1cade0c9eab2acf91c",
+      "expected": "right",
+      "stored": {
+        "left": 0.25393,
+        "right": 0.66513
+      },
+      "fresh": {
+        "left": 0.11285924911499023,
+        "right": 0.41449517011642456,
+        "evidence": {
+          "side": "right",
+          "leftBlink": 0.11285924911499023,
+          "rightBlink": 0.41449517011642456,
+          "leftAperture": 0.22052928385645965,
+          "rightAperture": 0.13572235209344455
+        },
+        "side": "right",
+        "yaw": 16.326681566433905,
+        "pitch": 20.377669963754204
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-000000-5557d9a4f70bb7b06acb61db",
+      "expected": "right",
+      "stored": {
+        "left": 0.18451,
+        "right": 0.6256
+      },
+      "fresh": {
+        "left": 0.11330699920654297,
+        "right": 0.5302941203117371,
+        "evidence": {
+          "side": "right",
+          "leftBlink": 0.11330699920654297,
+          "rightBlink": 0.5302941203117371,
+          "leftAperture": 0.37478135518662115,
+          "rightAperture": 0.14234479286574223
+        },
+        "side": "right",
+        "yaw": 22.02106692618987,
+        "pitch": -13.586651601120021
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-160000-87e36ccd5136d85c174a6b3b",
+      "expected": "right",
+      "stored": {
+        "left": 0.13619,
+        "right": 0.55868
+      },
+      "fresh": {
+        "left": 0.15605610609054565,
+        "right": 0.5908216834068298,
+        "evidence": null,
+        "side": null,
+        "yaw": 19.19812235307815,
+        "pitch": 0.18189195224030683
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-360000-959db7b2c601d3e9136cb327",
+      "expected": "right",
+      "stored": {
+        "left": 0.11626,
+        "right": 0.56955
+      },
+      "fresh": {
+        "left": 0.14367134869098663,
+        "right": 0.4660634696483612,
+        "evidence": {
+          "side": "right",
+          "leftBlink": 0.14367134869098663,
+          "rightBlink": 0.4660634696483612,
+          "leftAperture": 0.3490273406536617,
+          "rightAperture": 0.11263200827736258
+        },
+        "side": "right",
+        "yaw": 22.49159901076153,
+        "pitch": 13.598918595093759
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-320000-c9730da872f62e765426828b",
+      "expected": "right",
+      "stored": {
+        "left": 0.17822,
+        "right": 0.64184
+      },
+      "fresh": {
+        "left": 0.4453414976596832,
+        "right": 0.7546572685241699,
+        "evidence": null,
+        "side": null,
+        "yaw": 23.988442916101658,
+        "pitch": -15.89687909218649
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-320000-8af6ad0feae3d49e2cafef40",
+      "expected": "right",
+      "stored": {
+        "left": 0.12611,
+        "right": 0.59545
+      },
+      "fresh": {
+        "left": 0.27681201696395874,
+        "right": 0.6198906898498535,
+        "evidence": {
+          "side": "right",
+          "leftBlink": 0.27681201696395874,
+          "rightBlink": 0.6198906898498535,
+          "leftAperture": 0.23425770535537407,
+          "rightAperture": 0.1406705425656118
+        },
+        "side": "right",
+        "yaw": 20.86102002690406,
+        "pitch": -1.3457356933753617
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-120000-bb3c5dbcf3875ccb582ca2a9",
+      "expected": "right",
+      "stored": {
+        "left": 0.15765,
+        "right": 0.59541
+      },
+      "fresh": {
+        "left": 0.18660807609558105,
+        "right": 0.5706753730773926,
+        "evidence": {
+          "side": "right",
+          "leftBlink": 0.18660807609558105,
+          "rightBlink": 0.5706753730773926,
+          "leftAperture": 0.29104960532584373,
+          "rightAperture": 0.12394273363717191
+        },
+        "side": "right",
+        "yaw": 24.91245679732365,
+        "pitch": 9.194948334687638
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-160000-bc3e3d57876a63fc339e65c3",
+      "expected": "right",
+      "stored": {
+        "left": 0.1332,
+        "right": 0.58319
+      },
+      "fresh": {
+        "left": 0.14916905760765076,
+        "right": 0.5701155662536621,
+        "evidence": {
+          "side": "right",
+          "leftBlink": 0.14916905760765076,
+          "rightBlink": 0.5701155662536621,
+          "leftAperture": 0.29948344961099294,
+          "rightAperture": 0.12205680307923501
+        },
+        "side": "right",
+        "yaw": 23.240476344192658,
+        "pitch": 19.628688721212768
+      }
+    },
+    {
+      "id": "clean-v3-clean-v3-source-train-360000-6f5f9780dfcc4184468c8d76",
+      "expected": "right",
+      "stored": {
+        "left": 0.16881,
+        "right": 0.60432
+      },
+      "fresh": {
+        "left": 0.14795048534870148,
+        "right": 0.6327349543571472,
+        "evidence": {
+          "side": "right",
+          "leftBlink": 0.14795048534870148,
+          "rightBlink": 0.6327349543571472,
+          "leftAperture": 0.34719174126012337,
+          "rightAperture": 0.07040988389777544
+        },
+        "side": "right",
+        "yaw": 24.73110012005091,
+        "pitch": 17.103452089927146
+      }
+    }
+  ],
+  "candidates": [
+    {
+      "source": {
+        "file": "commons-0.jpg",
+        "sourceName": "Wikimedia Commons",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Wink.JPG",
+        "sourceFile": "Wink.JPG",
+        "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/c/ce/Wink.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "sourceSha256": "3f0b8adec8ef08db717e427389e5737f761409402f936ea954ff68c28b031da6",
+        "sourceCommonsSha1": "f55800b50e1db384b240e80cd2ad81fa3b9f7b6c",
+        "creator": "No machine-readable author provided. Qz10 assumed (based on copyright claims).",
+        "license": "Public domain",
+        "licenseUrl": "",
+        "attributionRequired": "false",
+        "metadataRetrievedUtc": "2026-10-04T18:40:32Z",
+        "changes": "Square face crop, resize, WebP encoding. No mirroring, warping, expression synthesis or AI-generated image.",
+        "personalityRights": "No independent model-release verification; copyright license is not a claim of consent to every reuse."
+      },
+      "rejected": "No corroborated asymmetric closure after crop",
+      "fresh": {
+        "side": null,
+        "left": 0.048919178545475006,
+        "right": 0.2531212568283081,
+        "evidence": null,
+        "yaw": 24.774585112515854,
+        "pitch": -6.515220634297708
+      },
+      "crop": {
+        "x": 0,
+        "y": 112,
+        "edge": 1119,
+        "width": 512
+      }
+    },
+    {
+      "source": {
+        "file": "commons-1.jpg",
+        "sourceName": "Wikimedia Commons",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Clin_oeil.png",
+        "sourceFile": "Clin oeil.png",
+        "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Clin_oeil.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "sourceSha256": "872e3949bcdd08513b7832190a7044614c4766a0777025d20a4fd0a0e560281d",
+        "sourceCommonsSha1": "3e8de210f20fa5e9d1498f817dae2d6b83c335d1",
+        "creator": "Bdecarne",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "attributionRequired": "true",
+        "metadataRetrievedUtc": "2026-10-04T18:40:32Z",
+        "changes": "Square face crop, resize, WebP encoding. No mirroring, warping, expression synthesis or AI-generated image.",
+        "personalityRights": "No independent model-release verification; copyright license is not a claim of consent to every reuse."
+      },
+      "rejected": "No corroborated asymmetric closure after crop",
+      "fresh": {
+        "side": null,
+        "left": 0.05351802706718445,
+        "right": 0.5847517848014832,
+        "evidence": null,
+        "yaw": 25.36375775566776,
+        "pitch": 37.79482010216729
+      },
+      "crop": {
+        "x": 89.49931601643563,
+        "y": 108.31039280653,
+        "edge": 219.98407540798186,
+        "width": 219
+      }
+    },
+    {
+      "source": {
+        "file": "commons-2.jpg",
+        "sourceName": "Wikimedia Commons",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Artist_David_Art_Wales,_2018.jpg",
+        "sourceFile": "Artist David Art Wales, 2018.jpg",
+        "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/9/95/Artist_David_Art_Wales%2C_2018.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "sourceSha256": "adffb9cf8e1892a760d8a91e99009cef5dccb197d05ce44b1630415726e0ea4d",
+        "sourceCommonsSha1": "0ce7f8f5615a7c51f1f3cd8514760b356d23b91f",
+        "creator": "Onion Juice Joe",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "attributionRequired": "true",
+        "metadataRetrievedUtc": "2026-10-04T18:40:33Z",
+        "changes": "Square face crop, resize, WebP encoding. No mirroring, warping, expression synthesis or AI-generated image.",
+        "personalityRights": "No independent model-release verification; copyright license is not a claim of consent to every reuse."
+      },
+      "rejected": null,
+      "fresh": {
+        "side": "left",
+        "left": 0.5099741220474243,
+        "right": 0.07130613178014755,
+        "evidence": {
+          "side": "left",
+          "leftBlink": 0.5099741220474243,
+          "rightBlink": 0.07130613178014755,
+          "leftAperture": 0.11671420306455041,
+          "rightAperture": 0.30241468383585424
+        },
+        "yaw": -1.9779111665667126,
+        "pitch": 21.943735952079024
+      },
+      "crop": {
+        "x": 290.7386159688235,
+        "y": 538.2026769012214,
+        "edge": 1282.5556366860865,
+        "width": 512
+      }
+    },
+    {
+      "source": {
+        "file": "commons-3.jpg",
+        "sourceName": "Wikimedia Commons",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Alex_Bakker_-_historien_n%C3%A9erlandais.jpg",
+        "sourceFile": "Alex Bakker - historien néerlandais.jpg",
+        "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Alex_Bakker_-_historien_n%C3%A9erlandais.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "sourceSha256": "c2943f8cc5675f549b1fe87e2e1f29d2e534e604aba7b5dcb9d5c9d276ed1cc1",
+        "sourceCommonsSha1": "053180430119420452085507642b8bd59c76c5cb",
+        "creator": "Alex Bakker",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "attributionRequired": "true",
+        "metadataRetrievedUtc": "2026-10-04T18:40:34Z",
+        "changes": "Square face crop, resize, WebP encoding. No mirroring, warping, expression synthesis or AI-generated image.",
+        "personalityRights": "No independent model-release verification; copyright license is not a claim of consent to every reuse."
+      },
+      "rejected": "No corroborated asymmetric closure after crop",
+      "fresh": {
+        "side": null,
+        "left": 0.23048675060272217,
+        "right": 0.30401042103767395,
+        "evidence": null,
+        "yaw": -20.2367036782409,
+        "pitch": -3.440588048876393
+      },
+      "crop": {
+        "x": 1381.0488481521606,
+        "y": 0,
+        "edge": 2848,
+        "width": 512
+      }
+    },
+    {
+      "source": {
+        "file": "commons-4.jpg",
+        "sourceName": "Wikimedia Commons",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Clare_Siobh%C3%A1n_sunset.jpg",
+        "sourceFile": "Clare Siobhán sunset.jpg",
+        "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/8/83/Clare_Siobh%C3%A1n_sunset.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "sourceSha256": "d61975d38af3f98491be4ca960bf32ef6db64384c832217e69a4d350908bdbf6",
+        "sourceCommonsSha1": "2599c71d1ac3ff7ced6da9b67a41b9d7b9aaa4a3",
+        "creator": "Thecaliaclub",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "attributionRequired": "true",
+        "metadataRetrievedUtc": "2026-10-04T18:40:34Z",
+        "changes": "Square face crop, resize, WebP encoding. No mirroring, warping, expression synthesis or AI-generated image.",
+        "personalityRights": "No independent model-release verification; copyright license is not a claim of consent to every reuse."
+      },
+      "rejected": null,
+      "fresh": {
+        "side": "right",
+        "left": 0.09972652047872543,
+        "right": 0.4425954520702362,
+        "evidence": {
+          "side": "right",
+          "leftBlink": 0.09972652047872543,
+          "rightBlink": 0.4425954520702362,
+          "leftAperture": 0.30830934620667927,
+          "rightAperture": 0.13911315822446127
+        },
+        "yaw": -7.544800408252259,
+        "pitch": 15.383523014337923
+      },
+      "crop": {
+        "x": 265.9882041889429,
+        "y": 193.6184481459856,
+        "edge": 268.0136868202686,
+        "width": 268
+      }
+    },
+    {
+      "source": {
+        "file": "commons-6.jpg",
+        "sourceName": "Wikimedia Commons",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Beauty_girl.jpg",
+        "sourceFile": "Beauty girl.jpg",
+        "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Beauty_girl.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "sourceSha256": "4c69a63a6d4fc0273580a896fd019b455678a3870a22c20b8696cbc5ab0ff757",
+        "sourceCommonsSha1": "596f494494a3c7dd9d74fda304caa909f0b1970f",
+        "creator": "bs70",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "attributionRequired": "true",
+        "metadataRetrievedUtc": "2026-10-04T18:40:35Z",
+        "changes": "Square face crop, resize, WebP encoding. No mirroring, warping, expression synthesis or AI-generated image.",
+        "personalityRights": "No independent model-release verification; copyright license is not a claim of consent to every reuse."
+      },
+      "rejected": null,
+      "fresh": {
+        "side": "left",
+        "left": 0.41152212023735046,
+        "right": 0.21765924990177155,
+        "evidence": {
+          "side": "left",
+          "leftBlink": 0.41152212023735046,
+          "rightBlink": 0.21765924990177155,
+          "leftAperture": 0.13259912449263295,
+          "rightAperture": 0.22778948110342023
+        },
+        "yaw": -1.788851399774354,
+        "pitch": 0.7534800813928575
+      },
+      "crop": {
+        "x": 215.50182794570924,
+        "y": 134.32831024169923,
+        "edge": 382.27309753417967,
+        "width": 382
+      }
+    },
+    {
+      "source": {
+        "file": "commons-7.jpg",
+        "sourceName": "Wikimedia Commons",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:190617_%EC%97%90%EC%9E%87%EB%94%94%EC%B9%B4%ED%8E%98_(%EA%B7%9C%EB%B9%88)_02.jpg",
+        "sourceFile": "190617 에잇디카페 (규빈) 02.jpg",
+        "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a0/190617_%EC%97%90%EC%9E%87%EB%94%94%EC%B9%B4%ED%8E%98_%28%EA%B7%9C%EB%B9%88%29_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "sourceSha256": "8b42de2e21bcfacceb9291d6c95bcf75015556503448cf27a7ebc7639ef0dc1d",
+        "sourceCommonsSha1": "6318c1d87559284375fe5205ffdfcf65fa61c3f3",
+        "creator": "Mandarintree",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "attributionRequired": "true",
+        "metadataRetrievedUtc": "2026-10-04T18:40:36Z",
+        "changes": "Square face crop, resize, WebP encoding. No mirroring, warping, expression synthesis or AI-generated image.",
+        "personalityRights": "No independent model-release verification; copyright license is not a claim of consent to every reuse."
+      },
+      "rejected": null,
+      "fresh": {
+        "side": "left",
+        "left": 0.5026834607124329,
+        "right": 0.2652815282344818,
+        "evidence": {
+          "side": "left",
+          "leftBlink": 0.5026834607124329,
+          "rightBlink": 0.2652815282344818,
+          "leftAperture": 0.0823187648732485,
+          "rightAperture": 0.1889272878619565
+        },
+        "yaw": 7.065912624093208,
+        "pitch": 1.1222289776062409
+      },
+      "crop": {
+        "x": 359.91842836141586,
+        "y": 227.90142685174945,
+        "edge": 481.3118022680282,
+        "width": 481
+      }
+    },
+    {
+      "source": {
+        "file": "commons-8.jpg",
+        "sourceName": "Wikimedia Commons",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:190816_K-WORLD_FESTA_%EC%9A%B0%ED%98%84_7.jpg",
+        "sourceFile": "190816 K-WORLD FESTA 우현 7.jpg",
+        "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f9/190816_K-WORLD_FESTA_%EC%9A%B0%ED%98%84_7.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "sourceSha256": "f884084730eb348afd0a0b3a5fb5f5875fcb262ee792582f158017dc15ec9cf3",
+        "sourceCommonsSha1": "2a8a79b4c5e76b93948c506e63d621d86b0b66de",
+        "creator": "somye",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "attributionRequired": "true",
+        "metadataRetrievedUtc": "2026-10-04T18:40:36Z",
+        "changes": "Square face crop, resize, WebP encoding. No mirroring, warping, expression synthesis or AI-generated image.",
+        "personalityRights": "No independent model-release verification; copyright license is not a claim of consent to every reuse."
+      },
+      "rejected": "No corroborated asymmetric closure after crop",
+      "fresh": {
+        "side": null,
+        "left": 0.22880427539348602,
+        "right": 0.23079435527324677,
+        "evidence": null,
+        "yaw": -20.929451652302703,
+        "pitch": -21.045630592535385
+      },
+      "crop": {
+        "x": 574.4454760849476,
+        "y": 336.5625415742398,
+        "edge": 751.0844072699546,
+        "width": 512
+      }
+    },
+    {
+      "source": {
+        "file": "commons-9.jpg",
+        "sourceName": "Wikimedia Commons",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ad%C3%A8le_Haenel_Cannes_2016.jpg",
+        "sourceFile": "Adèle Haenel Cannes 2016.jpg",
+        "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/6/60/Ad%C3%A8le_Haenel_Cannes_2016.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "sourceSha256": "fc500573a3117d45609bafe2176f45d7fbe53cec30340478dbfcdd2e7879352d",
+        "sourceCommonsSha1": "7008234891dfc4bd85766d1ddadfde959db06cd1",
+        "creator": "Georges Biard",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "attributionRequired": "true",
+        "metadataRetrievedUtc": "2026-10-04T18:40:37Z",
+        "changes": "Square face crop, resize, WebP encoding. No mirroring, warping, expression synthesis or AI-generated image.",
+        "personalityRights": "No independent model-release verification; copyright license is not a claim of consent to every reuse."
+      },
+      "rejected": null,
+      "fresh": {
+        "side": "right",
+        "left": 0.14370863139629364,
+        "right": 0.49697133898735046,
+        "evidence": {
+          "side": "right",
+          "leftBlink": 0.14370863139629364,
+          "rightBlink": 0.49697133898735046,
+          "leftAperture": 0.2652522654901222,
+          "rightAperture": 0.09719318392351338
+        },
+        "yaw": 5.002206776570864,
+        "pitch": 17.84273295912213
+      },
+      "crop": {
+        "x": 99.81378841400152,
+        "y": 154.16711664199832,
+        "edge": 466.1862115859985,
+        "width": 466
+      }
+    },
+    {
+      "source": {
+        "file": "commons-10.jpg",
+        "sourceName": "Wikimedia Commons",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Marion_Cotillard_Cannes_2018.jpg",
+        "sourceFile": "Marion Cotillard Cannes 2018.jpg",
+        "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a0/Marion_Cotillard_Cannes_2018.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "sourceSha256": "183d77b581258fdb6d8fe3e4298c820ffc8ce128c0e9dfd865d522e72117bbfa",
+        "sourceCommonsSha1": "b62a9282775233fd60631351ab8881f64d4433c2",
+        "creator": "Georges Biard",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "attributionRequired": "true",
+        "metadataRetrievedUtc": "2026-10-04T18:40:37Z",
+        "changes": "Square face crop, resize, WebP encoding. No mirroring, warping, expression synthesis or AI-generated image.",
+        "personalityRights": "No independent model-release verification; copyright license is not a claim of consent to every reuse."
+      },
+      "rejected": null,
+      "fresh": {
+        "side": "right",
+        "left": 0.2713783085346222,
+        "right": 0.47361981868743896,
+        "evidence": {
+          "side": "right",
+          "leftBlink": 0.2713783085346222,
+          "rightBlink": 0.47361981868743896,
+          "leftAperture": 0.2589693964736887,
+          "rightAperture": 0.1159523385859053
+        },
+        "yaw": 24.39268238412393,
+        "pitch": -11.592278111372998
+      },
+      "crop": {
+        "x": 240.46326608657841,
+        "y": 102.22500357627871,
+        "edge": 438.5367339134216,
+        "width": 438
+      }
+    }
+  ],
+  "stagedCount": 6,
+  "left": 3,
+  "right": 3,
+  "notYetEnabled": true
+}

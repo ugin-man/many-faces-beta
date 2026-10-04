@@ -1,0 +1,34 @@
+name: Wink coverage audit
+on:
+  push:
+    branches: [astra/wink-coverage]
+    paths: ['app/**', 'scripts/**', 'tests/**', '.github/workflows/wink-coverage.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: wink-coverage-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: Audit all original descriptors without mutating the catalog
+        run: |
+          test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
+          node --experimental-strip-types scripts/audit-wink-coverage.mjs
+          git diff --exit-code -- app public/seed-catalog public/test-fixtures
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wink-coverage-${{ github.run_id }}
+          path: work/wink-coverage
+          retention-days: 14

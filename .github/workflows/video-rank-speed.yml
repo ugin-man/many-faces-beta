@@ -1,0 +1,71 @@
+name: Video rank speed
+on:
+  push:
+    branches: [astra/video-rank-speed]
+    paths: ['app/**', 'tests/**', 'scripts/**', '.github/workflows/video-rank-speed.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: video-rank-speed-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - name: Preserve camera milestone and full assets; prepare an exact baseline
+        run: |
+          mkdir -p work/video-rank
+          git fetch --depth=1 origin 03488140287d51af994417b7a4d613ac388ca46f
+          test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
+          git diff --exit-code 03488140287d51af994417b7a4d613ac388ca46f HEAD -- app/live/astra app/live/media-input.ts app/live/frame-arrival.ts app/live/stable-landmarker.ts app/projection-matching.ts app/live/review-client-lite.tsx app/live/video-frame.ts app/live/review-work-cache.ts app/runtime-identity.ts app/call-stage.tsx app/studio.module.css public
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1
+          echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          mkdir -p /tmp/mf-rank-baseline
+          git archive 03488140287d51af994417b7a4d613ac388ca46f | tar -x -C /tmp/mf-rank-baseline
+          ln -s "$PWD/node_modules" /tmp/mf-rank-baseline/node_modules
+      - name: Build, all unit tests and lint on exact source
+        run: |
+          npm run build > work/video-rank/build.log 2>&1 || { cat work/video-rank/build.log; exit 1; }
+          node --experimental-strip-types --test tests/*.test.mjs > work/video-rank/unit.log 2>&1 || { cat work/video-rank/unit.log; exit 1; }
+          tail -n 12 work/video-rank/unit.log
+          npm run lint > work/video-rank/lint.log 2>&1 || { cat work/video-rank/lint.log; exit 1; }
+          (cd /tmp/mf-rank-baseline && npm run build) > work/video-rank/baseline-build.log 2>&1 || { cat work/video-rank/baseline-build.log; exit 1; }
+      - name: Independent full-catalog strict-ranking equality and warm component timing
+        run: node --experimental-strip-types scripts/audit-video-ranker.mjs
+      - name: Start both production builds
+        run: |
+          PORT=4183 HOST=127.0.0.1 nohup npm start > work/video-rank/server.log 2>&1 &
+          PORT=4185 HOST=127.0.0.1 nohup bash -c 'cd /tmp/mf-rank-baseline && npm start' > work/video-rank/baseline-server.log 2>&1 &
+          for port in 4183 4185; do
+            for attempt in $(seq 1 90); do
+              if curl -fsS "http://127.0.0.1:$port/api/runtime" > "work/video-rank/identity-$port.json"; then break; fi
+              sleep 1
+            done
+            curl -fsS "http://127.0.0.1:$port/api/runtime"
+          done
+      - name: Full 23.3-second video ABBA, exact-output replay and playback operations
+        run: node scripts/verify-video-rank-speed.mjs
+      - name: Real pending-network cancellation without weakening watchdogs
+        env:
+          VIDEO_SPEED_REPORT_DIR: work/video-rank
+        run: node scripts/verify-video-cancellation.mjs
+      - name: Preserve exact source throughout verification
+        if: always()
+        run: git diff --exit-code -- app worker scripts tests build public
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: video-rank-speed-${{ github.run_id }}
+          path: work/video-rank
+          retention-days: 14

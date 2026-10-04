@@ -1,7 +1,8 @@
 /// <reference lib="webworker" />
 import type { SequenceFrame } from "../offline-matching";
 import { liveCandidateFromEntry, type LiveCandidate, type LiveCatalogEntry } from "../live-matching";
-import { optimizeDistinctProjectionSequence, rankProjectionCandidateModesTwoStage, type ProjectionError } from "../projection-matching";
+import { optimizeDistinctProjectionSequence, type ProjectionError } from "../projection-matching";
+import { ReviewStrictRanker } from "./review-strict-ranker";
 import { poseWindowCellKeys, shardFilesForCells, shouldExpandPoseWindow, type ReviewCatalogManifest } from "./review-local-catalog";
 import { readAssetJson } from "./asset-reader";
 import { runtimeIdentity } from "../runtime-identity";
@@ -17,6 +18,7 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
   if (build !== runtimeIdentity.build) throw new Error("BUILD_MISMATCH: 検証画面と照合処理の版が異なります。");
   const cooperative = createReviewYield();
   const windows = new ReviewWindowCache<LiveCandidate>();
+  const ranker = new ReviewStrictRanker();
   const cache = new Map<string, Promise<LiveCandidate[]>>();
   const measurements = { candidateLoadMs: 0, candidateRankMs: 0, candidateDecodeMs: 0 };
   try {
@@ -59,8 +61,6 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
       const files = shardFilesForCells(manifest, keys);
       const known = windows.get(files); if (known) return known as LiveCandidate[];
       const candidates: LiveCandidate[] = [];
-      // Preserve the original request order and concurrency. Awaiting a cached
-      // group must not add a nested zero-delay timer for every four files.
       for (let offset = 0; offset < files.length; offset += 4) {
         const batch = await Promise.all(files.slice(offset, offset + 4).map(loadShard));
         for (const items of batch) candidates.push(...items);
@@ -78,7 +78,7 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
       measurements.candidateLoadMs += performance.now() - started;
       progress.peakCandidates = Math.max(progress.peakCandidates, candidates.length);
       started = performance.now();
-      const ranked = rankProjectionCandidateModesTwoStage(frame, candidates, 64, Math.min(1024, candidates.length)).strict;
+      const ranked = ranker.rank(frame, candidates, 64, Math.min(1024, candidates.length));
       measurements.candidateRankMs += performance.now() - started;
       if (!ranked.length) throw new Error("CATALOG_NO_MATCH: 比較できる候補がありません。");
       beams.push(ranked); progress.completed++; report("顔を照合中", true);
@@ -86,7 +86,8 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
     }
     const candidateSearchMs = performance.now() - searchStarted;
     const windowStats = windows.stats();
-    cache.clear(); windows.clear(); progress.phase = "optimizing"; report("再生する顔を選択中", true);
+    const rankStats = ranker.stats();
+    cache.clear(); windows.clear(); ranker.clear(); progress.phase = "optimizing"; report("再生する顔を選択中", true);
     await cooperative.checkpoint(true);
     const pathStarted = performance.now();
     const choices = optimizeDistinctProjectionSequence(frames, beams, {
@@ -96,6 +97,6 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
     });
     if (choices.length !== frames.length) throw new Error("SEARCH_INCOMPLETE: 解析したフレーム数と結果が一致しません。");
     scope.postMessage({ type: "result", choices, candidateSearchMs, pathOptimizationMs: performance.now() - pathStarted, build: runtimeIdentity.build,
-      performanceMetrics: { implementation: "video-work-cache-v1", ...measurements, ...cooperative.stats, windowStats } });
-  } finally { cache.clear(); windows.clear(); cooperative.close(); }
+      performanceMetrics: { implementation: "video-strict-rank-v1", ...measurements, ...cooperative.stats, windowStats, rankStats } });
+  } finally { cache.clear(); windows.clear(); ranker.clear(); cooperative.close(); }
 }

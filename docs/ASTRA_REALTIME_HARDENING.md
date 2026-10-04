@@ -1,21 +1,39 @@
 # Many Faces current handoff — 2026-10-05 JST
 
-Read [VIDEO_RANK_SPEED.md](VIDEO_RANK_SPEED.md) and [VIDEO_RANK_SPEED_RESULT.json](VIDEO_RANK_SPEED_RESULT.json) first. The user confirmed camera input works and requested video-only performance work. The latest change is a video-only strict ranker and its use in the search worker. No realtime, UI, acquisition, model, density, sequence-policy or original-asset changes.
+Read [WINK_SUPPORT.md](WINK_SUPPORT.md) and [WINK_SUPPORT_RESULT.json](WINK_SUPPORT_RESULT.json) first. The user confirmed the camera milestone and subsequently requested targeted dataset reinforcement for winks. The current change is recorded-video wink support, not realtime tuning or another identical-output speed optimization.
 
-Repository `ugin-man/many-faces-beta`; canonical branch `astra/realtime-hardening`; draft PR #3 targets `work/coverage-driven-200k`. The latest experiment was isolated on `astra/video-rank-speed` before integration. No base/main merge or hosted Site deployment.
+Repository: `ugin-man/many-faces-beta`. Canonical development branch: `astra/realtime-hardening`. Draft PR #3 targets `work/coverage-driven-200k`; no base/main merge. The experiment was tested on `astra/wink-coverage` before integration.
 
-Measured/verified application: `518e5b23b17fd721e4e0243c2785096a7c8f0b25`. Subsequent documentation-only commits preserve build **`c5317177db4f044f`**. Runtime version text still says `camera-arrival-v3`; use the build fingerprint, not that old label alone. The search worker records implementation `video-strict-rank-v1` in its performance metrics.
+Verified application: **`149200d521f04ab96300ad0f9902dc721dfe46c0`**, build **`9902e78e96670c77`**. Subsequent documentation-only commits preserve application source. The version text `camera-arrival-v3` alone does not identify the new data/worker behavior.
 
-The new ranker omits five unused sorted output lists and reuses immutable candidate mouth descriptors instead of recomputing them in every coarse comparison. Detailed numeric errors still use the unchanged shared scorer. The same candidates, tie/admission order, sampling and sequence decisions are retained. The helper is per-worker, uses weak projection-object keys and clears its cache; do not reuse it across in-place projection edits. Changing the shared ranker requires re-running the independent numerical oracle checks.
+## Original assets preserved; supplement added
 
-Completed workflow **37222658011** passed build, 173 tests (zero failures/skips), lint, all-70k ranking equality, full-video ABBA, same-frame worker replay, playback/pause/step/seek, pending-request cancellation and protected-source/asset checks. Lint warnings were not separately counted. The catalog audit compared 24 top-64 queries with all 70,000 records present; this is not a change to the production pose-local search scope.
+The complete original 70,000-photo catalog and original descriptors are byte-identical, subtree `559f7f39e3a8eed452ef7eb6a3355a318235c307`. The 23.3-second reference and current two-mode fullscreen UI are retained.
 
-The unchanged 23.3-second recording at 20 samples/second was processed in before/after/after/before order using fresh browsers. Mean file-selection-to-report time fell **98.551 to 93.4615 seconds (5.16%)**. Loading/search fell 47.5692 to 42.98085 s, including ranking 33.3027 to 28.6201 s (14.06% less). This is a modest preprocessing improvement, not a new playback FPS or expression-quality claim. Each trial had identical acquired descriptors and complete image/error/sequence decisions: 466 sampled positions, 410 detected/output frames, 141 unique photos, 153 changes, zero image failures. Same-input replay also matched. Logical body bytes remain 417,215,798, with 722 shards and 67,131 candidates decoded.
+A supplementary index reuses 271 original photographs with fresh descriptors from their exact encoded pixels, plus six separately attributed real photographs. It contains 277 records (151 left / 126 right), but only SIX photos are new: 70,006 photos in total, not 70,277. Original files are not overwritten. Fresh inference covered 562 screened original candidates, not the entire 70k corpus. The source/licence page is available through the existing video's diagnostics sheet.
 
-Keep the fullscreen two-mode studio, all 70,000 photographs and entire fixed reference. `/` and `/live` open recorded video; `/live/astra` opens camera. No reduced catalog, alternate app or extra mode. Preserve the camera-arrival milestone and current capture safeguards.
+The video worker loads `public/wink-support/v1/catalog.json` only when the source has corroborated asymmetric action/eyelid evidence. It ranks same-side, pose-compatible photographs with the unchanged detailed scorer. Ambiguous/ordinary/no-compatible frames retain the original matcher. Missing optional data records a failure and falls back rather than breaking video processing.
 
-Rebuild the EXISTING Work Site from the canonical branch, retaining host-specific source/settings. Git does not update an already deployed Site. Build client/server/workers together and check matching diagnostics and `/api/runtime` identities. Exact source builds report `c5317177db4f044f`; host-specific source edits can change that hash, but components must agree.
+This is an explicit eye-state-priority policy. It improves automatic same-side consistency in the selected tests but increases some mouth/pose/overall errors. Do not describe it as uniformly improved facial similarity or a 100% wink detector. The unchanged sequence optimizer can propagate changes to neighboring final choices.
 
-The unchanged frame-acquisition/Face Mesh phase still takes about 47 s in this runner; loading/search still takes about 43 s. Larger speed gains need separate acquisition or detailed-search/data-access work. Do not lower density/resolution, remove validation, reuse old video analysis or change face selection merely to lower a timer. Perceptual fidelity, hosted-device performance, Safari and long sessions remain separate gates.
+## Executed verification
 
-Historical evidence: [VIDEO_CAPTURE_SPEED.md](VIDEO_CAPTURE_SPEED.md) (retained acquisition improvement, 168-test historical run); [VIDEO_SPEED.md](VIDEO_SPEED.md) (retained window/scheduling optimization); [CAMERA_ARRIVAL_RECOVERY.md](CAMERA_ARRIVAL_RECOVERY.md) (camera fix subsequently confirmed by the user); [VERIFICATION_RECOVERY.md](VERIFICATION_RECOVERY.md) (progress-aware worker and false-timeout recovery); [FULLSCREEN_UI_OVERHAUL.md](FULLSCREEN_UI_OVERHAUL.md) (current two-mode fullscreen UI). Historical benchmark numbers are not current hosted-device guarantees.
+Run **37227084067** on exact application149200d passed build, all **180 tests (zero failures/skips)**, lint, actual full-reference UI processing, playback/pause/frame stepping, credit availability, source/worker/server identity, missing-index recovery and cancellation with four real pending requests. Original camera/input/acquisition/model/scorer/reference assets passed protected-diff checks. No application rewriting in CI.
+
+Thirty selected source-photo-held-out queries improved from 4/30 to 30/30 same-anatomical-eye outputs under automatic fresh-pixel reanalysis; this is not person-disjoint or human-labelled evaluation. In the actual reference recording, 16 detected-positive frames had 16 same-side outputs. In a separate 120-frame video built from six still photos, with all six query photos excluded from the support index, the source gate activated on 100 frames and those 100 outputs retained the eye side. Twenty frames did not activate support. The test is not continuous human motion.
+
+Read the report's measured mouth/pose tradeoffs and unresolved false-positive/sensitivity limits before promoting. Logs were read; no supplemental-crop visual approval, local archive hash or screenshot inspection is claimed.
+
+## Existing Work Site
+
+Rebuild the EXISTING Site from the canonical branch, retaining host-specific changes/settings. Include **code AND all `public/wink-support/v1/` assets**. Keep the original full catalog and video/camera entries (`/`, `/live`, `/live/astra`); do not create a reduced catalog, separate app or third UI mode.
+
+Rebuild server/client/workers together and check matching build IDs in diagnostics and `/api/runtime`. Source-identical builds report **9902e78e96670c77**; host-specific source changes may legitimately alter the fingerprint but components must agree. Git updates do not update a published Site or an older ZIP. **No hosted Site rebuild/deployment has been performed here.**
+
+The working camera source remains unchanged and DOES NOT consume the new wink index in this pass. Physical-camera wink fidelity, Safari, long sessions, independent expression labels, visual whole-face similarity and temporal false activation remain unverified.
+
+## Historical speed work
+
+[VIDEO_RANK_SPEED.md](VIDEO_RANK_SPEED.md), [VIDEO_CAPTURE_SPEED.md](VIDEO_CAPTURE_SPEED.md) and [VIDEO_SPEED.md](VIDEO_SPEED.md) document prior result-identical speedups, retained in the current code. Their output-equality statements and timings apply to those historical experiments; current wink policy intentionally changes the video result. Current single before/after UI observations are not a new ABBA speed benchmark.
+
+Camera/input recovery and UI evidence remain in [CAMERA_ARRIVAL_RECOVERY.md](CAMERA_ARRIVAL_RECOVERY.md), [VERIFICATION_RECOVERY.md](VERIFICATION_RECOVERY.md) and [FULLSCREEN_UI_OVERHAUL.md](FULLSCREEN_UI_OVERHAUL.md).

@@ -1,5 +1,6 @@
 export type DecodedVideoFrame = {
   bitmap: ImageBitmap;
+  timingsMs: { position: number; paint: number; bitmap: number; total: number };
   requestedTime: number;
   mediaTime: number | null;
   evidence: "presentation-callback" | "decoded-paused-readback";
@@ -29,8 +30,11 @@ function paint(signal: AbortSignal) {
 // Seek and capture form one operation. The presentation callback is armed
 // BEFORE seeking. A paused frame that is already current (or a second sample
 // within the same encoded frame) does not owe us another rVFC notification.
-// In that case we explicitly verify seek/data/position, cross two paint
-// boundaries and acquire a decoded bitmap. No timeout is treated as success.
+// Once paused seek/data/position are valid, cross two paint boundaries and
+// acquire a decoded bitmap. The rVFC is evidence only: a future callback is not
+// owed for repeated/paused frames. Waiting 100 ms for it added a per-frame
+// delay without strengthening the subsequent decoded-pixel checks.
+// Neither a timeout nor a seek notification alone is treated as success.
 export async function captureVideoFrameAt(
   video: HTMLVideoElement,
   time: number,
@@ -44,14 +48,14 @@ export async function captureVideoFrameAt(
   const signal = controller.signal;
   const cancel = () => controller.abort(abortError());
   options.signal?.addEventListener("abort", cancel, { once: true });
+  const startedAt = performance.now();
+  let positionMs = 0, paintMs = 0;
   let stage = "position";
   const deadline = setTimeout(() => controller.abort(new Error(`VIDEO_FRAME_TIMEOUT: 指定時刻の映像を取得できませんでした（${stage}; request=${time.toFixed(4)}, current=${video.currentTime.toFixed(4)}, ready=${video.readyState}, seeking=${video.seeking}）。ページを開いたまま再試行してください。`)), options.timeoutMs ?? 8000);
   const duration = Number.isFinite(video.duration) ? video.duration : Math.max(5, time + 1);
   const target = Math.max(0, Math.min(time, Math.max(0, duration - 0.001)));
   let callbackId: number | null = null;
   let mediaTime: number | null = null;
-  let notifyPresented: () => void = () => undefined;
-  const presented = new Promise<void>(resolve => { notifyPresented = resolve; });
   const source = video.currentSrc;
   const positioned = () => !video.seeking && video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0 && Math.abs(video.currentTime - target) < 0.004 && video.currentSrc === source;
   try {
@@ -61,7 +65,6 @@ export async function captureVideoFrameAt(
       callbackId = video.requestVideoFrameCallback((_now, metadata) => {
         if (positioned() && Number.isFinite(metadata.mediaTime) && metadata.mediaTime <= target + 0.005) {
           mediaTime = metadata.mediaTime;
-          notifyPresented();
         } else arm();
       });
     };
@@ -82,15 +85,15 @@ export async function captureVideoFrameAt(
         if (signal.aborted) abort();
       } catch (error) { cleanup(); reject(error); }
     });
-    stage = "presentation";
-    let grace: ReturnType<typeof setTimeout> | undefined;
-    try { await abortable(Promise.race([presented, new Promise<void>(resolve => { grace = setTimeout(resolve, 100); })]), signal); }
-    finally { if (grace) clearTimeout(grace); }
+    positionMs = performance.now() - startedAt;
     stage = "paint";
+    const paintStartedAt = performance.now();
     await paint(signal);
     await paint(signal);
+    paintMs = performance.now() - paintStartedAt;
     if (!positioned() || !video.paused) throw new Error("VIDEO_POSITION_CHANGED: 取得中に動画の時刻が変わりました");
     stage = "bitmap";
+    const bitmapStartedAt = performance.now();
     const snapshot = createImageBitmap(video);
     void snapshot.then(bitmap => { if (signal.aborted) bitmap.close(); }, () => undefined);
     const bitmap = await abortable(snapshot, signal);
@@ -98,7 +101,7 @@ export async function captureVideoFrameAt(
       bitmap.close();
       throw new Error("VIDEO_FRAME_INVALID: 指定時刻の映像を確認できませんでした");
     }
-    return { bitmap, requestedTime: target, mediaTime, evidence: mediaTime === null ? "decoded-paused-readback" : "presentation-callback" };
+    return { bitmap, timingsMs: { position: positionMs, paint: paintMs, bitmap: performance.now() - bitmapStartedAt, total: performance.now() - startedAt }, requestedTime: target, mediaTime, evidence: mediaTime === null ? "decoded-paused-readback" : "presentation-callback" };
   } finally {
     clearTimeout(deadline);
     options.signal?.removeEventListener("abort", cancel);

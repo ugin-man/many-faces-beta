@@ -10,37 +10,60 @@ concurrency:
   group: video-capture-speed-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  source:
+  verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-          sparse-checkout: |
-            /*
-            !/public/seed-catalog/*
-            /public/seed-catalog/manifest.json
-          sparse-checkout-cone-mode: false
-      - name: Export exact development source and file hashes
-        run: |
-          mkdir -p /tmp/capture-source
-          python - <<'PY'
-          import hashlib,json,subprocess,zipfile
-          from pathlib import Path
-          inventory={}
-          with zipfile.ZipFile('/tmp/capture-source/source.zip','w',zipfile.ZIP_DEFLATED) as z:
-              for name in subprocess.check_output(['git','ls-files','-z']).decode().split('\0'):
-                  if not name: continue
-                  p=Path(name)
-                  if p.suffix.lower() in {'.ttf','.otf','.woff','.woff2','.eot'}: continue
-                  if not p.is_file(): continue
-                  data=p.read_bytes();z.writestr(name,data);inventory[name]=hashlib.sha256(data).hexdigest()
-              z.writestr('SOURCE_TRANSPORT.json',json.dumps({'commit':subprocess.check_output(['git','rev-parse','HEAD']).decode().strip(),'catalogTree':subprocess.check_output(['git','rev-parse','HEAD:public/seed-catalog']).decode().strip(),'files':inventory}))
-          PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/setup-node@v4
         with:
-          name: capture-source-${{ github.run_id }}
-          path: /tmp/capture-source/source.zip
-          retention-days: 3
+          node-version: 22.16.0
+          cache: npm
+      - name: Prepare unchanged full assets and exact baseline
+        run: |
+          mkdir -p work/capture-speed
+          git fetch --depth=1 origin 8f075841995d20710ea72300b980b8d125659235
+          test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
+          git diff --exit-code 8f075841995d20710ea72300b980b8d125659235 HEAD -- app/live/astra app/live/media-input.ts app/live/frame-arrival.ts app/live/stable-landmarker.ts app/projection-matching.ts app/live/review-search.worker.ts app/live/review-client-lite.tsx app/runtime-identity.ts public
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1 esbuild@0.25.12
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg > work/capture-speed/system.log 2>&1
+          echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          mkdir -p /tmp/mf-capture-baseline
+          git archive 8f075841995d20710ea72300b980b8d125659235 | tar -x -C /tmp/mf-capture-baseline
+          ln -s "$PWD/node_modules" /tmp/mf-capture-baseline/node_modules
+      - name: Build and test exact source, without patching it in CI
+        run: |
+          npm run build > work/capture-speed/build.log 2>&1 || { cat work/capture-speed/build.log; exit 1; }
+          node --experimental-strip-types --test tests/*.test.mjs > work/capture-speed/unit.log 2>&1 || { cat work/capture-speed/unit.log; exit 1; }
+          npm run lint > work/capture-speed/lint.log 2>&1 || { cat work/capture-speed/lint.log; exit 1; }
+          (cd /tmp/mf-capture-baseline && npm run build) > work/capture-speed/baseline-build.log 2>&1
+          node scripts/verify-video-capture.mjs --prepare
+      - name: Serve both exact builds
+        run: |
+          PORT=4183 HOST=127.0.0.1 nohup npm start > work/capture-speed/server.log 2>&1 &
+          PORT=4185 HOST=127.0.0.1 nohup bash -c 'cd /tmp/mf-capture-baseline && npm start' > work/capture-speed/baseline-server.log 2>&1 &
+          for port in 4183 4185; do
+            for attempt in $(seq 1 90); do
+              if curl -fsS "http://127.0.0.1:$port/api/runtime" > "work/capture-speed/identity-$port.json"; then break; fi
+              sleep 1
+            done
+            curl -fsS "http://127.0.0.1:$port/api/runtime"
+          done
+      - name: Actual pixel equality, known-color seeks, fallback and cancellation
+        run: node scripts/verify-video-capture.mjs
+      - name: Full recorded video ABBA speed and identical-output gate
+        run: node scripts/verify-capture-speed.mjs
+      - name: Check protected asset and source identity
+        if: always()
+        run: git diff --exit-code -- app worker scripts tests build public
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: video-capture-speed-${{ github.run_id }}
+          path: work/capture-speed
+          retention-days: 14

@@ -32,6 +32,7 @@ jobs:
           npm run lint > work/wink-coverage/lint.log 2>&1
           node scripts/prepare-wink-supplement.mjs --prepare
           npm run build > work/wink-coverage/build.log 2>&1
+          node --experimental-strip-types --test tests/wink-evidence.test.mjs > work/wink-coverage/eye-tests.log 2>&1
       - name: Fresh analysis of actual pixels, not copied metadata
         run: |
           PORT=4183 HOST=127.0.0.1 nohup npm start > work/wink-coverage/server.log 2>&1 &
@@ -40,12 +41,60 @@ jobs:
             sleep 1
           done
           node scripts/prepare-wink-supplement.mjs
-      - name: Preserve baseline application and original catalog
+      - name: Preserve original catalog and tracked source
         if: always()
-        run: git diff --exit-code -- app public/seed-catalog public/test-fixtures
+        run: git diff --exit-code -- app scripts tests public/seed-catalog public/test-fixtures
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: wink-coverage-${{ github.run_id }}
           path: work/wink-coverage
           retention-days: 14
+  stage-screened-data:
+    # Separate, explicitly requested data-only write, never used to report that
+    # the triggering SHA passed tests for code created by this job.
+    if: contains(github.event.head_commit.message, 'stage-screened-wink-pilot')
+    needs: audit
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: wink-coverage-${{ github.run_id }}
+          path: /tmp/wink-evidence
+      - name: Preserve an auditable pilot corpus outside the live catalog
+        run: |
+          test ! -e data/wink-pilot
+          python - <<'PY'
+          import hashlib,json,shutil
+          from pathlib import Path
+          source=Path('/tmp/wink-evidence/staged-supplement')
+          payload=json.loads((source/'catalog.json').read_text())
+          assert payload['baseCatalogTree']=='559f7f39e3a8eed452ef7eb6a3355a318235c307'
+          assert 2<=len(payload['items'])<=20
+          assert {x['side'] for x in payload['items']}=={'left','right'}
+          total=0
+          for item in payload['items']:
+              assert Path(item['image']).name==item['image']
+              data=(source/'images'/item['image']).read_bytes();total+=len(data)
+              assert hashlib.sha256(data).hexdigest()==item['imageSha256']
+              assert item['creator'] and item['sourceUrl'] and item['license']
+          assert total<4*1024*1024
+          shutil.copytree(source,'data/wink-pilot')
+          shutil.copy('/tmp/wink-evidence/reanalysis.json','data/wink-pilot/reanalysis.json')
+          shutil.copy('/tmp/wink-evidence/coverage.json','data/wink-pilot/original-coverage.json')
+          print(json.dumps({'staged':len(payload['items']),'imageBytes':total,'runtimeEnabled':False}))
+          PY
+          git fetch origin astra/wink-coverage
+          test "$(git rev-parse FETCH_HEAD)" = "$GITHUB_SHA"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/wink-pilot
+          git commit -m 'data(wink): preserve automatically screened real-photo pilot for held-out review; not enabled'
+          git push origin HEAD:refs/heads/astra/wink-coverage
+          git rev-parse HEAD

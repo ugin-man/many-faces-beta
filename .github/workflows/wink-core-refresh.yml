@@ -1,8 +1,5 @@
-name: Recheck original wink photographs
+name: Recheck original wink photographs (manual)
 on:
-  push:
-    branches: [astra/wink-coverage]
-    paths: ['scripts/refresh-core-winks.mjs', 'scripts/wink-core-probe.ts', '.github/workflows/wink-core-refresh.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -18,7 +15,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22.16.0
-      - name: Screen all 70k and stage only existing encoded images for fresh inference
+      - name: Reproduce fresh-pixel overlay as a review artifact only
         run: |
           mkdir -p work/wink-core
           test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
@@ -28,56 +25,16 @@ jobs:
           npm run lint > work/wink-core/lint.log 2>&1
           node --experimental-strip-types scripts/refresh-core-winks.mjs --prepare
           npm run build > work/wink-core/build.log 2>&1
-      - name: Reanalyze exact original pixels and retain unmodified raw scores
-        run: |
           PORT=4183 HOST=127.0.0.1 nohup npm start > work/wink-core/server.log 2>&1 &
           for attempt in $(seq 1 90); do
             if curl -fsS http://127.0.0.1:4183/__wink_core/index.html > /dev/null; then break; fi
             sleep 1
           done
           node --experimental-strip-types scripts/refresh-core-winks.mjs
-          git diff --exit-code -- app scripts tests data public/seed-catalog public/test-fixtures
+          git diff --exit-code -- app scripts tests data public
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: core-wink-refresh-${{ github.run_id }}
           path: work/wink-core
           retention-days: 14
-  stage:
-    if: contains(github.event.head_commit.message, 'stage-verified-wink-index')
-    needs: refresh
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-      - uses: actions/download-artifact@v4
-        with:
-          name: core-wink-refresh-${{ github.run_id }}
-          path: /tmp/wink-core
-      - name: Commit only additive derived assets on the experiment branch
-        run: |
-          test ! -e public/wink-support/v1
-          mkdir -p public/wink-support data/wink-core-refresh
-          cp -a /tmp/wink-core/runtime public/wink-support/v1
-          cp /tmp/wink-core/audit.json data/wink-core-refresh/audit.json
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          p=json.loads(Path('public/wink-support/v1/catalog.json').read_text())
-          assert p['originalFaces']==70000 and p['addedPhotographs']==6
-          assert p['refreshedOriginals']>0 and len(p['items'])<=1024
-          print(json.dumps({k:v for k,v in p.items() if k!='items'}))
-          PY
-          git diff --exit-code -- public/seed-catalog app
-          git fetch origin astra/wink-coverage
-          test "$(git rev-parse FETCH_HEAD)" = "$GITHUB_SHA"
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/wink-support data/wink-core-refresh
-          git commit -m 'data(wink): add refreshed original-photo descriptors and six real-photo additions; not yet enabled'
-          git push origin HEAD:refs/heads/astra/wink-coverage
-          git rev-parse HEAD

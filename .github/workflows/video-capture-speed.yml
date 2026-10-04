@@ -1,0 +1,46 @@
+name: Video capture speed
+on:
+  push:
+    branches: [astra/video-capture-speed]
+    paths: ['app/**', 'scripts/**', 'tests/**', '.github/workflows/video-capture-speed.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: video-capture-speed-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            /*
+            !/public/seed-catalog/*
+            /public/seed-catalog/manifest.json
+          sparse-checkout-cone-mode: false
+      - name: Export exact development source and file hashes
+        run: |
+          mkdir -p /tmp/capture-source
+          python - <<'PY'
+          import hashlib,json,subprocess,zipfile
+          from pathlib import Path
+          inventory={}
+          with zipfile.ZipFile('/tmp/capture-source/source.zip','w',zipfile.ZIP_DEFLATED) as z:
+              for name in subprocess.check_output(['git','ls-files','-z']).decode().split('\0'):
+                  if not name: continue
+                  p=Path(name)
+                  if p.suffix.lower() in {'.ttf','.otf','.woff','.woff2','.eot'}: continue
+                  if not p.is_file(): continue
+                  data=p.read_bytes();z.writestr(name,data);inventory[name]=hashlib.sha256(data).hexdigest()
+              z.writestr('SOURCE_TRANSPORT.json',json.dumps({'commit':subprocess.check_output(['git','rev-parse','HEAD']).decode().strip(),'catalogTree':subprocess.check_output(['git','rev-parse','HEAD:public/seed-catalog']).decode().strip(),'files':inventory}))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: capture-source-${{ github.run_id }}
+          path: /tmp/capture-source/source.zip
+          retention-days: 3

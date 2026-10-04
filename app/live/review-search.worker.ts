@@ -7,6 +7,8 @@ import { poseWindowCellKeys, shardFilesForCells, shouldExpandPoseWindow, type Re
 import { readAssetJson } from "./asset-reader";
 import { runtimeIdentity } from "../runtime-identity";
 import { createReviewYield, ReviewWindowCache } from "./review-work-cache";
+import { winkEvidence } from "./wink-evidence";
+import { parseWinkSupport, rankWinkSupport, type WinkSupportCandidate } from "./wink-support";
 import type { SearchProgress } from "./review-search";
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 
@@ -21,6 +23,8 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
   const ranker = new ReviewStrictRanker();
   const cache = new Map<string, Promise<LiveCandidate[]>>();
   const measurements = { candidateLoadMs: 0, candidateRankMs: 0, candidateDecodeMs: 0 };
+  const winkMetrics = { requestedFrames: 0, supportedFrames: 0, fallbackFrames: 0, indexedOriginals: 0, addedPhotos: 0, indexBytes: 0, indexError: null as string | null };
+  let support: WinkSupportCandidate[] = [];
   try {
     const progress: SearchProgress = { type: "progress", sequence: 0, phase: "searching", label: "カタログを確認中", bytes: 0, files: 0, decoded: 0, completed: 0, total: frames.length, peakCandidates: 0 };
     let lastReport = -Infinity;
@@ -32,6 +36,25 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
     report("カタログを確認中", true);
     const manifest = await readAssetJson<ReviewCatalogManifest & { catalogId?: string; totalFaces?: number; searchableFaces?: number }>(new URL("/api/catalog/manifest?source=seed", origin).href, { onBytes: bytes });
     if (!manifest.cells || Number(manifest.searchableFaces ?? manifest.totalFaces) !== 70000) throw new Error("CATALOG_INVALID: 7万枚のカタログを確認できません。Siteの配信データを確認してください。");
+    winkMetrics.requestedFrames = frames.filter(frame => winkEvidence(frame.feature, frame.geometry.projection)).length;
+    if (winkMetrics.requestedFrames) {
+      const loadStarted = performance.now();
+      try {
+        const payload = await readAssetJson<unknown>(new URL("/wink-support/v1/catalog.json", origin).href, {
+          idleMs: 5000, maxMs: 10000, maxBytes: 4 * 1024 * 1024,
+          onBytes: (received, delta) => { winkMetrics.indexBytes = received; bytes(received, delta); },
+        });
+        support = parseWinkSupport(payload, origin);
+        winkMetrics.indexedOriginals = support.filter(candidate => candidate.supportKind === "core-refresh").length;
+        winkMetrics.addedPhotos = support.filter(candidate => candidate.supportKind === "addition").length;
+      } catch (error) {
+        // A missing optional overlay must not break the functioning original
+        // catalog. Record the failure instead of inventing successful support.
+        winkMetrics.indexError = error instanceof Error ? error.message : String(error);
+        console.warn("Wink index unavailable; retaining the original video matcher.", winkMetrics.indexError);
+      }
+      measurements.candidateLoadMs += performance.now() - loadStarted;
+    }
     const loadShard = (file: string): Promise<LiveCandidate[]> => {
       const cached = cache.get(file); if (cached) return cached;
       const pending = (async () => {
@@ -73,21 +96,30 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
     const beams: { candidate: LiveCandidate; error: ProjectionError }[][] = [];
     for (const frame of frames) {
       let started = performance.now();
-      let candidates = await loadCells(poseWindowCellKeys(manifest, frame.feature, 12, 15));
-      if (shouldExpandPoseWindow(candidates.length, 384)) candidates = await loadCells(poseWindowCellKeys(manifest, frame.feature, 18, 21));
-      measurements.candidateLoadMs += performance.now() - started;
-      progress.peakCandidates = Math.max(progress.peakCandidates, candidates.length);
-      started = performance.now();
-      const ranked = ranker.rank(frame, candidates, 64, Math.min(1024, candidates.length));
+      let ranked: { candidate: LiveCandidate; error: ProjectionError }[] | null = rankWinkSupport(frame, support, ranker);
       measurements.candidateRankMs += performance.now() - started;
+      if (ranked) {
+        winkMetrics.supportedFrames++;
+        progress.peakCandidates = Math.max(progress.peakCandidates, ranked.length);
+      } else {
+        if (winkEvidence(frame.feature, frame.geometry.projection)) winkMetrics.fallbackFrames++;
+        started = performance.now();
+        let candidates = await loadCells(poseWindowCellKeys(manifest, frame.feature, 12, 15));
+        if (shouldExpandPoseWindow(candidates.length, 384)) candidates = await loadCells(poseWindowCellKeys(manifest, frame.feature, 18, 21));
+        measurements.candidateLoadMs += performance.now() - started;
+        progress.peakCandidates = Math.max(progress.peakCandidates, candidates.length);
+        started = performance.now();
+        ranked = ranker.rank(frame, candidates, 64, Math.min(1024, candidates.length));
+        measurements.candidateRankMs += performance.now() - started;
+      }
       if (!ranked.length) throw new Error("CATALOG_NO_MATCH: 比較できる候補がありません。");
       beams.push(ranked); progress.completed++; report("顔を照合中", true);
       await cooperative.checkpoint(true);
     }
     const candidateSearchMs = performance.now() - searchStarted;
-    const windowStats = windows.stats();
-    const rankStats = ranker.stats();
-    cache.clear(); windows.clear(); ranker.clear(); progress.phase = "optimizing"; report("再生する顔を選択中", true);
+    const windowStats = windows.stats(), rankStats = ranker.stats();
+    cache.clear(); windows.clear(); ranker.clear(); support = [];
+    progress.phase = "optimizing"; report("再生する顔を選択中", true);
     await cooperative.checkpoint(true);
     const pathStarted = performance.now();
     const choices = optimizeDistinctProjectionSequence(frames, beams, {
@@ -97,6 +129,6 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
     });
     if (choices.length !== frames.length) throw new Error("SEARCH_INCOMPLETE: 解析したフレーム数と結果が一致しません。");
     scope.postMessage({ type: "result", choices, candidateSearchMs, pathOptimizationMs: performance.now() - pathStarted, build: runtimeIdentity.build,
-      performanceMetrics: { implementation: "video-strict-rank-v1", ...measurements, ...cooperative.stats, windowStats, rankStats } });
-  } finally { cache.clear(); windows.clear(); ranker.clear(); cooperative.close(); }
+      performanceMetrics: { implementation: "video-wink-support-v1", ...measurements, ...cooperative.stats, windowStats, rankStats, wink: winkMetrics } });
+  } finally { cache.clear(); windows.clear(); ranker.clear(); support = []; cooperative.close(); }
 }

@@ -89,7 +89,7 @@ export default function CallStage(props: Props) {
           <label className={styles.settingRow}><span>画像全体を表示</span><input type="checkbox" checked={fit} onChange={event => setFit(event.target.checked)} /></label>
           <button className={styles.settingRow} onClick={() => void toggleFullscreen()}><span>{fullscreen ? "全画面表示を終了" : "全画面表示"}</span><Icon name={fullscreen ? "shrink" : "expand"} /></button>
           <button className={styles.settingRow} onClick={() => setSheet("details")}><span>画像情報・診断</span><Icon name="info" /></button>
-        </> : <div className={styles.details}>{props.details}<small>Fullscreen UI v1</small></div>}
+        </> : <div className={styles.details}>{props.details}{mode === "video" && <p><a href="/wink-support/v1/ATTRIBUTION.html" target="_blank" rel="noopener noreferrer" data-testid="wink-attribution">補助カタログの画像出典・ライセンス</a></p>}<small>Fullscreen UI v1</small></div>}
       </div>
     </dialog>
   </main>;

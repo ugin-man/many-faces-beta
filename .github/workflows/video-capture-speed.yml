@@ -36,13 +36,14 @@ jobs:
           mkdir -p /tmp/mf-capture-baseline
           git archive 8f075841995d20710ea72300b980b8d125659235 | tar -x -C /tmp/mf-capture-baseline
           ln -s "$PWD/node_modules" /tmp/mf-capture-baseline/node_modules
+          # Public QA assets must exist before Vite copies public into dist.
+          node scripts/verify-video-capture.mjs --prepare
       - name: Build and test exact source, without patching it in CI
         run: |
           npm run build > work/capture-speed/build.log 2>&1 || { cat work/capture-speed/build.log; exit 1; }
           node --experimental-strip-types --test tests/*.test.mjs > work/capture-speed/unit.log 2>&1 || { cat work/capture-speed/unit.log; exit 1; }
           npm run lint > work/capture-speed/lint.log 2>&1 || { cat work/capture-speed/lint.log; exit 1; }
           (cd /tmp/mf-capture-baseline && npm run build) > work/capture-speed/baseline-build.log 2>&1
-          node scripts/verify-video-capture.mjs --prepare
       - name: Serve both exact builds
         run: |
           PORT=4183 HOST=127.0.0.1 nohup npm start > work/capture-speed/server.log 2>&1 &
@@ -54,6 +55,7 @@ jobs:
             done
             curl -fsS "http://127.0.0.1:$port/api/runtime"
           done
+          curl -fsS http://127.0.0.1:4183/__capture_qa/probe.js > /dev/null
       - name: Actual pixel equality, known-color seeks, fallback and cancellation
         run: node scripts/verify-video-capture.mjs
       - name: Full recorded video ABBA speed and identical-output gate

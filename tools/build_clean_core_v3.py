@@ -117,8 +117,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--preselect-multiplier", type=int, default=6)
     parser.add_argument("--face-attribute-model", type=Path, required=True,
                         help="FaceAttribNet ONNX; sunglasses/mask candidates are rejected before catalog selection")
-    parser.add_argument("--quality-exclusions", type=Path,
-                        help="Optional pre-selection audit JSON for independently verified yaw/visibility failures")
+    parser.add_argument("--quality-exclusions", type=Path, required=True,
+                        help="Pre-selection audit JSON; independently verified yaw/visibility failures are rejected before selection")
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
     if not args.catalog: parser.error("at least one --catalog LABEL=PATH is required")

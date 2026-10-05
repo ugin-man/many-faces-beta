@@ -1,0 +1,58 @@
+name: Catalog v4 actual image review sheets
+on:
+  push:
+    branches: [astra/catalog-v4-inspect-20261006]
+    paths: ['.github/workflows/catalog-v4-visual-smoke.yml']
+  workflow_dispatch:
+permissions: {contents: write, actions: read}
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: '${{ github.sha }}'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install Pillow
+      - name: Render actual smoke photographs without model relabeling
+        env: {GH_TOKEN: '${{ github.token }}'}
+        run: |
+          python - <<'PY'
+          import io, json, runpy
+          from pathlib import Path
+          from PIL import Image, ImageDraw, ImageOps
+          helper=runpy.run_path('scripts/catalog-v4-preflight.py')
+          assets=helper['api']('actions/runs/37379828609/artifacts?per_page=100')['artifacts']
+          artifact=next(a for a in assets if a['name']=='catalog-v4-smoke-37379828609')
+          z,digest=helper['archive'](artifact)
+          names=sorted(n for n in z.namelist() if '/previews/' in '/'+n and n.endswith('.webp'))
+          groups={}
+          for name in names:
+              group=Path(name).stem.rsplit('-',1)[0]
+              groups.setdefault(group,[]).append(name)
+          out=Path('data/catalog-v4/visual-smoke'); out.mkdir(parents=True,exist_ok=True)
+          sheets=[]
+          for group,members in sorted(groups.items()):
+              for start in range(0,len(members),20):
+                  chunk=members[start:start+20]
+                  sheet=Image.new('RGB',(5*196,4*222),'white'); draw=ImageDraw.Draw(sheet)
+                  for i,name in enumerate(chunk):
+                      with Image.open(io.BytesIO(z.read(name))) as image:
+                          tile=ImageOps.contain(image.convert('RGB'),(192,192))
+                      x,y=(i%5)*196,(i//5)*222
+                      sheet.paste(tile,(x+(196-tile.width)//2,y+2))
+                      draw.text((x+3,y+196),Path(name).stem,fill='black')
+                  filename=f'{group}-{start//20:02d}.jpg'
+                  sheet.save(out/filename,quality=94)
+                  sheets.append({'file':filename,'members':chunk})
+          receipt=json.loads(z.read(next(n for n in z.namelist() if Path(n).name=='receipt.json')))
+          (out/'receipt.json').write_text(json.dumps({'artifactId':artifact['id'],'archiveSha256':digest,'sheets':sheets,'smoke':receipt,'visuallyReviewed':False},indent=2)+'\n')
+          PY
+      - name: Preserve review evidence only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/catalog-v4/visual-smoke
+          git commit -m 'data(qa): exact-photo admission and rejection review sheets'
+          git push origin HEAD:astra/catalog-v4-inspect-20261006

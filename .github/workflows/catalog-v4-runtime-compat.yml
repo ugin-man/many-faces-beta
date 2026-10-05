@@ -1,0 +1,28 @@
+name: Catalog v4 wink linkage compatibility
+on:
+  push:
+    branches: [astra/catalog-v4-inspect-20261006]
+    paths: ['app/live/wink-support.ts', 'tests/catalog-v4-wink-linkage.test.mjs', 'tools/prepare-catalog-v4-winks.mjs', '.github/workflows/catalog-v4-runtime-compat.yml']
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: '${{ github.sha }}', persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0', cache: npm}
+      - run: npm ci
+      - run: |
+          mkdir -p work/compat
+          npm test > work/compat/tests.log 2>&1
+          npm run lint > work/compat/lint.log 2>&1
+          git diff --exit-code -- public app
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: catalog-v4-linkage-tests-${{ github.run_id }}
+          path: work/compat
+          retention-days: 14

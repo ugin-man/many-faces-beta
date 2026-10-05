@@ -1,0 +1,137 @@
+name: Build physically clean catalog v4 candidate
+on:
+  push:
+    branches: [astra/catalog-clean-v4-20261006]
+    paths: ['tools/catalog_v4_*.py', 'tests/test_catalog_v4_policy.py', '.github/workflows/catalog-v4-build.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: catalog-v4-build
+  cancel-in-progress: false
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: '${{ github.sha }}', persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Install fixed CPU analysis environment
+        run: |
+          pip install numpy==1.26.4 Pillow==11.1.0 mediapipe==0.10.21 opencv-contrib-python==4.11.0.86 onnxruntime==1.20.1 packaging
+          mkdir -p .models
+          curl -fsSL --retry 3 -o .models/attributes.onnx https://github.com/yakhyo/face-attribute/releases/download/weights/face_attrib_net.onnx
+          curl -fsSL --retry 3 -o .models/face.task https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
+          python -m compileall -q tools
+          python -m unittest discover -s tests -p 'test_*.py'
+      - name: Exercise real encoded pixels before the long build
+        run: |
+          python tools/catalog_v4_candidates.py --kind seed --root public/seed-catalog --part 0 --parts 700 --limit 100 --out work/smoke --attribute-model .models/attributes.onnx --face-model .models/face.task
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('work/smoke/receipt.json').read_text())
+          assert r['scanned']==100
+          assert r['accepted']>=20, r
+          PY
+          git diff --exit-code -- app worker public
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: catalog-v4-smoke-${{ github.run_id }}
+          path: work/smoke
+          retention-days: 30
+  candidates:
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {kind: seed, part: 0, offset: 0}
+          - {kind: seed, part: 1, offset: 0}
+          - {kind: seed, part: 2, offset: 0}
+          - {kind: seed, part: 3, offset: 0}
+          - {kind: source, part: 0, offset: 0}
+          - {kind: source, part: 1, offset: 12000}
+          - {kind: source, part: 2, offset: 24000}
+          - {kind: source, part: 3, offset: 36000}
+    env: {PYTHONUNBUFFERED: '1'}
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: '${{ github.sha }}', persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Install the same analysis environment
+        run: |
+          pip install numpy==1.26.4 Pillow==11.1.0 mediapipe==0.10.21 opencv-contrib-python==4.11.0.86 onnxruntime==1.20.1
+          mkdir -p .models
+          curl -fsSL --retry 3 -o .models/attributes.onnx https://github.com/yakhyo/face-attribute/releases/download/weights/face_attrib_net.onnx
+          curl -fsSL --retry 3 -o .models/face.task https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
+      - name: Recover a new licensed source window without allowed occlusions
+        if: matrix.kind == 'source'
+        run: |
+          python tools/open_images_face_source_windowed.py work/source --split train --candidate-offset ${{ matrix.offset }} --max-images 12000 --candidate-limit 80000 --max-per-image 1 --min-box-area 0.012 --workers 16 --size 512
+      - name: Admit only visible exact-pixel faces with coherent pose
+        run: |
+          ROOT=public/seed-catalog
+          if [ '${{ matrix.kind }}' = source ]; then ROOT=work/source; fi
+          python tools/catalog_v4_candidates.py --kind ${{ matrix.kind }} --root "$ROOT" --part ${{ matrix.part }} --parts 4 --out work/candidates --attribute-model .models/attributes.onnx --face-model .models/face.task
+          git diff --exit-code -- app worker public
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: catalog-v4-candidates-${{ matrix.kind }}-${{ matrix.part }}-${{ github.run_id }}
+          path: |
+            work/candidates
+            work/source/source-report.json
+          retention-days: 30
+          compression-level: 1
+  assemble:
+    needs: candidates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions: {contents: write, actions: read}
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: '${{ github.sha }}'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - run: pip install Pillow==11.1.0
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: catalog-v4-candidates-*
+          path: work/inputs
+      - name: Repack a separate candidate, without replacing the functioning Site
+        run: |
+          python tools/catalog_v4_assemble.py --inputs work/inputs --out work/result
+          node tools/validate_face_catalog.mjs work/result/catalog > work/result/catalog-validation.json
+          git diff --exit-code -- app worker public
+      - name: Persist result receipt and visual review sheets, not unreviewed runtime replacement
+        if: always()
+        run: |
+          mkdir -p data/catalog-v4/result
+          test ! -f work/result/receipt.json || cp work/result/receipt.json data/catalog-v4/result/receipt.json
+          test ! -f work/result/catalog-validation.json || cp work/result/catalog-validation.json data/catalog-v4/result/catalog-validation.json
+          test ! -d work/result/previews || cp -a work/result/previews data/catalog-v4/result/
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/catalog-v4/result
+          if ! git diff --cached --quiet; then
+            git commit -m 'data(catalog): record physical v4 candidate and outstanding acceptance checks'
+            git push origin HEAD:astra/catalog-clean-v4-20261006
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: many-faces-physical-clean-v4-${{ github.run_id }}
+          path: work/result
+          retention-days: 30
+          compression-level: 6

@@ -10,6 +10,7 @@ import { createReviewYield, ReviewWindowCache } from "./review-work-cache";
 import { winkEvidence } from "./wink-evidence";
 import { parseWinkSupport, rankWinkSupport, type WinkSupportCandidate } from "./wink-support";
 import type { SearchProgress } from "./review-search";
+import { parseCatalogQualityOverlay, qualityAllows } from "./catalog-quality";
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 
 scope.onmessage = (event: MessageEvent<{ frames: SequenceFrame[]; origin: string; build: string }>) => {
@@ -36,6 +37,13 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
     report("カタログを確認中", true);
     const manifest = await readAssetJson<ReviewCatalogManifest & { catalogId?: string; totalFaces?: number; searchableFaces?: number }>(new URL("/api/catalog/manifest?source=seed", origin).href, { onBytes: bytes });
     if (!manifest.cells || Number(manifest.searchableFaces ?? manifest.totalFaces) !== 70000) throw new Error("CATALOG_INVALID: 7万枚のカタログを確認できません。Siteの配信データを確認してください。");
+    let qualityExclusions = new Map();
+    try {
+      const qualityPayload = await readAssetJson<unknown>(new URL("/catalog-quality/v1/exclusions.json", origin).href, { idleMs: 3000, maxMs: 6000, maxBytes: 2 * 1024 * 1024 });
+      qualityExclusions = parseCatalogQualityOverlay(qualityPayload);
+    } catch {
+      // Optional until a reviewed quality overlay is published.
+    }
     winkMetrics.requestedFrames = frames.filter(frame => winkEvidence(frame.feature, frame.geometry.projection)).length;
     if (winkMetrics.requestedFrames) {
       const loadStarted = performance.now();
@@ -44,7 +52,7 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
           idleMs: 5000, maxMs: 10000, maxBytes: 4 * 1024 * 1024,
           onBytes: (received, delta) => { winkMetrics.indexBytes = received; bytes(received, delta); },
         });
-        support = parseWinkSupport(payload, origin);
+        support = parseWinkSupport(payload, origin).filter(candidate => qualityAllows(candidate.id, qualityExclusions));
         winkMetrics.indexedOriginals = support.filter(candidate => candidate.supportKind === "core-refresh").length;
         winkMetrics.addedPhotos = support.filter(candidate => candidate.supportKind === "addition").length;
       } catch (error) {
@@ -66,7 +74,7 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
           const started = performance.now();
           for (const entry of payload.items.slice(offset, offset + 32)) {
             const candidate = liveCandidateFromEntry(entry, file);
-            if (candidate) {
+            if (candidate && qualityAllows(candidate.id, qualityExclusions)) {
               const image = new URL(candidate.url, origin); image.searchParams.set("source", "seed"); image.searchParams.set("catalog", manifest.catalogId ?? "current"); candidate.url = image.href;
               candidates.push(candidate);
             }
@@ -129,6 +137,6 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
     });
     if (choices.length !== frames.length) throw new Error("SEARCH_INCOMPLETE: 解析したフレーム数と結果が一致しません。");
     scope.postMessage({ type: "result", choices, candidateSearchMs, pathOptimizationMs: performance.now() - pathStarted, build: runtimeIdentity.build,
-      performanceMetrics: { implementation: "video-wink-support-v1", ...measurements, ...cooperative.stats, windowStats, rankStats, wink: winkMetrics } });
+      performanceMetrics: { implementation: "video-quality-overlay-v1", ...measurements, ...cooperative.stats, windowStats, rankStats, wink: winkMetrics, qualityExcluded: qualityExclusions.size } });
   } finally { cache.clear(); windows.clear(); ranker.clear(); support = []; cooperative.close(); }
 }

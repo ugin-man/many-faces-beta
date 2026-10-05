@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "424d61a7e876719c40664edfd23df496d21d0c00",
+  "builderNewlineRepaired": true,
+  "builderParses": true,
+  "legacySourceRun": 32559210408,
+  "availableLegacySourceArtifacts": 0,
+  "auditRun": 37363088388,
+  "recoveredArtifacts": [
+    {
+      "id": 11368040945,
+      "name": "catalog-yaw-1-37363088388",
+      "sha256": "d60ac7c263864186529d6dcb8d1ffc849ecd31fbb62d95e4a1182276014bfcfe"
+    },
+    {
+      "id": 11367154325,
+      "name": "catalog-yaw-0-37363088388",
+      "sha256": "7d9a4af1794203197138c6a77c1d23ffc289933f134bf793b3422683e7dddc63"
+    },
+    {
+      "id": 11367992673,
+      "name": "catalog-occlusion-37363088388",
+      "sha256": "793397c368f29d7c7d4cfe480626c498fc816a3dc967a65144318c4cf25fc2f2"
+    },
+    {
+      "id": 11371746705,
+      "name": "catalog-yaw-2-37363088388",
+      "sha256": "462627bafca40c4a83f8e8bba2abe08661d608c785366f061ccdbe18889ae8a3"
+    }
+  ],
+  "occlusionScreened": 70000,
+  "occlusionFlags": {
+    "face_mask": 2496,
+    "sunglasses": 3285
+  },
+  "completedYawParts": [
+    "yaw-0.json",
+    "yaw-1.json",
+    "yaw-2.json"
+  ],
+  "yawSamples": 35774,
+  "yawContradictions": 23,
+  "flagsAreHumanVerified": false,
+  "newCatalogBuilt": false,
+  "runtimeAssetsChanged": false
+}

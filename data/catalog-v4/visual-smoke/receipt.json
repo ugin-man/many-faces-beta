@@ -1,0 +1,182 @@
+{
+  "artifactId": 11373153038,
+  "archiveSha256": "499ebbbf11340e8dc1a26e6c5982547b351864cbae5797592f23763acaca6c80",
+  "sheets": [
+    {
+      "file": "accepted-00.jpg",
+      "members": [
+        "previews/accepted-1.webp",
+        "previews/accepted-10.webp",
+        "previews/accepted-11.webp",
+        "previews/accepted-12.webp",
+        "previews/accepted-13.webp",
+        "previews/accepted-14.webp",
+        "previews/accepted-15.webp",
+        "previews/accepted-16.webp",
+        "previews/accepted-2.webp",
+        "previews/accepted-3.webp",
+        "previews/accepted-4.webp",
+        "previews/accepted-5.webp",
+        "previews/accepted-6.webp",
+        "previews/accepted-7.webp",
+        "previews/accepted-8.webp",
+        "previews/accepted-9.webp"
+      ]
+    },
+    {
+      "file": "face_mask-00.jpg",
+      "members": [
+        "previews/face_mask-0.webp",
+        "previews/face_mask-1.webp",
+        "previews/face_mask-2.webp",
+        "previews/face_mask-3.webp",
+        "previews/face_mask-4.webp",
+        "previews/face_mask-5.webp",
+        "previews/face_mask-6.webp",
+        "previews/face_mask-7.webp",
+        "previews/face_mask-8.webp",
+        "previews/face_mask-9.webp"
+      ]
+    },
+    {
+      "file": "pose_outside_supported_range-00.jpg",
+      "members": [
+        "previews/pose_outside_supported_range-0.webp",
+        "previews/pose_outside_supported_range-1.webp",
+        "previews/pose_outside_supported_range-2.webp"
+      ]
+    },
+    {
+      "file": "pose_unstable_under_check-00.jpg",
+      "members": [
+        "previews/pose_unstable_under_check-0.webp"
+      ]
+    },
+    {
+      "file": "sunglasses-00.jpg",
+      "members": [
+        "previews/sunglasses-0.webp",
+        "previews/sunglasses-1.webp",
+        "previews/sunglasses-2.webp",
+        "previews/sunglasses-3.webp",
+        "previews/sunglasses-4.webp",
+        "previews/sunglasses-5.webp",
+        "previews/sunglasses-6.webp",
+        "previews/sunglasses-7.webp"
+      ]
+    },
+    {
+      "file": "visibility_uncertain-00.jpg",
+      "members": [
+        "previews/visibility_uncertain-0.webp",
+        "previews/visibility_uncertain-1.webp",
+        "previews/visibility_uncertain-2.webp",
+        "previews/visibility_uncertain-3.webp",
+        "previews/visibility_uncertain-4.webp",
+        "previews/visibility_uncertain-5.webp",
+        "previews/visibility_uncertain-6.webp",
+        "previews/visibility_uncertain-7.webp"
+      ]
+    }
+  ],
+  "smoke": {
+    "policy": "visible-exact-pixels-v4.1",
+    "kind": "seed",
+    "part": 0,
+    "parts": 700,
+    "scanned": 100,
+    "accepted": 70,
+    "rejected": {
+      "face_mask": 10,
+      "visibility_uncertain": 8,
+      "sunglasses": 8,
+      "pose_outside_supported_range": 3,
+      "pose_unstable_under_check": 1
+    },
+    "expressions": {
+      "open-eyes+quiet-mouth": 47,
+      "open-eyes+smile": 17,
+      "blink+quiet-mouth": 3,
+      "open-eyes+pucker": 1,
+      "left-wink+quiet-mouth": 1,
+      "right-wink+quiet-mouth": 1
+    },
+    "poseCells": {
+      "0:0": 1,
+      "-3:-15": 1,
+      "-3:-3": 1,
+      "-3:9": 1,
+      "-3:21": 1,
+      "-6:-9": 1,
+      "-6:-21": 1,
+      "-6:6": 1,
+      "-6:21": 1,
+      "-9:-21": 1,
+      "-9:9": 1,
+      "-9:24": 1,
+      "-12:-33": 1,
+      "-12:15": 1,
+      "-12:33": 1,
+      "-18:21": 1,
+      "-18:-6": 1,
+      "-18:-21": 1,
+      "-18:27": 1,
+      "-21:-18": 1,
+      "-21:6": 1,
+      "-15:18": 1,
+      "-24:-6": 1,
+      "-27:0": 1,
+      "-27:-3": 1,
+      "-27:-21": 1,
+      "-30:-15": 1,
+      "-30:6": 1,
+      "-30:-18": 1,
+      "-33:3": 1,
+      "-30:27": 1,
+      "-36:12": 1,
+      "-42:-6": 1,
+      "-3:-33": 1,
+      "0:12": 1,
+      "0:27": 1,
+      "3:-9": 1,
+      "3:3": 1,
+      "9:9": 1,
+      "3:24": 1,
+      "6:-9": 1,
+      "6:-30": 1,
+      "6:6": 1,
+      "6:18": 1,
+      "6:-18": 1,
+      "9:3": 1,
+      "12:-6": 1,
+      "12:6": 1,
+      "12:30": 1,
+      "15:-9": 1,
+      "15:-36": 1,
+      "12:-12": 1,
+      "15:6": 1,
+      "21:-12": 1,
+      "21:0": 1,
+      "21:18": 1,
+      "21:-6": 1,
+      "21:-30": 1,
+      "24:15": 1,
+      "30:-6": 1,
+      "24:12": 1,
+      "30:-3": 2,
+      "30:6": 1,
+      "36:-27": 1,
+      "36:18": 1,
+      "36:-12": 1,
+      "36:-18": 1,
+      "42:15": 1,
+      "45:-21": 1
+    },
+    "pixelSource": "exact-final-encoded-bytes",
+    "attributeModelSha256": "1bf7c6453bec2fb28e0830f3a76dceb9ffd020124f87b28da5355940a7bc6e48",
+    "faceModelSha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+    "humanVerified": false,
+    "seconds": 9.11
+  },
+  "visuallyReviewed": false
+}

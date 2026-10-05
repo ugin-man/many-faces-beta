@@ -17,6 +17,8 @@ export function faceMaskSpec(layout: FaceGeometry["layout"]) {
   };
 }
 
+const layerCache = new WeakMap<HTMLCanvasElement, HTMLCanvasElement>();
+
 function coverRect(canvas: HTMLCanvasElement, image: { width: number; height: number }) {
   const width = Math.max(1, image.width), height = Math.max(1, image.height);
   const scale = Math.max(canvas.width / width, canvas.height / height);
@@ -51,9 +53,14 @@ export function drawFacePresentation<T extends { geometry: FaceGeometry }>(
   if (!context) return;
   context.save(); context.setTransform(1, 0, 0, 1, 0, 0);
   context.fillStyle = options.background ?? "#0a0c10"; context.fillRect(0, 0, canvas.width, canvas.height);
-  const layer = document.createElement("canvas"); layer.width = canvas.width; layer.height = canvas.height;
+  let layer = layerCache.get(canvas);
+  if (!layer) { layer = document.createElement("canvas"); layerCache.set(canvas, layer); }
+  if (layer.width !== canvas.width || layer.height !== canvas.height) { layer.width = canvas.width; layer.height = canvas.height; }
   const layerContext = layer.getContext("2d");
   if (!layerContext) { context.restore(); return; }
+  layerContext.setTransform(1, 0, 0, 1, 0, 0);
+  layerContext.globalCompositeOperation = "source-over";
+  layerContext.clearRect(0, 0, layer.width, layer.height);
   const rect = coverRect(canvas, image);
   layerContext.drawImage(image, rect.x, rect.y, rect.width, rect.height);
   if (options.faceOnly) applyFaceMask(layerContext, layer, choice.candidate.geometry.layout);

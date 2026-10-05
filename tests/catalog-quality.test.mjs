@@ -1,0 +1,3 @@
+import assert from "node:assert/strict";import test from "node:test";import {parseCatalogQualityOverlay,qualityAllows} from "../app/live/catalog-quality.ts";
+test("quality overlay excludes only reviewed ids",()=>{const m=parseCatalogQualityOverlay({schemaVersion:1,excluded:[{id:"a",reason:"sunglasses"},{id:"b",reason:"face_mask"}]});assert.equal(m.size,2);assert.equal(qualityAllows("a",m),false);assert.equal(qualityAllows("c",m),true);});
+test("malformed quality overlay fails open",()=>{assert.equal(parseCatalogQualityOverlay({schemaVersion:2,excluded:[{id:"a",reason:"x"}]}).size,0);assert.equal(parseCatalogQualityOverlay(null).size,0);});

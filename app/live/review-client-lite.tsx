@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FaceLandmarker } from "@mediapipe/tasks-vision";
 import { catalogFeatureFromResult as featureFromResult } from "../catalog-feature";
 import { faceGeometryFromLandmarks, type FaceGeometry, type SequenceFrame } from "../offline-matching";
+import { drawFacePresentation } from "../face-presentation";
 import type { ProjectionChoice, ProjectionError } from "../projection-matching";
 import { searchReviewFrames } from "./review-search";
 import { createStableLandmarker } from "./stable-landmarker";
@@ -126,6 +127,9 @@ function phaseText(phase: Phase) {
 export default function VideoReviewClient({ onModeChange }: StudioClientProps = {}) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [mirror, setMirror] = useState(false);
+  const [faceTracking, setFaceTracking] = useState(true);
+  const [faceOnly, setFaceOnly] = useState(false);
+  const [sourceAspectRatio, setSourceAspectRatio] = useState(1);
   const playbackVideoRef = useRef<HTMLVideoElement | null>(null);
   const outputCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const analysisCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -261,12 +265,12 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
     const item = reviewItemAtTime(sequenceRef.current, quantizeReviewTime(time, replayFpsRef.current, clipDuration));
     if (!item) return;
     const image = outputImagesRef.current.get(item.choice.candidate.id);
-    if (image) drawContained(canvas, image);
+    if (image) drawFacePresentation(canvas, image, item.choice, { sourceAspectRatio, trackFace: faceTracking, faceOnly, background: "#0a0c10" });
     if (lastOutputIdRef.current !== item.choice.candidate.id) {
       lastOutputIdRef.current = item.choice.candidate.id; setCurrentOutputName(item.choice.candidate.name);
       setCurrentOutputSource(item.choice.candidate.sourceName || item.choice.candidate.creator || "—"); setCurrentError(item.choice.error);
     }
-  }, [clipDuration]);
+  }, [clipDuration, faceOnly, faceTracking, sourceAspectRatio]);
   const startPlaybackLoop = useCallback(() => {
     if (playbackRafRef.current !== null) cancelAnimationFrame(playbackRafRef.current);
     const tick = () => {
@@ -301,6 +305,7 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
       await waitForVideoMetadata(video, cancellation.signal); video.pause(); checkCurrent();
       const safeDuration = Number.isFinite(video.duration) && video.duration > 0 ? Math.min(duration, video.duration) : duration;
       setClipDuration(safeDuration);
+      setSourceAspectRatio(video.videoWidth > 0 && video.videoHeight > 0 ? video.videoWidth / video.videoHeight : 1);
       const frameCount = Math.max(2, Math.floor(safeDuration * analysisFps));
       setPlannedFrames(frameCount);
       const frames: SequenceFrame[] = [];
@@ -435,6 +440,7 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
     setFaceFrames(0); setLoadedShards(0); setPeakCandidates(0); setProcessingMs(0); setOutputChanges(0);
     setUniqueFaces(0); setImageFailures(0); setCurrentOutputName("—"); setCurrentOutputSource("—");
     setCurrentError(null); setSourceName(""); setReport(null); searchTrafficRef.current = { bytes: 0, files: 0, decoded: 0 };
+    setSourceAspectRatio(1);
   }, [clearReview]);
   const verifySample = async () => {
     if (busy) return;
@@ -489,6 +495,8 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
     settings={<>
       <label className={styles.settingRow}><span>解析密度</span><select aria-label="解析密度" data-testid="analysis-fps" value={analysisFps} disabled={busy} onChange={event => { const value = Number(event.target.value); setAnalysisFps(value); setReplayFps(value); }}><option value={12}>12 fps</option><option value={20}>20 fps</option><option value={30}>30 fps</option></select></label>
       <label className={styles.settingRow}><span>鏡表示</span><input type="checkbox" checked={mirror} data-testid="mirror-toggle" onChange={event => setMirror(event.target.checked)} /></label>
+      <label className={styles.settingRow}><span>顔位置追従</span><input type="checkbox" checked={faceTracking} data-testid="face-tracking-toggle" onChange={event => setFaceTracking(event.target.checked)} /></label>
+      <label className={styles.settingRow}><span>表示モード</span><select aria-label="表示モード" data-testid="face-display-mode" value={faceOnly ? "face" : "normal"} onChange={event => setFaceOnly(event.target.value === "face")}><option value="normal">通常</option><option value="face">顔だけ</option></select></label>
     </>}
     details={<>
       <p>{currentOutputName}<br />{currentOutputSource}</p>

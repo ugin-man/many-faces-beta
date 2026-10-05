@@ -123,7 +123,7 @@ def parse_args() -> argparse.Namespace:
     args = parser.parse_args()
     if not args.catalog: parser.error("at least one --catalog LABEL=PATH is required")
     if args.target_total < 70_000: parser.error("target-total must be at least 70,000")
-    if not args.face_attribute_model.is_file(): parser.error("--face-attribute-model must point to a readable ONNX file")
+    if not args.face_attribute_model.is_file(): parser.error("--face-attribute-model must point to a readable ONNX file")\n    if not args.quality_exclusions.is_file(): parser.error("--quality-exclusions must point to a completed pre-selection audit")
     if ort is None: parser.error("onnxruntime is required for the mandatory face-visibility gate")
     return args
 

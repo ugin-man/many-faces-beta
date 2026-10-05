@@ -271,7 +271,11 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
       setCurrentOutputSource(item.choice.candidate.sourceName || item.choice.candidate.creator || "—"); setCurrentError(item.choice.error);
     }
   }, [clipDuration, faceOnly, faceTracking, sourceAspectRatio]);
-  useEffect(() => {\n    if (phase === "review") drawReviewAt(playbackTime);\n  }, [drawReviewAt, phase, playbackTime]);\n\n  const startPlaybackLoop = useCallback(() => {
+  useEffect(() => {
+    if (phase === "review") drawReviewAt(playbackTime);
+  }, [drawReviewAt, phase, playbackTime]);
+
+  const startPlaybackLoop = useCallback(() => {
     if (playbackRafRef.current !== null) cancelAnimationFrame(playbackRafRef.current);
     const tick = () => {
       const video = playbackVideoRef.current;

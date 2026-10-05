@@ -1,4 +1,4 @@
-import { alignmentTransform, objectFitCoverLayout, type FaceGeometry, type SequenceChoice } from "./offline-matching";
+import { alignmentTransform, objectFitCoverLayout, type FaceGeometry, type SequenceChoice } from "./offline-matching.ts";
 
 export type FacePresentationOptions = { sourceAspectRatio: number; trackFace: boolean; faceOnly: boolean; background?: string };
 

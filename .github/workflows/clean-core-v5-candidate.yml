@@ -33,7 +33,54 @@ env:
   MKL_NUM_THREADS: "1"
 
 jobs:
+  preflight:
+    if: github.ref == 'refs/heads/astra/realtime-hardening'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            /*
+            !/public/seed-catalog/*
+            /public/seed-catalog/manifest.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install and exercise the real native inference stack
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install --yes --no-install-recommends libgles2 libegl1
+          python -m pip install --disable-pip-version-check -r tools/requirements-clean-admission.txt
+          mkdir -p work/models
+          curl --fail --location --retry 3 --connect-timeout 30 --max-time 300 \
+            --output "$ATTRIBUTE_MODEL_PATH" \
+            https://github.com/yakhyo/face-attribute/releases/download/weights/face_attrib_net.onnx
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'tools')
+          from clean_core_admission import AdmissionEngine
+          model = Path(os.environ['ATTRIBUTE_MODEL_PATH'])
+          assert hashlib.sha256(model.read_bytes()).hexdigest() == os.environ['ATTRIBUTE_MODEL_SHA256']
+          source = Path('public/wink-support/v1')
+          entries = json.loads((source / 'catalog.json').read_text())['items']
+          entry = next(row for row in entries if row['id'] == 'wink-extra-4f24a6bfb7a11643dfea342c')
+          pixels = (source / 'images' / entry['image']).read_bytes()
+          with AdmissionEngine(model, os.environ['FACE_MODEL_PATH'], reviewed_path='data/catalog-visibility-reviewed.json') as engine:
+              record = engine.evaluate(pixels, entry, 'preflight-wink', 'wink-extras')
+              assert record['decision'] == 'pass', record['reasons']
+              print(json.dumps({'nativeInferencePreflight': 'passed', 'imageSha256': record['encodedSha256'], 'runtimeVersions': engine.runtime_versions}))
+          PY
+
   audit:
+    needs: preflight
     if: github.ref == 'refs/heads/astra/realtime-hardening'
     runs-on: ubuntu-24.04
     timeout-minutes: 120
@@ -64,7 +111,7 @@ jobs:
       - name: Install the MediaPipe native runtime dependency
         run: |
           sudo apt-get update -qq
-          sudo apt-get install --yes --no-install-recommends libgles2
+          sudo apt-get install --yes --no-install-recommends libgles2 libegl1
       - name: Install and check the candidate admission tools
         run: |
           python -m pip install --disable-pip-version-check -r tools/requirements-clean-admission.txt

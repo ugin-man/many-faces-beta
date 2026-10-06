@@ -16,8 +16,12 @@
   "sitePublication": false,
   "postSelectionVisualReview": "pending",
   "fixedVideoVerification": "pending",
-  "attempt": 2,
-  "previousRun": 37462870166,
-  "previousRunStatus": "failed before image analysis: missing native libGLESv2.so.2",
-  "nativeRuntimeDependency": "libgles2"
+  "attempt": 3,
+  "previousRun": 37463307485,
+  "previousRunStatus": "failed before image analysis: missing native libEGL.so.1",
+  "nativeRuntimeDependency": [
+    "libgles2",
+    "libegl1"
+  ],
+  "nativeInferencePreflight": true
 }

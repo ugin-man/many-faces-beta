@@ -8,6 +8,7 @@ on:
       - 'app/live/review-ranking.ts'
       - 'app/live/wink-support.ts'
       - 'app/live/video-frame.ts'
+      - 'app/live/review-client-lite.tsx'
       - 'public/seed-catalog/**'
       - 'public/wink-support/**'
       - 'scripts/verify-video-speed.mjs'
@@ -15,6 +16,9 @@ on:
       - 'scripts/verify-clean-catalog.mjs'
       - 'scripts/verify-fullscreen-ui.mjs'
       - 'scripts/run-video-validation.mjs'
+      - 'scripts/validate-review-presentation-change.mjs'
+      - 'tests/review-first-presentation.test.mjs'
+      - 'tests/review-presentation-source-guard.test.mjs'
       - 'tests/video-speed.test.mjs'
       - 'tests/video-capture-bitmap-fallback.test.mjs'
       - 'tests/video-capture-speed.test.mjs'
@@ -52,8 +56,11 @@ jobs:
           # video-frame.ts has a reviewed fallback for rejected native bitmaps.
           # Its acquisition behavior is guarded by focused tests and exact
           # acquired-frame equivalence in the actual browser comparison below.
-          # The remaining camera/input and face-position/size sources stay fixed.
-          git diff --exit-code "$VIDEO_BASELINE_COMMIT" HEAD -- app/live/astra app/live/media-input.ts app/live/frame-arrival.ts app/live/stable-landmarker.ts app/projection-matching.ts app/live/review-client-lite.tsx app/runtime-identity.ts app/face-presentation.ts app/offline-matching.ts app/call-stage.tsx app/studio.module.css app/studio-controls.ts app/live/review-timeline.ts worker build package.json package-lock.json vite.config.ts .openai
+          # The video client may differ only by the exact reviewed async initial-draw fix.
+          # All other client bytes and the independent camera/drawing math stay fixed.
+          node scripts/validate-review-presentation-change.mjs "$VIDEO_BASELINE_COMMIT" "$GITHUB_SHA" \
+            > work/video-validation/presentation-source-guard.json
+          git diff --exit-code "$VIDEO_BASELINE_COMMIT" HEAD -- app/live/astra app/live/media-input.ts app/live/frame-arrival.ts app/live/stable-landmarker.ts app/projection-matching.ts app/runtime-identity.ts app/face-presentation.ts app/offline-matching.ts app/call-stage.tsx app/studio.module.css app/studio-controls.ts app/live/review-timeline.ts worker build package.json package-lock.json vite.config.ts .openai
           validation_mode="$(node --input-type=module - <<'JS'
           import fs from 'node:fs';
           import {ACCEPTED_BASELINE, validationMode} from './scripts/run-video-validation.mjs';

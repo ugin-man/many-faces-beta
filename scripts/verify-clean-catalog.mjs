@@ -204,14 +204,24 @@ function installCapture() {
     }
   };
   const drawImage = CanvasRenderingContext2D.prototype.drawImage;
+  const imageSources = new WeakMap();
   CanvasRenderingContext2D.prototype.drawImage = function (...args) {
-    if (this.canvas.getAttribute?.('data-testid') === 'output-canvas') {
-      const matrix = this.getTransform();
+    const source = args[0];
+    const sourceImage = source instanceof HTMLImageElement
+      ? {url: source.currentSrc || source.src, width: source.width, height: source.height, naturalWidth: source.naturalWidth, naturalHeight: source.naturalHeight, complete: source.complete}
+      : imageSources.get(source) ?? null;
+    const output = this.canvas.getAttribute?.('data-testid') === 'output-canvas';
+    const matrix = output ? this.getTransform() : null;
+    const result = drawImage.apply(this, args);
+    // The presentation first draws the decoded image to a cached layer canvas.
+    // Preserve that source identity when the layer is drawn to the output.
+    if (sourceImage) imageSources.set(this.canvas, sourceImage); else imageSources.delete(this.canvas);
+    if (output) {
       window.__cleanDrawCount++;
-      window.__cleanDraws.push({matrix: [matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f], args: args.slice(1), at: performance.now()});
+      window.__cleanDraws.push({matrix: [matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f], args: args.slice(1), at: performance.now(), sourceWidth: source.width, sourceHeight: source.height, sourceImage});
       if (window.__cleanDraws.length > 100) window.__cleanDraws.shift();
     }
-    return drawImage.apply(this, args);
+    return result;
   };
 }
 
@@ -221,9 +231,15 @@ async function settle() {
 async function canvasState() {
   return page.evaluate(async () => {
     const canvas = document.querySelector('[data-testid="output-canvas"]');
+    const video = document.querySelector('[data-testid="input-video"]');
+    // Freeze all evidence in the same synchronous turn as the pixel readback.
+    // A later draw during the asynchronous hash must not replace its metadata.
+    const snapshot = {width: canvas.width, height: canvas.height, drawCount: window.__cleanDrawCount,
+      lastDraw: structuredClone(window.__cleanDraws.at(-1)), videoTime: video.currentTime,
+      videoWidth: video.videoWidth, videoHeight: video.videoHeight, paused: video.paused, seeking: video.seeking};
     const pixels = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
     const digest = await crypto.subtle.digest('SHA-256', pixels);
-    return {width: canvas.width, height: canvas.height, pixelHash: Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join(''), drawCount: window.__cleanDrawCount, lastDraw: window.__cleanDraws.at(-1), videoTime: document.querySelector('[data-testid="input-video"]').currentTime};
+    return {...snapshot, pixelHash: Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')};
   });
 }
 async function seek(time) {
@@ -242,10 +258,19 @@ function expectedTransform(choice, aspect, tracked = true) {
   const scale = Math.max(0.5, Math.min(2.5, (th * ay / Math.max(0.01, ch)) * 0.7 + (tw * ax / Math.max(0.01, cw)) * 0.3));
   return {scale, x: (tx - 0.5) * ax - (cx - 0.5) * scale, y: (ty - 0.5) * ay - (cy - 0.5) * scale};
 }
-function assertDrawing(state, transform) {
+function assertDrawing(state, transform, choice) {
   const expected = [transform.scale, 0, 0, transform.scale, state.width * (0.5 + transform.x), state.height * (0.5 + transform.y)];
   assert(state.lastDraw, 'No real canvas draw was observed');
-  expected.forEach((value, i) => assert(Math.abs(state.lastDraw.matrix[i] - value) < 0.0001, `Actual face transform differs at matrix component ${i}`));
+  const evidence = {actual: state.lastDraw.matrix, expected, width: state.width, height: state.height,
+    videoTime: state.videoTime, videoWidth: state.videoWidth, videoHeight: state.videoHeight,
+    drawCount: state.drawCount, sourceImage: state.lastDraw.sourceImage,
+    candidateLayout: choice?.candidateLayout, inputLayout: choice?.inputLayout};
+  expected.forEach((value, i) => assert(Math.abs(state.lastDraw.matrix[i] - value) < 0.0001, `Actual face transform differs at matrix component ${i}: ${JSON.stringify(evidence)}`));
+  if (choice) {
+    const source = state.lastDraw.sourceImage;
+    assert.equal(source?.url, choice.url, 'Canvas drew a different decoded photo from the selected timeline entry');
+    assert(source.naturalWidth > 0 && source.naturalHeight > 0 && source.width > 0 && source.height > 0, 'Drawn photo dimensions are missing');
+  }
 }
 async function selectionSignature() {
   return page.evaluate(() => ({ids: window.__MANY_FACES_VERIFY__?.sequenceIds, fingerprint: window.__MANY_FACES_VERIFY__?.sequenceFingerprint, workerIds: window.__cleanResult?.choices.map(row => row.id), requests: window.__cleanSearchRequests}));
@@ -261,30 +286,40 @@ async function verifyPresentation(trial, choices) {
   const aspect = await page.getByTestId('input-video').evaluate(video => video.videoWidth / video.videoHeight);
   const stimulus = choices.map(choice => ({choice, transform: expectedTransform(choice, aspect)})).sort((a, b) => (Math.abs(b.transform.x) + Math.abs(b.transform.y) + Math.abs(b.transform.scale - 1)) - (Math.abs(a.transform.x) + Math.abs(a.transform.y) + Math.abs(a.transform.scale - 1)))[0];
   check(stimulus && Math.abs(stimulus.transform.x) + Math.abs(stimulus.transform.y) + Math.abs(stimulus.transform.scale - 1) > 0.01, 'The real fixture contains a nontrivial face-tracking stimulus', trial);
-  // Multiple real frame geometries ensure the rendering reads the current input geometry.
   trial.presentation = {sourceAspectRatio: aspect, samples: []};
+  // Observe async completion before a seek/control event can repair a stale draw.
+  await page.waitForFunction(() => {const video = document.querySelector('[data-testid="input-video"]'); return video.paused && !video.seeking && Math.abs(video.currentTime) < 0.005;}, null, {timeout: 15000});
+  await settle();
+  const first = choices[0], initial = await canvasState(), initialExpected = expectedTransform(first, aspect);
+  trial.presentation.initial = {beforeAnySeek: true, id: first.id, time: first.time, url: first.url,
+    candidateLayout: first.candidateLayout, inputLayout: first.inputLayout, expected: initialExpected, ...initial};
+  await screenshot(`${trial.name}-initial.png`);
+  assertDrawing(initial, initialExpected, first);
+  check(true, 'Initial completed canvas has the current face position and size before any seek or display-control redraw', trial);
+  // Multiple real frame geometries ensure the rendering reads the current input geometry.
   for (const fraction of [0, 0.25, 0.5, 0.75, 0.94]) {
     const choice = choices[Math.min(choices.length - 1, Math.floor((choices.length - 1) * fraction))];
     await seek(choice.time);
     const state = await canvasState(), expected = expectedTransform(choice, aspect);
-    assertDrawing(state, expected);
-    trial.presentation.samples.push({id: choice.id, time: choice.time, expected, ...state});
+    trial.presentation.samples.push({id: choice.id, time: choice.time, url: choice.url,
+      candidateLayout: choice.candidateLayout, inputLayout: choice.inputLayout, expected, ...state});
+    assertDrawing(state, expected, choice);
     await screenshot(`${trial.name}-motion-${Math.round(fraction * 100)}.png`);
   }
   await seek(stimulus.choice.time);
-  const normal = await canvasState(); assertDrawing(normal, stimulus.transform);
+  const normal = await canvasState(); assertDrawing(normal, stimulus.transform, stimulus.choice);
   await page.getByTestId('settings').click();
   check(await page.getByTestId('face-tracking-toggle').isChecked(), 'Face tracking starts ON in the actual video UI', trial);
   assert.equal(await page.getByTestId('face-display-mode').inputValue(), 'normal');
   await page.getByTestId('face-tracking-toggle').uncheck(); await settle();
-  const untracked = await canvasState(); assertDrawing(untracked, expectedTransform(stimulus.choice, aspect, false));
+  const untracked = await canvasState(); assertDrawing(untracked, expectedTransform(stimulus.choice, aspect, false), stimulus.choice);
   check(untracked.drawCount > normal.drawCount && untracked.pixelHash !== normal.pixelHash, 'Disabling tracking redraws the same selected photo', trial);
   assert.deepEqual(await selectionSignature(), signature, 'Tracking toggle changed the search/selection');
   await page.getByTestId('face-tracking-toggle').check(); await settle();
-  const tracked = await canvasState(); assertDrawing(tracked, stimulus.transform);
+  const tracked = await canvasState(); assertDrawing(tracked, stimulus.transform, stimulus.choice);
   assert.equal(tracked.pixelHash, normal.pixelHash, 'Restoring tracking did not restore the same frame');
   await page.getByTestId('face-display-mode').selectOption('face'); await settle();
-  const face = await canvasState(); assertDrawing(face, stimulus.transform);
+  const face = await canvasState(); assertDrawing(face, stimulus.transform, stimulus.choice);
   check(face.drawCount > tracked.drawCount && face.pixelHash !== tracked.pixelHash, 'Face-only mode redraws the chosen photo without changing geometry', trial);
   assert.deepEqual(await selectionSignature(), signature, 'Face-only mode changed the search/selection');
   await closeSettings(); await screenshot(`${trial.name}-face-only.png`);
@@ -553,6 +588,7 @@ try {
   report.failures.push(error.stack || String(error));
   if (page && !page.isClosed()) {
     report.failureState = await page.evaluate(() => ({runtime: window.__MANY_FACES_RUNTIME__, video: window.__MANY_FACES_VERIFY__, realtime: window.__MANY_FACES_REALTIME__, text: document.body.innerText.slice(0, 4000)})).catch(() => null);
+    report.failureCanvas = await canvasState().catch(() => null);
     await screenshot('failure.png').catch(() => undefined);
   }
   process.exitCode = 1;

@@ -474,9 +474,13 @@ jobs:
         id: sources
         run: |
           git fetch --no-tags --depth=1 "$GITHUB_WORKSPACE/$QA_ROOT/baseline" "$BASELINE_COMMIT"
+          # The full video client may differ only by the reviewed async initial-draw fix.
+          # The independent position/size mathematics and camera sources remain exact.
+          node scripts/validate-review-presentation-change.mjs "$BASELINE_COMMIT" "$GITHUB_SHA" \
+            > "$QA_ROOT/reports/presentation-source-guard.json"
           git diff --exit-code "$BASELINE_COMMIT" "$GITHUB_SHA" -- \
             app/live/astra app/live/media-input.ts app/live/frame-arrival.ts app/live/stable-landmarker.ts \
-            app/projection-matching.ts app/live/review-client-lite.tsx app/runtime-identity.ts app/face-presentation.ts \
+            app/projection-matching.ts app/runtime-identity.ts app/face-presentation.ts \
             app/offline-matching.ts app/call-stage.tsx app/studio.module.css app/studio-controls.ts \
             app/live/review-timeline.ts worker build package.json package-lock.json vite.config.ts .openai
           test "$(git -C "$QA_ROOT/baseline" rev-parse HEAD)" = "$BASELINE_COMMIT"

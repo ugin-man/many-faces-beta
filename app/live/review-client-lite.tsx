@@ -3,7 +3,7 @@ import RuntimeCheck from "../runtime-check";
 import CallStage, { type StudioClientProps } from "../call-stage";
 import { Icon } from "../studio-icons";
 import { timeLabel } from "../studio-controls";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { FaceLandmarker } from "@mediapipe/tasks-vision";
 import { catalogFeatureFromResult as featureFromResult } from "../catalog-feature";
 import { faceGeometryFromLandmarks, type FaceGeometry, type SequenceFrame } from "../offline-matching";
@@ -271,6 +271,10 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
       setCurrentOutputSource(item.choice.candidate.sourceName || item.choice.candidate.creator || "—"); setCurrentError(item.choice.error);
     }
   }, [clipDuration, faceOnly, faceTracking, sourceAspectRatio]);
+  const drawReviewAtRef = useRef(drawReviewAt);
+  // Processing spans renders that commit video metadata and display controls.
+  // Its completion must use the latest committed draw, even before a seek.
+  useLayoutEffect(() => { drawReviewAtRef.current = drawReviewAt; }, [drawReviewAt]);
   useEffect(() => {
     if (phase === "review") drawReviewAt(playbackTime);
   }, [drawReviewAt, phase, playbackTime]);
@@ -381,7 +385,7 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
       setOutputChanges(changes); setUniqueFaces(selected.length);
       const elapsed = performance.now() - started;
       setProcessingMs(elapsed); setProgress(null); setPlaybackTime(0); setPhase("review"); video.currentTime = 0;
-      await nextPaint(); checkCurrent(); drawReviewAt(0); await nextPaint(); checkCurrent();
+      await nextPaint(); checkCurrent(); drawReviewAtRef.current(0); await nextPaint(); checkCurrent();
       const canvas = outputCanvasRef.current, canvasNonBlank = Boolean(canvas && canvasHasVisiblePixels(canvas));
       const gate = evaluateVerificationGate({ plannedFrames: frameCount, faceFrames: frames.length, sequenceFrames: choices.length, selectedImages: selected.length, imageFailures: failures, outputChanges: changes, canvasNonBlank });
       const nextReport: VerificationReport = {
@@ -405,7 +409,7 @@ export default function VideoReviewClient({ onModeChange }: StudioClientProps = 
       console.error("Fixed-video review failed.", caught);
       setError(caught instanceof Error ? caught.message : "処理に失敗しました"); setPhase("error"); setProgress(null);
     } finally { if (captureAbortRef.current === cancellation) captureAbortRef.current = null; }
-  }, [analysisFps, drawReviewAt, waitUntilPrepared]);
+  }, [analysisFps, waitUntilPrepared]);
 
   const verifyVideoFile = useCallback(async (file: File | null) => {
     if (!file || busy) return;

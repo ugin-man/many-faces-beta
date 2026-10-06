@@ -658,7 +658,7 @@ jobs:
                   require(entry.get(key) == value, 'Wink geometry/address differs from its final core photo')
               require(entry.get('imageSha256') == references[identity]['admissionSha256'], 'Wink photo digest differs')
               profile = entry.get('cleanProfile')
-              require(profile in wink_sides and entry.get('supportSide') == wink_sides[profile]
+              require(profile in wink_sides and entry.get('side') == wink_sides[profile]
                       and entry.get('winkExpressionEvidence') == wink_review.evidence_for(entry['imageSha256'], wink_sides[profile]),
                       'Specialist index contains an unconfirmed or different-side wink')
               wink_ids.add(identity)

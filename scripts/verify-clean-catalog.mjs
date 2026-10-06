@@ -358,6 +358,11 @@ async function trial(name, base, catalog, trialTimeout) {
   context.setDefaultTimeout(15000); context.setDefaultNavigationTimeout(30000);
   await context.addInitScript(installCapture);
   await context.route('**/__clean_catalog_pixel_probe.js', route => route.fulfill({status: 200, contentType: 'text/javascript', body: probeCode}));
+  row.legacyQualityOverlayRequests = [];
+  context.on('request', request => {
+    const url = new URL(request.url());
+    if (url.pathname === '/catalog-quality/v1/exclusions.json') row.legacyQualityOverlayRequests.push(request.url());
+  });
   const shardChecks = [], checkedShards = new Set(), checkedImages = new Set(), shardFailures = [];
   context.on('response', response => {
     const url = new URL(response.url());
@@ -443,6 +448,7 @@ async function trial(name, base, catalog, trialTimeout) {
     assert.equal(wink.indexError, null, 'Candidate wink index failed to load or bind');
     if (wink.requestedFrames > 0) assert.equal(wink.indexedOriginals, row.boundWinkIndex.items, 'Candidate did not load its complete admitted specialist index');
     row.boundWinkIndex.requestedFrames = wink.requestedFrames;
+    assert.equal(row.legacyQualityOverlayRequests.length, 0, 'Admitted candidate requested the legacy runtime exclusion overlay');
   }
   await Promise.all(shardChecks);
   assert.equal(shardFailures.length, 0, shardFailures.join('\n'));
@@ -492,6 +498,7 @@ async function trial(name, base, catalog, trialTimeout) {
   assert.deepEqual(await readJson(base + '/api/catalog/manifest?source=seed', catalog.manifestHash), catalog.manifest, 'Served catalog changed during the trial');
   await Promise.all(shardChecks); assert.equal(shardFailures.length, 0, shardFailures.join('\n'));
   row.downloadedCoreImages = checkedImages.size;
+  if (name === 'candidate') check(row.legacyQualityOverlayRequests.length === 0, 'Admitted candidate made zero legacy runtime exclusion requests during the entire trial', row);
   assert.equal(row.pageErrors.length, 0, row.pageErrors.join('\n'));
   row.runtimeIdentityAndManifestStable = true; row.passed = true;
   await save(name + '-report.json', row);

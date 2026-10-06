@@ -7,6 +7,7 @@ export type DecodedVideoFrame = {
 };
 
 const active = new WeakSet<HTMLVideoElement>();
+const readbackCanvases = new WeakMap<HTMLVideoElement, HTMLCanvasElement>();
 const abortError = () => new DOMException("動画解析を取り消しました", "AbortError");
 
 function abortable<T>(operation: Promise<T>, signal: AbortSignal): Promise<T> {
@@ -25,6 +26,51 @@ function paint(signal: AbortSignal) {
     signal.addEventListener("abort", cancel, { once: true });
     if (signal.aborted) cancel();
   });
+}
+
+function recoverableSnapshotFailure(error: unknown) {
+  const name = error && typeof error === "object" && "name" in error ? String(error.name) : "";
+  return name === "InvalidStateError" || name === "NotSupportedError" || name === "TypeError";
+}
+
+async function snapshotVideoFrame(video: HTMLVideoElement, signal: AbortSignal, positioned: () => boolean): Promise<ImageBitmap> {
+  try {
+    // Keep the normal decoder snapshot at the existing point in the capture
+    // operation. A successful native readback needs no canvas or extra wait.
+    return await createImageBitmap(video);
+  } catch (error) {
+    if (!recoverableSnapshotFailure(error)) throw error;
+    let failure = error;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      // Only a failed canvas readback gets one further paint opportunity.
+      // The existing capture deadline also bounds a suspended paint callback.
+      if (attempt) await paint(signal);
+      if (signal.aborted) throw signal.reason ?? abortError();
+      if (!positioned() || !video.paused) throw new Error("VIDEO_POSITION_CHANGED: 取得中に動画の時刻が変わりました");
+      let canvas = readbackCanvases.get(video);
+      if (!canvas) {
+        canvas = document.createElement("canvas");
+        readbackCanvases.set(video, canvas);
+      }
+      // Unlike the live-camera input helper, fixed-video readback must retain
+      // every source pixel. Never resize the analysis frame to 480 pixels.
+      if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+      }
+      const context = canvas.getContext("2d", { alpha: false });
+      if (!context) throw new Error("VIDEO_CANVAS_UNAVAILABLE: 動画のフレームを読み取るキャンバスを作れませんでした");
+      try {
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        return await createImageBitmap(canvas);
+      } catch (readbackError) {
+        if (!recoverableSnapshotFailure(readbackError)) throw readbackError;
+        failure = readbackError;
+      }
+    }
+    throw failure;
+  }
 }
 
 // Seek and capture form one operation. The presentation callback is armed
@@ -94,7 +140,7 @@ export async function captureVideoFrameAt(
     if (!positioned() || !video.paused) throw new Error("VIDEO_POSITION_CHANGED: 取得中に動画の時刻が変わりました");
     stage = "bitmap";
     const bitmapStartedAt = performance.now();
-    const snapshot = createImageBitmap(video);
+    const snapshot = snapshotVideoFrame(video, signal, positioned);
     void snapshot.then(bitmap => { if (signal.aborted) bitmap.close(); }, () => undefined);
     const bitmap = await abortable(snapshot, signal);
     if (signal.aborted || !positioned() || bitmap.width < 1 || bitmap.height < 1) {

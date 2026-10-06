@@ -6,15 +6,16 @@ import {createHash} from 'node:crypto';
 import {verifyVideoCancellation} from './verify-video-cancellation.mjs';
 const require=createRequire(import.meta.url);
 const {chromium}=require(path.resolve('.browser-tools/node_modules/playwright'));
-const out='work/video-speed';
+const out=process.env.VIDEO_SPEED_REPORT_DIR||'work/video-speed';
 await fs.mkdir(out,{recursive:true});
 const hash=value=>createHash('sha256').update(typeof value==='string'?value:JSON.stringify(value)).digest('hex');
 const fixtureSha256=createHash('sha256').update(await fs.readFile('public/test-fixtures/reference-face-motion.mp4')).digest('hex');
-const report={commit:process.env.GITHUB_SHA,baseline:'7eff666803fa5143e154995fae280453d21ec5f6',catalogFaces:70000,densityFps:20,fixtureSha256,trials:[],sameFrameReplay:[],checks:[],hostedSiteVerified:false,passed:false};
+const report={commit:process.env.GITHUB_SHA,baseline:process.env.VIDEO_BASELINE_COMMIT||'7b6f7f0d42c18e770379bd56577e9608ba2e9f9e',catalogFaces:70000,densityFps:20,fixtureSha256,trials:[],sameFrameReplay:[],checks:[],hostedSiteVerified:false,passed:false};
 const launch=()=>chromium.launch({executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader']});
 let browser,page,inputFrames;
 const scripts={};
 try{
+ assert.equal(fixtureSha256,'d470cf5a8aeb847f9c127ed8f0d567fcadd99e83c185ef60b7a8c9c6236a005b','Use the unchanged complete 23.3-second fixture');
  for(const [index,variant] of ['before','after','after','before'].entries()){
   const base=`http://127.0.0.1:${variant==='before'?4185:4183}`;
   browser=await launch();const context=await browser.newContext({viewport:{width:1280,height:900}});
@@ -27,6 +28,7 @@ try{
           window.__speedInput=structuredClone(message);window.__speedWorkerUrl=this.__speedUrl;
           this.addEventListener('message',event=>{
             if(event.data?.type==='result')window.__speedResult={
+              build:event.data.build,
               metrics:event.data.performanceMetrics||null,
               choices:event.data.choices.map(choice=>({id:choice.candidate.id,time:choice.frame.time,error:choice.error,emission:choice.emission,accepted:choice.accepted,expressionMotion:choice.expressionMotion}))
             };
@@ -41,14 +43,17 @@ try{
   await page.goto(base+'/live',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.__MANY_FACES_RUNTIME__?.phase==='idle',null,{timeout:30000});
   await page.getByTestId('video-input').waitFor({state:'attached'});
+  await page.getByTestId('settings').click();await page.getByTestId('analysis-fps').selectOption('20');await page.getByRole('button',{name:'閉じる',exact:true}).click();
   const started=Date.now();
   await page.getByTestId('video-input').setInputFiles(path.resolve('public/test-fixtures/reference-face-motion.mp4'));
   await page.waitForFunction(()=>window.__MANY_FACES_VERIFY__||window.__MANY_FACES_RUNTIME__?.phase==='error',null,{timeout:480000});
   const wallMs=Date.now()-started;
-  const observed=await page.evaluate(()=>({result:window.__MANY_FACES_VERIFY__,runtime:window.__MANY_FACES_RUNTIME__,search:window.__speedResult,worker:window.__speedWorkerUrl,duration:document.querySelector('[data-testid="input-video"]').duration}));
+  const observed=await page.evaluate(()=>({result:window.__MANY_FACES_VERIFY__,runtime:window.__MANY_FACES_RUNTIME__,search:window.__speedResult,inputBuild:window.__speedInput?.build,worker:window.__speedWorkerUrl,duration:document.querySelector('[data-testid="input-video"]').duration}));
   assert.equal(observed.result?.passed,true,JSON.stringify(observed.runtime));
-  assert.equal(observed.result.plannedFrames,Math.floor(observed.duration*20));assert.ok(observed.duration>23);
+  assert.equal(observed.result.plannedFrames,466);assert.ok(Math.abs(observed.duration-23.3)<0.001);
   assert.equal(observed.result.sequenceFrames,observed.result.faceFrames);assert.equal(observed.result.imageFailures,0);
+  assert.equal(identity.version,'camera-arrival-v3');assert.notEqual(identity.build,'unbundled-source');
+  for(const build of [observed.result.build,observed.runtime.build,observed.inputBuild,observed.search.build])assert.equal(build,identity.build,'Client, server and worker build identities must align');
   assert.equal(errors.length,0,errors.join(';'));
   const frames=await page.evaluate(()=>JSON.stringify(window.__speedInput.frames,(_key,value)=>ArrayBuffer.isView(value)?{__typed:value.constructor.name,data:Array.from(value)}:value));
   if(!inputFrames)inputFrames=frames;
@@ -64,6 +69,15 @@ try{
   }
   await browser.close();browser=null;
  }
+ // The reviewed rejected-bitmap fallback changes acquisition source code.
+ // Require actual acquisition equivalence in addition to the worker replay.
+ assert.equal(new Set(report.trials.map(trial=>trial.framesHash)).size,1,'Every acquired face descriptor and its geometry/timestamp must match across all four old/new trials');
+ assert.equal(new Set(report.trials.map(trial=>trial.choiceHash)).size,1,'Every selected ID, numeric error and sequence decision must match across all four old/new trials');
+ for(const trial of report.trials){
+  for(const key of ['plannedFrames','faceFrames','sequenceFrames','selectedImages','uniqueFaces','outputChanges'])assert.equal(trial[key],report.trials[0][key],`Acquisition/output count changed: ${key}`);
+  assert.deepEqual(trial.searchTraffic,report.trials[0].searchTraffic,'Actual full-video search resources changed');
+ }
+ report.checks.push('all four acquired-frame hashes and complete ID/error/sequence hashes match; frame counts and actual search resources unchanged');
  // Replay the exact same acquired frame arrays through both unedited compiled
  // workers. This separates code equivalence from browser seek/inference noise.
  browser=await launch();const context=await browser.newContext();page=await context.newPage();

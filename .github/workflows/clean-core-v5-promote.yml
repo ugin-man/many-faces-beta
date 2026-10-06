@@ -1,0 +1,730 @@
+name: Promote reviewed Clean Core v5 artifact
+
+# The marker is written only after local admission, video and visual QA.
+# This workflow updates the repository. Existing Site publication is separate.
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths:
+      - data/clean-core-v5-promotion-request.json
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: many-faces-clean-core-v5-promote-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  PROMOTION_BRANCH: astra/realtime-hardening
+  PROMOTION_REQUEST: data/clean-core-v5-promotion-request.json
+  PROMOTION_ROOT: work/clean-v5-promotion
+  ATTRIBUTE_MODEL_SHA256: 1bf7c6453bec2fb28e0830f3a76dceb9ffd020124f87b28da5355940a7bc6e48
+  PYTHONUNBUFFERED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  promote:
+    if: github.repository == 'ugin-man/many-faces-beta' && github.ref == 'refs/heads/astra/realtime-hardening'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Check out the exact promotion request commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          token: ${{ github.token }}
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+      - name: Verify request, candidate QA and successful candidate run
+        id: request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          import subprocess
+          import urllib.parse
+          import urllib.request
+          from pathlib import Path, PurePosixPath
+
+          root = Path.cwd().resolve()
+          work = root / os.environ['PROMOTION_ROOT']
+          evidence = work / 'evidence'
+          evidence.mkdir(parents=True, exist_ok=True)
+          repository = os.environ['GITHUB_REPOSITORY']
+          branch = os.environ['PROMOTION_BRANCH']
+          request_commit = os.environ['GITHUB_SHA']
+
+          def require(condition, message):
+              if not condition:
+                  raise ValueError(message)
+
+          def unique_object(pairs):
+              result = {}
+              for key, value in pairs:
+                  require(key not in result, 'Duplicate JSON key: ' + key)
+                  result[key] = value
+              return result
+
+          def bad_constant(value):
+              raise ValueError('Non-finite JSON value: ' + value)
+
+          def read_json(path):
+              return json.loads(path.read_text(encoding='utf-8'),
+                                object_pairs_hook=unique_object, parse_constant=bad_constant)
+
+          def sha256(path):
+              digest = hashlib.sha256()
+              with path.open('rb') as stream:
+                  for block in iter(lambda: stream.read(1024 * 1024), b''):
+                      digest.update(block)
+              return digest.hexdigest()
+
+          def valid_sha(value, size=64):
+              return isinstance(value, str) and re.fullmatch('[0-9a-f]{' + str(size) + '}', value) is not None
+
+          def tracked_file(value):
+              require(isinstance(value, str) and '\0' not in value, 'Invalid evidence path')
+              relative = PurePosixPath(value)
+              require(not relative.is_absolute() and '..' not in relative.parts
+                      and relative.as_posix() == value and value != '.', 'Unsafe evidence path')
+              path = root / value
+              for parent in (path, *path.parents):
+                  if parent == root:
+                      break
+                  require(not parent.is_symlink(), 'Evidence path contains a symlink')
+              require(path.is_file() and path.resolve().is_relative_to(root), 'Evidence file is missing')
+              subprocess.run(['git', 'ls-files', '--error-unmatch', '--', ':(literal)' + value],
+                             check=True, stdout=subprocess.DEVNULL)
+              return path
+
+          def verify_reference(reference):
+              require(isinstance(reference, dict) and valid_sha(reference.get('sha256')), 'Invalid evidence reference')
+              path = tracked_file(reference.get('path'))
+              require(sha256(path) == reference['sha256'], 'Evidence SHA256 mismatch: ' + reference['path'])
+              return {'path': reference['path'], 'sha256': reference['sha256']}
+
+          def api(path):
+              request = urllib.request.Request(
+                  'https://api.github.com/repos/' + repository + '/' + path,
+                  headers={'Accept': 'application/vnd.github+json',
+                           'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                           'X-GitHub-Api-Version': '2026-03-10',
+                           'User-Agent': 'many-faces-clean-core-v5-promotion'})
+              with urllib.request.urlopen(request, timeout=60) as response:
+                  return json.load(response)
+
+          def ancestor(base, head):
+              require(valid_sha(base, 40) and valid_sha(head, 40), 'Invalid code commit')
+              if base == head:
+                  return
+              comparison = api('compare/' + base + '...' + head)
+              require(comparison.get('merge_base_commit', {}).get('sha') == base
+                      and comparison.get('status') in ('ahead', 'identical'),
+                      'Code commits are not in the required ancestry order')
+
+          require(repository == 'ugin-man/many-faces-beta', 'Unexpected repository')
+          require(os.environ['GITHUB_REF'] == 'refs/heads/' + branch, 'Unexpected branch')
+          require(subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == request_commit,
+                  'Checkout differs from the starting request commit')
+          request_path = tracked_file(os.environ['PROMOTION_REQUEST'])
+          request = read_json(request_path)
+          require(request.get('schemaVersion') == 1 and request.get('repository') == repository
+                  and request.get('targetBranch') == branch, 'Invalid promotion request identity')
+          candidate = request.get('candidate', {})
+          for key in ('runId', 'runAttempt'):
+              require(type(candidate.get(key)) is int and candidate[key] > 0, 'Invalid candidate ' + key)
+          expected_name = f"clean-core-v5-candidate-{candidate['runId']}-{candidate['runAttempt']}"
+          require(candidate.get('artifactName') == expected_name, 'Candidate artifact name is not pinned to its run attempt')
+          for key in ('manifestSha256', 'generationReceiptSha256'):
+              require(valid_sha(candidate.get(key)), 'Missing pinned candidate ' + key)
+          qa_reference = verify_reference(request.get('qa'))
+          require(PurePosixPath(qa_reference['path']).parts[0] == 'data'
+                  and qa_reference['path'].endswith('.json'), 'QA wrapper must be a committed data JSON file')
+          qa = read_json(root / qa_reference['path'])
+          require(qa.get('schemaVersion') == 1 and qa.get('documentKind') == 'clean-core-v5-candidate-qa'
+                  and qa.get('status') == 'passed', 'Candidate QA has not passed')
+          require(qa.get('baselineCommit') == '7b6f7f0d42c18e770379bd56577e9608ba2e9f9e',
+                  'Candidate QA used a different baseline')
+          for key in ('runId', 'runAttempt', 'artifactName', 'manifestSha256', 'generationReceiptSha256'):
+              require(qa.get('candidate', {}).get(key) == candidate[key], 'QA candidate binding differs: ' + key)
+          qa_code = qa.get('candidate', {}).get('codeCommit')
+          require(valid_sha(qa_code, 40), 'QA must name the exact tested application commit')
+          fixed = qa.get('fixedVideo', {})
+          require(fixed.get('status') == 'passed'
+                  and fixed.get('fixtureSha256') == 'd470cf5a8aeb847f9c127ed8f0d567fcadd99e83c185ef60b7a8c9c6236a005b'
+                  and fixed.get('densityFps') == 20 and fixed.get('plannedFrames') == 466
+                  and fixed.get('sameAcquiredFrames') is True and fixed.get('sameTimeline') is True,
+                  'The complete same-input fixed-video QA has not passed')
+          tracking = qa.get('facePositionSizeTracking', {})
+          require(tracking.get('status') == 'passed' and tracking.get('defaultEnabled') is True
+                  and tracking.get('presentationControlsPreserveSelection') is True,
+                  'Face position/size tracking QA has not passed')
+          physical = qa.get('physicalAdmission', {})
+          require(physical.get('status') == 'passed' and physical.get('physicalFaces') == 70000
+                  and physical.get('manifestSha256') == candidate['manifestSha256']
+                  and physical.get('allSelectedPhotosHavePassingAdmission') is True
+                  and physical.get('allFreshMeasurementsMatch') is True,
+                  'Complete physical admission validation has not passed')
+          holdout = qa.get('selectedPhotoHoldout', {})
+          require(holdout.get('status') == 'passed'
+                  and holdout.get('reviewer') == 'assistant visual inspection'
+                  and holdout.get('humanVerified') is False
+                  and type(holdout.get('checkedPhotos')) is int and 0 < holdout['checkedPhotos'] <= 70000,
+                  'Selected-photo visual holdout receipt is missing')
+          require(qa.get('physicalCameraVerified', False) is False, 'This QA must not claim physical-camera verification')
+          references = qa.get('evidence', [])
+          require(isinstance(references, list), 'Optional QA evidence must be an array')
+          verified_references = [verify_reference(reference) for reference in references]
+          require(len({reference['path'] for reference in verified_references}) == len(verified_references),
+                  'Repeated optional QA evidence path')
+          run = api(f"actions/runs/{candidate['runId']}/attempts/{candidate['runAttempt']}")
+          require(run.get('id') == candidate['runId'] and run.get('run_attempt') == candidate['runAttempt'],
+                  'GitHub returned a different candidate run attempt')
+          require(run.get('status') == 'completed' and run.get('conclusion') == 'success',
+                  'The pinned candidate generation attempt did not succeed')
+          require(run.get('repository', {}).get('full_name') == repository
+                  and run.get('head_repository', {}).get('full_name') == repository
+                  and run.get('head_branch') == branch, 'Candidate run came from another repository or branch')
+          require(str(run.get('path', '')).split('@', 1)[0] == '.github/workflows/clean-core-v5-candidate.yml',
+                  'Artifact was not produced by the candidate workflow')
+          generation_code = run.get('head_sha')
+          ancestor(generation_code, qa_code)
+          ancestor(qa_code, request_commit)
+          query = urllib.parse.urlencode({'per_page': 100, 'name': expected_name})
+          listing = api(f"actions/runs/{candidate['runId']}/artifacts?" + query)
+          require(listing.get('total_count', 0) <= 100, 'Artifact response requires explicit pagination')
+          matches = [item for item in listing.get('artifacts', []) if item.get('name') == expected_name]
+          require(len(matches) == 1 and matches[0].get('expired') is False, 'Pinned candidate artifact is missing or ambiguous')
+          artifact = matches[0]
+          require(type(artifact.get('id')) is int and artifact['id'] > 0, 'Invalid artifact identity')
+          origin = artifact.get('workflow_run', {})
+          require(origin.get('id') == candidate['runId'] and origin.get('head_sha') == generation_code
+                  and origin.get('head_branch') == branch
+                  and origin.get('repository_id') == run['repository']['id']
+                  and origin.get('head_repository_id') == run['repository']['id'],
+                  'Artifact origin differs from the successful candidate run')
+          require(api('git/ref/heads/' + branch).get('object', {}).get('sha') == request_commit,
+                  'Branch HEAD changed from the starting request')
+          verified = {
+              'schemaVersion': 1, 'request': request, 'requestSha256': sha256(request_path),
+              'requestCommit': request_commit, 'qa': qa, 'qaReference': qa_reference,
+              'verifiedEvidence': verified_references, 'generationCodeCommit': generation_code,
+              'qaCodeCommit': qa_code, 'artifact': {
+                  key: artifact.get(key) for key in ('id', 'name', 'digest', 'size_in_bytes', 'created_at')
+              },
+          }
+          (work / 'verified-request.json').write_text(json.dumps(verified, indent=2) + '\n', encoding='utf-8')
+          (evidence / 'request.json').write_bytes(request_path.read_bytes())
+          (evidence / 'candidate-qa.json').write_bytes((root / qa_reference['path']).read_bytes())
+          (evidence / 'verified-inputs.json').write_text(json.dumps(verified, indent=2) + '\n', encoding='utf-8')
+          with Path(os.environ['GITHUB_OUTPUT']).open('a', encoding='utf-8') as output:
+              for key, value in {'run_id': candidate['runId'], 'artifact_name': expected_name,
+                                 'artifact_id': artifact['id'], 'qa_code_commit': qa_code}.items():
+                  output.write(f'{key}={value}\n')
+          print(json.dumps({'candidateRunId': candidate['runId'], 'candidateRunAttempt': candidate['runAttempt'],
+                            'artifactId': artifact['id'], 'generationCodeCommit': generation_code,
+                            'qaCodeCommit': qa_code, 'requestCommit': request_commit, 'localQa': 'passed'}))
+          PY
+      - name: Require unchanged application source since candidate QA
+        env:
+          QA_CODE_COMMIT: ${{ steps.request.outputs.qa_code_commit }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$QA_CODE_COMMIT"
+          git diff --exit-code "$QA_CODE_COMMIT" "$GITHUB_SHA" -- \
+            app worker build public scripts package.json package-lock.json vite.config.ts next.config.ts \
+            .openai/hosting.json
+      - name: Download the exact reviewed candidate artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.request.outputs.artifact_name }}
+          run-id: ${{ steps.request.outputs.run_id }}
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          path: work/clean-v5-promotion/candidate
+      - name: Verify downloaded receipts and every physical photo hash
+        id: verify
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          import sqlite3
+          import sys
+          import urllib.request
+          import zlib
+          from collections import Counter, defaultdict
+          from pathlib import Path
+
+          sys.path.insert(0, str(Path('tools').resolve()))
+          from clean_core_admission import AdmissionPolicy, database_metadata, database_summary
+          from clean_core_policy_v3 import classify_assignment, quantized_pose_cell
+
+          work = Path(os.environ['PROMOTION_ROOT'])
+          context = json.loads((work / 'verified-request.json').read_text())
+          pin = context['request']['candidate']
+          artifact = work / 'candidate'
+          catalog = artifact / 'catalog'
+          audit_root = artifact / 'admission'
+          wink_root = artifact / 'wink-support/v1'
+
+          def require(condition, message):
+              if not condition:
+                  raise ValueError(message)
+
+          def unique_object(pairs):
+              result = {}
+              for key, value in pairs:
+                  require(key not in result, 'Duplicate JSON key: ' + key)
+                  result[key] = value
+              return result
+
+          def bad_constant(value):
+              raise ValueError('Non-finite JSON value: ' + value)
+
+          def read_json(path):
+              return json.loads(path.read_text(encoding='utf-8'),
+                                object_pairs_hook=unique_object, parse_constant=bad_constant)
+
+          def sha256(path):
+              digest = hashlib.sha256()
+              with path.open('rb') as stream:
+                  for block in iter(lambda: stream.read(1024 * 1024), b''):
+                      digest.update(block)
+              return digest.hexdigest()
+
+          def child(root, name):
+              require(isinstance(name, str) and re.fullmatch(r'[A-Za-z0-9_.+-]+', name)
+                      and name not in ('.', '..'), 'Unsafe artifact filename')
+              path = root / name
+              require(path.is_file() and not path.is_symlink(), 'Missing artifact file: ' + name)
+              return path
+
+          require(artifact.is_dir(), 'Candidate artifact was not downloaded')
+          for path in artifact.rglob('*'):
+              require(not path.is_symlink(), 'Artifact contains a symlink')
+          metadata_request = urllib.request.Request(
+              'https://api.github.com/repos/' + os.environ['GITHUB_REPOSITORY']
+              + '/actions/artifacts/' + str(context['artifact']['id']),
+              headers={'Accept': 'application/vnd.github+json',
+                       'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                       'X-GitHub-Api-Version': '2026-03-10',
+                       'User-Agent': 'many-faces-clean-core-v5-promotion'})
+          with urllib.request.urlopen(metadata_request, timeout=60) as response:
+              current_artifact = json.load(response)
+          require(current_artifact.get('id') == context['artifact']['id']
+                  and current_artifact.get('name') == pin['artifactName']
+                  and current_artifact.get('expired') is False
+                  and current_artifact.get('digest') == context['artifact']['digest'],
+                  'Pinned artifact identity changed while downloading')
+          generation_path = artifact / 'provenance/candidate-receipt.json'
+          require(sha256(generation_path) == pin['generationReceiptSha256'], 'Generation receipt hash differs from reviewed artifact')
+          generation = read_json(generation_path)
+          require(generation.get('schemaVersion') == 1
+                  and generation.get('artifactPurpose') == 'physical-catalog-candidate-for-review'
+                  and generation.get('workflowRunId') == pin['runId']
+                  and generation.get('workflowRunAttempt') == pin['runAttempt']
+                  and generation.get('builtFromCommit') == context['generationCodeCommit'],
+                  'Generation receipt identity differs from the successful run')
+          require(generation.get('targetTotal') == 70000
+                  and generation.get('visibilityMaxScore') == .05
+                  and generation.get('ffhqSourceCommit') == '9d10fb37a825a5f90e5a3671a9564a1f1e9bef53'
+                  and generation.get('runtimeExclusionOverlayRequired') is False
+                  and generation.get('published') is False, 'Generation receipt is not an unpromoted clean 70k candidate')
+          manifest_path = catalog / 'manifest.json'
+          require(sha256(manifest_path) == pin['manifestSha256'] == generation.get('candidateManifestSha256'),
+                  'Final manifest bytes differ from candidate QA')
+          manifest = read_json(manifest_path)
+          require(all(manifest.get(key) == 70000 for key in ('totalFaces', 'sourceFaces', 'searchableFaces')),
+                  'Final catalog must contain exactly 70000 physical searchable photos')
+          require(manifest.get('poseStep') == 3 and manifest.get('schemaVersion') == 3
+                  and manifest.get('featureLength') == 55 and manifest.get('shardsContainGeometry') is True
+                  and manifest.get('indexFiles') == [], 'Final catalog structure is not the complete pose-local core')
+          stamp = manifest.get('qualityAdmission', {})
+          require(stamp.get('schemaVersion') == 2 and stamp.get('status') == 'complete'
+                  and stamp.get('selectedCount') == 70000 and stamp.get('runtimeExclusionOverlayRequired') is False,
+                  'Final admission stamp is incomplete')
+          admission_path = audit_root / 'candidate-audit.json'
+          require(sha256(admission_path) == generation.get('candidateAuditSha256') == stamp.get('receiptSha256'),
+                  'Candidate audit hash differs from the generation and final manifest')
+          admission = read_json(admission_path)
+          require(admission.get('schemaVersion') == 2 and admission.get('status') == 'complete'
+                  and admission.get('allCandidateRowsAccounted') is True, 'Candidate audit is not complete')
+          policy = AdmissionPolicy.from_document(admission.get('policy', {}))
+          require(policy.visibility_max_score == .05 and policy.sha256 == admission.get('policySha256'),
+                  'Candidate visibility policy differs from the calibrated admission policy')
+          require(admission.get('policySha256') == stamp.get('policySha256')
+                  and admission.get('recordsSha256') == stamp.get('recordsSha256'), 'Final policy/database binding differs')
+          database_path = child(audit_root, admission.get('recordsPath'))
+          require(sha256(database_path) == admission['recordsSha256'],
+                  'Candidate admission database bytes changed')
+          require(sha256(child(audit_root, admission.get('controlsPath'))) == admission.get('controlsSha256'),
+                  'Candidate admission controls changed')
+          controls = read_json(child(audit_root, admission.get('controlsPath')))
+          require(controls.get('reviewedFileSha256') == generation.get('reviewedVisibilitySha256')
+                  and controls.get('priorYawEvidenceSha256') == generation.get('priorYawEvidenceSha256'),
+                  'Generation receipt and admission review/yaw controls disagree')
+          require(admission.get('analysisCodeSha256') == sha256(Path('tools/clean_core_admission.py')),
+                  'Admission analysis code changed after generation')
+          model_hash = os.environ['ATTRIBUTE_MODEL_SHA256']
+          require(generation.get('attributeModelSha256') == model_hash
+                  and admission.get('models', {}).get('attributeSha256') == model_hash
+                  and stamp.get('attributeModelSha256') == model_hash, 'Unexpected face-attribute model')
+          face_hash = sha256(Path('public/mediapipe/face_landmarker.task'))
+          require(generation.get('faceModelSha256') == face_hash
+                  and admission.get('models', {}).get('faceSha256') == face_hash
+                  and stamp.get('faceModelSha256') == face_hash, 'Face model changed after generation')
+          require(sha256(Path('data/catalog-visibility-reviewed.json')) == generation.get('reviewedVisibilitySha256'),
+                  'Reviewed visibility policy changed after generation')
+          require(sha256(Path('public/seed-catalog/manifest.json')) == generation.get('sourceManifestSha256', {}).get('current'),
+                  'Existing source catalog changed before promotion')
+          partitions = admission.get('partitions', [])
+          parts = generation.get('auditPartitions')
+          require(type(parts) is int and parts > 0 and len(partitions) == parts
+                  and {part.get('part') for part in partitions} == set(range(parts)),
+                  'Candidate partition coverage is incomplete')
+          for part in partitions:
+              require(part.get('status') == 'complete' and part.get('parts') == parts
+                      and sha256(child(audit_root, part.get('path'))) == part.get('sha256'),
+                      'Candidate partition evidence changed')
+          require(admission.get('recordCount') == sum(source['expectedRows'] for source in admission.get('sources', []))
+                  and admission.get('recordCount') == sum(part['recordCount'] for part in partitions),
+                  'Candidate source row coverage differs from the completed receipt')
+          validation = read_json(catalog / 'clean-admission-validation.json')
+          require(validation.get('status') == 'passed'
+                  and validation.get('physicalFaces') == 70000 and validation.get('uniqueEncodedImages') == 70000
+                  and validation.get('manifestSha256') == pin['manifestSha256']
+                  and validation.get('qualityAdmission') == stamp
+                  and validation.get('allSelectedPhotosHavePassingAdmission') is True
+                  and validation.get('allFreshMeasurementsMatch') is True
+                  and validation.get('runtimeExclusionOverlayRequired') is False,
+                  'Artifact physical validator receipt is missing or bound to different data')
+          selection = read_json(catalog / 'clean-core-audit.json')
+          require(selection.get('gatePassed') is True and selection.get('selectedFaces') == 70000
+                  and selection.get('knownSyntheticFacesSelected') == 0
+                  and selection.get('runtimeImagePolicy') == 'real-photo-only-v1'
+                  and selection.get('qualityAdmission') == stamp, 'Selection/real-photograph gates did not pass')
+          require(read_json(artifact / 'selection/audit.json') == selection, 'Packaged selection receipts disagree')
+          require(not (catalog / 'images').exists(), 'Final packed core contains extra image assets')
+          ids, image_hashes, source_keys, shard_names = set(), set(), set(), set()
+          ranges = defaultdict(list)
+          profiles, cells = Counter(), Counter()
+          references = {}
+          bytes_total = 0
+          records = sqlite3.connect(database_path.resolve().as_uri() + '?mode=ro', uri=True)
+          metadata = database_metadata(records)
+          for key in ('schemaVersion', 'status', 'policySha256', 'analysisCodeSha256', 'models', 'controlsSha256', 'sources'):
+              require(metadata.get(key) == admission.get(key), 'Admission database metadata differs: ' + key)
+          require(all(admission.get(key) == value for key, value in database_summary(records).items()),
+                  'Admission database source/decision totals differ from its receipt')
+          for cell, descriptor in manifest['cells'].items():
+              count = 0
+              for name in descriptor.get('shards') or [descriptor.get('shard')]:
+                  require(name not in shard_names, 'Repeated final shard')
+                  shard_names.add(name)
+                  shard = read_json(child(catalog / 'shards', name))
+                  require(shard.get('cell') == cell and isinstance(shard.get('items'), list), 'Invalid final shard')
+                  for entry in shard['items']:
+                      identity = entry.get('id')
+                      require(isinstance(identity, str) and identity and identity not in ids, 'Missing or duplicate final ID')
+                      require(not entry.get('image') and entry.get('admissionPolicySha256') == stamp['policySha256'],
+                              'A final photo lacks the current admission policy')
+                      digest = entry.get('admissionSha256')
+                      require(isinstance(digest, str) and re.fullmatch('[0-9a-f]{64}', digest)
+                              and digest not in image_hashes, 'Missing or duplicate admitted encoded photo')
+                      source_key = (entry.get('admissionSourceCatalogId'), entry.get('admissionSourceId'))
+                      require(all(isinstance(value, str) and value and '\0' not in value for value in source_key)
+                              and source_key not in source_keys, 'Missing or repeated admitted source key')
+                      stored_record = records.execute(
+                          'SELECT encoded_sha256,decision,record_sha256,record_z FROM records WHERE source_key=?',
+                          ('\0'.join(source_key),)).fetchone()
+                      require(stored_record is not None and stored_record[0] == digest and stored_record[1] == 'pass',
+                              'A final photo is absent or nonpassing in the bound admission database')
+                      decoder = zlib.decompressobj()
+                      raw_record = decoder.decompress(stored_record[3], 1024 * 1024)
+                      require(decoder.eof and not decoder.unused_data and not decoder.unconsumed_tail
+                              and hashlib.sha256(raw_record).hexdigest() == stored_record[2],
+                              'Invalid compressed admission record')
+                      record = json.loads(raw_record, object_pairs_hook=unique_object, parse_constant=bad_constant)
+                      require(record.get('sourceKey') == '\0'.join(source_key)
+                              and record.get('sourceCatalogId') == source_key[0]
+                              and record.get('sourceId') == source_key[1]
+                              and record.get('decision') == 'pass' and record.get('encodedSha256') == digest
+                              and record.get('policySha256') == stamp['policySha256']
+                              and all(record.get('checks', {}).get(name) == 'pass'
+                                      for name in ('decode', 'face', 'pose', 'visibility', 'detail')),
+                              'Final photo admission checks are incomplete')
+                      for field in ('feature', 'shape', 'mesh', 'projection', 'layout'):
+                          require(entry.get(field) == record.get(field), 'Final geometry differs from admitted evidence: ' + field)
+                      require(record.get('cell') == cell and quantized_pose_cell(record['feature'], 3)[0] == cell,
+                              'Final pose cell differs from admitted evidence')
+                      assignment = classify_assignment(record['feature'], record['projection'])
+                      require(assignment is not None and entry.get('cleanProfile') == assignment[0].name
+                              and entry.get('cleanTier') == assignment[1], 'Final expression assignment differs from fresh features')
+                      offset, length = entry.get('offset'), entry.get('length')
+                      require(type(offset) is int and offset >= 0 and type(length) is int and length > 0,
+                              'Invalid final packed-image range')
+                      pack_path = child(catalog / 'packs', entry.get('pack'))
+                      require(offset + length <= pack_path.stat().st_size <= 8 * 1024 * 1024,
+                              'Packed-image range or pack exceeds the supported physical bounds')
+                      with pack_path.open('rb') as stream:
+                          stream.seek(offset)
+                          payload = stream.read(length)
+                      require(len(payload) == length and hashlib.sha256(payload).hexdigest() == digest,
+                              'Downloaded photo bytes differ from their admitted digest')
+                      require(payload[:4] == b'RIFF' and payload[8:12] == b'WEBP'
+                              and int.from_bytes(payload[4:8], 'little') + 8 == length,
+                              'A final image is not one complete WebP payload')
+                      ids.add(identity)
+                      image_hashes.add(digest)
+                      source_keys.add(source_key)
+                      ranges[entry['pack']].append((offset, offset + length))
+                      profiles[entry.get('cleanProfile')] += 1
+                      cells[cell] += 1
+                      count += 1
+                      bytes_total += length
+                      references[identity] = {key: entry.get(key) for key in (
+                          'pack', 'offset', 'length', 'feature', 'shape', 'mesh', 'projection', 'layout',
+                          'admissionSha256', 'admissionPolicySha256')}
+              require(count == descriptor.get('count'), 'Final pose-cell count differs from its manifest')
+          records.close()
+          require(len(ids) == 70000 and len(image_hashes) == 70000, 'Physical final photo count is not 70000')
+          require({path.name for path in (catalog / 'shards').iterdir()} == shard_names, 'Unreferenced final shard')
+          require({path.name for path in (catalog / 'packs').iterdir()} == set(ranges), 'Unreferenced final pack')
+          for name, spans in ranges.items():
+              end = 0
+              for start, stop in sorted(spans):
+                  require(start == end and stop > start, 'Overlapping or unreferenced final image bytes')
+                  end = stop
+              require(child(catalog / 'packs', name).stat().st_size == end, 'Trailing unreferenced pack bytes')
+          require(bytes_total == validation.get('bytes') and len(ranges) == validation.get('packs')
+                  and len(cells) == validation.get('poseCells')
+                  and dict(profiles) == validation.get('selectedProfiles'), 'Physical receipt counts differ from downloaded data')
+          require({path.name for path in wink_root.iterdir()} == {'catalog.json', 'ATTRIBUTION.html', 'audit.json'}
+                  and all(path.is_file() for path in wink_root.iterdir()), 'Wink support contains extra photo assets')
+          wink_path = wink_root / 'catalog.json'
+          require(sha256(wink_path) == generation.get('winkSupportIndexSha256'), 'Wink index bytes changed after generation')
+          wink = read_json(wink_path)
+          require(wink.get('schemaVersion') == 3 and wink.get('baseCatalogId') == manifest.get('catalogId')
+                  and wink.get('baseCatalogManifestSha256') == pin['manifestSha256']
+                  and wink.get('policySha256') == stamp['policySha256']
+                  and wink.get('originalFaces') == 70000 and wink.get('addedPhotographs') == 0,
+                  'Wink support is not bound exclusively to the final core')
+          wink_ids = set()
+          for entry in wink.get('items', []):
+              identity = entry.get('id')
+              require(identity in references and identity not in wink_ids and entry.get('supportKind') == 'core-refresh'
+                      and not entry.get('image'), 'Wink support references an external/repeated photo')
+              for key, value in references[identity].items():
+                  require(entry.get(key) == value, 'Wink geometry/address differs from its final core photo')
+              require(entry.get('imageSha256') == references[identity]['admissionSha256'], 'Wink photo digest differs')
+              wink_ids.add(identity)
+          result = {'schemaVersion': 1, 'status': 'passed', 'physicalFaces': len(ids),
+                    'uniqueEncodedImages': len(image_hashes), 'bytes': bytes_total, 'poseCells': len(cells),
+                    'manifestSha256': pin['manifestSha256'], 'winkIndexSha256': sha256(wink_path),
+                    'winkCoreReferences': len(wink_ids), 'externalWinkAssets': 0,
+                    'candidateArtifactId': context['artifact']['id'], 'physicalCameraVerified': False,
+                    'sitePublished': False}
+          (work / 'evidence/download-validation.json').write_text(json.dumps(result, indent=2) + '\n')
+          (work / 'evidence/generation-receipt.json').write_bytes(generation_path.read_bytes())
+          (work / 'evidence/physical-admission-receipt.json').write_bytes((catalog / 'clean-admission-validation.json').read_bytes())
+          print(json.dumps(result))
+          PY
+      - name: Stage only the final core, bound wink index and minimal provenance
+        id: staged
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import shutil
+          from pathlib import Path
+
+          work = Path(os.environ['PROMOTION_ROOT'])
+          context = json.loads((work / 'verified-request.json').read_text())
+          for source, target in ((work / 'candidate/catalog', Path('public/seed-catalog')),
+                                 (work / 'candidate/wink-support/v1', Path('public/wink-support/v1'))):
+              if any(path.is_symlink() for path in (target, *target.parents)):
+                  raise ValueError('Promotion target must not contain a symlink')
+              if target.exists():
+                  shutil.rmtree(target)
+              shutil.copytree(source, target)
+          receipt = {
+              'schemaVersion': 1, 'documentKind': 'clean-core-v5-repository-promotion',
+              'repository': os.environ['GITHUB_REPOSITORY'], 'targetBranch': os.environ['PROMOTION_BRANCH'],
+              'requestCommit': context['requestCommit'], 'requestSha256': context['requestSha256'],
+              'generationCodeCommit': context['generationCodeCommit'], 'localQaCodeCommit': context['qaCodeCommit'],
+              'candidate': context['request']['candidate'], 'artifactId': context['artifact']['id'],
+              'localQa': context['qaReference'], 'localQaStatus': 'passed',
+              'selectedPhotoHoldout': context['qa']['selectedPhotoHoldout'],
+              'workflowRunId': int(os.environ['GITHUB_RUN_ID']),
+              'workflowRunAttempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'ciEvidenceArtifact': 'clean-core-v5-promotion-checks-' + os.environ['GITHUB_RUN_ID'] + '-' + os.environ['GITHUB_RUN_ATTEMPT'],
+              'physicalFaces': 70000, 'runtimeExclusionOverlayRequired': False,
+              'sitePublished': False, 'physicalCameraVerified': False,
+          }
+          Path('public/seed-catalog/clean-core-promotion.json').write_text(
+              json.dumps(receipt, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+          git add -A -- public/seed-catalog public/wink-support/v1
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          paths = subprocess.check_output(['git', 'diff', '--cached', '--name-only', '-z']).decode().split('\0')
+          paths = [path for path in paths if path]
+          if not paths or any(not path.startswith(('public/seed-catalog/', 'public/wink-support/v1/')) for path in paths):
+              raise ValueError('Promotion staged changes outside the two allowed public directories')
+          tree = subprocess.check_output(['git', 'write-tree'], text=True).strip()
+          receipt = {'requestCommit': os.environ['GITHUB_SHA'], 'testedTreeSha': tree,
+                     'changedFiles': len(paths), 'changedPaths': paths,
+                     'testsUseStagedCatalog': True, 'sitePublished': False}
+          Path(os.environ['PROMOTION_ROOT'], 'evidence/tested-tree.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          with Path(os.environ['GITHUB_OUTPUT']).open('a') as output:
+              output.write('tree_sha=' + tree + '\n')
+          print(json.dumps({key: value for key, value in receipt.items() if key != 'changedPaths'}))
+          PY
+      - name: Install locked application dependencies
+        id: install
+        run: npm ci 2>&1 | tee "$PROMOTION_ROOT/evidence/npm-ci.log"
+      - name: Run full application tests against the staged catalog
+        id: test
+        run: npm test 2>&1 | tee "$PROMOTION_ROOT/evidence/npm-test.log"
+      - name: Run application lint
+        id: lint
+        run: npm run lint 2>&1 | tee "$PROMOTION_ROOT/evidence/npm-lint.log"
+      - name: Build and validate the final deployable application artifact
+        id: build
+        run: npm run build 2>&1 | tee "$PROMOTION_ROOT/evidence/npm-build.log"
+      - name: Run the Python tool CI checks
+        id: python
+        env:
+          PYTHONPYCACHEPREFIX: ${{ runner.temp }}/clean-core-v5-pycache
+        run: |
+          python -m pip install --disable-pip-version-check -r tools/requirements-clean-admission.txt \
+            2>&1 | tee "$PROMOTION_ROOT/evidence/python-install.log"
+          python -m compileall -q tools
+          python -m unittest discover -s tests -p 'test_*.py' \
+            2>&1 | tee "$PROMOTION_ROOT/evidence/python-tests.log"
+      - name: Check final catalog structure after application tests
+        id: structure
+        run: |
+          node tools/validate_face_catalog.mjs public/seed-catalog \
+            | tee "$PROMOTION_ROOT/evidence/catalog-validation.json"
+      - name: Recheck the bound wink index against the staged core
+        id: wink
+        run: |
+          node --experimental-strip-types scripts/rebuild-clean-wink-support.mjs \
+            public/seed-catalog "$PROMOTION_ROOT/rebuilt-wink-support" \
+            | tee "$PROMOTION_ROOT/evidence/wink-validation.json"
+          cmp public/wink-support/v1/catalog.json "$PROMOTION_ROOT/rebuilt-wink-support/catalog.json"
+          cmp public/wink-support/v1/ATTRIBUTION.html "$PROMOTION_ROOT/rebuilt-wink-support/ATTRIBUTION.html"
+      - name: Commit and push the exact tested tree if branch HEAD is unchanged
+        id: commit
+        env:
+          TESTED_TREE_SHA: ${{ steps.staged.outputs.tree_sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git write-tree)" = "$TESTED_TREE_SHA"
+          git diff --exit-code
+          remote_head=$(git ls-remote --exit-code origin "refs/heads/$PROMOTION_BRANCH" | awk '{print $1}')
+          test "$remote_head" = "$GITHUB_SHA"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(dataset): promote reviewed clean 70k catalog"
+          promoted_commit=$(git rev-parse HEAD)
+          test "$(git rev-parse HEAD^)" = "$GITHUB_SHA"
+          test "$(git rev-parse 'HEAD^{tree}')" = "$TESTED_TREE_SHA"
+          remote_head=$(git ls-remote --exit-code origin "refs/heads/$PROMOTION_BRANCH" | awk '{print $1}')
+          test "$remote_head" = "$GITHUB_SHA"
+          if ! git -c http.version=HTTP/1.1 push origin "HEAD:refs/heads/$PROMOTION_BRANCH"; then
+            remote_head=$(git ls-remote --exit-code origin "refs/heads/$PROMOTION_BRANCH" | awk '{print $1}')
+            test "$remote_head" = "$promoted_commit"
+          fi
+          remote_head=$(git ls-remote --exit-code origin "refs/heads/$PROMOTION_BRANCH" | awk '{print $1}')
+          test "$remote_head" = "$promoted_commit"
+          echo "commit_sha=$promoted_commit" >> "$GITHUB_OUTPUT"
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+      - name: Record actual check outcomes and commit identities
+        if: always()
+        env:
+          REQUEST_OUTCOME: ${{ steps.request.outcome }}
+          VERIFY_OUTCOME: ${{ steps.verify.outcome }}
+          INSTALL_OUTCOME: ${{ steps.install.outcome }}
+          TEST_OUTCOME: ${{ steps.test.outcome }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          PYTHON_OUTCOME: ${{ steps.python.outcome }}
+          STRUCTURE_OUTCOME: ${{ steps.structure.outcome }}
+          WINK_OUTCOME: ${{ steps.wink.outcome }}
+          COMMIT_OUTCOME: ${{ steps.commit.outcome }}
+          TESTED_TREE_SHA: ${{ steps.staged.outputs.tree_sha }}
+          PROMOTED_COMMIT: ${{ steps.commit.outputs.commit_sha }}
+          PUSHED: ${{ steps.commit.outputs.pushed }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          evidence = Path(os.environ['PROMOTION_ROOT'], 'evidence')
+          evidence.mkdir(parents=True, exist_ok=True)
+          names = ('request', 'verify', 'install', 'test', 'lint', 'build', 'python', 'structure', 'wink', 'commit')
+          outcomes = {name: os.environ.get(name.upper() + '_OUTCOME', '') for name in names}
+          checks_passed = all(outcomes[name] == 'success' for name in (
+              'install', 'test', 'lint', 'build', 'python', 'structure', 'wink'))
+          tests_started = outcomes['test'] in ('success', 'failure', 'cancelled')
+          pushed = os.environ.get('PUSHED') == 'true'
+          receipt = {
+              'schemaVersion': 1, 'workflowRunId': int(os.environ['GITHUB_RUN_ID']),
+              'workflowRunAttempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'requestCommit': os.environ['GITHUB_SHA'],
+              'testedCodeCommit': os.environ['GITHUB_SHA'] if tests_started else None,
+              'testedTreeSha': os.environ.get('TESTED_TREE_SHA') or None,
+              'promotedCommit': os.environ.get('PROMOTED_COMMIT') or None,
+              'pushed': pushed,
+              'outcomes': outcomes, 'passed': pushed and all(value == 'success' for value in outcomes.values()),
+              'testsRanBeforeCommitOnExactStagedTree': checks_passed and bool(os.environ.get('TESTED_TREE_SHA')),
+              'normalPushCiAutomaticallyTriggered': False,
+              'sitePublished': False, 'physicalCameraVerified': False,
+          }
+          (evidence / 'checks.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          print(json.dumps(receipt, indent=2))
+          PY
+      - name: Retain independent CI and promotion evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-promotion-checks-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-promotion/evidence/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Retain the tested application build without publishing it
+        uses: actions/upload-artifact@v4
+        if: steps.commit.outputs.pushed == 'true'
+        with:
+          name: clean-core-v5-promoted-build-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist/
+          include-hidden-files: true
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14

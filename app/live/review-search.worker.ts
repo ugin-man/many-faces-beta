@@ -10,7 +10,7 @@ import { createReviewYield, ReviewWindowCache } from "./review-work-cache";
 import { winkEvidence } from "./wink-evidence";
 import { parseWinkSupport, rankWinkSupport, WINK_SUPPORT_MAX_BYTES, type WinkSupportCandidate } from "./wink-support";
 import type { SearchProgress } from "./review-search";
-import { parseCatalogQualityOverlay, qualityAllows } from "./catalog-quality";
+import { parseCatalogQualityOverlay, qualityAllows, shouldReadLegacyQualityOverlay } from "./catalog-quality";
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 
 scope.onmessage = (event: MessageEvent<{ frames: SequenceFrame[]; origin: string; build: string }>) => {
@@ -39,11 +39,13 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
     const manifest = JSON.parse(new TextDecoder().decode(manifestBytes)) as ReviewCatalogManifest & { catalogId?: string; totalFaces?: number; searchableFaces?: number; qualityAdmission?: unknown };
     if (!manifest.cells || Number(manifest.searchableFaces ?? manifest.totalFaces) !== 70000) throw new Error("CATALOG_INVALID: 7万枚のカタログを確認できません。Siteの配信データを確認してください。");
     let qualityExclusions = new Map();
-    try {
-      const qualityPayload = await readAssetJson<unknown>(new URL("/catalog-quality/v1/exclusions.json", origin).href, { idleMs: 3000, maxMs: 6000, maxBytes: 2 * 1024 * 1024 });
-      qualityExclusions = parseCatalogQualityOverlay(qualityPayload);
-    } catch {
-      // Optional until a reviewed quality overlay is published.
+    if (shouldReadLegacyQualityOverlay(manifest.qualityAdmission)) {
+      try {
+        const qualityPayload = await readAssetJson<unknown>(new URL("/catalog-quality/v1/exclusions.json", origin).href, { idleMs: 3000, maxMs: 6000, maxBytes: 2 * 1024 * 1024 });
+        qualityExclusions = parseCatalogQualityOverlay(qualityPayload);
+      } catch {
+        // Legacy catalogs can use a reviewed overlay during migration.
+      }
     }
     winkMetrics.requestedFrames = frames.filter(frame => winkEvidence(frame.feature, frame.geometry.projection)).length;
     if (winkMetrics.requestedFrames) {

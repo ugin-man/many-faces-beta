@@ -9,7 +9,8 @@ test('invalid timestamp and cancellation reject before using video APIs',async()
 });
 test('decoded acquisition retains barriers and the error deadline, without a speculative 100 ms timer',async()=>{
  const source=await readFile(new URL('../app/live/video-frame.ts',import.meta.url),'utf8');
- assert.equal((source.match(/await paint\(signal\)/g)||[]).length,2);
+ const normalCapture=source.slice(source.indexOf('export async function captureVideoFrameAt'));
+ assert.equal((normalCapture.match(/await paint\(signal\)/g)||[]).length,2);
  assert.doesNotMatch(source,/setTimeout\(resolve, 100\)/);
  assert.match(source,/VIDEO_FRAME_TIMEOUT/);assert.match(source,/video.currentSrc === source/);
  assert.match(source,/signal.aborted \|\| !positioned\(\)/);assert.match(source,/timingsMs/);

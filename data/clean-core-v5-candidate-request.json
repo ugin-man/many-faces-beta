@@ -14,9 +14,9 @@
   "sitePublication": false,
   "postSelectionVisualReview": "pending",
   "fixedVideoVerification": "pending",
-  "attempt": 8,
-  "previousRun": 37491677036,
-  "previousRunStatus": "Generated and physically validated exactly 70000 images. A new independent 360-image review found 27 definite defects and 32 uncertain visibility/readability cases. Browser QA stopped at the frozen old baseline initial drawing failure; candidate browser checks did not execute.",
+  "attempt": 9,
+  "previousRun": 37504332182,
+  "previousRunStatus": "Generated and physically validated exactly 70000 images. Native QA prepared the complete fixed-c92-to-6ab difference: 59 added, 59 removed, 69941 retained. All 59 added originals were reviewed; the merged result is 49 pass, 5 definite defects and 5 uncertain cases after the explicit H011 adjudication. QA run 37508460953 failed the baseline step-forward presentation check in its browser stage; the full fixed-video and candidate browser comparison is not claimed complete.",
   "nativeRuntimeDependency": [
     "libgles2",
     "libegl1"
@@ -38,14 +38,14 @@
   },
   "selectionReview": {
     "path": "data/catalog-selection-reviewed.json",
-    "sha256": "fe6444a7e54bae14eb3a82fa16b87823f63687ff0d37f45957262e3cdc065416",
+    "sha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff",
     "previous": {
-      "path": "data/catalog-selection-reviewed-c92fba3.json",
-      "sha256": "da2b294442ed56c87db3362885e5765e909809ebdb95b1a25ae9bdd8d7618c77"
+      "path": "data/catalog-selection-reviewed-6ab3c0d.json",
+      "sha256": "fe6444a7e54bae14eb3a82fa16b87823f63687ff0d37f45957262e3cdc065416"
     }
   },
   "previousDiagnosticRun": 37477676654,
-  "reason": "Preserve the original complete admission audit, its general models/thresholds, unchanged expression and pose classification, and all 71 corroborated wink confirmations. Preserve all prior 187 exact denials and add 59 exact-image pre-selection exclusions: 27 confirmed defects and 32 uncertain cases kept as uncertain. Replenish every withheld slot before packing exactly 70000 physical photographs. Keep the independent second holdout failed. Compare every final encoded image against the evaluated candidate and require original-image quality approval for the complete added set, without resampling or treating it as a new independent holdout. Final same-input video and strict candidate initial face-position/size checks remain required before promotion.",
+  "reason": "Preserve the original complete admission audit, source pool, models, visibility threshold, expression/pose classification and all 71 corroborated wink confirmations. Preserve all previous 246 exclusion rows exactly and append 10 exact-image pre-selection exclusions from the complete 59-image refill-original census: 5 confirmed defects and 5 conservatively quarantined uncertain cases. Keep the original failed 360-image evaluation and the failed 59-image remediation review unchanged; H011 remains uncertain in the adjudicated result, with its source review preserved. Replenish every withheld slot to exactly 70000 photographs. Continue comparing every final encoded image against the fixed c92 candidate, require full original-image quality approval for every resulting addition, and reuse earlier original passes only through exact image/source/review bindings. Do not resample to obtain a passing result or claim a new independent holdout. Same-input fixed-video and strict candidate face-position/size tracking checks remain mandatory before promotion.",
   "winkReview": {
     "path": "data/catalog-wink-expression-reviewed.json",
     "sha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f"
@@ -94,8 +94,10 @@
       "sha256": "86940bca54588386bdd67efcece5bf3523ad5aa7b9cbc84179935bfd3a80c3ed"
     },
     "ofiq": {
-      "status": "reference-diagnostic-in-progress",
-      "automaticallyAdoptedAsGate": false
+      "status": "completed-diagnostic-only",
+      "automaticallyAdoptedAsGate": false,
+      "path": "data/catalog-quality/ofiq-diagnostic-20261006.json",
+      "sha256": "606cf31ec800a29c0f23927a715c037caf80bcbb721e6a8b4d468e4ae2faced0"
     },
     "reason": "Existing admission, models, general quality thresholds and expression/pose classification remain unchanged. Diagnostic scores are not reliable enough to justify another automatic rejection gate. Apply the exact reviewed denials before selection and review every actual replenishment image."
   },
@@ -114,6 +116,46 @@
     "generalAdmissionPolicyMustRemainUnchanged": true,
     "allAddedEncodedImagesRequireOriginalQualityReview": true,
     "independentFinalHoldoutClaim": false,
-    "status": "pending-generation-and-complete-replenishment-review"
+    "status": "pending-refill-generation-and-complete-added-image-review",
+    "latestFailedReplenishmentReview": {
+      "path": "data/catalog-quality/remediation-original-review-37508460953.json",
+      "sha256": "9ebc3c2286a64caacdf65c8c7b6a9d2afc6e317b632bf91d2b535f8253a33936",
+      "qaRunId": 37508460953,
+      "candidateRunId": 37504332182,
+      "remediationIndex": {
+        "path": "data/catalog-quality/remediation-index-37508460953.json",
+        "sha256": "41fabd829cfe49bf07378f641a3d01ca151298b6ec92f2617565c7da0075afff"
+      },
+      "checkedOriginalPhotos": 59,
+      "counts": {
+        "pass": 49,
+        "deny": 5,
+        "uncertain": 5
+      },
+      "confirmedDefects": 5,
+      "uncertainVisibilityOrReadability": 5,
+      "status": "failed-requires-preselection-remediation",
+      "independentHoldoutPassed": false
+    }
+  },
+  "failedReplenishmentOriginalReview": {
+    "path": "data/catalog-quality/remediation-original-review-37508460953.json",
+    "sha256": "9ebc3c2286a64caacdf65c8c7b6a9d2afc6e317b632bf91d2b535f8253a33936",
+    "qaRunId": 37508460953,
+    "candidateRunId": 37504332182,
+    "remediationIndex": {
+      "path": "data/catalog-quality/remediation-index-37508460953.json",
+      "sha256": "41fabd829cfe49bf07378f641a3d01ca151298b6ec92f2617565c7da0075afff"
+    },
+    "checkedOriginalPhotos": 59,
+    "counts": {
+      "pass": 49,
+      "deny": 5,
+      "uncertain": 5
+    },
+    "confirmedDefects": 5,
+    "uncertainVisibilityOrReadability": 5,
+    "status": "failed-requires-preselection-remediation",
+    "independentHoldoutPassed": false
   }
 }

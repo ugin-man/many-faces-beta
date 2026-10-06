@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-remediation-image-review",
+  "scope": "full-original-image-quality",
+  "remediationIndexSha256": "41fabd829cfe49bf07378f641a3d01ca151298b6ec92f2617565c7da0075afff",
+  "finalManifestSha256": "43d7731b9fda6d94a381425b2722fd289adcdc9fe5258504ab3bedf517cf9a76",
+  "reviewer": "assistant-visual-review",
+  "humanVerified": false,
+  "sourceQaRunId": 37508460953,
+  "reviewedOn": "2026-10-06",
+  "reviews": [
+    {
+      "sample": "H041",
+      "encodedSha256": "d7b9553050689bce56552d5b32b8e23cb58a999130a71d2321ce8e714ca90e8c",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-69671",
+      "recordSha256": "224ed7117dc5fa2a9e837f2e3ce1ba92fabaaddb845dfb31b641601db02b8b45",
+      "decision": "pass",
+      "reason": "実写の顔で、両眼・眉・鼻と歯を見せた口の輪郭が読める。軽い柔らかさはあるが表情領域を隠す物体はない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H042",
+      "encodedSha256": "d92da95539a422c96bd47b6040179a1e064c719ab9c17149b98c39590cd69923",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-18032",
+      "recordSha256": "01459d4fd001c2fccad09f59343bdee5b5714128d9733bb569cc56164bff5fa0",
+      "decision": "pass",
+      "reason": "前景の別の人物の髪は右下の頬・顎側に重なるが、対象顔の両眼・眉・鼻・唇と左右の口角は見えている。原画を再確認し、表情領域の遮蔽には当たらないと判断した。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H043",
+      "encodedSha256": "d982dd2ba682c228f847d03787597f73d442a95a65bc30bcef12ad941534fb79",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-63651",
+      "recordSha256": "3cc16466281d53efaba113edbad4d9289166e6df4a247bda2405bfdc86c37c52",
+      "decision": "pass",
+      "reason": "正面に近い実写顔で、両眼・眉・鼻と閉じた唇の輪郭を読める。サングラスや顔を覆う物体はない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H044",
+      "encodedSha256": "d9cec2d66f32160398a4c1412d2a896304343a23684590bc14aac39f2289521c",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-50714",
+      "recordSha256": "b13c5eddd135458c900275679b59ed9d16af7e5f30fb53ed3ff71eb700e8d038",
+      "decision": "pass",
+      "reason": "眼・眉・鼻・笑顔の唇と歯が見える実写。前景の手すりは顔より下にあり表情領域を覆っていない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H045",
+      "encodedSha256": "dd4bb3cd1ef7eb9cb0ab7d90a1e3fb1b9046171e0ddeddd87bfb90197cb326c4",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-62753",
+      "recordSha256": "26cba817ec9b85e80adc3a14ab136f5ef6cdcee9a86f3d454bcea1588d152919",
+      "decision": "pass",
+      "reason": "普通の透明眼鏡越しに両眼を読み取れ、眉と笑顔の唇・歯も見える。眼鏡の存在だけを除外理由にしない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H046",
+      "encodedSha256": "dd90672ed00f04fcb54aa73b2e192b8c3833b5c74be628b66a0db73203419d89",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-45078",
+      "recordSha256": "b361d388ca1e7d5d5891530bbe2610b0531d21d8fe9e212f98145a2f52e68f94",
+      "decision": "pass",
+      "reason": "帽子は額より上にあり両眼・眉・鼻・唇を覆っていない。実写の細部と表情を読み取れる。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H047",
+      "encodedSha256": "deb1761b1d13e0da2f098ddc8cdfbf1dd3653d4c3a77461f819277eec958ea3a",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-1302",
+      "recordSha256": "29788f8fa3edb511ea7a165adc2918cc93a8a09a475ef7d52cc52ee4dd04c38f",
+      "decision": "pass",
+      "reason": "両眼と眉、鼻、笑顔の唇・歯が見える。髪は顔の外側にあり主要な表情領域を隠していない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H048",
+      "encodedSha256": "dec08126ae923fa7039bae8fed1bbe7feef2a6f475689de4d10c0d0f4e7ee250",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-4154",
+      "recordSha256": "d03a34b5969f3d6ea27493b8ccdf6bdc847a9f80723538e6213cd212957edeb7",
+      "decision": "pass",
+      "reason": "実写で両眼・眉と歯を見せた開いた口が明瞭。別の人の手は肩にあり、顔の表情領域を覆っていない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H049",
+      "encodedSha256": "e190a4ec831b6fa839f1ed235b0385d825cc5aad94f711e41be86c255760c113",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-43550",
+      "recordSha256": "138d59495d124c3bf5984dd6bd7ea6c0d204e8a69ef311efdc03a9a3720ad43a",
+      "decision": "pass",
+      "reason": "両眼・眉・鼻と笑顔の唇・歯が明瞭な実写顔。表情を隠す物体は見当たらない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H050",
+      "encodedSha256": "e1adbaa465b35befdfb23b2a80ff1c4dc111317dafc549aab4c5d6b243074ba1",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-61262",
+      "recordSha256": "dab587433ee603def16f795c907464cf01413123f03a771078118c6ad2c9b9fb",
+      "decision": "deny",
+      "reason": "ピンク色の漫画風の口の小道具が実際の口と唇を覆っている。顔ペイントではなく外部の口形の遮蔽物であり、元の口の表情を読めない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H051",
+      "encodedSha256": "e1d2db0f2a7326d4b5fb0e7ec4a375036dc28f838620d2d9424908b80c093eda",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-1333",
+      "recordSha256": "c034e712eb73271f8f384fb41f6df5b915444795d4dd376d14b439a3cf905920",
+      "decision": "pass",
+      "reason": "普通の透明眼鏡越しに眼と眉を読み取れ、鼻と閉じた笑顔の口も見える。多少の粒状感はあるが表情の輪郭は残っている。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H052",
+      "encodedSha256": "e4fee5fe159739c78f099ef1422954fdc95778f8bafc81b629f060c7be00a575",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-65215",
+      "recordSha256": "1dbe21d1eaaae6e7863367bc118ec82b7dc6aa329c7c8c2b1721ad555ed8c0bd",
+      "decision": "pass",
+      "reason": "顔の横の指は外側の頬に接しているが、両眼・眉・鼻・唇と口角を覆っていない。実写の表情を読み取れる。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H053",
+      "encodedSha256": "e556d953eef3397a80c2b18c52d28a504e4a4b873af044912d59a7018fda9563",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-23900",
+      "recordSha256": "6c711f310ec56ec5173da0d1c2050b9d83de657c4b78b453c2a8f15eabb2cac4",
+      "decision": "pass",
+      "reason": "両眼・眉・鼻と笑顔の唇・歯を読み取れる実写。化粧や口紅は表情領域を隠しておらず、除外理由にしていない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H054",
+      "encodedSha256": "e73ea368c7c190d00ed0399f9dfaaf44a670ea23410b51044e80f9c4cd50b8e9",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-53786",
+      "recordSha256": "7d81422fa676c1b2e605cece4899a78dfdfddbe08474013af51d7a1f69ec1efd",
+      "decision": "pass",
+      "reason": "前景の頭は顎より下側にあり、対象顔の両眼・眉・鼻・口角と開いた口は見える。表情領域を隠す遮蔽物はない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H055",
+      "encodedSha256": "e996bd8443291fedd8f3f1ad603c5e5b45dd72cc994b038e72362548bedad6d6",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-63666",
+      "recordSha256": "fa5e0f2aa18855bea894cfaf3aeec50831f44767de3546ccd435c67ef5445569",
+      "decision": "uncertain",
+      "reason": "厚い前髪が両眉の大部分に掛かり、眉全体の輪郭や挙上状態を十分に読み取れない。眼と口は見えるが、眉領域の可読性を確定できず保留。赤い髪、染色、ウィッグ自体は除外理由にしていない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H056",
+      "encodedSha256": "eeb76437310676b26d8ea4ba4ac22e669332e5b509a094d5cb85320b67064ed2",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-51833",
+      "recordSha256": "8703e1de5460a6f5760b78d966b6a83e839bfd29bbcefe9449e6241fe076931c",
+      "decision": "pass",
+      "reason": "実写で透明眼鏡越しの眼、眉、鼻、開いた口の輪郭を読める。軽い柔らかさと反射はあるが、表情領域全体を隠す暗いレンズや物体とは認めない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H057",
+      "encodedSha256": "efbe023287e1b88558d165833b79c788a90f59305da615100ee84fe5395d200e",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-57970",
+      "recordSha256": "259d9bda1120961c52fec27a7c84373d35d91f963c3ea10166d942b0759eecde",
+      "decision": "pass",
+      "reason": "照明にむらはあるが両眼と眉、笑顔の唇・歯を読み取れる実写。ひげは自然な顔の特徴であり外部の遮蔽物ではない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H058",
+      "encodedSha256": "f9e3f3f2c8273e2587adf3eb389d58612cadf540541c7c0ccad8faf63e5fc870",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-16402",
+      "recordSha256": "0eaf6ba661013010bd8af8abdf9c7d84a532b532fdb96fe65def8026706ca778",
+      "decision": "pass",
+      "reason": "顔に陰影はあるが両眼・眉・鼻と笑顔の唇・口角を読み取れる。髪は眼や口を覆っていない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H059",
+      "encodedSha256": "fd40e8ab30e682349277eff3897ddb2a478f513c6a5051cce8513322cf59a87e",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-6786",
+      "recordSha256": "2a934d38c5d60fa57eaf713a9a3459fd1a9ff5da139bc4a282cea2d258317680",
+      "decision": "pass",
+      "reason": "両眼・眉・鼻と笑顔の唇・歯が見える実写。軽い柔らかさはあるが表情の輪郭が残り、遮蔽物も見当たらない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    }
+  ],
+  "additionalOriginalInspection": {
+    "H042": {
+      "secondAssistantReviewAgreed": true,
+      "decision": "pass"
+    },
+    "H055": {
+      "secondAssistantReviewAgreed": true,
+      "decision": "uncertain"
+    }
+  }
+}

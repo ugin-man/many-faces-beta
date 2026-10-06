@@ -243,8 +243,8 @@ function installCapture() {
 async function settle() {
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 }
-async function canvasState() {
-  return page.evaluate(async () => {
+async function canvasState(includePlaybackControls = false) {
+  return page.evaluate(async includeControls => {
     const canvas = document.querySelector('[data-testid="output-canvas"]');
     const video = document.querySelector('[data-testid="input-video"]');
     // Freeze all evidence in the same synchronous turn as the pixel readback.
@@ -252,10 +252,19 @@ async function canvasState() {
     const snapshot = {width: canvas.width, height: canvas.height, drawCount: window.__cleanDrawCount,
       lastDraw: structuredClone(window.__cleanDraws.at(-1)), videoTime: video.currentTime,
       videoWidth: video.videoWidth, videoHeight: video.videoHeight, paused: video.paused, seeking: video.seeking};
+    if (includeControls) {
+      const slider = document.querySelector('[data-testid="review-seek"]');
+      const button = document.querySelector('[data-testid="play-pause"]');
+      snapshot.playbackControls = {
+        reviewTime: slider ? Number(slider.value) : null,
+        slider: slider ? {value: slider.value, valueAttribute: slider.getAttribute('value'), min: slider.min, max: slider.max, step: slider.step, disabled: slider.disabled} : null,
+        playPause: button ? {label: button.getAttribute('aria-label'), text: button.textContent, disabled: button.disabled} : null,
+      };
+    }
     const pixels = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
     const digest = await crypto.subtle.digest('SHA-256', pixels);
     return {...snapshot, pixelHash: Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')};
-  });
+  }, includePlaybackControls);
 }
 async function seek(time) {
   await page.getByTestId('review-seek').evaluate((input, value) => {
@@ -551,16 +560,43 @@ async function trial(name, base, catalog, trialTimeout) {
   await verifyLayout(row);
   row.verificationStages.layout = true;
   const selectionBeforePlayback = await selectionSignature();
+  row.playback = {stepAnchorSeconds: 1, frameStepSeconds: 0.05, frameStepToleranceSeconds: 0.005,
+    pauseAfterPlayback: null, paused: null, stepped: null, seekSeconds: null};
+  const recordPlayback = async key => {
+    const {playbackControls: ui, ...canvas} = await canvasState(true);
+    const state = {time: canvas.videoTime, paused: canvas.paused, seeking: canvas.seeking, reviewTime: ui.reviewTime, ui, canvas};
+    row.playback[key] = state;
+    await save(name + '-playback.json', row.playback);
+    return state;
+  };
   await seek(0); await page.getByTestId('play-pause').click();
   await page.waitForFunction(() => {const video = document.querySelector('[data-testid="input-video"]'); return !video.paused && video.currentTime > 0.25;}, null, {timeout: 8000});
-  await page.getByTestId('play-pause').click();
-  const paused = await page.getByTestId('input-video').evaluate(video => ({time: video.currentTime, paused: video.paused, reviewTime: Number(document.querySelector('[data-testid="review-seek"]').value)}));
-  assert(paused.paused);
-  await page.getByTestId('step-forward').click(); await settle();
-  const stepped = await page.getByTestId('input-video').evaluate(video => ({time: video.currentTime, paused: video.paused}));
-  assert(stepped.paused && stepped.time > paused.reviewTime && Math.abs(stepped.time - paused.reviewTime - 0.05) < 0.005);
-  await seek(22); assert.deepEqual(await selectionSignature(), selectionBeforePlayback);
-  row.playback = {paused, stepped, seekSeconds: 22};
+  await page.getByTestId('play-pause').click(); await settle();
+  const stopped = await recordPlayback('pauseAfterPlayback');
+  assert(stopped.paused && !stopped.seeking, 'Playback did not stop: ' + JSON.stringify(stopped));
+  assert.equal(stopped.ui.playPause?.label, '再生', 'Paused playback UI does not offer Play');
+  // range.value is rounded to 50 ms, while playbackTime follows the continuous
+  // rAF clock. Synchronize both through the real seek UI before measuring a
+  // precise frame step; arbitrary pause timing must not become its time base.
+  await seek(1);
+  const paused = await recordPlayback('paused');
+  assert(paused.paused && !paused.seeking && Math.abs(paused.time - 1) < 0.005, 'Frame-step anchor did not settle: ' + JSON.stringify(paused));
+  assert.equal(paused.reviewTime, 1, 'Frame-step slider is not at the exact one-second anchor');
+  assert.equal(Number(paused.ui.slider?.step), 0.05, 'Frame-step UI is not configured for 20 fps');
+  assert.equal(paused.ui.playPause?.label, '再生');
+  await page.getByTestId('step-forward').click();
+  await page.waitForFunction(() => !document.querySelector('[data-testid="input-video"]').seeking, null, {timeout: 15000});
+  await settle();
+  const stepped = await recordPlayback('stepped');
+  const stepEvidence = JSON.stringify({paused, stepped});
+  assert(stepped.paused && !stepped.seeking, 'Frame step did not remain paused and finish seeking: ' + stepEvidence);
+  assert(stepped.time > paused.time && Math.abs(stepped.time - paused.time - 0.05) < 0.005, 'Frame step did not advance the actual video by 50 ms: ' + stepEvidence);
+  assert(stepped.time > paused.reviewTime && Math.abs(stepped.time - paused.reviewTime - 0.05) < 0.005, 'Frame step did not reach 1.05 seconds: ' + stepEvidence);
+  assert.equal(stepped.reviewTime, 1.05, 'Frame-step slider did not reach 1.05 seconds');
+  assert.equal(stepped.ui.playPause?.label, '再生');
+  await seek(22); row.playback.seekSeconds = 22;
+  await save(name + '-playback.json', row.playback);
+  assert.deepEqual(await selectionSignature(), selectionBeforePlayback);
   check(true, 'Playback, pause, 20fps frame stepping and seek beyond 20s work without changing the selected sequence', row);
   row.verificationStages.playback = true;
   progress('fresh-pixels', {name, photos: observed.report.selectedImages});

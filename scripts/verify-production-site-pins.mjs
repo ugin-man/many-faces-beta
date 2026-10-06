@@ -4,7 +4,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 
-// This receipt is separate from the unchanged fullscreen harness's native report.
+// This receipt is separate from the fullscreen harness's native report.
 // No authentication, application mutation, synthetic result, or image transformation.
 const PINS = Object.freeze({
   url: 'https://many-faces-prototype.uginn-poppo.chatgpt.site',
@@ -12,6 +12,7 @@ const PINS = Object.freeze({
   deployedSourceCommit: 'da44953c7b671d2826d3ff4b1645a508545b22d6',
   runtimeBuild: '8b57a414f760f03f',
   runtimeVersion: 'camera-arrival-v3',
+  analysisWaitLimitMs: 720000,
   manifestSha256: 'fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a',
   catalogId: 'many-faces-clean-core-v5-28e6092363ed981f-pose-local-v1',
   winkIndexSha256: '7282c665512ff514877e78247e1d0647835a333497201cab79fb21c3fe57fa76',
@@ -20,7 +21,8 @@ const PINS = Object.freeze({
   ordinaryShardSha256: '326a6227e69b528bab4bb64de497e9fef87b2d25fd04800c8953210abe5f09b3',
   ordinaryShardBytes: 2196027,
   ordinaryImageId: 'clean-v5-dab8705c59901d78003f083cd86e',
-  harnessSha256: '7f39301a5c655ee8d49549179d4fef9b1de8239f21c4dcf0eb076d6fc3bb9124',
+  originalHarnessSha256: '7f39301a5c655ee8d49549179d4fef9b1de8239f21c4dcf0eb076d6fc3bb9124',
+  harnessSha256: '4f90e5babed2a1b867f9ff6c830b168ac443aa363f30e39c873ac0f36224f312',
   fixtureSha256: 'd470cf5a8aeb847f9c127ed8f0d567fcadd99e83c185ef60b7a8c9c6236a005b',
   fixtureBytes: 14042765,
 });
@@ -37,17 +39,20 @@ const sourceFile = async name => {
   return { path: name, bytes: bytes.length, sha256: sha256(bytes) };
 };
 async function sourceEvidence() {
-  assert.equal(process.env.MANY_FACES_BASE_URL, PINS.url, 'Unchanged harness targets the exact same public origin');
+  assert.equal(process.env.MANY_FACES_BASE_URL, PINS.url, 'Harness targets the exact same public origin');
+  assert.equal(Number(process.env.FULLSCREEN_ANALYSIS_TIMEOUT_MS), PINS.analysisWaitLimitMs);
   assert.equal(path.resolve(process.env.FULLSCREEN_REPORT_DIR), path.join(out, 'harness'));
   assert(!process.env.MANY_FACES_CAMERA_FIXTURE || path.resolve(process.env.MANY_FACES_CAMERA_FIXTURE) === path.resolve('work/fullscreen-fixtures/moving.y4m'));
-  const harness = await sourceFile('scripts/verify-fullscreen-ui.mjs');
+  const originalHarness = await sourceFile('scripts/verify-fullscreen-ui.mjs');
+  assert.equal(originalHarness.sha256, PINS.originalHarnessSha256, 'Original local QA harness is retained unchanged');
+  const harness = await sourceFile('scripts/verify-production-fullscreen.mjs');
   const fixture = await sourceFile('public/test-fixtures/reference-face-motion.mp4');
-  assert.equal(harness.sha256, PINS.harnessSha256, 'Existing harness must be byte-for-byte unchanged');
+  assert.equal(harness.sha256, PINS.harnessSha256, 'Harness must match the exact pinned source');
   assert.equal(fixture.sha256, PINS.fixtureSha256, 'Original local fixture SHA');
   assert.equal(fixture.bytes, PINS.fixtureBytes, 'Original local fixture length');
   return {
     checkoutCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
-    harness, fixture, packageLock: await sourceFile('package-lock.json'),
+    harness, originalHarness, fixture, packageLock: await sourceFile('package-lock.json'),
     receiptHelper: await sourceFile('scripts/verify-production-site-pins.mjs'),
     workflow: await sourceFile('.github/workflows/production-site-check.yml'),
     virtualCamera: await sourceFile('work/fullscreen-fixtures/moving.y4m'),
@@ -176,11 +181,12 @@ async function receipt() {
     strict20FpsComparisonPerformed: false,
     nativeBrowserFlags: ['--no-sandbox', '--disable-dev-shm-usage', '--enable-unsafe-swiftshader',
       '--use-fake-device-for-media-stream', '--use-file-for-fake-video-capture=<exact source.virtualCamera path>'],
-    scope: 'Actual pinned public Site; unchanged full-fixture 12fps fullscreen harness, two modes, virtual camera, paired mirror and cancellation.',
+    scope: 'Actual pinned public Site; full-fixture 12fps fullscreen harness with original correctness checks and a bounded 720-second analysis wait, two modes, virtual camera, paired mirror and cancellation.',
     limitations: [
       'Native harness hostedSiteVerified:false is preserved verbatim; this separate receipt records the actual public origin and fetched evidence.',
       'Site version 55 is the root-authenticated deployment pin; the public runtime independently supplies build and source revision.',
       'Preflight reads can warm remote assets; timings are not a cold-start benchmark.',
+      'The first public run 37531609637 exhausted its 240-second harness wait during catalog search; that failed report is retained separately. The Site code and data were not changed for this retry.',
       'Only three exact image ranges and one complete shard are probed; this is not another physical 70000-image validation or manual review.',
       'This 12fps run does not repeat the strict 20fps/466-frame comparison, numeric tracking matrix or face-only invariance gates.',
     ],
@@ -204,6 +210,9 @@ async function receipt() {
     assert.deepEqual(pre.source, post.source, 'Unchanged local harness, fixture and browser dependency');
     assert.deepEqual(await sourceEvidence(), pre.source);
     assert.equal(native.passed, true);
+    assert.equal(native.analysisWaitLimitMs, PINS.analysisWaitLimitMs);
+    assert.equal(native.initialUrl, PINS.url + '/');
+    assert.equal(native.finalUrl, PINS.url + '/');
     assert.equal(native.hostedSiteVerified, false, 'Keep original harness scope flag intact');
     assert.equal(native.physicalCameraVerified, false);
     assert.equal(native.video.build, PINS.runtimeBuild);

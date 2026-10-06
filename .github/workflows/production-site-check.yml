@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/production-site-check.yml'
       - 'scripts/verify-production-site-pins.mjs'
+      - 'scripts/verify-production-fullscreen.mjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -18,6 +19,7 @@ jobs:
     env:
       MANY_FACES_BASE_URL: https://many-faces-prototype.uginn-poppo.chatgpt.site
       FULLSCREEN_REPORT_DIR: work/production-site-v55/harness
+      FULLSCREEN_ANALYSIS_TIMEOUT_MS: '720000'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,6 +29,7 @@ jobs:
             /.github/workflows/production-site-check.yml
             /scripts/verify-production-site-pins.mjs
             /scripts/verify-fullscreen-ui.mjs
+            /scripts/verify-production-fullscreen.mjs
             /public/test-fixtures/reference-face-motion.mp4
             /package.json
             /package-lock.json
@@ -34,7 +37,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22.16.0
-      - name: Prepare unchanged harness and original reference fixture
+      - name: Prepare pinned harness and original reference fixture
         id: prepare
         run: |
           set -euo pipefail
@@ -47,11 +50,11 @@ jobs:
       - name: Authenticate pinned public runtime, full fixture, catalog and exact image routes before execution
         id: pre
         run: node scripts/verify-production-site-pins.mjs pre
-      - name: Run existing full-video and two-mode virtual-camera checks on the public Site
+      - name: Run full-video and two-mode virtual-camera checks on the public Site
         id: browser
         run: |
           set +e
-          node scripts/verify-fullscreen-ui.mjs > work/production-site-v55/harness.log 2>&1
+          node scripts/verify-production-fullscreen.mjs > work/production-site-v55/harness.log 2>&1
           result=$?
           printf '%s\n' "$result" > work/production-site-v55/harness-exit-code.txt
           cat work/production-site-v55/harness.log

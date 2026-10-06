@@ -32,7 +32,7 @@ jobs:
     timeout-minutes: 60
     env:
       VIDEO_BASELINE_COMMIT: 7b6f7f0d42c18e770379bd56577e9608ba2e9f9e
-      VIDEO_BASELINE_ROOT: ${{ runner.temp }}/mf-video-baseline
+      VIDEO_BASELINE_ROOT: /tmp/mf-video-baseline
       VIDEO_VALIDATION_REPORT_DIR: work/video-validation
       VIDEO_VALIDATION_TIMEOUT_MS: '2700000'
     steps:

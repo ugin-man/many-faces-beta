@@ -15,5 +15,9 @@
   "candidateOnly": true,
   "sitePublication": false,
   "postSelectionVisualReview": "pending",
-  "fixedVideoVerification": "pending"
+  "fixedVideoVerification": "pending",
+  "attempt": 2,
+  "previousRun": 37462870166,
+  "previousRunStatus": "failed before image analysis: missing native libGLESv2.so.2",
+  "nativeRuntimeDependency": "libgles2"
 }

@@ -4,25 +4,37 @@
   "repository": "ugin-man/many-faces-beta",
   "targetBranch": "astra/realtime-hardening",
   "baselineCommit": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e",
-  "holdout": {
-    "targetSamples": 360,
-    "seed": 20261007
+  "visualReview": {
+    "mode": "remediation",
+    "evaluatedCandidate": {
+      "runId": 37491677036,
+      "runAttempt": 1,
+      "artifactId": 11426800117,
+      "artifactName": "clean-core-v5-candidate-37491677036-1",
+      "archiveSha256": "923b59d9b59ca4ba7ac54bb7660731d5fe89ac81495438f3ed098db705bd1f1c",
+      "manifestSha256": "d8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785",
+      "generationReceiptSha256": "79c8f68790b11414cdb8b88e9ec2aeb2665d6747e99a7dd51690bb5824ec505f"
+    },
+    "failedHoldout": {
+      "path": "data/catalog-quality/holdout-visual-review-37494402324.json",
+      "sha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c"
+    }
   },
   "candidate": {
-    "runId": 37491677036,
+    "runId": 37504332182,
     "runAttempt": 1,
-    "artifactName": "clean-core-v5-candidate-37491677036-1",
-    "artifactId": 11426800117,
-    "archiveSha256": "923b59d9b59ca4ba7ac54bb7660731d5fe89ac81495438f3ed098db705bd1f1c",
-    "manifestSha256": "d8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785",
-    "generationReceiptSha256": "79c8f68790b11414cdb8b88e9ec2aeb2665d6747e99a7dd51690bb5824ec505f"
+    "artifactName": "clean-core-v5-candidate-37504332182-1",
+    "artifactId": 11432442213,
+    "archiveSha256": "6fcecf3f9f7fab2b1ca86ea8dc1764f7429e55462704ed911657076bd6d08ca1",
+    "manifestSha256": "43d7731b9fda6d94a381425b2722fd289adcdc9fe5258504ab3bedf517cf9a76",
+    "generationReceiptSha256": "a6acf087d6d70187059d08fe1127774f427f93209598b2f1d5a1a5c18fa8726b"
   },
   "previouslyInspected": {
     "path": "data/catalog-previously-inspected.json",
-    "sha256": "2b9586e1d788539c7ce3d078dc6158bbba4183634c81077fe82505b68828a623"
+    "sha256": "4b0466d8fdee16c87dd52cebad40e8dae08d161933682d585fc389c79724fe78"
   },
   "createdOn": "2026-10-06",
-  "request": "Inspect 360 previously unseen selected photos from the replenished 70,000-photo candidate and compare the complete fixed video against the accepted 70k baseline, including the initial presentation and position/size tracking.",
+  "request": "Compare every encoded photo with the fixed evaluated c92 candidate and extract all added originals for complete quality review. Preserve the failed 360-photo evaluation unchanged. Revalidate the full 70000-photo catalog, compare the complete same-input fixed video, and check initial presentation, face position/size tracking, cancellation and virtual camera behavior.",
   "candidateOnly": true,
   "promotionReady": false,
   "sitePublication": false

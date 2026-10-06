@@ -48,6 +48,17 @@ HOLDOUT_PREPARATION_FIELDS = (
     "preparedPhotos", "previouslyInspectedSha256",
     "previouslyInspectedImageCount", "sampleIndexSha256",
 )
+REMEDIATION_EVALUATED_RUN_ID = 37491677036
+REMEDIATION_EVALUATED_MANIFEST_SHA256 = "d8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785"
+REMEDIATION_FAILED_HOLDOUT_SHA256 = "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c"
+REMEDIATION_SAMPLE_INDEX_SHA256 = "f543ad152cb192f559452144d2ad9a5887593cbd058efae21a89372ca76e7221"
+REMEDIATION_PREVIOUSLY_INSPECTED_SHA256 = "2b9586e1d788539c7ce3d078dc6158bbba4183634c81077fe82505b68828a623"
+REMEDIATION_INDEX_PATH = "reports/remediation-index.json"
+REMEDIATION_PREPARATION_FIELDS = frozenset((
+    "mode", "independentFinalHoldout", "indexPath", "indexSha256", "addedPhotos",
+    "evaluatedCandidateRunId", "evaluatedManifestSha256", "finalManifestSha256",
+    "failedHoldoutSha256",
+))
 OUTCOME_FIELDS = (
     "request", "artifact", "dependencies", "sources", "physical",
     "holdout", "build", "browser", "integrity",
@@ -333,8 +344,83 @@ def read_summary_receipt(archive: bytes, maximum: int = MAX_ARCHIVE_BYTES) -> by
         raise VerificationError("Invalid summary ZIP or receipt bytes") from error
 
 
+def validate_visual_review_binding(wrapper: dict[str, Any], native: dict[str, Any]) -> bool:
+    """Keep the old holdout path, or bind the separate remediation preparation.
+
+    A successful preparation is not a successful independent holdout. The
+    remediation path carries the original failed review without any edits;
+    original-pixel review of the added photos remains a separate gate.
+    """
+    prepared, reviewed = native.get("selectedPhotoHoldout"), wrapper.get("selectedPhotoHoldout")
+    require(isinstance(prepared, dict) and isinstance(reviewed, dict), "Missing prepared holdout binding")
+    require(type(prepared.get("preparedPhotos")) is int and prepared["preparedPhotos"] == 360,
+            "Native QA did not prepare the complete 360-photo holdout")
+    require(valid_sha(prepared.get("previouslyInspectedSha256")) and valid_sha(prepared.get("sampleIndexSha256")),
+            "Native holdout preparation digests are missing")
+    require(type(prepared.get("previouslyInspectedImageCount")) is int
+            and prepared["previouslyInspectedImageCount"] >= 0,
+            "Native previously-inspected image count is invalid")
+
+    markers = ("visualReviewPreparation", "remediationEvidence")
+    present = [field in document for document in (native, wrapper) for field in markers]
+    if not any(present):
+        # Preserve the original independent-360 contract exactly: its four
+        # prepared values are immutable; later manual-review fields may change.
+        for field in HOLDOUT_PREPARATION_FIELDS:
+            require(field in reviewed and canonical(reviewed[field]) == canonical(prepared[field]),
+                    "QA wrapper changed native holdout preparation: " + field)
+        return False
+    require(all(present), "Incomplete or one-sided native remediation preparation/evidence")
+    preparation = native["visualReviewPreparation"]
+    require(isinstance(preparation, dict) and set(preparation) == REMEDIATION_PREPARATION_FIELDS,
+            "Unsupported native remediation preparation schema")
+    require(preparation.get("mode") == "remediation" and preparation.get("independentFinalHoldout") is False,
+            "Unknown remediation mode or claimed independent final holdout")
+    require(canonical(wrapper["visualReviewPreparation"]) == canonical(preparation),
+            "QA wrapper changed native remediation preparation")
+    require(type(preparation.get("addedPhotos")) is int and 1 <= preparation["addedPhotos"] <= 70000,
+            "Invalid native remediation added-photo count")
+    require(type(preparation.get("evaluatedCandidateRunId")) is int
+            and preparation["evaluatedCandidateRunId"] == REMEDIATION_EVALUATED_RUN_ID,
+            "Native remediation evaluated a different candidate run")
+    require(preparation.get("evaluatedManifestSha256") == REMEDIATION_EVALUATED_MANIFEST_SHA256
+            and preparation.get("failedHoldoutSha256") == REMEDIATION_FAILED_HOLDOUT_SHA256,
+            "Native remediation refers to a different evaluated manifest or failed holdout")
+    final_manifest = preparation.get("finalManifestSha256")
+    require(valid_sha(final_manifest) and final_manifest == native["candidate"].get("manifestSha256")
+            and final_manifest != REMEDIATION_EVALUATED_MANIFEST_SHA256,
+            "Native remediation final manifest differs from the actual replacement candidate")
+    require(preparation.get("indexPath") == REMEDIATION_INDEX_PATH
+            and valid_sha(preparation.get("indexSha256")), "Invalid native remediation index binding")
+
+    expected_failed = {
+        "status": "failed", "checkedPhotos": 360, "preparedPhotos": 360,
+        "counts": {"pass": 301, "deny": 27, "uncertain": 32},
+        "previouslyInspectedSha256": REMEDIATION_PREVIOUSLY_INSPECTED_SHA256,
+        "previouslyInspectedImageCount": 1617, "sampleIndexSha256": REMEDIATION_SAMPLE_INDEX_SHA256,
+        "visualReviewSha256": REMEDIATION_FAILED_HOLDOUT_SHA256, "humanVerified": False,
+    }
+    for field, expected in expected_failed.items():
+        require(field in prepared and canonical(prepared[field]) == canonical(expected),
+                "Native remediation changed the original failed holdout: " + field)
+    require(canonical(reviewed) == canonical(prepared),
+            "QA wrapper changed native failed holdout during remediation")
+    for label, reference in (("native", native["remediationEvidence"]),
+                             ("wrapper", wrapper["remediationEvidence"])):
+        require(isinstance(reference, dict) and set(reference) == {"path", "sha256"}
+                and reference.get("sha256") == preparation["indexSha256"],
+                "Wrong " + label + " remediation evidence SHA")
+        name = safe_relative(reference.get("path"), label + " remediation evidence path")
+        if label == "native":
+            require(name == REMEDIATION_INDEX_PATH, "Unexpected native remediation index path")
+        else:
+            require(PurePosixPath(name).parts[0] == "data" and name.endswith(".json"),
+                    "Reviewed remediation evidence must name a committed data JSON path")
+    return True
+
+
 def validate_native_receipt(wrapper: dict[str, Any], native: dict[str, Any],
-                            pins: dict[str, Any], code: str, repository: str) -> None:
+                            pins: dict[str, Any], code: str, repository: str) -> bool:
     require(type(native.get("schemaVersion")) is int and native["schemaVersion"] == 1
             and native.get("documentKind") == "clean-core-v5-candidate-qa",
             "Unsupported native QA receipt schema")
@@ -363,18 +449,7 @@ def validate_native_receipt(wrapper: dict[str, Any], native: dict[str, Any],
         require(field in wrapper and field in native, "Missing native QA field: " + field)
         require(canonical(wrapper[field]) == canonical(native[field]),
                 "QA wrapper changed native field: " + field)
-    prepared, reviewed = native.get("selectedPhotoHoldout"), wrapper.get("selectedPhotoHoldout")
-    require(isinstance(prepared, dict) and isinstance(reviewed, dict), "Missing prepared holdout binding")
-    require(type(prepared.get("preparedPhotos")) is int and prepared["preparedPhotos"] == 360,
-            "Native QA did not prepare the complete 360-photo holdout")
-    require(valid_sha(prepared.get("previouslyInspectedSha256")) and valid_sha(prepared.get("sampleIndexSha256")),
-            "Native holdout preparation digests are missing")
-    require(type(prepared.get("previouslyInspectedImageCount")) is int
-            and prepared["previouslyInspectedImageCount"] >= 0,
-            "Native previously-inspected image count is invalid")
-    for field in HOLDOUT_PREPARATION_FIELDS:
-        require(field in reviewed and canonical(reviewed[field]) == canonical(prepared[field]),
-                "QA wrapper changed native holdout preparation: " + field)
+    remediation = validate_visual_review_binding(wrapper, native)
     comparison_sha = native["comparisonReportSha256"]
     for label, reference in (("native", native.get("comparisonEvidence")),
                              ("wrapper", wrapper.get("comparisonEvidence"))):
@@ -386,6 +461,7 @@ def validate_native_receipt(wrapper: dict[str, Any], native: dict[str, Any],
         else:
             require(PurePosixPath(name).parts[0] == "data" and name.endswith(".json"),
                     "Reviewed comparison evidence must name a committed data JSON path")
+    return remediation
 
 
 def bounded_file(path: Path) -> bytes:
@@ -447,7 +523,7 @@ def verify(qa_path: Path, repository: str, evidence_dir: Path,
     receipt_bytes = read_summary_receipt(archive)
     require(sha256(receipt_bytes) == pins["qaReceiptSha256"], "Native QA receipt SHA differs")
     native = strict_json(receipt_bytes, "native QA receipt")
-    validate_native_receipt(wrapper, native, pins, code, repository)
+    remediation = validate_native_receipt(wrapper, native, pins, code, repository)
     require(bounded_file(qa_path) == wrapper_bytes, "Reviewed QA wrapper changed during verification")
     evidence_dir = evidence_dir.absolute()
     metadata = {"schemaVersion": 1, "source": "GitHub REST API", "apiVersion": API_VERSION,
@@ -471,6 +547,16 @@ def verify(qa_path: Path, repository: str, evidence_dir: Path,
         "evidence": {"receipt": {"path": str(receipt_path), "sha256": sha256(receipt_bytes)},
                      "metadata": {"path": str(metadata_path), "sha256": sha256(metadata_bytes)}},
     }
+    if remediation:
+        result.update({
+            "visualReviewMode": "remediation",
+            "matchedRemediationFields": ["visualReviewPreparation", "selectedPhotoHoldout"],
+            "matchedHoldoutFields": sorted(native["selectedPhotoHoldout"]),
+            "preparedHoldout": native["selectedPhotoHoldout"],
+            "visualReviewPreparation": native["visualReviewPreparation"],
+            "remediationIndexSha256": native["visualReviewPreparation"]["indexSha256"],
+            "manualReviewVerified": False,
+        })
     result_bytes = (json.dumps(result, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
     save_evidence(evidence_dir, "native-qa-verification.json", result_bytes, qa_path)
     return result

@@ -110,13 +110,42 @@ def native_receipt():
     }
 
 
+def remediation_native_receipt():
+    # Network-only fixture for the new mode, not a claim that a future native
+    # run or the added-image visual review has succeeded.
+    native = native_receipt()
+    final_manifest = "8" * 64
+    native["candidate"]["manifestSha256"] = final_manifest
+    native["physicalAdmission"]["manifestSha256"] = final_manifest
+    native["selectedPhotoHoldout"].update({
+        "status": "failed", "checkedPhotos": 360, "preparedPhotos": 360,
+        "counts": {"pass": 301, "deny": 27, "uncertain": 32},
+        "previouslyInspectedSha256": gate.REMEDIATION_PREVIOUSLY_INSPECTED_SHA256,
+        "previouslyInspectedImageCount": 1617, "sampleIndexSha256": gate.REMEDIATION_SAMPLE_INDEX_SHA256,
+        "visualReviewSha256": gate.REMEDIATION_FAILED_HOLDOUT_SHA256,
+    })
+    native["visualReviewPreparation"] = {
+        "mode": "remediation", "independentFinalHoldout": False,
+        "indexPath": gate.REMEDIATION_INDEX_PATH, "indexSha256": "7" * 64,
+        "addedPhotos": 59, "evaluatedCandidateRunId": gate.REMEDIATION_EVALUATED_RUN_ID,
+        "evaluatedManifestSha256": gate.REMEDIATION_EVALUATED_MANIFEST_SHA256,
+        "finalManifestSha256": final_manifest,
+        "failedHoldoutSha256": gate.REMEDIATION_FAILED_HOLDOUT_SHA256,
+    }
+    native["remediationEvidence"] = {"path": gate.REMEDIATION_INDEX_PATH, "sha256": "7" * 64}
+    return native
+
+
 def case(native=None, zip_bytes=None):
     native = copy.deepcopy(native or native_receipt())
     receipt = encode(native)
     archive = zip_bytes if zip_bytes is not None else summary_zip(receipt, [("sample-index.json", b"{}\n")])
     wrapper = copy.deepcopy(native)
     wrapper.update(status="passed", passed=True, promotionReady=True)
-    wrapper["selectedPhotoHoldout"].update(status="passed", checkedPhotos=360)
+    if "visualReviewPreparation" not in native:
+        wrapper["selectedPhotoHoldout"].update(status="passed", checkedPhotos=360)
+    elif isinstance(wrapper.get("remediationEvidence"), dict):
+        wrapper["remediationEvidence"]["path"] = "data/catalog-quality/candidate-remediation-index.json"
     wrapper["comparisonEvidence"]["path"] = "data/catalog-quality/candidate-comparison-report.json"
     wrapper["evidence"] = [copy.deepcopy(wrapper["comparisonEvidence"])]
     pins = {"runId": RUN_ID, "runAttempt": ATTEMPT, "artifactId": ARTIFACT_ID,
@@ -410,6 +439,194 @@ class NativeQAVerificationTests(unittest.TestCase):
             result = json.loads(output.getvalue())
             self.assertEqual(result["status"], "verified")
             self.assertEqual((root / "evidence/native-qa-receipt.json").read_bytes(), value["receipt"])
+
+
+class NativeRemediationVerificationTests(unittest.TestCase):
+    # Reuse only the network-faked harness. The complete original independent-
+    # 360 suite remains above and runs once, without duplicated test cases.
+    verify_case = NativeQAVerificationTests.verify_case
+
+    def test_remediation_preserves_failed_holdout_and_verifies_only_native_preparation(self):
+        value = case(remediation_native_receipt())
+        result, _ = self.verify_case(value)
+        self.assertEqual(result["visualReviewMode"], "remediation")
+        self.assertEqual(result["matchedFields"], list(gate.IMMUTABLE_FIELDS))
+        self.assertEqual(len(result["matchedFields"]), 14)
+        self.assertEqual(result["matchedRemediationFields"], ["visualReviewPreparation", "selectedPhotoHoldout"])
+        self.assertEqual(result["preparedHoldout"], value["native"]["selectedPhotoHoldout"])
+        self.assertEqual(result["preparedHoldout"]["status"], "failed")
+        self.assertEqual(result["preparedHoldout"]["counts"], {"pass": 301, "deny": 27, "uncertain": 32})
+        self.assertEqual(result["visualReviewPreparation"], value["native"]["visualReviewPreparation"])
+        self.assertEqual(result["remediationIndexSha256"], "7" * 64)
+        self.assertIs(result["manualReviewVerified"], False)
+        # The separate original-image review gate may attach later judgment;
+        # this helper never upgrades that judgment or the old failed holdout.
+        value["wrapper"]["laterManualReview"] = {"status": "pending"}
+        self.assertIs(self.verify_case(value)[0]["manualReviewVerified"], False)
+
+    def test_remediation_markers_and_evidence_must_be_present_on_both_sides(self):
+        for side in ("native", "wrapper"):
+            for field in ("visualReviewPreparation", "remediationEvidence"):
+                for action in ("missing", "null"):
+                    with self.subTest(side=side, field=field, action=action):
+                        if side == "native":
+                            native = remediation_native_receipt()
+                            if action == "missing": native.pop(field)
+                            else: native[field] = None
+                            value = case(native)
+                        else:
+                            value = case(remediation_native_receipt())
+                            if action == "missing": value["wrapper"].pop(field)
+                            else: value["wrapper"][field] = None
+                        with self.assertRaises(gate.VerificationError):
+                            self.verify_case(value)
+        # A regular independent receipt cannot gain a remediation claim later.
+        for field in ("visualReviewPreparation", "remediationEvidence"):
+            value = case(); value["wrapper"][field] = remediation_native_receipt()[field]
+            with self.assertRaisesRegex(gate.VerificationError, "one-sided"):
+                self.verify_case(value)
+
+    def test_unknown_modes_extra_schema_fields_and_independent_claims_are_rejected(self):
+        mutations = (
+            lambda p: p.update(mode="independent"),
+            lambda p: p.update(mode="remediation-passed"),
+            lambda p: p.update(mode=None),
+            lambda p: p.update(independentFinalHoldout=True),
+            lambda p: p.update(independentFinalHoldout=0),
+            lambda p: p.update(independentFinalHoldout=None),
+            lambda p: p.update(preparationMayReplaceHoldout=True),
+        )
+        for index, mutate in enumerate(mutations):
+            with self.subTest(index=index):
+                native = remediation_native_receipt(); mutate(native["visualReviewPreparation"])
+                with self.assertRaises(gate.VerificationError):
+                    self.verify_case(case(native))
+
+    def test_remediation_added_count_is_an_integer_between_one_and_70000(self):
+        for count in (1, 59, 70000):
+            with self.subTest(valid=count):
+                native = remediation_native_receipt(); native["visualReviewPreparation"]["addedPhotos"] = count
+                result, _ = self.verify_case(case(native))
+                self.assertEqual(result["visualReviewPreparation"]["addedPhotos"], count)
+        for count in (0, -1, 70001, True, False, 59.0, "59", None):
+            with self.subTest(invalid=count):
+                native = remediation_native_receipt(); native["visualReviewPreparation"]["addedPhotos"] = count
+                with self.assertRaisesRegex(gate.VerificationError, "added-photo count"):
+                    self.verify_case(case(native))
+
+    def test_original_failed_holdout_cannot_become_passed_even_inside_native_receipt(self):
+        changes = {
+            "status": "passed", "checkedPhotos": 359, "preparedPhotos": 359,
+            "counts": {"pass": 360, "deny": 0, "uncertain": 0},
+            "previouslyInspectedSha256": "4" * 64, "previouslyInspectedImageCount": 1618,
+            "sampleIndexSha256": "4" * 64, "visualReviewSha256": "4" * 64,
+            "humanVerified": True,
+        }
+        for field, changed in changes.items():
+            for side in ("native", "wrapper"):
+                with self.subTest(field=field, side=side):
+                    if side == "native":
+                        native = remediation_native_receipt(); native["selectedPhotoHoldout"][field] = changed
+                        value = case(native)
+                    else:
+                        value = case(remediation_native_receipt()); value["wrapper"]["selectedPhotoHoldout"][field] = changed
+                    with self.assertRaises(gate.VerificationError):
+                        self.verify_case(value)
+
+    def test_entire_failed_holdout_and_preparation_are_type_sensitive_immutable_objects(self):
+        edits = (
+            ("selectedPhotoHoldout", "checkedPhotos", 360.0),
+            ("selectedPhotoHoldout", "counts", {"pass": 301.0, "deny": 27, "uncertain": 32}),
+            ("selectedPhotoHoldout", "reviewer", "a different reviewer"),
+            ("selectedPhotoHoldout", "newManualNote", "This belongs to a different review document"),
+            ("visualReviewPreparation", "addedPhotos", 59.0),
+            ("visualReviewPreparation", "addedPhotos", 60),
+            ("visualReviewPreparation", "indexSha256", "6" * 64),
+        )
+        for section, field, changed in edits:
+            with self.subTest(section=section, field=field):
+                value = case(remediation_native_receipt()); value["wrapper"][section][field] = changed
+                with self.assertRaises(gate.VerificationError):
+                    self.verify_case(value)
+        for field, changed in (("checkedPhotos", 360.0), ("counts", {"pass": 301, "deny": 27.0, "uncertain": 32})):
+            native = remediation_native_receipt(); native["selectedPhotoHoldout"][field] = changed
+            with self.assertRaisesRegex(gate.VerificationError, "original failed holdout"):
+                self.verify_case(case(native))
+
+    def test_evaluated_run_manifest_failed_review_and_final_manifest_are_fixed(self):
+        changes = (
+            ("evaluatedCandidateRunId", gate.REMEDIATION_EVALUATED_RUN_ID + 1),
+            ("evaluatedCandidateRunId", float(gate.REMEDIATION_EVALUATED_RUN_ID)),
+            ("evaluatedManifestSha256", "1" * 64),
+            ("failedHoldoutSha256", "1" * 64),
+            ("finalManifestSha256", "1" * 64),
+            ("finalManifestSha256", "bad"),
+            ("indexSha256", "bad"),
+            ("indexPath", "reports/a-different-index.json"),
+        )
+        for field, changed in changes:
+            with self.subTest(field=field, changed=changed):
+                native = remediation_native_receipt(); native["visualReviewPreparation"][field] = changed
+                with self.assertRaises(gate.VerificationError):
+                    self.verify_case(case(native))
+        native = remediation_native_receipt()
+        native["visualReviewPreparation"]["finalManifestSha256"] = gate.REMEDIATION_EVALUATED_MANIFEST_SHA256
+        native["candidate"]["manifestSha256"] = gate.REMEDIATION_EVALUATED_MANIFEST_SHA256
+        native["physicalAdmission"]["manifestSha256"] = gate.REMEDIATION_EVALUATED_MANIFEST_SHA256
+        with self.assertRaisesRegex(gate.VerificationError, "replacement candidate"):
+            self.verify_case(case(native))
+
+    def test_remediation_evidence_only_allows_a_safe_data_path_move_with_exact_native_sha(self):
+        value = case(remediation_native_receipt())
+        value["wrapper"]["remediationEvidence"]["path"] = "data/catalog-quality/final-remediation-index.json"
+        self.verify_case(value)
+        for path in ("reports/remediation-index.json", "work/remediation-index.json", "../index.json",
+                     "/data/index.json", "data/../index.json", "data//index.json", "data/index.csv"):
+            with self.subTest(path=path):
+                value = case(remediation_native_receipt()); value["wrapper"]["remediationEvidence"]["path"] = path
+                with self.assertRaises(gate.VerificationError):
+                    self.verify_case(value)
+        for side in ("native", "wrapper"):
+            for field, changed in (("sha256", "1" * 64), ("extra", "unsupported")):
+                with self.subTest(side=side, field=field):
+                    if side == "native":
+                        native = remediation_native_receipt(); native["remediationEvidence"][field] = changed
+                        value = case(native)
+                    else:
+                        value = case(remediation_native_receipt()); value["wrapper"]["remediationEvidence"][field] = changed
+                    with self.assertRaises(gate.VerificationError):
+                        self.verify_case(value)
+        native = remediation_native_receipt(); native["remediationEvidence"]["path"] = "data/index.json"
+        with self.assertRaisesRegex(gate.VerificationError, "native remediation index path"):
+            self.verify_case(case(native))
+
+    def test_remediation_cannot_bypass_any_original_immutable_or_failed_automatic_stage(self):
+        for field in gate.IMMUTABLE_FIELDS:
+            with self.subTest(field=field):
+                value = case(remediation_native_receipt()); value["wrapper"][field] = {"forged": True}
+                with self.assertRaises(gate.VerificationError):
+                    self.verify_case(value)
+        for stage in gate.OUTCOME_FIELDS:
+            with self.subTest(stage=stage):
+                native = remediation_native_receipt(); native["outcomes"][stage] = "failure"
+                with self.assertRaisesRegex(gate.VerificationError, "required native QA stage"):
+                    self.verify_case(case(native))
+        native = remediation_native_receipt(); native["automatedChecksPassed"] = False
+        with self.assertRaisesRegex(gate.VerificationError, "automated checks"):
+            self.verify_case(case(native))
+
+    def test_forged_remediation_index_and_self_hash_have_no_native_archive_anchor(self):
+        value = case(remediation_native_receipt())
+        forged = copy.deepcopy(value["native"])
+        for document in (value["wrapper"], forged):
+            document["visualReviewPreparation"].update(indexSha256="1" * 64, addedPhotos=1)
+            document["remediationEvidence"]["sha256"] = "1" * 64
+        value["wrapper"]["nativeExecution"]["qaReceiptSha256"] = digest(encode(forged))
+        with self.assertRaisesRegex(gate.VerificationError, "receipt SHA differs"):
+            self.verify_case(value)
+        value["wrapper"]["nativeExecution"]["qaReceiptSha256"] = digest(value["receipt"])
+        with self.assertRaisesRegex(gate.VerificationError, "changed native remediation preparation"):
+            self.verify_case(value)
 
 
 class SummaryZipTests(unittest.TestCase):

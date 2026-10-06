@@ -110,7 +110,35 @@ jobs:
                   and request.get('repository') == repository and request.get('targetBranch') == branch,
                   'Invalid QA request identity')
           require(request.get('baselineCommit') == os.environ['BASELINE_COMMIT'], 'QA baseline differs from the accepted baseline')
-          require(request.get('holdout') == {'targetSamples': 360, 'seed': 20261007}, 'QA holdout must use the frozen 360-photo sampling plan')
+          visual_review = request.get('visualReview')
+          if visual_review is None:
+              require(request.get('holdout') == {'targetSamples': 360, 'seed': 20261007},
+                      'QA holdout must use the frozen 360-photo sampling plan')
+          else:
+              require(isinstance(visual_review, dict)
+                      and set(visual_review) == {'mode', 'evaluatedCandidate', 'failedHoldout'}
+                      and visual_review.get('mode') == 'remediation' and 'holdout' not in request,
+                      'Remediation must be a separate complete added-image review, not a new holdout')
+              require(visual_review['evaluatedCandidate'] == {
+                  'runId': 37491677036, 'runAttempt': 1, 'artifactId': 11426800117,
+                  'artifactName': 'clean-core-v5-candidate-37491677036-1',
+                  'archiveSha256': '923b59d9b59ca4ba7ac54bb7660731d5fe89ac81495438f3ed098db705bd1f1c',
+                  'manifestSha256': 'd8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785',
+                  'generationReceiptSha256': '79c8f68790b11414cdb8b88e9ec2aeb2665d6747e99a7dd51690bb5824ec505f'},
+                  'Remediation must keep the original evaluated candidate fixed')
+              failed_pin = visual_review['failedHoldout']
+              require(failed_pin == {
+                  'path': 'data/catalog-quality/holdout-visual-review-37494402324.json',
+                  'sha256': '2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c'},
+                  'Remediation must preserve the original failed 360-photo report')
+              failed_path = Path(failed_pin['path'])
+              require(failed_path.is_file() and not failed_path.is_symlink()
+                      and all(not parent.is_symlink() for parent in failed_path.parents),
+                      'Original failed review is missing or symlinked')
+              subprocess.run(['git', 'ls-files', '--error-unmatch', '--', str(failed_path)],
+                             check=True, stdout=subprocess.DEVNULL)
+              require(hashlib.sha256(failed_path.read_bytes()).hexdigest() == failed_pin['sha256'],
+                      'Original failed review bytes changed')
           inspected_pin = request.get('previouslyInspected')
           inspected_path = Path(os.environ['PREVIOUSLY_INSPECTED'])
           require(isinstance(inspected_pin, dict) and set(inspected_pin) == {'path', 'sha256'}
@@ -200,6 +228,7 @@ jobs:
           import re
           import shutil
           import stat
+          import subprocess
           import sys
           import urllib.error
           import urllib.parse
@@ -424,6 +453,13 @@ jobs:
               'winkExpressionReviewSha256': wink_review.sha256,
               'fullPhysicalRevalidationCompleted': False, 'visualReviewCompleted': False,
           }, indent=2) + '\n')
+          if context['request'].get('visualReview', {}).get('mode') == 'remediation':
+              # Restore the fixed reference before installing browsers or
+              # copying the two application/source checkouts. Its verified
+              # large ZIP is deleted by the helper, keeping peak disk bounded.
+              subprocess.run([sys.executable, 'tools/fetch_clean_core_evaluated_candidate.py',
+                  '--out', str(work / 'evaluated-candidate'),
+                  '--report', str(reports / 'evaluated-candidate-archive.json')], check=True)
           print(json.dumps({'artifactId': pin['artifactId'], 'archiveBytes': archive_size,
                             'manifestSha256': manifest_hash, 'generationReceiptSha256': generation_hash}))
           PY
@@ -564,25 +600,67 @@ jobs:
             | tee "$QA_ROOT/reports/wink-binding.json"
           cmp "$QA_ROOT/app/public/wink-support/v1/catalog.json" "$QA_ROOT/rebuilt-wink-support/catalog.json"
           cmp "$QA_ROOT/app/public/wink-support/v1/ATTRIBUTION.html" "$QA_ROOT/rebuilt-wink-support/ATTRIBUTION.html"
-      - name: Extract 360 untouched holdout originals and contact sheets for pending review
+      - name: Prepare the requested original-image review without changing its scope
         id: holdout
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          python tools/review_clean_core_selection.py \
-            --catalog "$QA_ROOT/app/public/seed-catalog" \
-            --candidate-audit "$QA_ROOT/candidate/admission/candidate-audit.json" \
-            --reviewed-visibility data/catalog-visibility-reviewed.json \
-            --previously-inspected "$PREVIOUSLY_INSPECTED" \
-            --out "$QA_ROOT/holdout" \
-            | tee "$QA_ROOT/reports/holdout-preparation.log"
-          python - <<'PY'
+          python - <<'PY' 2>&1 | tee "$QA_ROOT/reports/holdout-preparation.log"
           import hashlib
           import json
           import os
+          import shutil
+          import subprocess
+          import sys
           from pathlib import Path
           work = Path(os.environ['QA_ROOT'])
-          index = json.loads((work / 'holdout/sample-index.json').read_text())
           pins = json.loads((work / 'candidate-pins.json').read_text())
           context = json.loads((work / 'verified-request.json').read_text())
+          visual_review = context['request'].get('visualReview')
+          if visual_review is not None:
+              if visual_review.get('mode') != 'remediation':
+                  raise ValueError('Unknown original-image review mode')
+              subprocess.run([sys.executable, 'tools/clean_core_remediation_review.py', 'prepare',
+                  '--prior-candidate', str(work / 'evaluated-candidate'),
+                  '--final-candidate', str(work / 'candidate'),
+                  '--final-catalog', str(work / 'app/public/seed-catalog'),
+                  '--candidate-audit', str(work / 'candidate/admission/candidate-audit.json'),
+                  '--failed-holdout', visual_review['failedHoldout']['path'],
+                  '--selection-review', 'data/catalog-selection-reviewed.json',
+                  '--out', str(work / 'remediation')], check=True)
+              sys.path.insert(0, str(Path('tools').resolve()))
+              from clean_core_remediation_review import validate_index, preparation_summary
+              index_path = work / 'remediation/remediation-index.json'
+              index_sha = hashlib.sha256(index_path.read_bytes()).hexdigest()
+              index = json.loads(index_path.read_text())
+              validate_index(index, pins['manifestSha256'])
+              preparation = json.loads((work / 'remediation/visual-review-preparation.json').read_text())
+              if preparation != preparation_summary(index, index_sha):
+                  raise ValueError('Remediation preparation differs from the complete native index')
+              if not (preparation['allKnownExcludedAbsent'] is True
+                      and preparation['selectionReviewSha256'] == pins['selectionReviewSha256']
+                      and preparation['allAddedOriginalsExtracted'] is True
+                      and preparation['allAddedOriginalsReviewed'] is False
+                      and preparation['independentHoldoutPassed'] is False):
+                  raise ValueError('Incomplete or incorrectly labelled remediation preparation')
+              for name in ('remediation-index.json', 'visual-review-preparation.json', 'original-failed-holdout.json'):
+                  shutil.copy2(work / 'remediation' / name, work / 'reports' / name)
+              inventory_reports = work / 'reports/remediation-inventories'
+              inventory_reports.mkdir()
+              for item in index['inventoryFiles']:
+                  source = work / 'remediation' / item['path']
+                  if source.stat().st_size != item['bytes'] or hashlib.sha256(source.read_bytes()).hexdigest() != item['sha256']:
+                      raise ValueError('Complete inventory changed after native difference preparation')
+                  shutil.copy2(source, inventory_reports / item['path'])
+              print(json.dumps(preparation))
+              sys.exit(0)
+          subprocess.run([sys.executable, 'tools/review_clean_core_selection.py',
+              '--catalog', str(work / 'app/public/seed-catalog'),
+              '--candidate-audit', str(work / 'candidate/admission/candidate-audit.json'),
+              '--reviewed-visibility', 'data/catalog-visibility-reviewed.json',
+              '--previously-inspected', os.environ['PREVIOUSLY_INSPECTED'],
+              '--out', str(work / 'holdout')], check=True)
+          index = json.loads((work / 'holdout/sample-index.json').read_text())
           inspected_sha256 = context['request']['previouslyInspected']['sha256']
           inspected_document = json.loads(Path(os.environ['PREVIOUSLY_INSPECTED']).read_text())
           inspected_images = {row['encodedSha256'] for row in inspected_document['images']}
@@ -741,6 +819,31 @@ jobs:
           cancellation = read(reports / 'browser/cancellation/cancellation.json') or {}
           fullscreen = read(reports / 'browser/fullscreen/report.json') or {}
           holdout = read(work / 'holdout/sample-index.json') or {}
+          remediation_mode = context.get('request', {}).get('visualReview', {}).get('mode') == 'remediation'
+          remediation = read(work / 'remediation/remediation-index.json') or {}
+          preparation = read(work / 'remediation/visual-review-preparation.json') or {}
+          review_root = work / ('remediation' if remediation_mode else 'holdout')
+          review_index_path = review_root / ('remediation-index.json' if remediation_mode else 'sample-index.json')
+          review_index = remediation if remediation_mode else holdout
+          if remediation_mode:
+              review_prepared = (bool(remediation) and bool(pins)
+                  and remediation.get('mode') == 'remediation'
+                  and remediation.get('status') == 'pending-original-review'
+                  and remediation.get('independentHoldoutPassed') is False
+                  and remediation.get('allKnownExcludedAbsent') is True
+                  and remediation.get('allPriorDenyAndUncertainAbsent') is True
+                  and remediation.get('final', {}).get('manifestSha256') == pins.get('manifestSha256')
+                  and remediation.get('selectionReviewSha256') == pins.get('selectionReviewSha256')
+                  and preparation.get('allAddedOriginalsExtracted') is True
+                  and preparation.get('allAddedOriginalsReviewed') is False
+                  and preparation.get('addedPhotos') == len(remediation.get('added', []))
+                  and review_index_path.is_file()
+                  and preparation.get('indexSha256') == sha256(review_index_path)
+                  and (reports / 'remediation-index.json').is_file()
+                  and sha256(reports / 'remediation-index.json') == preparation.get('indexSha256'))
+          else:
+              review_prepared = (holdout.get('sampleCount') == 360
+                  and holdout.get('previouslyInspectedSha256') == context.get('request', {}).get('previouslyInspected', {}).get('sha256'))
           candidate_trial = next((row for row in comparison.get('trials', []) if row.get('name') == 'candidate'), {})
           baseline_trial = next((row for row in comparison.get('trials', []) if row.get('name') == 'baseline'), {})
           fixed_passed = (comparison.get('passed') is True and candidate_trial.get('passed') is True
@@ -772,8 +875,7 @@ jobs:
               and physical.get('winkExpressionReviewSha256') == pins.get('winkExpressionReviewSha256')
               and physical.get('allSelectedWinkProfilesHaveReviewedEvidence') is True
               and cancellation.get('passed') is True and fullscreen.get('passed') is True
-              and holdout.get('sampleCount') == 360
-              and holdout.get('previouslyInspectedSha256') == context.get('request', {}).get('previouslyInspected', {}).get('sha256'))
+              and review_prepared)
           origin = {'kind': 'github-actions', 'repository': os.environ['GITHUB_REPOSITORY'],
                     'workflowRunId': int(os.environ['GITHUB_RUN_ID']), 'workflowRunAttempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
                     'codeCommit': os.environ['GITHUB_SHA'], 'runnerOs': os.environ.get('RUNNER_OS'),
@@ -819,6 +921,28 @@ jobs:
               'hostedSiteVerified': False, 'datasetPromoted': False, 'sitePublished': False,
               'promotionReady': False,
           }
+          if remediation_mode:
+              # Preserve the fixed evaluated candidate's failed holdout. The
+              # separate index binds a complete census of replacement photos.
+              receipt['selectedPhotoHoldout'] = {
+                  'status': 'failed', 'reviewer': 'assistant visual inspection', 'humanVerified': False,
+                  'checkedPhotos': 360, 'preparedPhotos': 360,
+                  'counts': {'pass': 301, 'deny': 27, 'uncertain': 32},
+                  'previouslyInspectedSha256': '2b9586e1d788539c7ce3d078dc6158bbba4183634c81077fe82505b68828a623',
+                  'previouslyInspectedImageCount': 1617,
+                  'sampleIndexSha256': 'f543ad152cb192f559452144d2ad9a5887593cbd058efae21a89372ca76e7221',
+                  'visualReviewSha256': '2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c',
+              }
+              receipt['visualReviewPreparation'] = {
+                  'mode': 'remediation', 'independentFinalHoldout': False,
+                  'indexPath': 'reports/remediation-index.json', 'indexSha256': preparation.get('indexSha256'),
+                  'addedPhotos': preparation.get('addedPhotos'), 'evaluatedCandidateRunId': 37491677036,
+                  'evaluatedManifestSha256': 'd8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785',
+                  'finalManifestSha256': preparation.get('finalManifestSha256'),
+                  'failedHoldoutSha256': '2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c',
+              }
+              receipt['remediationEvidence'] = {
+                  'path': 'reports/remediation-index.json', 'sha256': preparation.get('indexSha256')}
           write(reports / 'qa-receipt.json', receipt)
           write(summary / 'qa-receipt.json', receipt)
           require((summary / 'qa-receipt.json').stat().st_size <= 24 * 1024 * 1024,
@@ -828,7 +952,9 @@ jobs:
           for name in ('candidate-pins.json', 'generation-receipt.json', 'generation-physical-admission.json',
                        'archive-validation.json', 'physical-admission.json', 'selection-review.json',
                        'selection-review-previous.json', 'wink-expression-review.json',
-                       'previously-inspected.json', 'request.json', 'integrity.json'):
+                       'previously-inspected.json', 'request.json', 'integrity.json',
+                       'evaluated-candidate-archive.json', 'remediation-index.json',
+                       'visual-review-preparation.json', 'original-failed-holdout.json'):
               source = reports / name
               if source.is_file():
                   shutil.copy2(source, summary / name)
@@ -837,16 +963,22 @@ jobs:
           bundle_index = {'schemaVersion': 1, 'executionOrigin': origin, 'candidate': pins,
                           'maximumArtifactPayloadBytes': 24 * 1024 * 1024,
                           'assistantReviewStatus': 'pending', 'humanVerified': False,
+                          'visualReviewMode': 'remediation' if remediation_mode else 'independent-holdout',
                           'containsCandidateCatalogOrAdmissionDatabase': False, 'artifacts': []}
-          if holdout:
-              require(len(holdout.get('pages', [])) <= 10, 'Holdout exceeds the ten bounded page artifacts')
-              samples = {row['sample']: row for row in holdout.get('samples', [])}
-              for number, page in enumerate(holdout.get('pages', []), 1):
+          if review_index:
+              require(len(review_index.get('pages', [])) <= 10,
+                      'Complete original review exceeds ten bounded pages; expand artifact capacity without sampling or truncation')
+              samples = {row['sample']: row for row in review_index.get('added' if remediation_mode else 'samples', [])}
+              for number, page in enumerate(review_index.get('pages', []), 1):
+                  # The legacy artifact transport name is shared; its mode and
+                  # index explicitly distinguish remediation from a holdout.
                   page_name = f'holdout-{number:02d}'
                   target = staging / page_name
                   target.mkdir()
                   rows = []
                   names = [page['path']]
+                  if remediation_mode:
+                      names.append(page['index']['path'])
                   for identity in page['samples']:
                       row = samples[identity]
                       names.append(row['imagePath'])
@@ -856,7 +988,7 @@ jobs:
                       relative = PurePosixPath(name)
                       require(not relative.is_absolute() and '..' not in relative.parts
                               and relative.as_posix() == name and '\0' not in name, 'Unsafe holdout path')
-                      source = work / 'holdout' / name
+                      source = review_root / name
                       require(source.is_file() and not source.is_symlink(), 'Missing holdout original or contact sheet')
                       output = target / name
                       output.parent.mkdir(parents=True, exist_ok=True)
@@ -864,14 +996,17 @@ jobs:
                       copied.append({'path': name, 'sha256': sha256(output), 'bytes': output.stat().st_size})
                   for row in rows:
                       require(sha256(target / row['imagePath']) == row['encodedSha256'], 'Holdout original hash changed during packaging')
-                  write(target / 'page-index.json', {'manifestSha256': holdout.get('manifestSha256'),
-                        'sampleIndexSha256': sha256(work / 'holdout/sample-index.json'), 'page': page,
+                  write(target / 'page-index.json', {'manifestSha256': (pins or {}).get('manifestSha256'),
+                        'mode': 'remediation' if remediation_mode else 'independent-holdout',
+                        'reviewIndexSha256': sha256(review_index_path),
+                        ('remediationIndexSha256' if remediation_mode else 'sampleIndexSha256'): sha256(review_index_path), 'page': page,
                         'samples': rows, 'assistantReviewStatus': 'pending', 'humanVerified': False})
                   total = sum(path.stat().st_size for path in target.rglob('*') if path.is_file())
                   require(total <= 24 * 1024 * 1024, 'A holdout page artifact exceeds the 24 MiB payload cap')
                   target.rename(bundles / page_name)
                   bundle_index['artifacts'].append({'name': prefix + page_name + '-' + suffix,
-                      'kind': 'holdout-page-with-exact-originals', 'bytes': total, 'samples': page['samples'], 'files': copied})
+                      'kind': 'remediation-page-with-exact-originals' if remediation_mode else 'holdout-page-with-exact-originals',
+                      'bytes': total, 'samples': page['samples'], 'files': copied})
           # Detailed reports are the only tar input. The generated Y4M camera
           # fixture, candidate packs, SQLite databases and models are omitted.
           report_files = []
@@ -879,7 +1014,10 @@ jobs:
               require(not source.is_symlink(), 'A QA report is symlinked')
               if not source.is_file() or 'fixtures' in source.relative_to(reports).parts:
                   continue
-              require(source.suffix.lower() in ('.json', '.log', '.txt', '.png', '.csv', '.sha256'),
+              require(source.suffix.lower() in ('.json', '.log', '.txt', '.png', '.csv', '.sha256')
+                      or source.relative_to(reports).as_posix() in (
+                          'remediation-inventories/prior-inventory.jsonl.gz',
+                          'remediation-inventories/final-inventory.jsonl.gz'),
                       'Unexpected binary in the report-only archive')
               report_files.append({'path': 'reports/' + source.relative_to(reports).as_posix(),
                                    'sha256': sha256(source), 'bytes': source.stat().st_size})
@@ -915,14 +1053,16 @@ jobs:
               'bytes': archive_path.stat().st_size, 'parts': parts,
               'reconstruction': 'Concatenate part01, part02, etc. in numeric order; verify the archive SHA256 before extracting.'}
           bundle_index['artifacts'].insert(0, {'name': prefix + 'summary-' + suffix,
-                                               'kind': 'qa-receipts-and-global-holdout-index'})
+                                               'kind': 'qa-receipts-and-complete-review-index'})
           write(summary / 'bundle-index.json', bundle_index)
           require(sum(path.stat().st_size for path in summary.rglob('*') if path.is_file()) <= 24 * 1024 * 1024,
                   'Summary artifact exceeds the bounded payload size')
           shutil.rmtree(fallback_summary)
           summary.rename(fallback_summary)
           print(json.dumps({'automatedChecksPassed': automated_passed, 'visualReview': 'pending',
-                            'holdoutPhotos': holdout.get('sampleCount', 0), 'holdoutPages': len(holdout.get('pages', [])),
+                            'visualReviewMode': 'remediation' if remediation_mode else 'independent-holdout',
+                            'originalsPrepared': len(review_index.get('added' if remediation_mode else 'samples', [])),
+                            'originalPages': len(review_index.get('pages', [])),
                             'reportArchiveParts': len(parts), 'maximumPayloadMiB': 24,
                             'datasetPromoted': False, 'sitePublished': False}))
           PY

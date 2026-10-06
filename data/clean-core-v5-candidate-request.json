@@ -1,9 +1,7 @@
 {
   "schemaVersion": 1,
-  "request": "Generate an audited physical Clean Core candidate of exactly 70000 photographs",
+  "request": "Inspect exact completed candidate audit records and original photos before reselection",
   "createdOn": "2026-10-06",
-  "codeCommit": "d2d1c5e1fbaf4302934d3f2f78e4a93451eae3a5",
-  "codeCiRun": 37462591273,
   "baselineCommit": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e",
   "ffhqSourceCommit": "9d10fb37a825a5f90e5a3671a9564a1f1e9bef53",
   "sourceCandidateRows": 140105,
@@ -16,12 +14,31 @@
   "sitePublication": false,
   "postSelectionVisualReview": "pending",
   "fixedVideoVerification": "pending",
-  "attempt": 3,
-  "previousRun": 37463307485,
-  "previousRunStatus": "failed before image analysis: missing native libEGL.so.1",
+  "attempt": 4,
+  "previousRun": 37464000479,
+  "previousRunStatus": "All sixteen inference partitions and merge succeeded; selection stopped at wink and mouth profile minima",
   "nativeRuntimeDependency": [
     "libgles2",
     "libegl1"
   ],
-  "nativeInferencePreflight": true
+  "nativeInferencePreflight": true,
+  "diagnosticOnly": true,
+  "lastVerifiedApplicationCommit": "d5c0c409864841879a2521318eeeec2a124fa22e",
+  "lastVerifiedApplicationCiRun": 37466492422,
+  "reuseAudit": {
+    "runId": 37464000479,
+    "runAttempt": 1,
+    "artifactId": 11415037663,
+    "artifactName": "clean-core-v5-failure-37464000479-1",
+    "archiveSizeBytes": 2519170981,
+    "archiveSha256": "0b8023f1c9e81676b499feab0cea82279909e7a8347cf73185076d35560a643b",
+    "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+    "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+    "inferenceCodeCommit": "8f209747dbf5edfd627707734ad01a19be43e897"
+  },
+  "selectionReview": {
+    "path": "data/catalog-selection-reviewed.json",
+    "sha256": "df71ead9db0b51ecc934b7448cc8d1462c94079598e779fe799298e24ed9c5a3",
+    "previous": null
+  }
 }

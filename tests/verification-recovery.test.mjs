@@ -56,10 +56,47 @@ test('invalid deployment responses fail explicitly, not as a camera timeout', as
   await assert.rejects(readAssetBytes('http://fixture/large', { maxBytes: 50 }), /ASSET_TOO_LARGE/);
 });
 
-test('all original 99 frontal pose files remain searchable: no hidden catalog reduction', async () => {
+test('every declared pose shard remains searchable: preserve legacy breadth and complete admitted coverage', async () => {
   const manifest = JSON.parse(await readFile(new URL('../public/seed-catalog/manifest.json', import.meta.url)));
   const files = shardFilesForCells(manifest, poseWindowCellKeys(manifest, [0,0], 12, 15));
-  assert.equal(files.length, 99); assert.equal(manifest.totalFaces, 70000);
+  assert.equal(manifest.totalFaces, 70000);
+  if (manifest.qualityAdmission === undefined) {
+    assert.equal(files.length, 99);
+    return;
+  }
+  const admission = manifest.qualityAdmission;
+  assert.ok(admission && typeof admission === 'object' && !Array.isArray(admission));
+  assert.equal(admission.schemaVersion, 2); assert.equal(admission.status, 'complete');
+  assert.equal(admission.selectedCount, 70000); assert.equal(admission.runtimeExclusionOverlayRequired, false);
+  assert.ok(typeof admission.policyId === 'string' && admission.policyId.length > 0);
+  for (const key of ['policySha256', 'receiptSha256', 'recordsSha256', 'attributeModelSha256', 'faceModelSha256']) {
+    assert.equal(typeof admission[key], 'string', key); assert.match(admission[key], /^[a-f0-9]{64}$/u, key);
+  }
+  assert.equal(manifest.sourceFaces, 70000); assert.equal(manifest.searchableFaces, 70000);
+  assert.equal(manifest.poseStep, 3);
+  assert.deepEqual(manifest.bounds, { yawMin: -45, yawMax: 45, pitchMin: -36, pitchMax: 36 });
+  const entries = Object.entries(manifest.cells);
+  const declaredFiles = entries.flatMap(([, cell]) => cell.shards ?? [cell.shard]);
+  assert.equal(entries.reduce((sum, [, cell]) => sum + cell.count, 0), 70000);
+  assert.equal(manifest.stats.poseCells, entries.length);
+  assert.equal(new Set(declaredFiles).size, declaredFiles.length, 'Each declared shard belongs to one pose cell');
+  assert.equal(manifest.stats.shardCount, declaredFiles.length);
+  // The new accepted photos can occupy a different set of cells and split into
+  // different shard counts. Compare the runtime window against every declared
+  // in-window cell, independently of its historical 99-file frontal layout.
+  for (const [yaw, pitch] of [[0, 0], [-45, 0], [45, 0], [0, -36], [0, 36]]) {
+    const expected = entries.filter(([key]) => {
+      const [cellYaw, cellPitch] = key.split(':').map(Number);
+      return Math.abs(cellYaw - yaw) <= 12 && Math.abs(cellPitch - pitch) <= 15;
+    });
+    assert.ok(expected.length > 0, `Missing pose coverage near ${yaw}:${pitch}`);
+    const actualKeys = poseWindowCellKeys(manifest, [yaw / 90, pitch / 90], 12, 15);
+    assert.deepEqual(new Set(actualKeys), new Set(expected.map(([key]) => key)));
+    assert.deepEqual(new Set(shardFilesForCells(manifest, actualKeys)), new Set(expected.flatMap(([, cell]) => cell.shards ?? [cell.shard])));
+  }
+  const allCells = poseWindowCellKeys(manifest, [0, 0], 45, 36);
+  assert.deepEqual(new Set(allCells), new Set(entries.map(([key]) => key)));
+  assert.deepEqual(new Set(shardFilesForCells(manifest, allCells)), new Set(declaredFiles));
 });
 
 test('search is cancellable off-thread and camera ready follows CPU warmup', async () => {

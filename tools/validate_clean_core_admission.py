@@ -9,7 +9,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from clean_core_admission import AdmissionAudit, PackedImageReader, iter_catalog_entries, safe_child, sha256_file, source_key
-from clean_core_policy_v3 import BACKGROUND_PRIORITY, STRICT_PROFILE_PRIORITY, classify_assignment, quantized_pose_cell
+from clean_core_policy_v3 import (BACKGROUND_PRIORITY, STRICT_PROFILE_PRIORITY, OBSERVED_PROFILE_PRIORITY,
+                                  POLICY_VERSION, PROFILE_EVIDENCE_TIERS, classify_assignment, quantized_pose_cell)
 
 
 def require(condition: bool, message: str) -> None:
@@ -41,7 +42,58 @@ def release_requirements() -> dict:
     import clean_core_policy_v3 as policy
     return {"minimums": dict(policy.PROFILE_MINIMUMS), "poseCellMinimums": dict(policy.PROFILE_POSE_CELL_MINIMUMS),
             "backgroundMinimums": dict(policy.BACKGROUND_MINIMUMS),
-            "backgroundPoseCellMinimums": dict(policy.BACKGROUND_POSE_CELL_MINIMUMS)}
+            "backgroundPoseCellMinimums": dict(policy.BACKGROUND_POSE_CELL_MINIMUMS),
+            "profileEvidenceTiers": {name: list(tiers) for name, tiers in policy.PROFILE_EVIDENCE_TIERS.items()}}
+
+
+def validate_evidence_totals(selection: dict, stats: dict, counts: dict, cells: dict) -> dict:
+    """Never report naturally coexpressed observations as isolated profiles."""
+    declared = {name: list(tiers) for name, tiers in PROFILE_EVIDENCE_TIERS.items()}
+    require(selection.get("profileEvidenceTiers") == stats.get("profileEvidenceTiers") == declared,
+            "Declared expression evidence tiers differ from the release policy")
+    require(selection.get("policyVersion") == stats.get("policyVersion") == POLICY_VERSION,
+            "Expression selection policy version differs")
+    for tier, profiles in counts.items():
+        for name, count in profiles.items():
+            require(not count or tier in PROFILE_EVIDENCE_TIERS.get(name, ()),
+                    "Physical coverage uses an undeclared evidence tier: " + name)
+    tier_totals = {tier: sum(values.values()) for tier, values in counts.items() if sum(values.values())}
+    require(selection.get("selectedTiers") == stats.get("tierCounts") == tier_totals,
+            "Total evidence-tier counts differ from physical selected entries")
+    result = {"profileEvidenceTiers": declared}
+    for tier, names, audit_count, manifest_count, cell_field in (
+        ("strict", STRICT_PROFILE_PRIORITY, "strictProfiles", "strictProfileCounts", "strictProfilePoseCells"),
+        ("observed", OBSERVED_PROFILE_PRIORITY, "observedProfiles", "observedProfileCounts", "observedProfilePoseCells"),
+    ):
+        expected_counts = {name: counts.get(tier, {}).get(name, 0) for name in names}
+        expected_cells = {name: len(cells.get(tier, {}).get(name, set())) for name in names}
+        require(selection.get(audit_count) == stats.get(manifest_count) == expected_counts,
+                "Isolated/observed profile counts differ from actual evidence tiers: " + tier)
+        require(selection.get(cell_field) == stats.get(cell_field) == expected_cells,
+                "Isolated/observed pose breadth differs from actual evidence tiers: " + tier)
+        result[audit_count], result[cell_field] = expected_counts, expected_cells
+    return result
+
+
+def validate_selection_identity(manifest: dict, selection_audit: dict, receipt_sha256: str, target: int) -> dict:
+    from build_clean_core_v3 import selection_identity, selection_identity_sha256
+
+    identity = manifest.get("selectionIdentity")
+    require(isinstance(identity, dict), "Missing classification/selection identity")
+    preselect = identity.get("preselectMultiplier")
+    require(type(preselect) is int and preselect >= 1, "Invalid selection preselection parameter")
+    require(identity.get("additionalSelectionExclusionsSha256") is None,
+            "Additional selection exclusions require the bound deny-only review validator")
+    expected = selection_identity(receipt_sha256, target, preselect)
+    require(identity == selection_audit.get("selectionIdentity") == expected,
+            "Selection policy, program, parameters or admission receipt differ")
+    digest = selection_identity_sha256(expected)
+    require(manifest.get("selectionIdentitySha256") == selection_audit.get("selectionIdentitySha256") == digest,
+            "Selection identity digest mismatch")
+    catalog_id = "many-faces-clean-core-v5-" + digest[:16]
+    require(manifest.get("catalogId") in (catalog_id, catalog_id + "-pose-local-v1"),
+            "Catalog identity is not bound to its actual classification and selection policy")
+    return {"selectionIdentity": expected, "selectionIdentitySha256": digest}
 
 
 def main() -> int:
@@ -61,6 +113,7 @@ def main() -> int:
     require(selection_audit.get("gatePassed") is True and not selection_audit.get("gateFailures"), "Physical selection audit did not pass")
     require(selection_audit.get("knownSyntheticFacesSelected") == 0, "Real-photograph audit did not pass")
     requirements = release_requirements()
+    selected_identity = validate_selection_identity(manifest, selection_audit, sha256_file(args.candidate_audit), args.target_total)
     for key, expected in requirements.items():
         require(selection_audit.get(key) == expected, "Selection release requirements differ from configured real-only policy: " + key)
     for key in ("totalFaces", "sourceFaces", "searchableFaces"):
@@ -93,6 +146,8 @@ def main() -> int:
         ids, digests = set(), set()
         profiles, cells, source_counts = Counter(), Counter(), Counter()
         profile_cells = defaultdict(set)
+        evidence_counts = defaultdict(Counter)
+        evidence_cells = defaultdict(lambda: defaultdict(set))
         ranges = defaultdict(list)
         directions = Counter()
         bytes_total = 0
@@ -117,9 +172,15 @@ def main() -> int:
                 require(assignment is not None, "Final photo has no supported expression assignment")
                 profile, tier = assignment
                 require(entry.get("cleanProfile") == profile.name and entry.get("cleanTier") == tier, "Final expression classification differs from fresh evidence")
+                require(tier in PROFILE_EVIDENCE_TIERS.get(profile.name, ()), "Final profile has an undeclared evidence tier")
+                require(entry.get("cleanPolicy") == POLICY_VERSION, "Final photo uses another expression selection policy")
+                if tier == "observed":
+                    require(entry.get("cleanPurity") == 0, "Observed coexpression must not claim isolated purity")
                 cell, yaw, pitch = quantized_pose_cell(record["feature"], 3)
                 profiles[profile.name] += 1
                 profile_cells[profile.name].add(cell)
+                evidence_counts[tier][profile.name] += 1
+                evidence_cells[tier][profile.name].add(cell)
                 cells[cell] += 1
                 source_counts[source_catalog] += 1
                 fresh_yaw, fresh_pitch = record["freshYaw"], record["freshPitch"]
@@ -147,6 +208,7 @@ def main() -> int:
         require(selection_audit.get("selectedProfilePoseCells") == complete_cells, "Selection pose counts are incomplete or mismatched")
         require(selection_audit.get("qualityAdmission") == stamp, "Selection audit is bound to another admission")
         require(selection_audit.get("selectedFaces") == args.target_total, "Selection audit physical count mismatch")
+        evidence_summary = validate_evidence_totals(selection_audit, clean_stats, evidence_counts, evidence_cells)
         for key in ("minimums", "backgroundMinimums"):
             for profile, minimum in requirements[key].items():
                 require(profiles[profile] >= minimum, "Final expression minimum failed: " + profile)
@@ -156,6 +218,8 @@ def main() -> int:
         report = {
             "schemaVersion": 1, "status": "passed", "physicalFaces": len(ids), "uniqueEncodedImages": len(digests),
             "allSelectedPhotosHavePassingAdmission": True, "allFreshMeasurementsMatch": True,
+            "allSelectedProfilesHaveDeclaredEvidence": True, **evidence_summary,
+            **selected_identity,
             "runtimeExclusionOverlayRequired": False, "bytes": bytes_total, "packs": len(ranges), "poseCells": len(cells),
             "catalogId": manifest["catalogId"], "manifestSha256": sha256_file(catalog / "manifest.json"),
             "qualityAdmission": stamp, "selectedProfiles": dict(sorted(profiles.items())),

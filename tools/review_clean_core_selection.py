@@ -122,8 +122,8 @@ def sample_buckets():
         ("yaw-positive-extreme", 36, "Fresh yaw >= +30 degrees", lambda row: row["freshYaw"] >= 30),
         ("pitch-negative-extreme", 24, "Fresh pitch <= -24 degrees", lambda row: row["freshPitch"] <= -24),
         ("pitch-positive-extreme", 24, "Fresh pitch >= +24 degrees", lambda row: row["freshPitch"] >= 24),
-        ("wink-left", 12, "Strict winkLeft profile", lambda row: row["cleanProfile"] == "winkLeft"),
-        ("wink-right", 12, "Strict winkRight profile", lambda row: row["cleanProfile"] == "winkRight"),
+        ("wink-left", 12, "winkLeft with declared strict or observed evidence", lambda row: row["cleanProfile"] == "winkLeft"),
+        ("wink-right", 12, "winkRight with declared strict or observed evidence", lambda row: row["cleanProfile"] == "winkRight"),
         ("smile-closed", 12, "Strict smileClosed profile", lambda row: row["cleanProfile"] == "smileClosed"),
         ("smile-open", 12, "Strict smileOpen profile", lambda row: row["cleanProfile"] == "smileOpen"),
         ("mouth-open", 12, "Strict mouthOpen profile", lambda row: row["cleanProfile"] == "mouthOpen"),
@@ -201,7 +201,7 @@ def extract_and_render(catalog: Path, output: Path, selected: list[dict]) -> lis
                 sheet.paste(preview, (x + (tile_width - preview.width) // 2, y + (photo_height - preview.height) // 2))
             scores = row["faceAttributes"]
             lines = [f"{row['sample']} {row['bucket'][:22]}",
-                     row["cleanProfile"],
+                     f"{row['cleanProfile']} ({row.get('cleanTier', '')})",
                      f"yaw {row['freshYaw']:+.1f} pitch {row['freshPitch']:+.1f}",
                      f"mask {scores['mask']:.3f} sun {scores['sunglasses']:.3f}",
                      f"glasses {scores['eyeglasses']:.3f} {row['encodedSha256'][:8]}"]

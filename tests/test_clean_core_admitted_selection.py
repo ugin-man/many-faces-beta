@@ -5,7 +5,8 @@ from types import SimpleNamespace
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 try:
-    from build_clean_core_v3 import admitted_entry, fill_breadth_first, title_rejection
+    from build_clean_core_v3 import (admitted_entry, fill_breadth_first, title_rejection,
+                                    selection_identity, selection_identity_sha256)
 except ModuleNotFoundError as error:
     if error.name not in {"numpy", "PIL"}:
         raise
@@ -52,6 +53,21 @@ class AdmittedSelectionTests(unittest.TestCase):
         for name in ("Face Painting Festival", "Facepaint", "ordinary eyeglasses", "DSCN9586", "50 shades of blue", "Singing on stage"):
             self.assertIsNone(title_rejection({"name": name}, profile), name)
         self.assertEqual(title_rejection({"name": "Oil painting portrait"}, profile), "likely_artwork")
+
+    def test_selection_identity_changes_with_classification_or_additional_reviews(self):
+        original = selection_identity("a" * 64, 70000, 6)
+        digest = selection_identity_sha256(original)
+        self.assertEqual(digest, selection_identity_sha256(selection_identity("a" * 64, 70000, 6)))
+        for changed in (
+            {**original, "policyVersion": "a-different-classification-policy"},
+            selection_identity("b" * 64, 70000, 6),
+            selection_identity("a" * 64, 70000, 7),
+            selection_identity("a" * 64, 70000, 6, "c" * 64),
+        ):
+            self.assertNotEqual(digest, selection_identity_sha256(changed))
+        self.assertEqual(set(original["selectionCodeSha256"]), {
+            "clean_core_policy_v2.py", "clean_core_policy_v3.py", "build_clean_core_v3.py",
+            "run_build_clean_core_v3_real_only.py", "run_build_clean_core_v3_repair.py"})
 
 
 if __name__ == "__main__":

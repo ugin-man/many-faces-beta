@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Build an exact-size Clean Core catalog from completed pixel admission.
 
-Strict isolated profiles are gated first. A separately labelled one-family
-background pool then supplies pose and identity density without pretending to
-cover missing strict states.
+Required profiles are gated first using explicitly declared evidence tiers.
+Isolated and observed-coexpression counts remain separate. A labelled
+background pool supplies pose and identity density after those gates.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ except ImportError:
 from clean_core_policy_v3 import (
     BACKGROUND_MINIMUMS, BACKGROUND_POSE_CELL_MINIMUMS, BACKGROUND_PRIORITY,
     FEATURE_LENGTH, POLICY_VERSION, PROFILE_CELL_LIMITS, PROFILE_GROUPS,
-    PROFILE_MINIMUMS, PROFILE_POSE_CELL_MINIMUMS,
+    PROFILE_MINIMUMS, PROFILE_POSE_CELL_MINIMUMS, PROFILE_EVIDENCE_TIERS, OBSERVED_PROFILE_PRIORITY,
     STRICT_PROFILE_PRIORITY, CleanProfile, classify_assignment, quantized_pose_cell,
 )
 
@@ -125,6 +125,7 @@ def parse_args() -> argparse.Namespace:
     args = parser.parse_args()
     if not args.catalog: parser.error("at least one --catalog LABEL=PATH is required")
     if args.target_total < 70_000: parser.error("target-total must be at least 70,000")
+    if args.preselect_multiplier < 1: parser.error("preselect-multiplier must be at least 1")
     if not args.face_attribute_model.is_file(): parser.error("--face-attribute-model must point to a readable ONNX file")
     if not args.quality_exclusions.is_file(): parser.error("--quality-exclusions must point to a completed pre-selection audit")
     if ort is None: parser.error("onnxruntime is required for the mandatory face-visibility gate")
@@ -181,6 +182,36 @@ def admitted_entry(entry: dict[str, Any], record: dict[str, Any]) -> dict[str, A
                  admissionSourceCatalogId=record["sourceCatalogId"],
                  admissionSourceId=record["sourceId"])
     return fresh
+
+
+def selection_identity(receipt_sha256: str, target_total: int, preselect_multiplier: int,
+                       additional_exclusions_sha256: str | None = None) -> dict[str, Any]:
+    """Bind catalog identity to effective selection, separately from inference.
+
+    The reserved review digest can later bind a deny-only selection gate. No
+    caller currently supplies it; physical validation rejects a claimed gate
+    until its exact review file is also verified and enforced.
+    """
+    for digest in (receipt_sha256, additional_exclusions_sha256):
+        if digest is not None and not re.fullmatch(r"[0-9a-f]{64}", digest):
+            raise ValueError("Invalid selection identity digest")
+    root = Path(__file__).resolve().parent
+    programs = ("clean_core_policy_v2.py", "clean_core_policy_v3.py", "build_clean_core_v3.py",
+                "run_build_clean_core_v3_real_only.py", "run_build_clean_core_v3_repair.py")
+    return {"schemaVersion": 1, "policyVersion": POLICY_VERSION,
+            "candidateAuditSha256": receipt_sha256,
+            "selectionCodeSha256": {name: sha256_file(root / name) for name in programs},
+            "targetTotal": target_total, "preselectMultiplier": preselect_multiplier,
+            "profileEvidenceTiers": {name: list(tiers) for name, tiers in PROFILE_EVIDENCE_TIERS.items()},
+            "profileMinimums": dict(PROFILE_MINIMUMS), "profilePoseCellMinimums": dict(PROFILE_POSE_CELL_MINIMUMS),
+            "backgroundMinimums": dict(BACKGROUND_MINIMUMS), "backgroundPoseCellMinimums": dict(BACKGROUND_POSE_CELL_MINIMUMS),
+            "profileCellLimits": dict(PROFILE_CELL_LIMITS),
+            "additionalSelectionExclusionsSha256": additional_exclusions_sha256}
+
+
+def selection_identity_sha256(identity: dict[str, Any]) -> str:
+    return hashlib.sha256(json.dumps(identity, sort_keys=True, separators=(",", ":"),
+                                    ensure_ascii=False, allow_nan=False).encode("utf-8")).hexdigest()
 
 
 def layout_score(entry: dict[str, Any]) -> float:
@@ -334,6 +365,8 @@ def main()->int:
     packs.mkdir(parents=True); shards.mkdir(parents=True); sheets.mkdir(parents=True)
     sources=[load_catalog(*parse_catalog_arg(value)) for value in args.catalog]
     admission=AdmissionAudit(args.quality_exclusions,args.face_attribute_model,sources)
+    selection=selection_identity(sha256_file(args.quality_exclusions), args.target_total, args.preselect_multiplier)
+    selection_sha256=selection_identity_sha256(selection)
     rejects:Counter[str]=Counter(); classified:Counter[str]=Counter(); groups:dict[tuple[str,str],list[Candidate]]=defaultdict(list)
     input_entries=sum(len(source.entries) for source in sources)
     try:
@@ -347,6 +380,8 @@ def main()->int:
                 assignment=classify_assignment(feature,entry.get("projection"))
                 if assignment is None: rejects["mixed_or_unsupported_state"]+=1; continue
                 profile,tier=assignment
+                if tier not in PROFILE_EVIDENCE_TIERS[profile.name]:
+                    raise ValueError("Profile uses an undeclared evidence tier")
                 reason=title_rejection(entry,profile)
                 if reason: rejects[reason]+=1; continue
                 cell,yaw,pitch=quantized_pose_cell(feature,3)
@@ -395,8 +430,8 @@ def main()->int:
                 if not added: break
                 round_index+=1
 
-        # Add strict profile diversity first. Missing strict minima can never be
-        # hidden by background faces.
+        # Add required profile diversity first. Only each profile's explicitly
+        # declared evidence tiers can satisfy its minimum; background cannot.
         fill_breadth_first(selected,selected_by_group,STRICT_PROFILE_PRIORITY,args.target_total)
 
         # Fill to 70k from an explicitly labelled one-family background pool.
@@ -419,8 +454,10 @@ def main()->int:
         for c in selected: by_profile[c.profile.name].append(c)
         profile_counts={p:len(by_profile.get(p,[])) for p in PROFILE_PRIORITY}
         profile_cells={p:len({c.cell for c in by_profile.get(p,[])}) for p in PROFILE_PRIORITY}
-        strict_counts={p:profile_counts[p] for p in STRICT_PROFILE_PRIORITY}
-        strict_cells={p:profile_cells[p] for p in STRICT_PROFILE_PRIORITY}
+        strict_counts={p:sum(c.tier=="strict" for c in by_profile.get(p,[])) for p in STRICT_PROFILE_PRIORITY}
+        strict_cells={p:len({c.cell for c in by_profile.get(p,[]) if c.tier=="strict"}) for p in STRICT_PROFILE_PRIORITY}
+        observed_counts={p:sum(c.tier=="observed" for c in by_profile.get(p,[])) for p in OBSERVED_PROFILE_PRIORITY}
+        observed_cells={p:len({c.cell for c in by_profile.get(p,[]) if c.tier=="observed"}) for p in OBSERVED_PROFILE_PRIORITY}
         background_counts={p:profile_counts[p] for p in BACKGROUND_PRIORITY}
         background_cells={p:profile_cells[p] for p in BACKGROUND_PRIORITY}
         tier_counts=Counter(c.tier for c in selected)
@@ -438,11 +475,14 @@ def main()->int:
         source_counts=Counter(c.source.catalog_id for c in selected)
         audit={
             "policyVersion":POLICY_VERSION,"inputEntries":input_entries,
+            "selectionIdentity":selection,"selectionIdentitySha256":selection_sha256,
             "inputCatalogs":{s.catalog_id:len(s.entries) for s in sources},
             "classifiedCandidates":sum(classified.values()),"classifiedProfiles":dict(sorted(classified.items())),
             "selectedFaces":len(selected),"targetFaces":args.target_total,
             "selectedProfiles":profile_counts,"selectedProfilePoseCells":profile_cells,
             "strictProfiles":strict_counts,"strictProfilePoseCells":strict_cells,
+            "observedProfiles":observed_counts,"observedProfilePoseCells":observed_cells,
+            "profileEvidenceTiers":{p:list(tiers) for p,tiers in PROFILE_EVIDENCE_TIERS.items()},
             "backgroundProfiles":background_counts,"backgroundProfilePoseCells":background_cells,
             "selectedTiers":dict(sorted(tier_counts.items())),
             "selectedSources":dict(sorted(source_counts.items())),"rejections":dict(sorted(rejects.items())),
@@ -488,29 +528,32 @@ def main()->int:
                 names.append(name);shard_count+=1
             cells_manifest[cell]={"count":len(items),"shards":names}
         manifest={
-            "schemaVersion":3,"catalogId":"many-faces-clean-core-v5-"+audit["qualityAdmission"]["receiptSha256"][:12],"generatedAt":datetime.now(timezone.utc).isoformat(),
+            "schemaVersion":3,"catalogId":"many-faces-clean-core-v5-"+selection_sha256[:16],"generatedAt":datetime.now(timezone.utc).isoformat(),
             "totalFaces":len(selected),"sourceFaces":len(selected),"searchableFaces":len(selected),"poseStep":3,
             "bounds":{"yawMin":-45,"yawMax":45,"pitchMin":-36,"pitchMax":36},"outputSize":256,
             "shapeVersion":"mediapipe-projection-468-v4","featureSchema":"mediapipe-face-actions-v2","featureLength":FEATURE_LENGTH,
             "shardsContainGeometry":True,"indexFiles":[],"cells":cells_manifest,
             "qualityAdmission":audit["qualityAdmission"],
+            "selectionIdentity":selection,"selectionIdentitySha256":selection_sha256,
             "stats":{"cleanCore":{"policyVersion":POLICY_VERSION,"selectedFaces":len(selected),"profileCounts":profile_counts,
                     "profilePoseCells":profile_cells,"strictProfileCounts":strict_counts,
+                    "strictProfilePoseCells":strict_cells,"observedProfileCounts":observed_counts,"observedProfilePoseCells":observed_cells,
+                    "profileEvidenceTiers":audit["profileEvidenceTiers"],
                     "backgroundProfileCounts":background_counts,"tierCounts":dict(sorted(tier_counts.items())),"sourceCatalogCounts":dict(sorted(source_counts.items())),
                     "gatePassed":True,"selection":{"strategy":"profile minimums, 3-degree breadth-first, identity diversity","targetTotal":args.target_total}},
                     "poseCells":len(cells_manifest),"packCount":pack_index,"shardCount":shard_count},
         }
         (catalog/"manifest.json").write_text(json.dumps(manifest,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
         with (output/"coverage.csv").open("w",encoding="utf-8",newline="") as f:
-            writer=csv.writer(f);writer.writerow(("profile","cell","yaw","pitch","count","best_score"))
-            final_groups:dict[tuple[str,str],list[Candidate]]=defaultdict(list)
-            for c in selected:final_groups[(c.profile.name,c.cell)].append(c)
-            for (p,cell),items in sorted(final_groups.items()):
+            writer=csv.writer(f);writer.writerow(("profile","tier","cell","yaw","pitch","count","best_score"))
+            final_groups:dict[tuple[str,str,str],list[Candidate]]=defaultdict(list)
+            for c in selected:final_groups[(c.profile.name,c.tier,c.cell)].append(c)
+            for (p,tier,cell),items in sorted(final_groups.items()):
                 if items:
-                    yaw,pitch=map(int,cell.split(":"));writer.writerow((p,cell,yaw,pitch,len(items),f"{max(c.score for c in items):.6f}"))
+                    yaw,pitch=map(int,cell.split(":"));writer.writerow((p,tier,cell,yaw,pitch,len(items),f"{max(c.score for c in items):.6f}"))
         for p,items in by_profile.items():write_contact_sheet(sheets/f"{p}.jpg",p,items)
         cards="\n".join(f"<section><h2>{html.escape(p)} — {profile_counts[p]:,} / {profile_cells[p]:,} pose cells</h2><img src='contact-sheets/{html.escape(p)}.jpg'></section>" for p in PROFILE_PRIORITY if profile_counts[p])
-        (review/"index.html").write_text(f"<!doctype html><meta charset='utf-8'><title>Clean Core v3</title><style>body{{font:16px system-ui;margin:24px;background:#eee}}section,header{{background:white;padding:16px;margin:14px 0;border-radius:12px}}img{{max-width:100%}}</style><header><h1>Many Faces Clean Core v3</h1><p>{len(selected):,} physical images. Every advertised single-factor profile passed explicit count and 3-degree pose-coverage gates.</p></header>{cards}",encoding="utf-8")
+        (review/"index.html").write_text(f"<!doctype html><meta charset='utf-8'><title>Clean Core v5</title><style>body{{font:16px system-ui;margin:24px;background:#eee}}section,header{{background:white;padding:16px;margin:14px 0;border-radius:12px}}img{{max-width:100%}}</style><header><h1>Many Faces Clean Core v5</h1><p>{len(selected):,} physical images. Required profiles passed their declared evidence, count and 3-degree pose-coverage gates. Observed winks may retain natural coexpressions and are counted separately from isolated strict profiles.</p></header>{cards}",encoding="utf-8")
         (output/"README.md").write_text(f"# Many Faces Clean Core v3\n\nPhysical searchable faces: **{len(selected):,}**.\n\nSee `audit.json`, `coverage.csv`, and `review/index.html`.\n",encoding="utf-8")
         print(json.dumps(audit,indent=2));return 0
     finally:

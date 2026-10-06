@@ -15,6 +15,7 @@ import io
 import json
 import math
 import os
+import shutil
 import zlib
 from collections import Counter, defaultdict
 from dataclasses import asdict
@@ -29,6 +30,9 @@ GROUPS = ("wink-left", "wink-right", "mouth-wide", "mouth-frown")
 SAMPLE_PREFIX = dict(zip(GROUPS, ("WL", "WR", "MW", "MF")))
 MAX_GROUP_BYTES = 24 * 1024 * 1024
 SAMPLES_PER_GROUP = 48
+MAX_ARTIFACT_PARTS = 8
+MAX_ARTIFACT_FILES = 1000
+AUTOMATIC_WINK_GROUPS = ("wink-left", "wink-right")
 POOL_PER_BUCKET = 128
 SEED = "clean-core-profile-diagnostics-20261008"
 SYNTHETIC_MARKERS = (
@@ -216,12 +220,26 @@ class CandidatePools:
         self.heaps = {group: defaultdict(list) for group in GROUPS}
         self.rows = {group: Counter({"eligible": 0}) for group in GROUPS}
         self.images = {group: defaultdict(set) for group in GROUPS}
+        self.automatic_winks = {group: {} for group in AUTOMATIC_WINK_GROUPS}
+        self.automatic_wink_rows = Counter()
 
     def add(self, record: dict, source: dict, description: dict) -> None:
         compact = {"sourceKey": record["sourceKey"], "sourceCatalogId": record["sourceCatalogId"],
                    "sourceId": record["sourceId"], "sourceLabel": source["sourceLabel"],
                    "encodedSha256": record["encodedSha256"], "cell": record["cell"],
                    "creatorKey": source["creatorKey"]}
+        # This is the unchanged automatic screen, independent of the later
+        # exact-image expression review required by selection. A match is a
+        # diagnostic candidate, never a confirmed wink or admission override.
+        evidence = description["observedWinkEvidence"]
+        if evidence is not None:
+            group = "wink-" + evidence["side"]
+            require(group in self.automatic_winks, "Unknown automatic wink side")
+            self.automatic_wink_rows[group] += 1
+            alias = {key: value for key, value in compact.items() if key != "creatorKey"}
+            candidate = self.automatic_winks[group].setdefault(record["encodedSha256"],
+                {**compact, "samplingBucket": "all-automatic-wink-candidates", "sourceAliases": []})
+            candidate["sourceAliases"].append(alias)
         for group in GROUPS:
             buckets = strata(group, description)
             if not buckets:
@@ -274,6 +292,13 @@ class CandidatePools:
         return {key: {"sourceRows": count, "uniqueEncodedImages": len(self.images[group][key])}
                 for key, count in sorted(self.rows[group].items())}
 
+    def all_automatic_winks(self, group: str) -> list[dict]:
+        return [self.automatic_winks[group][digest] for digest in sorted(self.automatic_winks[group])]
+
+    def automatic_wink_counts(self, group: str) -> dict:
+        return {"sourceRows": self.automatic_wink_rows[group],
+                "uniqueEncodedImages": len(self.automatic_winks[group])}
+
 
 def scan_pool(audit: admission.AdmissionAudit, sources: dict) -> tuple[CandidatePools, dict]:
     pools = CandidatePools()
@@ -318,15 +343,21 @@ def scan_pool(audit: admission.AdmissionAudit, sources: dict) -> tuple[Candidate
                    "countingScope": "Every completed PASS record is checked. Synthetic/artwork sources are not classified. Counts precede image deduplication, selection/diversity and profile caps; bucket overlaps are explicit. Unique image counts within different profiles may overlap across source aliases."}
 
 
+class GroupTooLarge(ValueError):
+    """A diagnostic page must be split without changing original image bytes."""
+
+
 def extract_group(group: str, selected: list[dict], entries: dict, sources: dict,
-                  audit: admission.AdmissionAudit, output: Path, provenance: dict, counts: dict) -> dict:
+                  audit: admission.AdmissionAudit, output: Path, provenance: dict, counts: dict,
+                  *, directory_name: str | None = None, prefix: str | None = None,
+                  first_number: int = 1, exhaustive: bool = False) -> dict:
     from PIL import Image, ImageDraw, ImageFont, ImageOps
-    directory = output / group
+    directory = output / (directory_name or group)
     for child in ("originals", "records", "source-records"):
         (directory / child).mkdir(parents=True, exist_ok=False)
     samples = []
     extensions = {"JPEG": ".jpg", "PNG": ".png", "WEBP": ".webp", "AVIF": ".avif", "GIF": ".gif"}
-    for number, candidate in enumerate(selected, 1):
+    for number, candidate in enumerate(selected, first_number):
         key = candidate["sourceKey"]
         entry = entries[key]
         payload = audit.readers[candidate["sourceCatalogId"]].read(entry)
@@ -338,21 +369,50 @@ def extract_group(group: str, selected: list[dict], entries: dict, sources: dict
         with Image.open(io.BytesIO(payload)) as opened:
             opened.load()
             image_format, size = opened.format, list(opened.size)
-        sample = SAMPLE_PREFIX[group] + f"{number:03d}"
+        sample = (prefix or SAMPLE_PREFIX[group]) + f"{number:03d}"
         image_path = "originals/" + sample + extensions.get(image_format, ".bin")
         record_path, source_path = f"records/{sample}.json", f"source-records/{sample}.json"
         (directory / image_path).write_bytes(payload)
         (directory / record_path).write_bytes(raw)
         write_json(directory / source_path, entry)
         description = describe(record)
+        aliases = []
+        if exhaustive:
+            evidence = description["observedWinkEvidence"]
+            require(evidence is not None and group == "wink-" + evidence["side"],
+                    "Exhaustive export includes a nonmatching automatic candidate")
+            for alias_number, alias in enumerate(candidate["sourceAliases"], 1):
+                alias_entry = entries[alias["sourceKey"]]
+                alias_payload = audit.readers[alias["sourceCatalogId"]].read(alias_entry)
+                alias_record = audit.record(alias["sourceCatalogId"], alias_entry, alias_payload)
+                alias_row = audit.connection.execute("SELECT source_key,source_catalog_id,source_id,encoded_sha256,source_feature_sha256,decision,record_sha256,record_z FROM records WHERE source_key=?", (alias["sourceKey"],)).fetchone()
+                alias_decoded, alias_raw = decode_pass_record(alias_row, audit, sources)
+                alias_evidence = current.observed_wink_evidence(alias_decoded["feature"], alias_decoded["projection"])
+                require(alias_record == alias_decoded and alias_payload == payload
+                        and alias_evidence is not None and group == "wink-" + alias_evidence["side"],
+                        "Automatic candidate alias bytes or predicate changed")
+                if alias["sourceKey"] == key:
+                    alias_record_path, alias_source_path = record_path, source_path
+                else:
+                    alias_record_path = f"records/{sample}-alias-{alias_number:02d}.json"
+                    alias_source_path = f"source-records/{sample}-alias-{alias_number:02d}.json"
+                    (directory / alias_record_path).write_bytes(alias_raw)
+                    write_json(directory / alias_source_path, alias_entry)
+                aliases.append({**alias, "recordPath": alias_record_path,
+                                "recordSha256": hashlib.sha256(alias_raw).hexdigest(),
+                                "sourceRecordPath": alias_source_path,
+                                "sourceRecordSha256": admission.sha256_file(directory / alias_source_path),
+                                "automaticWinkEvidence": alias_evidence})
         original = current.classify_assignment(entry["feature"], entry.get("projection"))
-        samples.append({**{key: value for key, value in candidate.items() if key != "creatorKey"},
+        samples.append({**{key: value for key, value in candidate.items() if key not in ("creatorKey", "sourceAliases")},
                         "sample": sample, "imagePath": image_path, "imageFormat": image_format, "imageSize": size,
                         "byteLength": len(payload), "recordPath": record_path, "recordSha256": hashlib.sha256(raw).hexdigest(),
                         "sourceRecordPath": source_path, "sourceRecordSha256": admission.sha256_file(directory / source_path),
                         "sourceStoredProfile": entry.get("cleanProfile"), "sourceStoredTier": entry.get("cleanTier"),
                         "sourceMeasurementsAssignment": assignment_summary(original),
                         "sourceMeasurementsAreFreshAuditInput": False,
+                        **({"sourceAliases": aliases, "automaticCandidateSide": group.split("-")[1],
+                            "expressionConfirmed": False} if exhaustive else {}),
                         **description, "visualReview": "pending", "humanVerified": False})
     try:
         font = ImageFont.truetype("DejaVuSans.ttf", 12)
@@ -369,7 +429,8 @@ def extract_group(group: str, selected: list[dict], entries: dict, sources: dict
             preview = ImageOps.contain(ImageOps.exif_transpose(opened).convert("RGB"), (width, photo_height), Image.Resampling.LANCZOS)
             sheet.paste(preview, (x + (width - preview.width) // 2, y + (photo_height - preview.height) // 2))
         m, assignment = sample["metrics"], sample["currentAssignment"]
-        label = assignment["name"] + " " + assignment["tier"] if assignment else "unclassified"
+        label = ("automatic " + group.split("-")[1] + "; unconfirmed") if exhaustive else (
+            assignment["name"] + " " + assignment["tier"] if assignment else "unclassified")
         lines = [sample["sample"] + " " + label, sample["samplingBucket"][:27],
                  f"yaw {m['yaw']:+.1f} pitch {m['pitch']:+.1f}",
                  f"stretch {m['stretch']:.3f} frown {m['frown']:.3f}",
@@ -377,29 +438,120 @@ def extract_group(group: str, selected: list[dict], entries: dict, sources: dict
         for line, text in enumerate(lines):
             draw.text((x + 3, y + photo_height + 2 + line * 13), text, font=font, fill="#111827")
     sheet.save(directory / "contact-sheet.jpg", "JPEG", quality=90, optimize=True)
-    index = {"schemaVersion": 1, "documentKind": "completed-pass-profile-diagnostic-group", "group": group,
-             "provenance": provenance, "sampleCount": len(samples), "requestedSamples": SAMPLES_PER_GROUP,
-             "shortfall": max(0, SAMPLES_PER_GROUP - len(samples)), "population": counts,
+    index = {"schemaVersion": 1, "documentKind": "completed-pass-automatic-wink-page" if exhaustive else "completed-pass-profile-diagnostic-group", "group": group,
+             "provenance": provenance, "sampleCount": len(samples), "requestedSamples": len(samples) if exhaustive else SAMPLES_PER_GROUP,
+             "shortfall": 0 if exhaustive else max(0, SAMPLES_PER_GROUP - len(samples)), "population": counts,
              "contactSheet": "contact-sheet.jpg", "samples": samples,
              "modelInferencePerformed": False, "rawMeasurementsUnchanged": True,
              "originalEncodedImagesUnchanged": True, "selectionOrAdmissionChanged": False,
              "visualReview": "pending", "humanVerified": False,
-             "sampling": "Deterministic stratified challenge selection with pose/creator diversity; only unique exact encoded images within each group. Bucket thresholds are sampling thresholds, not admission or expression acceptance rules.",
+             "sampling": ("Exhaustive unchanged observed_wink_evidence screen over completed real-photo PASS records, before later selection denials or expression review. Unique encoded images per side sorted by SHA256; all matching source aliases retain exact frozen records. An automatic match is not a confirmed expression."
+                          if exhaustive else "Deterministic stratified challenge selection with pose/creator diversity; only unique exact encoded images within each group. Bucket thresholds are sampling thresholds, not admission or expression acceptance rules."),
+             "diagnosticFocus": "all-observed-winks" if exhaustive else "profile-challenges",
+             "expressionReviewApplied": False, "laterSelectionDenialsApplied": False,
              "thumbnailTransform": "Contain the full image; EXIF orientation and resizing affect contact thumbnails only."}
     write_json(directory / "index.json", index)
     files = [{"path": path.relative_to(directory).as_posix(), "bytes": path.stat().st_size, "sha256": admission.sha256_file(path)}
              for path in sorted(directory.rglob("*")) if path.is_file()]
     total = sum(file["bytes"] for file in files)
-    require(total <= MAX_GROUP_BYTES, "Diagnostic group exceeds 24 MiB; exact originals must not be downsampled")
+    if total > MAX_GROUP_BYTES or len(files) > MAX_ARTIFACT_FILES:
+        raise GroupTooLarge("Diagnostic group exceeds its 24 MiB/file bound; exact originals must not be downsampled")
     for sample in samples:
         require(admission.sha256_file(directory / sample["imagePath"]) == sample["encodedSha256"], "Exported image bytes changed")
         require(admission.sha256_file(directory / sample["recordPath"]) == sample["recordSha256"], "Exported audit record bytes changed")
-    return {"group": group, "sampleCount": len(samples), "payloadBytes": total, "files": files,
+    return {"group": group, "directory": directory.relative_to(output).as_posix(),
+            "sampleCount": len(samples), "payloadBytes": total, "files": files,
+            "sampleIds": [sample["sample"] for sample in samples],
             "indexSha256": admission.sha256_file(directory / "index.json")}
 
 
+def extract_all_automatic_winks(choices: dict, entries: dict, sources: dict,
+                               audit: admission.AdmissionAudit, output: Path,
+                               provenance: dict, pools: CandidatePools) -> tuple[list, list, dict]:
+    """Export every match, then pack whole contact pages into small artifacts."""
+    staging = output / "pages"
+    pages, exhaustive = [], {}
+    for group in AUTOMATIC_WINK_GROUPS:
+        selected = choices[group]
+        count = pools.automatic_wink_counts(group)
+        require(len(selected) == count["uniqueEncodedImages"], "Incomplete automatic wink choice set")
+        require(sum(len(row["sourceAliases"]) for row in selected) == count["sourceRows"],
+                "Automatic wink source alias coverage differs")
+        offset, page_number = 0, 0
+        while offset < len(selected) or page_number == 0:
+            page_number += 1
+            amount = min(SAMPLES_PER_GROUP, len(selected) - offset)
+            name = f"{group}-page-{page_number:02d}"
+            while True:
+                try:
+                    page = extract_group(group, selected[offset:offset + amount], entries, sources, audit,
+                        staging, provenance, count, directory_name=name,
+                        prefix="WLA" if group == "wink-left" else "WRA",
+                        first_number=offset + 1, exhaustive=True)
+                    break
+                except GroupTooLarge:
+                    # These are our own newly staged files, never source/audit
+                    # evidence. Split the page; never shrink the original image.
+                    shutil.rmtree(staging / name)
+                    require(amount > 1, "A single exact-image diagnostic exceeds its artifact bound")
+                    amount = max(1, amount // 2)
+            pages.append(page)
+            offset += amount
+        require(offset == len(selected), "An exhaustive wink page was skipped")
+        exhaustive[group] = {**count, "exportedUniqueEncodedImages": offset,
+            "exportedSourceRows": sum(len(row["sourceAliases"]) for row in selected),
+            "contactPages": page_number,
+            "encodedImageSetSha256": hashlib.sha256(admission.json_bytes(sorted(row["encodedSha256"] for row in selected))).hexdigest(),
+            "samplePrefix": "WLA" if group == "wink-left" else "WRA",
+            "automaticPredicate": "clean_core_policy_v3.observed_wink_evidence",
+            "complete": True, "expressionConfirmed": False}
+
+    parts = []
+    current_part = None
+    for page in pages:
+        file_count = len(page["files"])
+        if (current_part is None or current_part["payloadBytes"] + page["payloadBytes"] > MAX_GROUP_BYTES
+                or current_part["fileCount"] + file_count > MAX_ARTIFACT_FILES):
+            require(len(parts) < MAX_ARTIFACT_PARTS,
+                    "Exhaustive export needs more than eight small artifacts; no candidates may be omitted")
+            part_name = f"part-{len(parts) + 1:02d}"
+            current_part = {"name": part_name, "directory": "parts/" + part_name,
+                            "payloadBytes": 0, "fileCount": 0, "pages": []}
+            parts.append(current_part)
+            (output / current_part["directory"]).mkdir(parents=True, exist_ok=False)
+        old_path = staging / page["directory"]
+        new_path = output / current_part["directory"] / old_path.name
+        old_path.rename(new_path)
+        page["directory"] = new_path.relative_to(output).as_posix()
+        current_part["payloadBytes"] += page["payloadBytes"]
+        current_part["fileCount"] += file_count
+        current_part["pages"].append({"directory": new_path.name, "group": page["group"],
+                                      "sampleCount": page["sampleCount"], "indexSha256": page["indexSha256"]})
+    staging.rmdir()
+    for part in parts:
+        files = [path for path in (output / part["directory"]).rglob("*") if path.is_file()]
+        require(len(files) == part["fileCount"] and sum(path.stat().st_size for path in files) == part["payloadBytes"]
+                and part["payloadBytes"] <= MAX_GROUP_BYTES, "Packed diagnostic artifact changed")
+    for group in AUTOMATIC_WINK_GROUPS:
+        exported, aliases, sample_ids = [], [], []
+        for page in pages:
+            if page["group"] != group:
+                continue
+            index = json.loads((output / page["directory"] / "index.json").read_text())
+            require(len(index["samples"]) <= SAMPLES_PER_GROUP, "Contact page has more than 48 samples")
+            exported.extend(sample["encodedSha256"] for sample in index["samples"])
+            aliases.extend(alias["sourceKey"] for sample in index["samples"] for alias in sample["sourceAliases"])
+            sample_ids.extend(sample["sample"] for sample in index["samples"])
+        require(exported == sorted(pools.automatic_winks[group]) and len(aliases) == len(set(aliases))
+                and len(aliases) == pools.automatic_wink_rows[group], "Exhaustive export membership or alias coverage differs")
+        prefix = exhaustive[group]["samplePrefix"]
+        require(sample_ids == [prefix + f"{number:03d}" for number in range(1, len(exported) + 1)],
+                "Stable exhaustive sample IDs are missing or repeated")
+    return pages, parts, exhaustive
+
+
 def export_diagnostics(receipt_path: Path, attribute_model: Path, face_model: Path, sources: list,
-                       reviewed_path: Path, output: Path) -> dict:
+                       reviewed_path: Path, output: Path, *, all_observed_winks: bool = False) -> dict:
     require(not output.exists() or not any(output.iterdir()), "Diagnostic output must be empty; nothing is overwritten")
     require(not output.resolve().is_relative_to(receipt_path.parent.resolve()), "Output must not be inside frozen audit evidence")
     for source in admission.normalize_sources(sources):
@@ -420,8 +572,10 @@ def export_diagnostics(receipt_path: Path, attribute_model: Path, face_model: Pa
                       "codeSha256": {path.name: admission.sha256_file(path) for path in code_files}}
         indexed = source_index(audit)
         pools, population = scan_pool(audit, indexed)
-        choices = {group: pools.choose(group, SAMPLES_PER_GROUP) for group in GROUPS}
-        wanted = {row["sourceKey"] for chosen in choices.values() for row in chosen}
+        choices = ({group: pools.all_automatic_winks(group) for group in AUTOMATIC_WINK_GROUPS}
+                   if all_observed_winks else {group: pools.choose(group, SAMPLES_PER_GROUP) for group in GROUPS})
+        wanted = {alias["sourceKey"] for chosen in choices.values() for row in chosen
+                  for alias in (row["sourceAliases"] if all_observed_winks else [row])}
         originals = {}
         for source in audit.sources:
             manifest = json.loads((Path(source["root"]) / "manifest.json").read_text())
@@ -432,7 +586,11 @@ def export_diagnostics(receipt_path: Path, attribute_model: Path, face_model: Pa
                     originals[key] = entry
         require(set(originals) == wanted, "A picked source image is missing")
         output.mkdir(parents=True, exist_ok=True)
-        groups = [extract_group(group, choices[group], originals, indexed, audit, output, provenance, pools.counts(group)) for group in GROUPS]
+        parts, exhaustive = [], {}
+        if all_observed_winks:
+            groups, parts, exhaustive = extract_all_automatic_winks(choices, originals, indexed, audit, output, provenance, pools)
+        else:
+            groups = [extract_group(group, choices[group], originals, indexed, audit, output, provenance, pools.counts(group)) for group in GROUPS]
         require(admission.sha256_file(receipt_path) == provenance["candidateAuditSha256"], "Completed receipt changed during diagnostics")
         require(admission.sha256_file(admission.safe_child(receipt_path.parent, audit.receipt["recordsPath"])) == provenance["recordsSha256"],
                 "Frozen record database changed during diagnostics")
@@ -440,22 +598,35 @@ def export_diagnostics(receipt_path: Path, attribute_model: Path, face_model: Pa
                 "Diagnostic or classification code changed while scanning")
         summary = {"schemaVersion": 1, "documentKind": "completed-pass-profile-diagnostics", "status": "complete",
                    "provenance": provenance, "population": population, "groups": groups,
+                   "diagnosticFocus": "all-observed-winks" if all_observed_winks else "profile-challenges",
+                   "artifactParts": parts, "exhaustiveAutomaticWinks": exhaustive,
+                   "automaticWinkCandidates": {group: pools.automatic_wink_counts(group) for group in AUTOMATIC_WINK_GROUPS},
+                   "automaticGroupsMayShareEncodedImages": True,
+                   "crossSideUniqueImageOverlap": (len(set(pools.automatic_winks["wink-left"]) & set(pools.automatic_winks["wink-right"]))
+                                                   if all_observed_winks else None),
+                   "expressionReviewApplied": False, "laterSelectionDenialsApplied": False,
                    "maximumGroupPayloadBytes": MAX_GROUP_BYTES, "visualReview": "pending", "humanVerified": False,
                    "modelInferencePerformed": False, "rawMeasurementsUnchanged": True,
                    "selectionOrAdmissionChanged": False, "datasetPromoted": False, "sitePublished": False,
                    "originalAssignmentMeaning": "Apply the unchanged isolated/background path to the same fresh record, before the observed-wink tier. Source measurements and stored source labels are separately disclosed per sample.",
-                   "limitation": "Challenge samples are not a prevalence estimate, visual approval, or a completed selected-catalog holdout."}
+                   "limitation": "Automatic candidates and challenge samples are not confirmed expressions, a prevalence estimate, visual approval, or a completed selected-catalog holdout."}
         write_json(output / "summary/summary.json", summary)
         (output / "summary/README.md").write_text(
             "# Completed PASS-pool profile diagnostics\n\n"
             "Read summary.json for full-pool row and unique-image counts, frozen provenance and file hashes. "
-            "Each of the four group artifacts contains index.json, contact-sheet.jpg, exact original encoded photos, "
+            "Each contact page contains index.json, contact-sheet.jpg, exact original encoded photos, "
             "exact decompressed audit records, and the corresponding original source entries.\n\n"
             "Compare the current assignment, the unchanged isolated/background assignment on the same fresh features, "
-            "and the separately disclosed source measurements. Observed winks are labelled observed, never isolated. "
+            "and the separately disclosed source measurements. Automatic wink matches require expression review; they are not confirmed winks. "
             "Every included photo passed the completed audit and its manual-denial controls. "
             "Expression and residual visibility review remains pending. No model inference, catalog selection, "
-            "feature adjustment, admission change or publication occurs here. The challenge sample is not an error-rate estimate.\n",
+            "feature adjustment, admission change or publication occurs here. The challenge sample is not an error-rate estimate.\n\n"
+            + ("This exhaustive run exports every unchanged observed_wink_evidence match in the completed real-photo PASS pool, "
+               "before later selection denials or wink-expression review. It deduplicates exact encoded bytes within each side, "
+               "retains every matching source alias record, and orders WLA/WRA sample IDs by image SHA256. "
+               "Contact pages contain at most 48 photos; artifactParts lists every bounded download and its pages. "
+               "No heap, diversity cap, 48-photo group limit or manual expression decision reduces this exhaustive set.\n"
+               if all_observed_winks else ""),
             encoding="utf-8")
         require(sum(path.stat().st_size for path in (output / "summary").rglob("*") if path.is_file()) <= MAX_GROUP_BYTES,
                 "Diagnostic summary exceeds its payload cap")
@@ -470,9 +641,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--source", action="append", required=True, metavar="LABEL=PATH")
     parser.add_argument("--reviewed-visibility", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--all-observed-winks", action="store_true",
+                        help="Export all unique automatic wink candidates and matching source records in bounded pages; no expression approval")
     args = parser.parse_args(argv)
     result = export_diagnostics(args.candidate_audit.resolve(), args.face_attribute_model.resolve(), args.face_model.resolve(),
-                                args.source, args.reviewed_visibility.resolve(), args.out.resolve())
+                                args.source, args.reviewed_visibility.resolve(), args.out.resolve(),
+                                all_observed_winks=args.all_observed_winks)
     print(json.dumps({"status": result["status"], "verifiedPassRecords": result["population"]["verifiedPassRecords"],
                       "groups": [{key: group[key] for key in ("group", "sampleCount", "payloadBytes")} for group in result["groups"]],
                       "visualReview": "pending", "modelInferencePerformed": False, "output": str(args.out)}))

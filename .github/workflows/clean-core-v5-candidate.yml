@@ -41,6 +41,8 @@ jobs:
     outputs:
       audit_mode: ${{ steps.mode.outputs.audit_mode }}
       diagnostic_only: ${{ steps.mode.outputs.diagnostic_only }}
+      diagnostic_focus: ${{ steps.mode.outputs.diagnostic_focus }}
+      previous_review_path: ${{ steps.mode.outputs.previous_review_path }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -61,7 +63,10 @@ jobs:
           import hashlib
           import json
           import os
-          from pathlib import Path
+          import re
+          import subprocess
+          import sys
+          from pathlib import Path, PurePosixPath
 
           def unique(pairs):
               result = {}
@@ -101,18 +106,55 @@ jobs:
           diagnostic_only = request.get('diagnosticOnly', False)
           if type(diagnostic_only) is not bool or (diagnostic_only and mode != 'reuse'):
               raise ValueError('diagnosticOnly must be a boolean and requires the pinned completed audit')
-          if not diagnostic_only:
+          diagnostic_focus = request.get('diagnosticFocus', 'profile-challenges')
+          if (not isinstance(diagnostic_focus, str)
+                  or diagnostic_focus not in ('profile-challenges', 'all-observed-winks')
+                  or diagnostic_focus == 'all-observed-winks' and not diagnostic_only):
+              raise ValueError('All-wink diagnostic focus requires diagnosticOnly and the pinned completed audit')
+          previous_review_path = ''
+          # Bind the deny-only review and its predecessor even for diagnostics;
+          # they are disclosed but not applied to the exhaustive audit export.
+          if not diagnostic_only or 'selectionReview' in request:
               selection_review = Path('data/catalog-selection-reviewed.json')
-              expected_review = {'path': selection_review.as_posix(),
-                                 'sha256': hashlib.sha256(selection_review.read_bytes()).hexdigest() if selection_review.is_file() else None,
-                                 'previous': None}
-              if not selection_review.is_file() or request.get('selectionReview') != expected_review:
+              review_pin = request.get('selectionReview')
+              if (not isinstance(review_pin, dict) or set(review_pin) != {'path', 'sha256', 'previous'}
+                      or review_pin['path'] != selection_review.as_posix()
+                      or not selection_review.is_file() or selection_review.is_symlink()
+                      or any(parent.is_symlink() for parent in selection_review.parents)
+                      or hashlib.sha256(selection_review.read_bytes()).hexdigest() != review_pin['sha256']):
                   raise ValueError('Candidate selection requires the exact request-bound additional exclusion review')
+              previous = review_pin['previous']
+              if previous is not None:
+                  if not isinstance(previous, dict) or set(previous) != {'path', 'sha256'}:
+                      raise ValueError('The previous selection review requires one exact path and SHA256')
+                  name = previous['path']
+                  if not isinstance(name, str) or re.fullmatch(r'data/[A-Za-z0-9_./-]+\.json', name) is None:
+                      raise ValueError('Invalid previous selection review path')
+                  relative = PurePosixPath(name)
+                  path = Path(name)
+                  if ('..' in relative.parts or relative.as_posix() != name
+                          or not path.is_file() or path.is_symlink()
+                          or any(parent.is_symlink() for parent in path.parents)
+                          or hashlib.sha256(path.read_bytes()).hexdigest() != previous['sha256']):
+                      raise ValueError('Previous selection review bytes or safe path differ from the request')
+                  subprocess.run(['git', 'ls-files', '--error-unmatch', '--', ':(literal)' + name],
+                                 check=True, stdout=subprocess.DEVNULL)
+                  previous_review_path = name
+              sys.path.insert(0, str(Path('tools').resolve()))
+              from clean_core_selection_review import SelectionReview
+              review_document = json.loads(selection_review.read_text())
+              review_receipt = request['reuseAudit']['candidateAuditSha256'] if mode == 'reuse' else review_document.get('candidateAuditSha256')
+              review_records = request['reuseAudit']['recordsSha256'] if mode == 'reuse' else review_document.get('recordsSha256')
+              SelectionReview(selection_review, review_receipt, review_records,
+                              previous_path=Path(previous_review_path) if previous_review_path else None)
           with Path(os.environ['GITHUB_OUTPUT']).open('a') as output:
               output.write('audit_mode=' + mode + '\n')
               output.write('diagnostic_only=' + str(diagnostic_only).lower() + '\n')
+              output.write('diagnostic_focus=' + diagnostic_focus + '\n')
+              output.write('previous_review_path=' + previous_review_path + '\n')
           print(json.dumps({'auditMode': mode, 'targetTotal': 70000,
                             'diagnosticOnly': diagnostic_only,
+                            'diagnosticFocus': diagnostic_focus,
                             'newInferenceRequested': mode == 'fresh',
                             'completedAuditBytesMustRemainUnchanged': mode == 'reuse'}))
           PY
@@ -588,7 +630,13 @@ jobs:
       - name: Export bounded original profile records and photographs for diagnosis
         id: profile_diagnostics
         if: needs.preflight.outputs.diagnostic_only == 'true'
+        env:
+          DIAGNOSTIC_FOCUS: ${{ needs.preflight.outputs.diagnostic_focus }}
         run: |
+          diagnostic_args=()
+          if test "$DIAGNOSTIC_FOCUS" = all-observed-winks; then
+            diagnostic_args+=(--all-observed-winks)
+          fi
           python tools/export_clean_core_profile_diagnostics.py \
             --candidate-audit work/clean-v5-audit/candidate-audit.json \
             --face-attribute-model "$ATTRIBUTE_MODEL_PATH" \
@@ -597,7 +645,8 @@ jobs:
             --source current=public/seed-catalog \
             --source ffhq=work/source-catalogs/ffhq-main \
             --source wink-extras=work/source-catalogs/wink-extras \
-            --out work/clean-v5-profile-diagnostics
+            --out work/clean-v5-profile-diagnostics \
+            "${diagnostic_args[@]}"
           python - <<'PY'
           import hashlib
           import json
@@ -616,6 +665,13 @@ jobs:
           summary = root / 'summary'
           if not (summary / 'summary.json').is_file() or not (summary / 'README.md').is_file():
               raise ValueError('Profile diagnostic summary is incomplete')
+          report = json.loads((summary / 'summary.json').read_text())
+          if (report.get('status') != 'complete'
+                  or report.get('diagnosticFocus') != os.environ['DIAGNOSTIC_FOCUS']
+                  or report.get('modelInferencePerformed') is not False
+                  or report.get('expressionReviewApplied') is not False
+                  or report.get('laterSelectionDenialsApplied') is not False):
+              raise ValueError('Diagnostic export mode or unchanged-evidence declarations differ')
           reuse = json.loads(Path('work/clean-v5-provenance/audit-reuse.json').read_text())
           audit_root = Path('work/clean-v5-audit')
           actual_files = [{'path': path.relative_to(audit_root).as_posix(), 'bytes': path.stat().st_size, 'sha256': digest(path)}
@@ -635,6 +691,7 @@ jobs:
               'workflowRunId': int(os.environ['GITHUB_RUN_ID']),
               'workflowRunAttempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
               'diagnosticCodeCommit': os.environ['GITHUB_SHA'],
+              'diagnosticFocus': os.environ['DIAGNOSTIC_FOCUS'],
               'exporterCodeSha256': digest('tools/export_clean_core_profile_diagnostics.py'),
               'originalInference': reuse['originalInference'],
               'candidateAuditSha256': reuse['candidateAuditSha256'], 'recordsSha256': reuse['recordsSha256'],
@@ -644,14 +701,58 @@ jobs:
               'datasetPromoted': False, 'sitePublished': False,
           }
           (summary / 'diagnostic-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          expected_directories = ['summary', 'wink-left', 'wink-right', 'mouth-wide', 'mouth-frown']
+          if os.environ['DIAGNOSTIC_FOCUS'] == 'all-observed-winks':
+              parts = report.get('artifactParts')
+              groups = report.get('exhaustiveAutomaticWinks')
+              if (not isinstance(parts, list) or not 1 <= len(parts) <= 8
+                      or not isinstance(groups, dict) or set(groups) != {'wink-left', 'wink-right'}):
+                  raise ValueError('Exhaustive wink groups or small artifact list are incomplete')
+              expected_directories = ['summary']
+              for number, part in enumerate(parts, 1):
+                  name = f'part-{number:02d}'
+                  if part.get('name') != name or part.get('directory') != 'parts/' + name:
+                      raise ValueError('Exhaustive artifact part names or ordering differ')
+                  expected_directories.append(part['directory'])
+              for group, values in groups.items():
+                  if (values.get('complete') is not True or values.get('expressionConfirmed') is not False
+                          or values.get('uniqueEncodedImages') != values.get('exportedUniqueEncodedImages')
+                          or values.get('sourceRows') != values.get('exportedSourceRows')):
+                      raise ValueError('Exhaustive automatic wink coverage is incomplete: ' + group)
+              seen_pages = set()
+              for page in report['groups']:
+                  name = page['directory']
+                  path = root / name
+                  if (name in seen_pages or page['group'] not in groups or len(Path(name).parts) != 3
+                          or '/'.join(Path(name).parts[:2]) not in expected_directories
+                          or not all((path / file).is_file() for file in ('index.json', 'contact-sheet.jpg'))
+                          or digest(path / 'index.json') != page['indexSha256']
+                          or not 0 <= page['sampleCount'] <= 48):
+                      raise ValueError('Exhaustive page path, index, count or hash differs')
+                  actual_page_files = [{'path': file.relative_to(path).as_posix(), 'bytes': file.stat().st_size, 'sha256': digest(file)}
+                                       for file in sorted(path.rglob('*')) if file.is_file()]
+                  if actual_page_files != page['files']:
+                      raise ValueError('An exhaustive original, frozen record or page file changed after export')
+                  seen_pages.add(name)
+              listed_pages = {part['directory'] + '/' + page['directory'] for part in parts for page in part['pages']}
+              actual_pages = {path.relative_to(root).as_posix() for path in (root / 'parts').glob('*/*') if path.is_dir()}
+              if seen_pages != listed_pages or seen_pages != actual_pages:
+                  raise ValueError('A contact page is omitted from the bounded artifact map')
+              if ({path.name for path in root.iterdir()} != {'summary', 'parts'}
+                      or {path.relative_to(root).as_posix() for path in (root / 'parts').iterdir()}
+                         != set(expected_directories) - {'summary'}):
+                  raise ValueError('Unexpected output exists outside the exhaustive small artifact map')
+              with Path(os.environ['GITHUB_OUTPUT']).open('a') as output:
+                  for number in range(1, 9):
+                      output.write(f'part_{number:02d}=' + str(number <= len(parts)).lower() + '\n')
           counts = {}
-          for name in ('summary', 'wink-left', 'wink-right', 'mouth-wide', 'mouth-frown'):
+          for name in expected_directories:
               directory = root / name
               paths = list(directory.rglob('*'))
               files = [path for path in paths if path.is_file()]
               if not directory.is_dir() or not files or any(path.is_symlink() for path in paths):
                   raise ValueError('Missing or unsafe diagnostic group: ' + name)
-              if name != 'summary' and not all((directory / file).is_file() for file in ('index.json', 'contact-sheet.jpg')):
+              if name != 'summary' and not name.startswith('parts/') and not all((directory / file).is_file() for file in ('index.json', 'contact-sheet.jpg')):
                   raise ValueError('Missing diagnostic index or contact sheet: ' + name)
               if any(path.suffix.lower() in ('.sqlite', '.onnx', '.task', '.bin', '.zip') for path in files):
                   raise ValueError('Large audit/model/catalog payload leaked into diagnostic export')
@@ -659,6 +760,10 @@ jobs:
               if size > 24 * 1024 ** 2 or len(files) > 1000:
                   raise ValueError('Diagnostic artifact exceeds its small-download bound: ' + name)
               counts[name] = {'files': len(files), 'bytes': size}
+              if name.startswith('parts/'):
+                  part = next(part for part in parts if part['directory'] == name)
+                  if size != part['payloadBytes'] or len(files) != part['fileCount']:
+                      raise ValueError('Exhaustive artifact payload differs from its manifest')
           print(json.dumps({'diagnosticExports': counts, 'newInferencePerformed': False,
                             'auditRemerged': False, 'selectionPerformed': False,
                             'datasetPromoted': False, 'sitePublished': False}))
@@ -673,7 +778,7 @@ jobs:
           compression-level: 0
           retention-days: 14
       - name: Upload the small left wink diagnostic group
-        if: always() && steps.profile_diagnostics.outcome == 'success'
+        if: always() && steps.profile_diagnostics.outcome == 'success' && needs.preflight.outputs.diagnostic_focus == 'profile-challenges'
         uses: actions/upload-artifact@v4
         with:
           name: clean-core-v5-profile-wink-left-${{ github.run_id }}-${{ github.run_attempt }}
@@ -682,7 +787,7 @@ jobs:
           compression-level: 0
           retention-days: 14
       - name: Upload the small right wink diagnostic group
-        if: always() && steps.profile_diagnostics.outcome == 'success'
+        if: always() && steps.profile_diagnostics.outcome == 'success' && needs.preflight.outputs.diagnostic_focus == 'profile-challenges'
         uses: actions/upload-artifact@v4
         with:
           name: clean-core-v5-profile-wink-right-${{ github.run_id }}-${{ github.run_attempt }}
@@ -691,7 +796,7 @@ jobs:
           compression-level: 0
           retention-days: 14
       - name: Upload the small mouth wide diagnostic group
-        if: always() && steps.profile_diagnostics.outcome == 'success'
+        if: always() && steps.profile_diagnostics.outcome == 'success' && needs.preflight.outputs.diagnostic_focus == 'profile-challenges'
         uses: actions/upload-artifact@v4
         with:
           name: clean-core-v5-profile-mouth-wide-${{ github.run_id }}-${{ github.run_attempt }}
@@ -700,7 +805,7 @@ jobs:
           compression-level: 0
           retention-days: 14
       - name: Upload the small mouth frown diagnostic group
-        if: always() && steps.profile_diagnostics.outcome == 'success'
+        if: always() && steps.profile_diagnostics.outcome == 'success' && needs.preflight.outputs.diagnostic_focus == 'profile-challenges'
         uses: actions/upload-artifact@v4
         with:
           name: clean-core-v5-profile-mouth-frown-${{ github.run_id }}-${{ github.run_attempt }}
@@ -708,9 +813,87 @@ jobs:
           if-no-files-found: error
           compression-level: 0
           retention-days: 14
+      - name: Upload exhaustive automatic wink part 01
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_01 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-01-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-01/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload exhaustive automatic wink part 02
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_02 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-02-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-02/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload exhaustive automatic wink part 03
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_03 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-03-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-03/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload exhaustive automatic wink part 04
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_04 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-04-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-04/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload exhaustive automatic wink part 05
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_05 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-05-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-05/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload exhaustive automatic wink part 06
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_06 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-06-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-06/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload exhaustive automatic wink part 07
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_07 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-07-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-07/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload exhaustive automatic wink part 08
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_08 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-08-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-08/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
       - name: Select exactly 70000 admitted real photographs
         if: needs.preflight.outputs.diagnostic_only == 'false'
+        env:
+          PREVIOUS_SELECTION_REVIEW: ${{ needs.preflight.outputs.previous_review_path }}
         run: |
+          review_args=(--selection-review data/catalog-selection-reviewed.json)
+          if test -n "$PREVIOUS_SELECTION_REVIEW"; then
+            review_args+=(--previous-selection-review "$PREVIOUS_SELECTION_REVIEW")
+          fi
           python tools/run_build_clean_core_v3_real_only.py \
             work/clean-v5-build \
             --catalog current=public/seed-catalog \
@@ -719,7 +902,7 @@ jobs:
             --target-total 70000 \
             --face-attribute-model "$ATTRIBUTE_MODEL_PATH" \
             --candidate-audit work/clean-v5-audit/candidate-audit.json \
-            --selection-review data/catalog-selection-reviewed.json
+            "${review_args[@]}"
       - name: Validate assembled catalog structure
         if: needs.preflight.outputs.diagnostic_only == 'false'
         run: |
@@ -734,9 +917,15 @@ jobs:
           cp work/clean-v5-build/audit.json work/clean-v5-candidate/catalog/clean-core-audit.json
       - name: Validate the final physical catalog and admission correspondence
         if: needs.preflight.outputs.diagnostic_only == 'false'
+        env:
+          PREVIOUS_SELECTION_REVIEW: ${{ needs.preflight.outputs.previous_review_path }}
         run: |
           node tools/validate_face_catalog.mjs work/clean-v5-candidate/catalog \
             | tee work/clean-v5-candidate/catalog-validation.json
+          review_args=(--selection-review data/catalog-selection-reviewed.json)
+          if test -n "$PREVIOUS_SELECTION_REVIEW"; then
+            review_args+=(--previous-selection-review "$PREVIOUS_SELECTION_REVIEW")
+          fi
           python tools/validate_clean_core_admission.py \
             --catalog work/clean-v5-candidate/catalog \
             --candidate-audit work/clean-v5-audit/candidate-audit.json \
@@ -744,7 +933,7 @@ jobs:
             --source current=public/seed-catalog \
             --source ffhq=work/source-catalogs/ffhq-main \
             --source wink-extras=work/source-catalogs/wink-extras \
-            --selection-review data/catalog-selection-reviewed.json \
+            "${review_args[@]}" \
             --target-total 70000 \
             | tee work/clean-v5-candidate/admission-validation.json
       - name: Bind wink support to the validated final catalog
@@ -769,7 +958,11 @@ jobs:
           import hashlib
           import json
           import os
+          import sys
           from pathlib import Path
+
+          sys.path.insert(0, str(Path('tools').resolve()))
+          from clean_core_selection_review import SelectionReview
 
           def digest(file):
               value = hashlib.sha256()
@@ -784,11 +977,23 @@ jobs:
               'wink-extras': 'work/source-catalogs/wink-extras',
           }
           request = Path('data/clean-core-v5-candidate-request.json')
+          request_document = json.loads(request.read_text())
           selection_review_sha256 = digest('data/catalog-selection-reviewed.json')
-          if (selection_review_sha256 != json.loads(request.read_text()).get('selectionReview', {}).get('sha256')
+          if (selection_review_sha256 != request_document.get('selectionReview', {}).get('sha256')
                   or selection_review_sha256 != digest('work/clean-v5-candidate/catalog/selection-review.json')):
               raise ValueError('Additional selection exclusion review changed or is missing from the candidate')
           admission = json.loads(Path('work/clean-v5-audit/candidate-audit.json').read_text())
+          previous = request_document['selectionReview']['previous']
+          previous_path = Path(previous['path']) if previous is not None else None
+          selection_review = SelectionReview('data/catalog-selection-reviewed.json',
+                                             digest('work/clean-v5-audit/candidate-audit.json'), admission['recordsSha256'],
+                                             previous_path=previous_path)
+          selection_review.verify_catalog_files(Path('work/clean-v5-candidate/catalog'))
+          if previous_path is not None:
+              if digest(previous_path) != previous['sha256']:
+                  raise ValueError('Previous selection review changed after preflight')
+              Path('work/clean-v5-provenance/catalog-selection-reviewed-previous.json').write_bytes(previous_path.read_bytes())
+          previous_review_sha256 = selection_review.document.get('previousReviewSha256')
           reuse_path = Path('work/clean-v5-provenance/audit-reuse.json')
           reuse = json.loads(reuse_path.read_text()) if reuse_path.is_file() else None
           if reuse is not None:
@@ -835,6 +1040,7 @@ jobs:
               'inference': inference,
               'selection': {'codeCommit': os.environ['GITHUB_SHA'],
                             'additionalSelectionExclusionsSha256': selection_review_sha256,
+                            'previousAdditionalSelectionExclusionsSha256': previous_review_sha256,
                             'codeFilesSha256': {name: digest(name) for name in selection_sources},
                             'selectionAuditSha256': digest('work/clean-v5-build/audit.json')},
               'ffhqSourceCommit': os.environ['FFHQ_SOURCE_COMMIT'],
@@ -850,6 +1056,7 @@ jobs:
               'priorYawEvidenceSha256': digest('work/catalog-quality/merged-evidence.json'),
               'reviewedVisibilitySha256': digest('data/catalog-visibility-reviewed.json'),
               'selectionReviewSha256': selection_review_sha256,
+              'previousSelectionReviewSha256': previous_review_sha256,
               'candidateAuditSha256': digest('work/clean-v5-audit/candidate-audit.json'),
               'candidateManifestSha256': digest('work/clean-v5-candidate/catalog/manifest.json'),
               'winkSupportIndexSha256': digest('work/clean-v5-candidate/wink-support/v1/catalog.json'),

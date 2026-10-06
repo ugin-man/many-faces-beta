@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "request": "Inspect exact completed candidate audit records and original photos before reselection",
+  "request": "Export every exact completed automatic wink candidate for original-image expression review before final reselection",
   "createdOn": "2026-10-06",
   "baselineCommit": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e",
   "ffhqSourceCommit": "9d10fb37a825a5f90e5a3671a9564a1f1e9bef53",
@@ -14,7 +14,7 @@
   "sitePublication": false,
   "postSelectionVisualReview": "pending",
   "fixedVideoVerification": "pending",
-  "attempt": 4,
+  "attempt": 5,
   "previousRun": 37464000479,
   "previousRunStatus": "All sixteen inference partitions and merge succeeded; selection stopped at wink and mouth profile minima",
   "nativeRuntimeDependency": [
@@ -23,8 +23,8 @@
   ],
   "nativeInferencePreflight": true,
   "diagnosticOnly": true,
-  "lastVerifiedApplicationCommit": "d5c0c409864841879a2521318eeeec2a124fa22e",
-  "lastVerifiedApplicationCiRun": 37466492422,
+  "lastVerifiedApplicationCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+  "lastVerifiedApplicationCiRun": 37472391816,
   "reuseAudit": {
     "runId": 37464000479,
     "runAttempt": 1,
@@ -38,7 +38,13 @@
   },
   "selectionReview": {
     "path": "data/catalog-selection-reviewed.json",
-    "sha256": "df71ead9db0b51ecc934b7448cc8d1462c94079598e779fe799298e24ed9c5a3",
-    "previous": null
-  }
+    "sha256": "a9f513be2f5c28fc420bd1aad1ad382e0bc63b91f8de2ac463a3e6f76fee99fe",
+    "previous": {
+      "path": "data/catalog-selection-reviewed-859c3d9.json",
+      "sha256": "df71ead9db0b51ecc934b7448cc8d1462c94079598e779fe799298e24ed9c5a3"
+    }
+  },
+  "previousDiagnosticRun": 37472381962,
+  "diagnosticFocus": "all-observed-winks",
+  "reason": "Visually inspected challenge cases show that automatic blink/aperture evidence can confuse downward gaze or bilateral eye narrowing with a wink. Exact observed candidates must be visually reviewed; unchanged automatic scores alone are not final wink approval."
 }

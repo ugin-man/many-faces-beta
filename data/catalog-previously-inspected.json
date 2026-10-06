@@ -1,0 +1,4767 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-previously-inspected-images",
+  "reviewer": "assistant-visual-review",
+  "humanVerified": false,
+  "reviewedOn": "2026-10-06",
+  "scope": "sampling-only",
+  "purpose": "Exclude all previously visually inspected exact image bytes from the subsequent 360-image holdout. This index neither admits nor excludes catalog candidates and does not assert that inspected images passed review.",
+  "samplingSets": [
+    {
+      "name": "initial-visibility-calibration",
+      "recordCount": 187,
+      "recordFileSha256": "d9c5eaa99b25a7ac1d3168ab900f80e5f9599654fee168683c5f0b9ea78a9e78"
+    },
+    {
+      "name": "exact-wink-calibration",
+      "recordCount": 6,
+      "recordFileSha256": "f76814ab6cae8658a1b6a6a24c6fc9164caf31bf2b1bed12d8cdb6bccd414d38"
+    },
+    {
+      "name": "exploratory-local-mouth-review",
+      "recordCount": 160,
+      "recordFileSha256": "fa292a2923f2dfbf45c7f6f172156fef876538078ddc70fd85aa50b1aab1563c"
+    },
+    {
+      "name": "completed-audit-wink-left",
+      "recordCount": 48,
+      "recordFileSha256": "00e9c5ef13c02bda8fc3b47c8e0c625d44f401f7201a45f386b6548b33503375",
+      "sourceRunId": 37472381962
+    },
+    {
+      "name": "completed-audit-wink-right",
+      "recordCount": 48,
+      "recordFileSha256": "83b516f950f9dfc71d16833e6c6ddccb94b1f5c8f9a2feab4c3e4a3c00479342",
+      "sourceRunId": 37472381962
+    },
+    {
+      "name": "completed-audit-mouth-wide",
+      "recordCount": 48,
+      "recordFileSha256": "f93eea9f39f4d56a6fba6ae792334e70c33839e50315c57b5f0ae4570951500e",
+      "sourceRunId": 37472381962
+    },
+    {
+      "name": "completed-audit-mouth-frown",
+      "recordCount": 48,
+      "recordFileSha256": "4bcf707a2f84ba6a7bcd4e8bfecac443e9e374d2da2e470be5c39b7a92f4a735",
+      "sourceRunId": 37472381962
+    }
+  ],
+  "uniqueImages": 519,
+  "images": [
+    {
+      "encodedSha256": "00653cd046080127cb0e522beac1df76abe13bbb8088f7823d9dc309896d7828",
+      "samples": [
+        "WR048"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "008e6acd9d56fe3938e7eadb252730615b28ba422e99216687930d2ab15d6e27",
+      "samples": [
+        "Q020"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "00fab7b1ed1602e3568fb881d1b16d5fb090a0f16ef1c84abd9da335c9d8ea37",
+      "samples": [
+        "WL017"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "010192d502d1f26fd5c09501d2e325a425b54af520035ed83328542177cd318b",
+      "samples": [
+        "MW026"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "0114059b00c55a9547f82f97fe82f99b3eaf2cd20c271d00b1b0104afb4ab93c",
+      "samples": [
+        "Q075"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "016a2adf2c5ee7980b6d32074b075c61f49ccf0f40d18808d5ccd71f94454d18",
+      "samples": [
+        "MW022"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "01707a8aab106b637659061b2f93bc76c1e835149b621e673e873dc3732b40b4",
+      "samples": [
+        "WR020"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "020099e4b2fd39366ff5a4f5f73f2aeb48e837ec6f9972f1479076e02386547a",
+      "samples": [
+        "WL029"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "03edc69531ca1ff9db861e1d2a84de03a164f3aec9c78dc2071b94f6929a35d6",
+      "samples": [
+        "Q114"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "048ebea59c6e234b04577c7ca21ba950b55ad3f5883210eadb9be7c9b67b0bab",
+      "samples": [
+        "mouthWide-008"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "051c2dd444c53d3d87b9a2de594bf77eaa960e1b740bdbc5eef5c075ff0f596c",
+      "samples": [
+        "MW002"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "064543a4bc7554f47be18254c244a43847c2576f57a5be39b92930eae52eb49b",
+      "samples": [
+        "Q051"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "077fe86fa3af16088a9dd62a24e85c003b59c78c0531ccb254de125e6ecd9a33",
+      "samples": [
+        "Q113"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "078d4a5840862571b0cf27dec2fd9520bb9dfa5108cd92ad362aab4da5f403a6",
+      "samples": [
+        "WR032"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "089f81a07eec20f756128ca10c8af0de581b3737091232b36e80d65967ab900d",
+      "samples": [
+        "MF016",
+        "mouthFrown-076"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "08a9e52024fdabb2aada7d693b630bbc55b155597fd82ab72effc3f337e11e88",
+      "samples": [
+        "WR029"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "08df8b245a5486346799286dfff3c58fe429d390652d08cfd6b2e173af064888",
+      "samples": [
+        "mouthWide-045"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "09a0d163396220e80696ed3b52d7c8333b1d7916089406288ca90db62281d44c",
+      "samples": [
+        "Q101"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "09f90ad063a4d72503f1626de35c141a6809f9661258621120df944c4747c6cb",
+      "samples": [
+        "MF029",
+        "mouthFrown-079"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "0a79e9fd5bd4eebf7f40b2cd6bb7c601f92e90d2108a7791415f3132ea0b5768",
+      "samples": [
+        "mouthWide-057"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "0cb51dacf36561541bea5a7f6c1b3f72ce64756bf2e28aa82207bc6d77253b53",
+      "samples": [
+        "Q167"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "0ce3e2cd31d3552a26016e5bf20a047d34972e5791ba0140283860bcaec5221b",
+      "samples": [
+        "mouthFrown-043"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "0f13b991dc9e410475e23ddc35aa7fcb49f1b233bd031636a3c25b166b013fff",
+      "samples": [
+        "mouthFrown-026"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "1170028fac6f4457520cda4daceecebf4cfc65bc597834bcb927bbf3ec236761",
+      "samples": [
+        "mouthFrown-031"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "11d1567a420680a50b758c139e91a110d7d53a8df4f96235ea96d2345e45ce1c",
+      "samples": [
+        "Q092"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "1227d09199203fceb79927be04d463ad8c1d5a56bfe29046b6f3bd5d932fbc10",
+      "samples": [
+        "mouthWide-038"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "125f44803f7ab7aaf2b065169f84ccd43d8d14743945439f0bae59e5551ca251",
+      "samples": [
+        "mouthFrown-051"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "126cc1e6f0886ebedf2bd66b1916e83651df6d5be5b4061de83cf2e45384fbaf",
+      "samples": [
+        "MW004",
+        "mouthWide-003",
+        "mouthWide-004"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "1279fd66aede4acc311d7dbc82e7f4aa380dc107b846b1d031156146de22f193",
+      "samples": [
+        "Q078"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "130d831b4f8e0dfeb6aac7a12d7736b48b5da6303953cb150bdd6d942d15a1f9",
+      "samples": [
+        "mouthFrown-024"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "134035d69d9a3275d3c12fe0878694b4debf63109914256b86f0c19c9049676c",
+      "samples": [
+        "mouthFrown-030"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "136e2173667b631091501ae5895be9ad9e5da5e5d527c6c81ebd93649f594944",
+      "samples": [
+        "Q142"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "13ed3d62963b7e1f9a20eeb1be635fd4576c412bcdf50e1dd39cb6070bdfd0b9",
+      "samples": [
+        "MW042"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "15005f60df2340514e91611156bb76ff6f950f52e5c62f5f0003732143ab51c1",
+      "samples": [
+        "Q152"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "156d927db8464885901fcaef6b40b54964604e87667188f7723b021aa899c12d",
+      "samples": [
+        "WL019"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "166b37c70882bad2d63cff088d750d4ebf4416a806d8d1956085d80b969aad63",
+      "samples": [
+        "WR025"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "16a90784b9989f4491d6e6c7559e194baad5c7f1020593058818337eeb8d62a5",
+      "samples": [
+        "WL035"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "1750208c93518e9b6f33e2da9112c1ff2ea0489490f1680d2e145d11da41de53",
+      "samples": [
+        "MW017"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "1772e93f3abc17febd80871345d1b322efc450ca5ea9bd1a3b2d4a7dfb569b5e",
+      "samples": [
+        "Q076"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "17a62d5cffea813956c1ea8067f39de2ed8e6c65c6fa13e8bf27f05c489195cb",
+      "samples": [
+        "mouthFrown-025"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "188ad9c694c5dfabe722c64bc3703db148c13fb621b38f04a81764338db72ddd",
+      "samples": [
+        "MF026"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "18b3b60c28e02edb5a15892bd6352251e3d431a4575ab6d4eb76bc2ae666427e",
+      "samples": [
+        "Q041"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "195f840bd8704324f9472757c93818ad5e82d6fd8f965ad16e48b9d485b37844",
+      "samples": [
+        "Q040"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "19f26a59d6996be1f04bf04996150d1c5c4937f742fce4b04a40e7953ab63bfd",
+      "samples": [
+        "MW038"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "1a2596ebe54211b97b70f7faa26b1e9f384977e8c4f16d6b0ca35be4b67fe156",
+      "samples": [
+        "MF004",
+        "mouthFrown-002"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "1a3e02410274d6a64052893b30ee98184108a0332238e2c24e3b49c0f0db812f",
+      "samples": [
+        "mouthWide-012"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "1bb618bbe1e3ff804a698176051881d3d94080c6caf6c0661f3d47b92e456450",
+      "samples": [
+        "mouthFrown-057"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "1bb62c8c2787e3153437fe6e42e8da8e462511bbbbf359400385e6f3bd00979e",
+      "samples": [
+        "WL042"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "1bcbe0d8faa9418a0e20a1564eddf4a05b8ebb5af0f6cde42f631992659b8733",
+      "samples": [
+        "WR038"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "1bedacedb45e9e6c8c98386c6da188f5aba8d862dfb9225185cc39672977acce",
+      "samples": [
+        "mouthFrown-065"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "1c3db2dbd302e2f865ae02339b460167e0c12a281be3a926a1a7d7dcbe6c20f1",
+      "samples": [
+        "MW039"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "1c61b0d5c02655d47af9beca2a9b1bb8869ce6ca1d8d9cdda06bdc88eee6c29f",
+      "samples": [
+        "WR003"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "1c83da97e2c895f8e4703c139ab7ba2cdf5006343190bec225ee322d1f4d167e",
+      "samples": [
+        "Q088"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "1d7fc07b5a0f10b4ad78a2d0e16e9cc146594d75b0ed8b69d1842765eff1ea13",
+      "samples": [
+        "Q111"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "1ec8158f0538ea188fdb92edccaaadd8a51909f02788f4f162bbd5e15f092aaa",
+      "samples": [
+        "WL041"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "1eeceaa7f99bd0b58fa21008ab61580064c02f81f47eac92e939967ac5bf7158",
+      "samples": [
+        "mouthFrown-035"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "1f616cea4c501b12ed24d71fddd76e1437ddcff08559c12fbd8c064704d8617e",
+      "samples": [
+        "mouthFrown-071"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "20802fd4041cac64db72035e057a4e12ec741cc9aa41b40cfda451237a2a3c56",
+      "samples": [
+        "WL002"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "20f31dced698e3a7cec589b48310dd243fb90bdad57ab7e6652f4407de2114d8",
+      "samples": [
+        "MF034"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "2115f60918c3cdd2d8799bae00db4a7ec2d24970ccb6973111f8c077640a95ca",
+      "samples": [
+        "MW014"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "21c0fbb05d211be3daed19252cad811655e935cf85042efb92ca543c47f06411",
+      "samples": [
+        "Q083"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "22b96d6d73c59c915366191d56e869cfe5de099cc7afed4eddddf6405ca5f645",
+      "samples": [
+        "Q143"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "22c38e15acc3a4d36d150eaef24daba2f6a18a4a0c6a332826db3103c829694a",
+      "samples": [
+        "mouthWide-065"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "22f458878196cb19ac0f2b68de8d3879557a8f4cdbe3a6e63db9969885bde0e1",
+      "samples": [
+        "WR024"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "23267fa472c041dfdf488a24589f4c8b1e052b769fbf8247019be2c5a0025c5e",
+      "samples": [
+        "WL009"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "23329bba952982d7ef87434df1aee71f42ad126b6afb3c957da238aefbba8921",
+      "samples": [
+        "Q103"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "23b5127c3b1069db15c8c4c0ea0d460f65be6b26c7566fdabc4bafd601e65365",
+      "samples": [
+        "Q132"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "23faaa38f8dcccbca5abb44fb737fe5944d46e6a12f4e73cf181e7142b50f325",
+      "samples": [
+        "Q065"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "240cbdfc8aeb52db3ad3e3ca8861a5ac0a5f4d474b007c971f185d8efc1a670e",
+      "samples": [
+        "WR040"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "24210a061eff79b14e987634fa0c6f298fa321977bdcd4fb0261fb80f82be18e",
+      "samples": [
+        "Q019"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "244013103fd978fceab79811be60be0a4d0cf46835b95a7db492d7cd604981d2",
+      "samples": [
+        "Q125"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "24916e68323f0f86ff19ebfc9ace0398a5c1b2f0f8437b6ceb1692a8d5840637",
+      "samples": [
+        "mouthFrown-014"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "24cd5fc7f8882c5f428425f1dac24ca1ec802a85805c9f3d0b0c482ef6076dc9",
+      "samples": [
+        "mouthWide-039"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "24d2c7037943e6cde403340318c8bea2a73bf17fe29100d54210c8458a37362a",
+      "samples": [
+        "Q185"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "259fb58467318da743397fa34499a8c7ba2ce84884979eb377ce74a16fbcb4ee",
+      "samples": [
+        "Q081"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "25ca25e475dcc58da671fff79626cf94e423131e8470d8506e48d4ffb4a8a428",
+      "samples": [
+        "Q170"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "25f730ff676531fa0fe7296c88058a3ed10091aeeff45e2fa0f1fabf1ba8f8ab",
+      "samples": [
+        "mouthFrown-069"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "27c2a238a503c398e004bfc846c763424a73dee6c4ed436f285d3bdf78c6790d",
+      "samples": [
+        "Q089"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "281f0718a89c02c8302b03d2e3c32d59b1b75e79bae8f6de5e10bbbc7728a176",
+      "samples": [
+        "MW005",
+        "mouthWide-014"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "28383344435c803630a374f67d6efc9833b3eba98cb498838e739b41bcc518ef",
+      "samples": [
+        "Q067"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "2889956f633f42ef795c1b85ea98e65b5682425f46a56d3dc96f60e0241cc6a1",
+      "samples": [
+        "WL010"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "2904a8499112cd054b0695bac4582a6a79c57bee26d30b436fd014aa650bcc8f",
+      "samples": [
+        "mouthFrown-019"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "2ba9357784af898f87bf8df981632c90452b73b61167a22e8d7dc2266a5005ba",
+      "samples": [
+        "mouthWide-046"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "2c274f5e9cc7614c189566cf6a1e9f27960cda7015359d625b9f792dbbee3d3e",
+      "samples": [
+        "MW043"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "2c8bd513c113067ce930e617b26b7111ce399c021c500eabab3a54cce80e4bc7",
+      "samples": [
+        "Q118"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "2cc1cb3ccde9f584bcfa76eb4df8c91f7d853e7afaaaa02db99f3d200d376373",
+      "samples": [
+        "WR006"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "2cea1349bea8f8b29c553e7251a4813edfe9bd8402a2394c1b6b1cc8ea84b65c",
+      "samples": [
+        "MW006"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "2ecb82326484e3d506f6b598ee5b428ca6751239fbcf6c1347425a33ea5bdc85",
+      "samples": [
+        "WL012"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "2f030c34cd705b6aa07e94b56b62d08f817acec4b9fbeb246bc38cda5e78d7ef",
+      "samples": [
+        "Q145"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "2f10d80406d7e4fb96e6ce2a7b844eb65a75c2faaa92e2b3afcc22e8396e5d3d",
+      "samples": [
+        "Q042"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "2f67a82c48b5e8888c2c27109f2d5a4f217dbdbb163497ab8e4f85223a1b8cdc",
+      "samples": [
+        "MW016"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "2fd785afafe9c052fde9a7918648a47d71cb81b5eb0aa02173df99ef4d36afde",
+      "samples": [
+        "mouthFrown-020"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "3009b5037310c9cc857e7db071f92938f30c082cb108bbd234a3c6f471a1de9c",
+      "samples": [
+        "Q136"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "3032e116a35577393894541823782efd70c7049847237f9bd88775717a55b400",
+      "samples": [
+        "Q080"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "30787885bfc75b5dcdfe84de96eb8c6d4600a1bf546db6704e3eccc3cbf03893",
+      "samples": [
+        "Q007"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "307d9b2093f284a93a196ec0aabed40e55b9ad3e80d61e1ab37648676e6531c5",
+      "samples": [
+        "MW009"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "310ec36fefaa0c37e6accc7351d2baac8f0a98195020280752eebe374cc7427d",
+      "samples": [
+        "Q147"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "31605e8107bc4672d6489bf4ee3669ce3546f453a540bbfc9d22619d0d3f4abc",
+      "samples": [
+        "MW007",
+        "mouthWide-010"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "3161ced02eb8567f8f3322f5773db3a1ee10ee072fc2bf1d03eb9a38c27dced1",
+      "samples": [
+        "mouthFrown-009"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "3164f112a64ab0bbed96db57eb583dfa90a07e017852bcc61f33def6ec89201b",
+      "samples": [
+        "Q134"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "31af382b83bf31daca69763f696ad80728133d84244e14dada8b76bf2a96a9fa",
+      "samples": [
+        "Q176"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "322f2d6416a8694a02c23ba89fd8e912634ef30c07b4fa27bdef4c62c8170ea3",
+      "samples": [
+        "WL027"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "327e2ed6e3a0bd81be4a8cb4814e035715cae42db3adba4b5c16715b82fcc726",
+      "samples": [
+        "Q117"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "346f3143ddd21e75b1ecf4ed2e5f8b19be78513e34c2415207ccfd34e2c5445c",
+      "samples": [
+        "Q160"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "350f07618ba4a488c634b97f008c3ea02c59c17c66fbae476e738fb9e2189407",
+      "samples": [
+        "mouthWide-005"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "36e9a8d05fa1b753c59e4ac1f540c092747b924df559990a66c638697289ea8d",
+      "samples": [
+        "MF048",
+        "mouthFrown-060"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "37a156d56f74384caaeb453d10edd3e84f58a705a2d6a39d2e1a0986da2885c2",
+      "samples": [
+        "WR004"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "37f3ae1609ff07d329d50ffeb56ac1cf9c69c9b9ba5c47977d94d69e17b11f1f",
+      "samples": [
+        "mouthWide-044"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "3837e772b66ec15c1ddaf73e01e1e9f1cd5ca06707c12622fd40b22ca68518b2",
+      "samples": [
+        "Q091"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "383927fa1881ee9bad8e71f5f6d00648440295a7738cd4e131e8cf7789d2658f",
+      "samples": [
+        "MF040"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "38c629add6e45cfef91403dfd2fb68a5b0d0c49f5ec6155e7831b195f2c70836",
+      "samples": [
+        "mouthWide-070",
+        "mouthWide-071"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "3984ebf2841368988547a5020469b213ce31eca3381677bed4f2fbdb8b7ae78c",
+      "samples": [
+        "MW012"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "3a14361b8f0c5d21c390d6e18478d8f81aedf061795d78d6d96c39b682e05354",
+      "samples": [
+        "MW024"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "3a81ac8f0fe63a9768fa09f93a3379fd4b63ce0c97dcec1d8a8d56fc310ff7da",
+      "samples": [
+        "mouthWide-017"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "3aa6691560d0b4da562c597f84e3de11e0a0b1d5b1facfada549e272413f6a06",
+      "samples": [
+        "WL013"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "3af0a9b39337b9f5609feceff85f0cd5a7d453f614c3164e0821d4aec0b0157d",
+      "samples": [
+        "Q179"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "3b090f4be0553f069b0e0e7cba4cadd9b794a398ce5470daec8e8a6cc2c6bc77",
+      "samples": [
+        "Q072"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "3b463eab0e1686a455c1f06f8ffaf8fc5ed4547ad74a382ca51c6d3241de5cf0",
+      "samples": [
+        "Q135"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "3b8bf5f74e5fdafce4efa2a4c0ecdce05fdcfa893dd1b0f10c20e59b683a9bc2",
+      "samples": [
+        "mouthWide-066"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "3c0a825861c4023fe0efb978fe05d8cb1d4d7e331dbbcbd20205d80aa4fd3e9d",
+      "samples": [
+        "WR027"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "3d3feddab128615bf8dcb17ce81b7bf1dc666270fe021806bceba0d7ffa2b715",
+      "samples": [
+        "WL024"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "3d4b5f44c087e7782eca868a104a7452c964b9066a156051314693633319af93",
+      "samples": [
+        "MF024",
+        "mouthFrown-011"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "3d798363f00de0861758d2a16f337db1e894ea0c80cc5cd454876a56ab32bf51",
+      "samples": [
+        "WR001"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "3d847550ba09e634cb43b197b4e3b71c7e8bed76849e0ff35ef4fa34b6e03fae",
+      "samples": [
+        "WR042"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "3deca69209126d6acf2d0e46f6f4425509b762d31e68e38133b1bcf6e72c623b",
+      "samples": [
+        "Q112"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "3e0886f0f6b410f9f0c092dd9ea775261c17712620699fe72fdceea4ad6a272c",
+      "samples": [
+        "Q059"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "3f543a6efbcc7ab0e30bac76205d82dd2bfdbe535d270dc2480979656906c0b6",
+      "samples": [
+        "mouthWide-060"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "3ff10d014eb8b03e66d1461465af62f33220d17131f9b22f3bfe381c37c925e1",
+      "samples": [
+        "Q090"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "41985fb7a8a9e1141800856060a56871acabe0ae4f057541a59e4fddfb051b37",
+      "samples": [
+        "Q004"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "425073927e3a43338896bbeef01471ee296bddd8cf5827dfb9ba0f40f37a08a6",
+      "samples": [
+        "WR022"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "42553b6d2505d87afa6a41a4642b581d5bd96a5c603403434d5e616b44322ee0",
+      "samples": [
+        "Q048"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "435d5452ae77730e7c22d73c4130439b4332dc3da1507ce4e6cf61802ea12daa",
+      "samples": [
+        "Q093"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "43f6d6c0422a54936769a4764e2ae156c0b22c69859c6c0ad39084b1693dbd74",
+      "samples": [
+        "WL001"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "4430e33ba986cb5368353bb464a81e8d188f507fc8000f64c54bebabbd2f4852",
+      "samples": [
+        "MF006",
+        "mouthFrown-005"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "443a8843ae133f1f541a2f7f4f1143faa9df32ef883edaf0402f0a88d11d9715",
+      "samples": [
+        "Q069"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "4494415b3a05d6b93612843e475dccf64bf2f2b1226e3b587c4d47cc5532a45f",
+      "samples": [
+        "Q130"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "44c2e4fd96ae0ef47eac58bc5b3b7ce30988129914de27dc9374d8f81f0a4410",
+      "samples": [
+        "mouthFrown-027"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "44e0a85c37564f51ac96929e3c05f323bfca35d7d1a9029ad9351dca53cbc1f7",
+      "samples": [
+        "MW019"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "458d733a6b7ec26697d37a8ffeec4ee31107abc0340c5a066bb4a5d5d99a145a",
+      "samples": [
+        "Q173"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "45c2b7d63a1f10941bfe6bcd10f48b93e270af73eac14698285c17fcfddab7d9",
+      "samples": [
+        "MF021"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "46e2b3891e676dca3c38a1b7f13a973aa2ecfd27bf1348f19fbd27571710e92a",
+      "samples": [
+        "MW030"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "470b865f418af0a8266be458a6cb77d7611d4f63f93c3d0c4b177d258ada34a0",
+      "samples": [
+        "WR044"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "480fc4abea9c9622e7ca05e5f0084d01448851a900f67631c4e0bfd986e7dd52",
+      "samples": [
+        "Q106"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "4839a4625372968bb76e251666a8eaf1e230dd69cfb57d5a2cb8033ddceeea25",
+      "samples": [
+        "mouthWide-035"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "485e7fc08546a5a8d67cd0fec44fb9a9513ee79bd71fedea1ba0f3cc2f24ca22",
+      "samples": [
+        "mouthFrown-040"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "48e5fd92cc48b27d221bef19d6068a357a3935fdc6a3c281e6acbafc0a105c52",
+      "samples": [
+        "MW032"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "4921f6120e85448852e4383037332d9c1abe4ce690930db50e212ed406a94b06",
+      "samples": [
+        "WR041"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "497e2bfa1ce542bdf850bc67e6e8ee84a1b3fc379d128edff89d19d541c222c9",
+      "samples": [
+        "WR031"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "4a1636e2b302241c478f5cda7352da0f9978724867d9f4a2268125b2bab80be3",
+      "samples": [
+        "MF028"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "4a594020c84ec7711c7296cd2d836257cef578c00c164d68275b6516e8c0eafb",
+      "samples": [
+        "WR012"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "4aa39acf4c703a7daced38ad3e6a9dfe5359182d8e2d8ac1de909935db9cbf1b",
+      "samples": [
+        "MF007"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "4b3b4b8fccaddcaf334fb2ca046a7ab2fa824624d5461e188575a6df433deaf7",
+      "samples": [
+        "MW037"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "4c269e345b23be4779cbdc654c84b83e534aaf4f0c1fca8ade411d9ab815fe9e",
+      "samples": [
+        "mouthWide-048"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "4c32bc26f0a4f5886c3e1bdd9c82678e39c3c6c9c961ce5acac119736da92384",
+      "samples": [
+        "MF039",
+        "mouthFrown-034"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "4c6cbf783c0f1780eda42a1b0f9f106d1f9c251c3c50da7578b1d690a6cdd00b",
+      "samples": [
+        "mouthFrown-053"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "4c6e9b0795eb061a3f400ad3c871bfd31115811a2e5368f4e94adc32eedbc4c3",
+      "samples": [
+        "Q175"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "4ddbe8e7120f1f8bf015bb221e5ffdd9686e200cc72036e601ed4bb502877291",
+      "samples": [
+        "mouthWide-009"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "4e8254f1ec75ce2ab11c3098f1d7de33cb52f1ae7ce6d5023d8eefb5bc71b6c6",
+      "samples": [
+        "mouthFrown-037"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "4f24a6bfb7a11643dfea342c8083f6aaa0054f28ad427fd99fcdbb56fcba8494",
+      "samples": [
+        "wink-calibration-002"
+      ],
+      "evidence": [
+        "exact-wink-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "4f34016b46e5bbcee99ebc93c6693c2e0be17ca9cf92441ef23308debe02faa8",
+      "samples": [
+        "mouthFrown-022",
+        "mouthFrown-023"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "4f404223f600b51dc46ca98fa4d765ba9585b2b07e9fd03d6b8e360a074c827d",
+      "samples": [
+        "MW025",
+        "mouthWide-026"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "4fb00b52873f10f32c09f0ba001435590028097607f0856c4d74e5431eece954",
+      "samples": [
+        "MW036"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "4fddbdf6fc57df854788b8fdbf167a2881e1a472757366706ca7bf9e448639cf",
+      "samples": [
+        "Q068"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "50b6445a82f40ac7e1a93a41e7806965a14b9153bbbcc7f492af012cd53d94c2",
+      "samples": [
+        "Q053"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "511b9f8b086b6204b5737a1700e703ed1aa80af492739e74e50a7bc660bafb5a",
+      "samples": [
+        "MF030"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "51437ea6acf51fc2d646bcb402ef444f5d8abfdf9cd17ed40d82e9df848701ec",
+      "samples": [
+        "wink-calibration-001"
+      ],
+      "evidence": [
+        "exact-wink-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "5256c55743a1e4e887cfed5fc48478a842cc3e0f53537559208b41bd22aa0114",
+      "samples": [
+        "MF022",
+        "mouthFrown-032"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "53338e91e91f8ef93d60507d4bf001379bd1e3bad949cdccd33a07ca1cde1884",
+      "samples": [
+        "Q183"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "541bd28a0a4850e4e9647e4bfc79865e8d0e1745fcc57207a6bea3e9873cfaed",
+      "samples": [
+        "Q180"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "54a5b59099497a2c0f1d42c5957cd258624d1e4b9c1991e0cb9e7672ddbd202f",
+      "samples": [
+        "WL011"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "550ed2e191ac80d8f8fb620b81c212050b7c82b070b8c2b59103a8ce20a15d7c",
+      "samples": [
+        "wink-calibration-005"
+      ],
+      "evidence": [
+        "exact-wink-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "55298b31b8014c90d283a2b9edaac2b17fac6ddbc5048798e3db27d575e48521",
+      "samples": [
+        "mouthFrown-016"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "557ca3266648403af63f32df9ae6a7d5d39ec6c4d8ce21f00ec635474286db3b",
+      "samples": [
+        "Q039"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "565451886906f4054500056a096084259d746fa73b800397dd6c0c1b8f7802c3",
+      "samples": [
+        "WL030"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "5677e32368e88f572d834fefdb3721514ade4d194a81ee1ca435e2b9f99fd35b",
+      "samples": [
+        "Q055"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "5824b9578369041c4392bd924b278123b5f656a265f37d4899750d3bac02cf7b",
+      "samples": [
+        "Q155"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "5830e3aa7dd276900b12408032eb17a5a8043e4f8c4ff45ed55ea5f4c619736e",
+      "samples": [
+        "Q060"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "584a3ef23be971ce97c3a84e0be10ace2aee9f443fccc5f16cb7bf5fc7a6f312",
+      "samples": [
+        "WR013"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "594f1f410feada76f9c3c170aedd2247e18fb8ee8e0f5f9768d8efdf017c9b40",
+      "samples": [
+        "MF032"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "5995de9895eec13f41c5fa8d6de41417513a7b17a8660dbd249d71803433bb0b",
+      "samples": [
+        "Q178"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "59cd3655da7ad86c2b5ee3a8fb3e16eb453833c8fe7887d8acc4ca79d68d93dc",
+      "samples": [
+        "Q024"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "59e4207a297f9baf277e1fe123fd41eee77231510fd1bc7e7ffb288d85e5b488",
+      "samples": [
+        "Q087"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "59f0cf42c02a081e07f79f328796e2f68d193b81f8886bdefd24389199f69203",
+      "samples": [
+        "Q002"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "5b3778437687b058e058cf0d066b539c9581b4ca116113afeb783e351a149ccd",
+      "samples": [
+        "MF018"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "5b70fc33657de55b8fae523d79979e48e8077976283672cb51c8088c3702ab2b",
+      "samples": [
+        "MF008"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "5c725796226b1ca5c5619d5a032929e32a3a1c494f9e78198d0c726893ac368b",
+      "samples": [
+        "WR018"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "5dad711740aba9bb74d5bd72affe7ade81bc96cb68c03c893ce8d41b3e9a32ad",
+      "samples": [
+        "WR026"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "5e33a2b9772d140183804deeb50dff145f23144d9cbb4e9c052153603dff21ba",
+      "samples": [
+        "mouthFrown-066"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "5edc8df38e5199e461d8f4bf910531fe19739b571fda641ca81864b4ce0c1a64",
+      "samples": [
+        "Q126"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "5ef2854f1bc5e2cc2d2a7760029dd24aa26aab97ad5f9c9757bd985bf8dc2408",
+      "samples": [
+        "Q049"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "5f9bc53929d71212624d9bd003daa45e4b38c96d428a40f0b35425e995c209d7",
+      "samples": [
+        "MF033"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "605b194939c50ce7c49034dea1655aa606cf012fa2db642062a78fe4299ba7ba",
+      "samples": [
+        "Q099"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "610224f405cc01e9e73bbe0924c4f0663ba3d11bcdb7834bbf4a370bb7dcb1cf",
+      "samples": [
+        "Q128"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "6168f68ada51bf19835abafd9fd545498d7ff3bac0e4cbcb31503c8191983989",
+      "samples": [
+        "Q131"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "6271627dcb40cc6c9af00d389d2fe957fd87022c8f413b07a04a43fe53ee8d44",
+      "samples": [
+        "Q095"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "63cd7bab70e38cc0aacf7650f3673f4cb1ba0cbc63d4518b1977e45c394a3b99",
+      "samples": [
+        "Q124"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "6408655b4b942aa5d2886866f9f22125eb1ad1712fd44ce67327acabb35eedd4",
+      "samples": [
+        "Q158"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "6453ee389624f7c68f06a1df7d95ad96f5dbba315ef78b01d1f2fb26a1740606",
+      "samples": [
+        "Q146"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "65282831c3227ccccc33b59907bd5553776ced807a97c49306bf1a59d71c6c5e",
+      "samples": [
+        "Q008"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "65486a35e5f3ee3347553da2d49091c04e44127697d27ce8d47455192b355929",
+      "samples": [
+        "MW044"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "655697fd129e87c8c9d0e0462b8d73bbcadb0f66fac92d2e93c93114ba11576a",
+      "samples": [
+        "Q181"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "657331ba170b6676b28828f8ea7cdf55a58beed9ced15e450188379bb69fd711",
+      "samples": [
+        "MW020"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "65b97e765825e04a994c35867a55c81e52eb560cb3cc4eeb491e3c88ef9025f8",
+      "samples": [
+        "Q050"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "66559ad7b4bdeb230accb86c547c5b64e76e03a3076cd36c2df96da7f7b6dae6",
+      "samples": [
+        "MW048"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "665c43b71f0b34ec981aa4d0fe093d521e03eca3756199bfe1be56187cc40c32",
+      "samples": [
+        "Q064"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "6680daea2b6baa6215da4778872327e407b88f3f1ecbb3201e065251e086d3ca",
+      "samples": [
+        "WR036"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "66ba2e638853e72505a52ec02a44e6141b3b9ccf5d181892c3f24ec8c56bc634",
+      "samples": [
+        "WL015"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "66d4845941b423b980c75981580adb894662586e6e71efe6b1d2d0a9eca8716c",
+      "samples": [
+        "WL004"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "671d17fcd12418aba9801888a3c623bc3a441000a2de4bc90c4b074b8435e989",
+      "samples": [
+        "Q163"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "672f6d4b3e16015fa42098d2a8957883013213337906124558907c99952a6c02",
+      "samples": [
+        "mouthWide-034"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "67668fb8e4e60a24d8779b30e16c9c8af1e249793b9e7068283c9abae213defd",
+      "samples": [
+        "mouthFrown-042"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "67f7e621fb5c7de8aead680d8641e46b706006dc3ccac6f466c408ad8738a3d9",
+      "samples": [
+        "Q016"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "696dbeac119486dd5257710580605ac7c942935fcbe2b40c19945f1b3476369a",
+      "samples": [
+        "Q027"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "69adc894a9b920b786ef56c15a0c2895c578aa21d730042d4022ef3abf328ba3",
+      "samples": [
+        "mouthWide-074"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "69c2c3788986c850f5b39101b6720edce04a68afd5ff1fccced596ef2e9f0682",
+      "samples": [
+        "Q010"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "69d786013f4f0c5053f0b585d2f556d1d0c7af7bb3fc8ae02a935ea710d0d1c3",
+      "samples": [
+        "Q057"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "6a85a05ebbb9beb5bfc6d9c9c2d7bcb998aeeba3b434cc93aa2545cbe9310a3f",
+      "samples": [
+        "Q119"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "6addcac5bde39b9894052afbfd6594370d2ab5baa9f79180241bf4bd46305e77",
+      "samples": [
+        "Q074"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "6c526f927ba6ee31bf66d44a9ed67063ef7db8f49318f2227d58d9cff024b9e4",
+      "samples": [
+        "MF038"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "6c98b9e626b99e724e0d5f13e0071eb46b7132d6fc4f7be3bc80e4c77aef7656",
+      "samples": [
+        "MW011",
+        "mouthWide-053"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "6cfd165205a78915fcaa24f1a53de62dd556c48b0f4258b2a0a002f19136ebb4",
+      "samples": [
+        "mouthFrown-054",
+        "mouthFrown-055"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "6d7a49896e244d506827630f80f4a41a6b27ef827ef5abd93327200474c63538",
+      "samples": [
+        "WL032"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "6da10bcee6587be895f9aa10be36470b9f358435cb9702ffdee9b0d0d137585b",
+      "samples": [
+        "Q073"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "6ecc9a4d6eb5115686316391bcc36b7a3626cd46bd4398be4b4a01d1a08855bf",
+      "samples": [
+        "MW021"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "6fa5229bf5bb6b6e9e82297dd054a6dbbfd770902d0f02ffa5144cc8a54276d7",
+      "samples": [
+        "MW046"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "709d161f1fb080a330e19497c5b872f5d336262686d522ad8ad68dc2b10b8193",
+      "samples": [
+        "mouthFrown-013"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "714721ead5ea7c9fba818617911ec5d78b54984da8278b4328d9c35f0e26ea13",
+      "samples": [
+        "mouthFrown-018"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "71bc1611702b69d73c0c58a1191d03ca92a272a2b5db764fa34c9bbf20936d73",
+      "samples": [
+        "Q120"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "720b4a301a2b6fe493161dc33d5c52bd96e612b3c8f11e009556b66e29097aa2",
+      "samples": [
+        "Q138"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "7249bc95c6d79d908564bb974732b73cc4a3bfaf877ad46392882caa7026d545",
+      "samples": [
+        "wink-calibration-003"
+      ],
+      "evidence": [
+        "exact-wink-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "7249c864c8754df9afa6d78b5bd0dad2dc30c4f46b963f34fc0a4d8320d0f2aa",
+      "samples": [
+        "MF025"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "726115a30c1129f5a0b98f1e1ddf83a00110e2b9bc1bee79edc0d9b51c0c34ae",
+      "samples": [
+        "Q154"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "7293c71e7f199bd0e6abb334238808314601c19fec4fcca7d1b0b5d78237e50a",
+      "samples": [
+        "MF011"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "73437a0e6c64cc9273e7b0bb4627656705b3a6a2d21396220bd16a577fb873ad",
+      "samples": [
+        "mouthFrown-028"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "743e0b55472d94478e17ac5f8f9fd0bb98c47047eac1c600b9224fdef527bdc4",
+      "samples": [
+        "WR019"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "7444f8cff135f69f6cac1704fa9d14b20315b5b1a68289aa37cc74368d7bd42b",
+      "samples": [
+        "Q023"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "7455715aeeca155cee920e963712cbc0f198f84d1931e11be04cd8604377fe52",
+      "samples": [
+        "MF017"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "75d325e16258805dd175d6f46a3ab3fdfa7d9fda03ef141ebc8b0bd2b0939825",
+      "samples": [
+        "Q063"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "7634828c2a0b8c41ecc574acdd2f3d16f66388ae3ba5c370ffada8d071376680",
+      "samples": [
+        "Q033"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "76e9de66dc1a72605d635af87c25f1cee2e51e4285263bc68b4dded8fd54572c",
+      "samples": [
+        "WR015"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "78379756bae6f0961ba437aedcd2f9921f634de54d99bc30c625a9d92a2f22bf",
+      "samples": [
+        "Q109"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "7a51af4ac0617ff9c4e608b1f209451a8ccc1fa5dede94eb524cafca664e9f50",
+      "samples": [
+        "mouthFrown-050"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "7b6d2f4b02187007b9798330d702559e445337c2faa86ceeb50dd00253bfece8",
+      "samples": [
+        "WR043"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "7c144745f38054d8182d9541e4b0f720170e16d3358c3aba90aabefd7eb683f0",
+      "samples": [
+        "Q084"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "7d21d120d984beb0bedf0c600daec4b4034c6ba9cf326a393139f9ca53e5c47f",
+      "samples": [
+        "MF031"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "7deac48d5609eef6d4d73979207691c8356123ad6e1cf5e8aac09c5a4f421704",
+      "samples": [
+        "mouthFrown-063"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "7e1a19722f662b801321935ab62aedf89dfefcd9aff0bebad06df42166ca191b",
+      "samples": [
+        "mouthWide-067"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "7e8a486a4a2b9eff112b757d475f48496950da6346da143875ece1958e9703fe",
+      "samples": [
+        "Q177"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "7f7303e0a0fd2e52eb96cd9fc58524c0e13dac68badc3e9b455b8ca0c9ddb350",
+      "samples": [
+        "mouthWide-076"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "7fb914311adfb95b50cd0bb0293104ddc67cfb6fb5bdecc7cbff49bfa4f781db",
+      "samples": [
+        "WL045"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "8101023859caa5d1268cf3789cb2c91f5ff4fd5c52083681c6c6fd1987220d34",
+      "samples": [
+        "Q107"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "81cd46bb0f19073d7011d5abe4a9de64fbd1b8d3666b372435c02e1a65b4a31a",
+      "samples": [
+        "mouthFrown-046",
+        "mouthFrown-047"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "81d18a90cb8b809b9c6d26bd70eb106924659f963762ac33dc31b3348fa74e9e",
+      "samples": [
+        "Q011"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "8209f8d3f74ff264c32d1912d8996c7ef876950ab155209bf49b889470ff7cbe",
+      "samples": [
+        "Q157"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "826f44be097c863111743e10263edacb131a3f4126d32dfec336b155d147d560",
+      "samples": [
+        "mouthWide-015"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "836e745abe91c03e2415f65be0007902c6ffc34e768d3b332744a1ba7e20ca68",
+      "samples": [
+        "WL039"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "8399b56e386a8fb38bc50dfc20757d5571ba873d820860484fcb8d2408fad8da",
+      "samples": [
+        "MF012"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "85164c6ba0bbeccba229461e3e343224773c7d94ff7a0900d7d8499ca0ddc7ec",
+      "samples": [
+        "MW029"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "85765d9b40d48987d1ecb7cb1a5f397a0c6269d629905ad5c1e401e66cc743db",
+      "samples": [
+        "Q045"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "85b825df1f2a7d356e685b4283e25e0c0fc5de47963303c3f21ef5c4b4d434ab",
+      "samples": [
+        "mouthWide-006"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "86b0995609959020d90f92dd04719e97f274e2018675f5a615c3ba9edcd9d9a2",
+      "samples": [
+        "WL014"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "88479011cf13debddfb40d84f16fe37be3c1d988a8a415fa1c1c81e63b7211f8",
+      "samples": [
+        "mouthFrown-033"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "88993dfc2fcb04be68f5c5b9a93165cb3b088e4f5d71d12481caa672bacee86f",
+      "samples": [
+        "mouthWide-075"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "889c6f8d8f06804e5bdcaacc99f98884ae903bf28df302c278c174a8f29a83a4",
+      "samples": [
+        "mouthFrown-044"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "88a34185ef7b88266d15b4e16aa8e93152920cf71731fb5b0cfb132a54dc4897",
+      "samples": [
+        "Q035"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "8933219bb21e7f67a008b510597d438b13e34454e91bf8b12db2b476b49a9050",
+      "samples": [
+        "Q171"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "89415a49fba283543b19d94444a3020d185f105845078ddeb65e7341bf16e699",
+      "samples": [
+        "Q139"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "8954f7be4d9ce7c1831d4d4a1fefceafafcfe4c53a2f8fde78dbfb4a05f60cce",
+      "samples": [
+        "mouthFrown-041"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "898883265cd0b7b7e2d8a1567484acf76da5e81fb1f5c496832e6ac0273089f3",
+      "samples": [
+        "mouthWide-042"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "89b5c41ce0e31a76c49b8c7cb77b34841a7f061b70771f72fc2abb0cf8910eb6",
+      "samples": [
+        "mouthWide-021"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "89fb6ba6597155f39265aeb13758e3d3b8e433ff2d93e05b243543ed014b7322",
+      "samples": [
+        "Q034"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "8a6ea05bb8a4105394742006f918348c80e7c7216f2c8347092636b7235baa21",
+      "samples": [
+        "Q105"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "8a7d5149266245355695a362434cd5dc1b1c9b32a5ca00f3c1564467b3d0f95e",
+      "samples": [
+        "mouthFrown-004"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "8b0b184ca348b289d8f36855a829d575e0f54dc19f07bebdf5672d31dd80e42c",
+      "samples": [
+        "mouthWide-052"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "8ba84a7075fba906ef9c0fe02d2e3e66495c55e106768886afc54b859299f9c5",
+      "samples": [
+        "WL033"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "8cf84333c87b05b685fb74cdb8d07fbbdc91ddf98bac662356c19f4f3817aaab",
+      "samples": [
+        "mouthFrown-072"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "8f78e20593b9ccdcb974be68f6dba13075dfbc0578dbfe7f4f33223ce7ec5e14",
+      "samples": [
+        "mouthWide-047"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "8fffc3f9f513198d0b45c12f6e074526036a6752c0ad30be4b1d4d0d11396f01",
+      "samples": [
+        "Q148"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "9164d0ea3895c952d318a409bcf4cce4dbb6d151de1548f6da1a42d5ef6e8866",
+      "samples": [
+        "WR047"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "91675933c0604ce5f735d34b90cfe690a58c2c053fc9576fb8fe3fa9ecd044cb",
+      "samples": [
+        "mouthFrown-017"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "91812f87ffb90d4db40c88f3f6544364a6c9404b6def4df06606a22c913bce57",
+      "samples": [
+        "Q187"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "918e4a8a8a3f474a6fbeff4f84be3deb2676a1859b98e66b672c3ad54862da4f",
+      "samples": [
+        "Q037"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "91a7734eb188e6e6b8f961f5ab9174786c6ecf8cfc4e7131fc0b8f8ac0a4d7d7",
+      "samples": [
+        "mouthFrown-039"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "92538f7c830f27a34a7259ae2a24e269156e10f90e9a683fae5aae263f70f6af",
+      "samples": [
+        "WL044"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "92ce2d00db9f2b2ef8ea01361190f5dc4154fe8714b6cdcca4fe2fc2da3ae8c3",
+      "samples": [
+        "mouthFrown-007"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "92fbbb9f97ad4bf4402af4f895a9e9b68cc100b4469c7283e13a04f27c1e300b",
+      "samples": [
+        "Q014"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "9309a28d011b5302d83cb1bf9316fdbf7285f5d41e89c10676626cbe5ad8dc96",
+      "samples": [
+        "mouthFrown-038"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "94fc04f4fc29b5f910ff84f2e1c210cdbfe4fcef811cd55c57e69d8738f093d6",
+      "samples": [
+        "MW018",
+        "mouthWide-002"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "95b547a9ea69d2187bf7fcf1c9f70a941134801e8d90fca6d15c3d44698ab888",
+      "samples": [
+        "mouthFrown-067"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "95e2dedb0de5eca1f101f68ae87994ca3f4382cad2a17ac53eeabb0096f4cb10",
+      "samples": [
+        "Q054"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "96a726ef988d017783ff72ab41dedbc2a66fb229a08aa317d8f4d8dfef908dea",
+      "samples": [
+        "WR035"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "977baf5fd4ed0c8b7c2c5dbdf9cc886acf9b7fa51c77d8741cbb696a6ca9e250",
+      "samples": [
+        "MW045"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "97a676bf70ee476be719243926a21d6880af8d880d94067625eed68a5741db30",
+      "samples": [
+        "WL025"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "983c9f0643b0e2e1eae92894a0b420fd058ea6a7ee6b4bff6f1fc092e47a7bf1",
+      "samples": [
+        "Q005"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "985bd74d9400ec69ca2816a23bb0c1c9f662726d7de74bdd2ddb6df788276410",
+      "samples": [
+        "mouthWide-031"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "98a3d52b6acfcec614e5f19b86d2336a37aaa8ef00785fdcfe07f07ae05a90d4",
+      "samples": [
+        "mouthWide-023"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "9945e3be3426becf5624e3cff43e1ae68c9c772c243ea561eef43a7ca2054596",
+      "samples": [
+        "WL046"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "998a9e322f996c3c6bfeeee6ae2faa5aa7748333f005ab09ec215db7a1dbd4f2",
+      "samples": [
+        "mouthFrown-012"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "9abf54f86248074f1fa721aab3cce3c7c2e7128311eed251bba80344c1770979",
+      "samples": [
+        "MF005",
+        "mouthFrown-003"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "9af137ac2d95fabafa0c4c7e39699ad2a0abfe0e847f64fab314c156d10eb59b",
+      "samples": [
+        "WR033"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "9bc2c6ef05ab4afe866e6614168e721cadeca8cf61e7b08fe4cfb4fa548f8a88",
+      "samples": [
+        "MW015"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "9bfe73bd274c0ee5db8ce779b5af78a6dd9c33917fa3347ee51eff17dd0fe8b5",
+      "samples": [
+        "WR034"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "9c09d5b33b4d3fb8dacf22735fa7ff0cff091998cfb5970c06636b1479820c17",
+      "samples": [
+        "Q028"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "9c8d0a46803298107b34c4fd7ebdfa40f846e02f46d253e7902857a0a8eb9e6e",
+      "samples": [
+        "WL047"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "9d0bb740d85c92e37fccaffa2bd54c61725d68e8ce1cc47b008044c8ec9c375f",
+      "samples": [
+        "mouthWide-058"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "9d29d19d42fd0e57fc0a5a47ac785dbfc9181ba63973bf498c5c49f052c4ecdb",
+      "samples": [
+        "MF014"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "9d5624cf1a458df8e5e98902ad65ed7157b1e9e6ec9bdd3ae91399319b0ed8ba",
+      "samples": [
+        "mouthWide-049"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "9d5d6a4f50f57615569068fbc455dd88e1bb266cb00da7b7b1151c0c0fa57d24",
+      "samples": [
+        "WL040"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "9ec982c224d3c0962493cf14915578991b9198d11ca105c8bcdf3e4b21dea098",
+      "samples": [
+        "Q001"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "9edc39d8cf5d39e3ea12810781592963001ded2280508858bb79a088114efe58",
+      "samples": [
+        "MF044"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "9ef7553de1d3d2e1eb14d4e2e9be51334eff589b86bda86a437e3a69beb9a72f",
+      "samples": [
+        "mouthFrown-049"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "9f9d7abd44edc9ed9f7ce15433e3d90f52509299fec38b0582ddad7d00261f34",
+      "samples": [
+        "Q046"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "9faf7e616c06c585419fbdf760aca28b4f7bd6384e31ccb45291b25adea21933",
+      "samples": [
+        "Q169"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "a0bd2d29f0760d27c3d928908c81f62265514923fee756ed06d92aee3cba7e15",
+      "samples": [
+        "Q032"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "a15f03733baa41a896f2cce6002f34c491bf5647041760ffdb9b5f716aac32c2",
+      "samples": [
+        "WR021"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "a1cd63c21ab4f66bca9f14f437db7f870ae45b3a17f4fdfc4b7fa06364a9ce82",
+      "samples": [
+        "WR039"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "a1de29bd38136e1020f55e6ccea7ed5aac04809897c3cac016f91800221cc9ad",
+      "samples": [
+        "Q151"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "a2134295565b8aa774f1a0a78fb780ff90a007cb8cc7eec493a41a7051094e3b",
+      "samples": [
+        "mouthWide-079",
+        "mouthWide-080"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "a3134d9ebaa4bad9eeca848abfffed28dbf4fa69eac592f34613c1b9ab44936c",
+      "samples": [
+        "Q022"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "a363be9915dea1697015c188a33bb1cb873d17581e9338a4b144a3cca7609c49",
+      "samples": [
+        "mouthWide-054"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "a428680a3b2967cfcfdb57230823bf60a893cab4dd331fc416f028afac2ac0d4",
+      "samples": [
+        "WL034"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "a4b48cddcc235d4d8ca9e8493822ff8e152fa7f2e23825c905e08c5c9f71b50d",
+      "samples": [
+        "Q006"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "a4e3a0873fa66e0ad6a8070cc38d5b56dd42f52e8548db1fc8781731bf12c2a0",
+      "samples": [
+        "Q149"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "a4ffbdd52728283e3daad9e53a4b721f9a15de8ad85e3048339a9b126e0fdda6",
+      "samples": [
+        "mouthFrown-056"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "a8286fcb1fb111a161fc949e903ce7bd37b104421edff13fa73d6afcd31f3143",
+      "samples": [
+        "wink-calibration-004"
+      ],
+      "evidence": [
+        "exact-wink-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "a867b99bc38896c6be805750eec540c6d40b31395e04d1da5815b4d2cbb2ab4c",
+      "samples": [
+        "Q153"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "a93adc804e5f7828e15e6f3d1c3941fefbd79f3f020876b6bd7dbc8404ebcc6a",
+      "samples": [
+        "WR046"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "aa03b8de178757873492a2989a4102a46dbbc86dbec92106eb5e9db1c73cb1cb",
+      "samples": [
+        "Q100"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "aa5e1dfe5d0d26153fa6e965abbe75c6e300264c6eb333d2bcb418c09d0090dc",
+      "samples": [
+        "mouthWide-018"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "aaa02bb07a8494f52acfdff200cb1142e7b404a542f0f8baaa4f140acf394468",
+      "samples": [
+        "Q182"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "ab0d0bcf0ca0763da41026469972e4004a5b065e49098d958841f8b86c67e120",
+      "samples": [
+        "mouthWide-032"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "ab4893e1d297435ca0c8ebfdeb4c587f976f80475f7ab12108906050226e9e30",
+      "samples": [
+        "MF037"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "aba3ccbd0653cd151123b9b4a964a92e07768b220805452ddbfeddb6511a0ce2",
+      "samples": [
+        "Q031"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "ac2dd8970942e48da631cd316835fd57acb109ef76a59899c203b83430c7dc6e",
+      "samples": [
+        "WL003"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "ad280fb2f889815d85d2617ea82705ad673018c9a74b3659a1b8d56283a5e9c4",
+      "samples": [
+        "WR005"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "adb118c150ea62290437a2a8bf65bcc7b7540ac626b652ce2e2fb357dbabf900",
+      "samples": [
+        "mouthFrown-064"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "ae2479b0d6b94a9250615e0d95675bc0c272e0ce2e4310be5eee09060782f3fc",
+      "samples": [
+        "WR017"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "ae343bc24632d91df950b51f5296a36e0ae8cc041b7e6fc176a72a0369d391dc",
+      "samples": [
+        "mouthWide-007"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "af352e9094995dd4f32c726ff36efa984ffd17b77d1cd21e6150cb2947d727d0",
+      "samples": [
+        "MF042"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "af4ea281e7cd845814a2813b768e49f6dc3f0786596af6e5b173b92b485d2cee",
+      "samples": [
+        "mouthWide-037"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "b0504ea77b39d270746e95b576214deb99c16265692377ad8f8254b2c67fdd85",
+      "samples": [
+        "Q162"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "b056d8f3fc6418cfb479962bef4547f349968e763016074144d6e91519760331",
+      "samples": [
+        "MF009"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "b0e37b7a95811887edcbd6879363b1192bb7a5db7c7e7eaae58024a0e7ed1f58",
+      "samples": [
+        "mouthFrown-077"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "b12ca65449666da48f5b569f4e4afd92fd8afcfd51e1e27d5aee212df4da0ade",
+      "samples": [
+        "Q025"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "b1e81edb5b5f4aca63c3266420830e16d02412909c8b4e7f216c9d8123230acc",
+      "samples": [
+        "Q141"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "b36c4da263cb3c14e473b41d6e9884ea46af4429c6e01884f3c143c77b765259",
+      "samples": [
+        "Q164"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "b4e5fba8ff08c011ddb75578d6d51d35b472c9a791eacb4091d1dedb5da16987",
+      "samples": [
+        "mouthWide-036"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "b67e102cb9bdc885da1708b0aea4b414ceb91316e01ad57be9e02ead5c2c3615",
+      "samples": [
+        "Q168"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "b6b68b401ab4af6589556144479deb6fc050a1c8d24ca6d4b38430e3de0a578d",
+      "samples": [
+        "WL036"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "b71edd4656e72e1b18970d6240d37da8a7f54d6629ebb0ca2586a1bcc3566375",
+      "samples": [
+        "Q013"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "b7eab2fb10456f62496dc82e087ef356f5c3e0a3a577fa0ed3729c9a89183952",
+      "samples": [
+        "mouthFrown-015"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "b8591c3284eae9c053c3f5077be509043d2f56a88ce377ce203fc62638bdedf1",
+      "samples": [
+        "WR030"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "b85d84191e86ba356104655b86bef1debcddf072a8fdeea9fb9c74414f8cb5b8",
+      "samples": [
+        "mouthWide-019"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "b86b3c303f098090fca0e633930755f55f25619a6e3760cb4cd4d53fa71f684b",
+      "samples": [
+        "Q129"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "b877220e5c13e9dc159aa8b1774e3c1393f7e88f2f7410de4c038f4ff307e5e1",
+      "samples": [
+        "mouthWide-062",
+        "mouthWide-063"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "b878dd9c4d51cb2e26c5b2112512910243027ab6b7f02113980836b4d441f40b",
+      "samples": [
+        "Q009"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "b8a5a5bd9b14deb0426687b8c262fed88c217f6a56e9fdc74eabd870e8459748",
+      "samples": [
+        "Q104"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "b8ce31779a91a19b886e632cc5d486d62e40e11c13053281cfbbd83994c5b620",
+      "samples": [
+        "Q044"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "b92d9a6a56a67b31e52d76737cd0b2fe000c1bf8bc6012c2bcc6f6a32b6be44d",
+      "samples": [
+        "mouthWide-051"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "b957f8df3cbf8c0a64c2fe0a9e07d863d2235b1b3a981d76ab3100c8038edbbe",
+      "samples": [
+        "Q098"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "b978107dc0d899dee5c29ee4fb3cb8af552333e422d63065ea9dcad96ca8132f",
+      "samples": [
+        "Q086"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "ba5a31ec850175a0b5bfabb99687ab2d5f70980aecf6b9b88f9b99fb6d41df70",
+      "samples": [
+        "Q140"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "ba5e012e48e9d7d7e3e598af8a9c515acd2ec0dec6cb62cfae563b3b6629c800",
+      "samples": [
+        "Q003"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "ba7516e5357ff71a5a6d98ad0fc56da39c5b943e2197632055ffc1399f3b97d5",
+      "samples": [
+        "Q071"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "bb45ddd003ff494dd721171b86bc538b7d95f0a08fa8a7feb97520f7f00765a7",
+      "samples": [
+        "mouthWide-040"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "bb51c66a9861e87516c1ad90bb6c825d6fda10ae49176184b103ecd2272c99fa",
+      "samples": [
+        "WL037"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "bb9d1bf2a6573254acaa69e8489830dd2374b991573240fbc93bbe651b0ebacf",
+      "samples": [
+        "MW035"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "bb9ee30791dbd860d024329918eb737db7644fee68b08f72499c4b47cdc5583b",
+      "samples": [
+        "Q062"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "bc94273afcba67d89039ba864d774558b319c56631f6c1b5bd0002006961f47d",
+      "samples": [
+        "Q110"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "bcde3e12c79e39e324f9f80f6d0068c7d088663412968613cccbb50d493995a6",
+      "samples": [
+        "MF015",
+        "MW034"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown",
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "bd202621602cc967639f12a02450a46cdcccfb8a777ec8b8205a5a7d874a08fe",
+      "samples": [
+        "WL031"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "bd817811f90e667fc04fc2ec17b133f6aa98c212a5a29731a918c5c8710f227b",
+      "samples": [
+        "mouthFrown-045"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "bda32d59dcd4f97327a6616229cba9ac8184b5337e806dd0688e7ef3f81802ca",
+      "samples": [
+        "Q186"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "bde8bbdf80f8a1143c6730e7d1fc56023e42f72a45cbe7e9f33fb097470789e2",
+      "samples": [
+        "mouthFrown-073"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "be3c23e70adf77d39056d045ca7ce1d10bcf9c61f6e378aa0a43d0e712f99130",
+      "samples": [
+        "mouthFrown-080"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "be9771e128f02e2254b6b77efc23b2c57287d681106ee6b92ca010776d754171",
+      "samples": [
+        "WR023"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "bf9954239cdbe8965176400a9b54eea1827a870904bf93c8d730881ebe6f4422",
+      "samples": [
+        "Q184"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "c03cdcd11582e804123279248e15562a74b25fba27674b462bd31a31194cfa3d",
+      "samples": [
+        "Q161"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "c118fcf0b0e82cdabb9ffa5cac104e7a6695a1c240d5ad1124f7f6f53f3fed75",
+      "samples": [
+        "Q066"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "c126a1dabafa0fa52071bdce1e6adbeb785ab7d26a42d8af13777e4903efe461",
+      "samples": [
+        "Q029"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "c1cb720e9ae54b610ba657dc3102e1d4792ef746c32e20eed8549e35e14d3e60",
+      "samples": [
+        "WR010"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "c25b7025bd2a5a6bf9399d7b357fcc2d2ee6f7d63332a2886cb2aa56761085ae",
+      "samples": [
+        "WL028"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "c2b069749db291cdc9e2a10d7f180f0c580524e6f40d2d7f4ebb8cfd74ea2e40",
+      "samples": [
+        "Q097"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "c319eeb36e03c78aa88e989244c7d775ad156394c08da3a0dfbd2d84650f1d79",
+      "samples": [
+        "WR009"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "c31a38793fcf332e1d1f18e9b0059593ddeea7821d2490c54be2d4eff81ffc15",
+      "samples": [
+        "WR014"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "c3718d8ed7797f3e2b67242954a9f24450bc0486279701032fb2b609b625fd32",
+      "samples": [
+        "MF043"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "c3d0e2cfb25941260a57aeaff53a7572d60e4aa0c8142d0edc7bb823e5c178f3",
+      "samples": [
+        "mouthFrown-036"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "c41c729cbbf60359313965c957f276ec7e3c4c72ecf2d22d7a3bf302ac18959d",
+      "samples": [
+        "MF036"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "c422be4a6479059d97517d7b891dd70243d3955cdda3a633008177407bc7e581",
+      "samples": [
+        "WL021"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "c5051e061747b4b95a5470a5fe3ead2a3a0cf37a97ed82961dc50126dd2e3f5c",
+      "samples": [
+        "MF003"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "c507808a4c6739b53959d6ccb8d78b7da98b4036771d99f5766bc618804faf2b",
+      "samples": [
+        "WL016"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "c550d455c325abe424a1e2c410f141160c432a49a9f6ecb78655995a5f7822bc",
+      "samples": [
+        "WR028"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "c5c69b599f88e0f85e0f6fa81896cc4ec49285c65f1fb28e71679e1800965d5e",
+      "samples": [
+        "Q096"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "c6236b206ac3217c927054463573a332dba91819b064e569b4e033ae9c864e22",
+      "samples": [
+        "mouthFrown-058"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "c692729ff36a082efb7ac26d1f5cb8301a9fafc46139e6011dadb8bace29ef33",
+      "samples": [
+        "Q043"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "c69fbf005d16aae0288e9d946b8d7f7ba13c01d66b2ead631390cb032e065a9c",
+      "samples": [
+        "mouthWide-077"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "c6ab652a2c274c89818e64d94afeff8827a023ae27a820130d09ea466a7237f8",
+      "samples": [
+        "Q102"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "c74ca188a12a0d6992551b4c1447951ce194453dec86e916b2c6b8ceed2871fc",
+      "samples": [
+        "MW031"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "c7e001fe6256c4eb2a25d41ef4c1d99321c0d956ba9be06a73ce361348061817",
+      "samples": [
+        "mouthWide-068"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "c81bc4025b753114fd9f55c3004ce7d1c46bf594422b30101b3c2e161bcff597",
+      "samples": [
+        "mouthFrown-021"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "cadbf5bbffbfc56109d89c1478f9e03a7e88116bdc10930b752ee646768a4ec1",
+      "samples": [
+        "MW010"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "caf153f95c7266c43fbdc13ca12a55274f282d051d61b7e0cf875c5ed5a21ead",
+      "samples": [
+        "MF019"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "cb3f8de0fca37c3425cd2fe0119a0798f08efe4f14bc8eef7be61557fd7a3f90",
+      "samples": [
+        "Q137"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "cb68cc5f6e49f735d070f02cd8878c344e76fa3906d033cccaf38961a0fda6a0",
+      "samples": [
+        "mouthFrown-070"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "cbf60400ca55c6c825551beeb7251d57897e82b0f7fce0be4371dc85b5d47a30",
+      "samples": [
+        "WR045"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "ce0016f64cea80bccc79789ab695f72ed4f5127d3f4ef473e994e2d5052d4e81",
+      "samples": [
+        "Q061"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "cfe6d9996fe5747e4a6facceb31d3ef13ea3d5a395bf36cd77a1c967b7a3d626",
+      "samples": [
+        "mouthWide-001"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "d00882c915d0dff56cbe2b96c7ce2a63f7d2ca6e966fe04948b2baba2b559c33",
+      "samples": [
+        "MF020"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "d00caf6e386dbea189b8c304047d8ac18089b4d2cebae0999b38b2c6dcaede81",
+      "samples": [
+        "Q015"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "d02454fd9ff08cd8223094531ef78ee4ea45cd706cb14670dd1df1951738e197",
+      "samples": [
+        "WR011"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "d085e6e24252dec1865a53a319e7d469a5329a88f40b7fa3e6641f222a3e2ab5",
+      "samples": [
+        "MF047"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "d0a96a81c8a74434af13b2ee1b5c93af02f9952ed66a0379b19560abfd04d828",
+      "samples": [
+        "Q156"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "d11b10febf02eaca831afa18b5c4240293a9b2c69f5eb0d27347eacf1bc8ecb1",
+      "samples": [
+        "mouthWide-020"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "d136e7bad8f710ebf36b15484fe6c749db777ce6d668f67b0ec5b323e516cdc1",
+      "samples": [
+        "MF035"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "d1a6a552786d6f23f2bd6dcacc90554a17aad08d66af8de06de8b9fad396acb0",
+      "samples": [
+        "Q121"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "d208623be4dc892b601ca2e6c9af3b91b7343258c89c9af05cf32c9ffebaca46",
+      "samples": [
+        "Q159"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "d2bad792c6105eb33bb6773441442c447f6807941f84f8b810153362dd7ed99c",
+      "samples": [
+        "mouthFrown-052"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "d2eb37aa5ae04485a19846c395876ee55e352385a7bd659792092acf6d3ee7f5",
+      "samples": [
+        "mouthFrown-001"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "d3404061e17751c8b9fb2b81ea94d15d04b1846a7ab1da3e2bb9a4ab70c1780a",
+      "samples": [
+        "mouthWide-059"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "d48a5239e078f6e6c3b7e0ba1280c2727373e47439ac659c75e1c5748985f109",
+      "samples": [
+        "Q116"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "d4affad512d6dbf2b3a5e87fd3cfcf73a15c1b22718661fe71bf648a54815c09",
+      "samples": [
+        "mouthWide-027"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "d4f341766fa3736445e0308c71ee4f4c8318a30ffad6a821f7c84b1bcf678fa1",
+      "samples": [
+        "Q108"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "d515390c898b539cd4de1aa1b1e3d80d07328fd0ffb7567b01ecc549a98b554e",
+      "samples": [
+        "mouthWide-043"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "d566a1e88b56e4bc24308090b12d184145a9a2f0b7c3d5873544e2c6d80db6c8",
+      "samples": [
+        "MF013"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "d57d196aeb88f5ce0af03f7c3313aae3ea46a64f8b1b61f1b1fedea4884dfab5",
+      "samples": [
+        "WR008"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "d5d336c03ab156a7a708207279ad6c9f7c42df5e94d6534318aedc8daa6828c0",
+      "samples": [
+        "WL043"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "d5da8ab5cdae8fad1101984d583061a31bb5ae9204c53dea47cb986e6f151d1b",
+      "samples": [
+        "MF023"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "d6580f3ff464fc0b3eae1fb28bcdafa878c038996a52352f80ca934e5d35c23d",
+      "samples": [
+        "Q122"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "d69df044e14d89b72f983ada8cd99ebae4e8531f7846a739bd032a13bcd9757a",
+      "samples": [
+        "WR007"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "d7466ce2aac7eaf8f3acaae622b59fb807fb0e87b1a8f0d6b105ed1fc21517f3",
+      "samples": [
+        "Q047"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "d77e3850cdb07221b7dd018d7c74521714307baf73ec9b87733809c5468327db",
+      "samples": [
+        "Q018"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "d7a01bb60828dc2f2f0209ec0ffd8dc5a6725cd22e2a999aa22c18bff4d4c67d",
+      "samples": [
+        "mouthFrown-074"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "d813cd5594488a5fd4b0c6be63d53655a67c7ca8069bf5d726a62e13f01f1967",
+      "samples": [
+        "Q123"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "d8222821a2c940ba38091a145e0e753343e032f214be295dc94a5bf5d9cf1d3e",
+      "samples": [
+        "mouthWide-022"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "d83ea3dd27b05e22b4cda45c06f67a70bf4dd8acb2a801003a576604610d096a",
+      "samples": [
+        "Q026"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "d965050be1ec2f895427fe4fe11a7bdc98588a98031dcab4759914aa362f554c",
+      "samples": [
+        "mouthWide-069"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "d9f30902ee33634303b55a86cea217fdb297c346e1ce467fe47453d5ed5fc655",
+      "samples": [
+        "WL018"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "da6ffbc60a7535bdb882a4b0813c128324a2ae52bb6c8894ee6de6534f49a678",
+      "samples": [
+        "Q127"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "dac354e5e86f9fa943a73c7cb99c93b3addce6f440a3be4f175fd5f1aaca8449",
+      "samples": [
+        "mouthFrown-006"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "dafb495c07583d82ad86db11142375f739f8e8daf4242bef7e98755065681f63",
+      "samples": [
+        "mouthFrown-010"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "dafe2a62b40fd778e81aaada2acc74b5f3271eef29d9e4722a46287ac05cf7b6",
+      "samples": [
+        "Q038"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "db4629b85395da2351c0e231f40213417fdb320b350f820fa5e9cc18ccfeb71f",
+      "samples": [
+        "WR037"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "db7ac4a8293eeb2ec0137a546919b98e8b87217b390394c37b815a8efadffe79",
+      "samples": [
+        "MW028",
+        "mouthWide-029"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide",
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "db912512a727b035fe2132ebabc0d9954809587293d2c33fafcbed5b91a57cf1",
+      "samples": [
+        "WL007"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "dc2be658bc7726556f25d84d8644d7f61cf75751d295de81e1a92079d8ac1fbb",
+      "samples": [
+        "Q036"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "dc5d2912ada538ed37f3b18ee31d1a2759174ea9faa6254fe25f191cd39f1896",
+      "samples": [
+        "mouthWide-033"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "dd828acc280a3bf84446b4d623ec8a4397f5c103c0e119c83254d386638192f6",
+      "samples": [
+        "Q056"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "ddcab6ee84c35a10c0bd99e107b19d4fc59c4a47ad34bed502ffcc39067f6fdf",
+      "samples": [
+        "WR016"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "decfd997fa64a3cc45d35139f0464559447e56bf65b3d40977ff1edf04112dda",
+      "samples": [
+        "MW033"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "df150605027a59ed22a137ca671c1104fb09f5e79f09e6f269f8cfa3a09716ff",
+      "samples": [
+        "MF045"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "df2b33b7415cd42bbe5e93d223c2564bd680f4ef2cce65c04045f6ce0638e2f5",
+      "samples": [
+        "mouthFrown-075"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "df48aafb08a2747d2089a11e9fb26cc351c0706313f0d999c914d488cc7f13f3",
+      "samples": [
+        "MW023"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "df8fe5da548ef9b7640d73f08a92ff8d5ec622c54795ec4fa2023ae9c4b361d4",
+      "samples": [
+        "WL005"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "e00826efc59377158084a26ed2e5d460f9ecc799c0cb2d441c76ad347d96a6ac",
+      "samples": [
+        "mouthFrown-078"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "e0ef1b033f3716ec905c2675c87fe50b75d2bcd41344d4d768808824b8de1efd",
+      "samples": [
+        "mouthWide-030"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "e151dd8fa6d1d231d0a8b0153d5b604d706313971724dd3f67366bb80489e0e2",
+      "samples": [
+        "WL023"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "e1b591b01aa9c445189d056b0191bcbca8689070993a2217984cb2b33d2506fe",
+      "samples": [
+        "Q115"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "e1dde7c57d9c5bb12612fdac22ee1bfb37176065183b9f98e1012ff2df7a25da",
+      "samples": [
+        "Q017"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "e27b964f34dbf96ddcf06d17ce36ea7ebe82c3114a41740d155a6772fc1b0555",
+      "samples": [
+        "MW047"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "e3534d1bf2b309fd88b43e81cde1715b386bfacf4d2fd82c8e602614b366d2bb",
+      "samples": [
+        "mouthWide-061"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "e4a04f17afddd9aa9ce83bd96bc84d9c52d2846ef9f5aa1a32009b133d877f2e",
+      "samples": [
+        "Q030"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "e4b3bb4792125cf85a878c4e23a1292bb43771ca94436109996718f536b52166",
+      "samples": [
+        "MW027"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "e4eb70e0ea2afc129bf00cacbfc3fee9f6f56a0d56b27d43d46987907c406474",
+      "samples": [
+        "MF010"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "e513e499a901841017565d4c7e344cbbadbe34119d26f00db98648d345e1c3f3",
+      "samples": [
+        "MW040"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "e51c92dd5979977030c205f7731c4e8bc110b30eccd50a05235c46cbcf7d9fcb",
+      "samples": [
+        "Q058"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "e51f21202588298bbaa862e6d021bf7c46dd694ed73058f96a5bd1f6de04c250",
+      "samples": [
+        "WL026"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "e5416baaff0a19b9902bdd63e0283e91ced00e4b8bfa37c3d25cee67e4b11253",
+      "samples": [
+        "Q094"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "e581a0ea9bfb39cdef814e5e6b2bf7ebe66e5fda945bb5e6e4bfe03b8fba459a",
+      "samples": [
+        "mouthWide-011"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "e586985b2c8b31b539fa6b9218f0167f433c7ec9b86aa2ed92e4df23547b56b3",
+      "samples": [
+        "Q166"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "e5cbf36a206ccadec2744edbe96476413c6b19bb7ae056c8f6a8929d383c3f37",
+      "samples": [
+        "WL022"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "e6e1cc371759f33c09308619bda6d9b5abfb1343835d7fe9f3274029be738a6e",
+      "samples": [
+        "mouthWide-055",
+        "mouthWide-056"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "e77f963a1fb8caf3791cc3a59370a871dfebda491cda82495a093155f05ff2d3",
+      "samples": [
+        "mouthFrown-059"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "e7e62fda0c3fb5c1d55966cc4ed7ce2fee3bb6852714cf7999850dfa1157143f",
+      "samples": [
+        "Q174"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "e86083feea6b26c631e55b8699c94f754a6917359d2c89cdbf8a624307120acd",
+      "samples": [
+        "WL006"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "e87109f03bdce5952099a2c3db2dce4d7feeeb36c114fdc9526a7c5e646cd8d4",
+      "samples": [
+        "MW001"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "e881e85fdbe93b95725900049213a7e519c7b81509d8decf601a9f8a353f7051",
+      "samples": [
+        "Q012"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "e92c618fddb47a723fcf8e129ec069e0a91b32821a0219be573c2cd57a7b28bf",
+      "samples": [
+        "WL020"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "e9a901206f83886ee9045ca8d3c4b26399760987a54f395edbedb1fb0ad212d9",
+      "samples": [
+        "MW041"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "e9d52853adf0908864656d0da25f6af51afd31d489d4fd330c876f3144869bde",
+      "samples": [
+        "mouthWide-028"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "ea32641113196c55c099bedd5e6e4932a328fa90df267ec087e0dbfd81c2446a",
+      "samples": [
+        "mouthWide-064"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "eaebeff5d29f987f252714dbe6654137aae06e5cddf273b74ce57543457c6f77",
+      "samples": [
+        "MF001"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "ec3485fab01e585aeeb68c88b2b0d5f9a65db6d5054d5ba2a466bd9f2e84ca7a",
+      "samples": [
+        "mouthWide-050"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "ec561cff6bff840386fb55bf5e7b1ae5ab55509d8abde0a11f544fe7d811cc18",
+      "samples": [
+        "mouthFrown-061"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "ef26989f57d1c547e9d27b81bf525dda5371c5d9bcc4e0bc1988942d3c3cedb7",
+      "samples": [
+        "mouthWide-013"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "ef347ddd08ae96696f9f380a349c6d2ec4e0d5277e357e78397bc406664cfd29",
+      "samples": [
+        "mouthFrown-068"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "ef8ca5cf32787f54475b13b78c0a60a83852b14bf2a39a9ac5b2f5674ab8a6ae",
+      "samples": [
+        "Q052"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "f120e5580258d797aef40c4e5a4a87d0ed02af593f6e7faaeb6bb242c246800c",
+      "samples": [
+        "Q144"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "f16ee914a9507264eb08c618e36b59c5f96042b34ff1fd15dc24fbd8cd124d59",
+      "samples": [
+        "Q133"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "f1b0bfbad4db705006bf817907344f1a17afb4f2c36e89a3a7f1350078f5d9d1",
+      "samples": [
+        "MF041"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "f1bfef2091e64c1c7cf810b40258d10f0dfa5a96108ab76f64b6cfef689d33fa",
+      "samples": [
+        "Q172"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "f2fa4ea45a62bbce160b987278945849d2d4e80943ad2bf41015fdb539298e4c",
+      "samples": [
+        "MF027"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "f3b60a56587b228809a527181d20811ce5924940bd3a1ddeaf0ab6c37222c4cf",
+      "samples": [
+        "MW003"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "f4e995e5129fdbebef3f8d0f1c9c41330ea339c6ba84a0f47556f27d97f4e575",
+      "samples": [
+        "mouthWide-078"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "f560c1f48327fd47d6b7fd92302ba558ccf6f17bf94755509e6a2e292563d1b4",
+      "samples": [
+        "Q165"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "f60b92bed0ee8cf867502646f565d8dc877b0030fff58e9768951a3838f0be23",
+      "samples": [
+        "WL048"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "f811ce1471a3168493a242660f6eb0b72b83148b42725dedb840784c26181e55",
+      "samples": [
+        "Q077"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "f8399078302cf7a3c505cdbc77f79f1ad76d7f48bda41ab50f9c3cdde0d21ac3",
+      "samples": [
+        "MW013"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "f8977b8bff82df67a9a7cfb73c0cdb4c45ff4ba6d37b51a9bb96811ee5fd4f73",
+      "samples": [
+        "Q079"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "f907d936d404990981be7e704b51c86180455558b4eea56e04d740ccf8357f5c",
+      "samples": [
+        "WL008"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "f9153d166d751559cff0226c7f88c00e716da997483d387e8aae4dc51bcd159e",
+      "samples": [
+        "mouthWide-024"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "f9baa96f6b63f59730385a460cf6bcaf0b18900ef6d078b91bd08be9d245d333",
+      "samples": [
+        "WR002"
+      ],
+      "evidence": [
+        "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "fa0721899ce5dd9d85ea27221efda53437b1b3f04de9a8515ff534a9b514b1cc",
+      "samples": [
+        "WL038"
+      ],
+      "evidence": [
+        "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "fa482b1e7be4d4391b2e11414e4d21aded033932853b8f9f33c3310eeea4929d",
+      "samples": [
+        "wink-calibration-006"
+      ],
+      "evidence": [
+        "exact-wink-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "faa69655cfb882406aed9df55001850327f9b78bb3d1dd8c48c6492e7f2db41f",
+      "samples": [
+        "mouthFrown-048"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "fb4af6914d6ff475634b063e64fd9bab9ea69eaafd55024ccb6de195ef648b0e",
+      "samples": [
+        "mouthFrown-008"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "fb560edec07159c6120de382a2284bb8b6e36337c82b7317339847509bc8ad0d",
+      "samples": [
+        "MW008"
+      ],
+      "evidence": [
+        "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "fb86d75358bfe5980ced17681dc00ede62e4c1bd603692d41fd5be547770e8d9",
+      "samples": [
+        "mouthWide-016"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "fbc741fe817a28cd3bdde11b2a8f1f55ae176cda8154a91f2c76fcf1cfe757c9",
+      "samples": [
+        "mouthFrown-029"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "fc15101734808db152275c126cbd8b87ea5b465982a04f3c0f137b56fac3715f",
+      "samples": [
+        "mouthWide-072",
+        "mouthWide-073"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "fc51bef7227715ef2fe1ccf44916768bb4b0fba1228e285836b80f8bb2c369aa",
+      "samples": [
+        "Q085"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "fc9ae3568b73cab7a973c9c4e8e619042f698bfab8be17fe118959dd4cad19f2",
+      "samples": [
+        "Q070"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "fd16885a2ffae1375b50c553e64083528cc70da57dd65c8384a436b93a62f3bb",
+      "samples": [
+        "mouthFrown-062"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "fd3879aabaf1dad8d46fd3fc3098ef2876019095186a8fa0fb4408a1b9d43755",
+      "samples": [
+        "Q082"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "fd9b59f5d11b8d1aba6b6556f052f33544824e730a33408fc8fc3c4fad44c727",
+      "samples": [
+        "MF046"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "fde0fd5ec985dea2ade3ab2cb1f33e09948a038a52ce9444a0c4ffc93820b8e4",
+      "samples": [
+        "mouthWide-025"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "fe196c78f7267b2748b87c6195c8ba1ad95d48a9a2eea10abf804fecb1b41a08",
+      "samples": [
+        "Q150"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "fefd78deaf5af5caad561fa2dc4ec6a1433ad99f40877c04523fe95ac4c87afb",
+      "samples": [
+        "Q021"
+      ],
+      "evidence": [
+        "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "ff3912c7c91a57805d1664067efc8e64e8c2b52dee99a98e2a70037ba2dabf72",
+      "samples": [
+        "mouthWide-041"
+      ],
+      "evidence": [
+        "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "ff432b99872ba1a5272551a33d3f64645fb4267a5ff0bd6947ea7ed3ae3f0406",
+      "samples": [
+        "MF002"
+      ],
+      "evidence": [
+        "completed-audit-mouth-frown"
+      ]
+    }
+  ]
+}

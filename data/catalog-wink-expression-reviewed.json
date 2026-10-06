@@ -1,0 +1,462 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-wink-expression-review",
+  "mode": "confirmed-side-only",
+  "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+  "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+  "reviewer": "assistant-visual-review",
+  "humanVerified": false,
+  "reviewedOn": "2026-10-06",
+  "scope": "Exact original photos inspected for one visibly closed eye opposite an open eye. Sides are anatomical. Only confirmed sides with unchanged automatic corroboration may establish wink coverage; this review cannot admit an image, alter its measured features, override any visibility/quality denial, or add an external photo to the final core. Unreviewed or ambiguous images may still qualify for other profiles.",
+  "reviewCompleteForFinalCandidate": false,
+  "reviews": [
+    {
+      "encodedSha256": "020099e4b2fd39366ff5a4f5f73f2aeb48e837ec6f9972f1479076e02386547a",
+      "decision": "does-not-match",
+      "side": null,
+      "reason": "Both eyelids appear lowered/closed; no clear open opposite eye accompanies the claimed left wink. Visibility review: Both eyelids and lips are visible. The microphone and raised fingers stay beside the face rather than across the eye or mouth regions.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-108039c4e8935d0c4b9c7d80",
+      "evidence": {
+        "sampleId": "WL029",
+        "imageSha256": "020099e4b2fd39366ff5a4f5f73f2aeb48e837ec6f9972f1479076e02386547a",
+        "recordSha256": "4a7cd68b30fe0f6688852529f841a8d158ab57d50b92327b8dad6cc689f5b2b2",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "08a9e52024fdabb2aada7d693b630bbc55b155597fd82ab72effc3f337e11e88",
+      "decision": "does-not-match",
+      "side": null,
+      "reason": "Both eyelids are visibly closed behind the transparent glasses during the smile. Visibility review: Both closed eyelids can be inspected through the ordinary glasses, and the smiling mouth is clear.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-440000-87d39ece5a892c06498d9725",
+      "evidence": {
+        "sampleId": "WR029",
+        "imageSha256": "08a9e52024fdabb2aada7d693b630bbc55b155597fd82ab72effc3f337e11e88",
+        "recordSha256": "05c99b99b95680ff8f025c0123bf3a25a4d3978978e832b9cbe9736bce5b68fc",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "2889956f633f42ef795c1b85ea98e65b5682425f46a56d3dc96f60e0241cc6a1",
+      "decision": "uncertain",
+      "side": null,
+      "reason": "Both eyes narrow during the smile; the opposite eye is only a slit, so the image does not establish a clear unilateral closed/open pair. Visibility review: The narrowed eyelids and smiling mouth are unobstructed and sufficiently detailed to inspect.",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-33097",
+      "evidence": {
+        "sampleId": "WL010",
+        "imageSha256": "2889956f633f42ef795c1b85ea98e65b5682425f46a56d3dc96f60e0241cc6a1",
+        "recordSha256": "628dd08ff3a5d22adfaac196de6311c119062aa19cd77f1a5ae81b1cc01fa4d2",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "3d798363f00de0861758d2a16f337db1e894ea0c80cc5cd454876a56ab32bf51",
+      "decision": "uncertain",
+      "side": null,
+      "reason": "Lens glare hides both eyelid contours, so the claimed right wink cannot be visually verified. Visibility review: Broad bright reflections whiten both eyeglass lenses and hide the eyelid contours. This is an actual glare obstruction, not a blanket exclusion of ordinary glasses.",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-5807",
+      "evidence": {
+        "sampleId": "WR001",
+        "imageSha256": "3d798363f00de0861758d2a16f337db1e894ea0c80cc5cd454876a56ab32bf51",
+        "recordSha256": "bf6aca34ccae3ab3e6e1b214b56036f51e667c986ea8bc5e8d9003cbadab8879",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "425073927e3a43338896bbeef01471ee296bddd8cf5827dfb9ba0f40f37a08a6",
+      "decision": "uncertain",
+      "side": null,
+      "reason": "Both eyes are strongly squinted in daylight, with a narrow residual opening; the still image does not establish an unambiguous unilateral closure. Visibility review: Both strongly narrowed eye regions, brow contours and mouth remain visible in daylight.",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "mirror-wink-seed-ffhq-303",
+      "evidence": {
+        "sampleId": "WR022",
+        "imageSha256": "425073927e3a43338896bbeef01471ee296bddd8cf5827dfb9ba0f40f37a08a6",
+        "recordSha256": "33f3f87496be65e5be36f482a173f1ce55a627c8c77ba75cbb8358909c91b77c",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "43f6d6c0422a54936769a4764e2ae156c0b22c69859c6c0ad39084b1693dbd74",
+      "decision": "uncertain",
+      "side": null,
+      "reason": "The hat hides one eye, so a one-closed/one-open pair cannot be verified. Visibility review: The low hat brim covers the eye on the viewer-left. The opposite closed eyelid and mouth are visible, but a complete eye pair cannot be inspected.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-280000-d6bd51d0515fe156d374cd28",
+      "evidence": {
+        "sampleId": "WL001",
+        "imageSha256": "43f6d6c0422a54936769a4764e2ae156c0b22c69859c6c0ad39084b1693dbd74",
+        "recordSha256": "6ea4d7fc0c50c5e869e51b6992735a5e73e17522affef78a7a1f57ab691fb604",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "4f24a6bfb7a11643dfea342c8083f6aaa0054f28ad427fd99fcdbb56fcba8494",
+      "decision": "confirmed",
+      "side": "left",
+      "reason": "The viewer-right eyelid is tightly closed while the viewer-left eye is clearly open. The face has visible brow contraction and mouth coexpression without an external covering.",
+      "sourceCatalogId": "wink-exact-source-6906a3d3fe85088b",
+      "sourceId": "wink-extra-4f24a6bfb7a11643dfea342c",
+      "evidence": {
+        "sampleId": "wink-calibration-002",
+        "imageSha256": "4f24a6bfb7a11643dfea342c8083f6aaa0054f28ad427fd99fcdbb56fcba8494",
+        "reviewMethod": "exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false,
+        "visualReviewSha256": "32c55499e6f70bafcd56f5ab32e9e0bf02cb57741b107443090f4cb4b9feda88",
+        "localCalibrationMeasurementsAreNotTheFrozenAudit": true,
+        "frozenAuditCorroborationRequiredAtSelection": true
+      }
+    },
+    {
+      "encodedSha256": "51437ea6acf51fc2d646bcb402ef444f5d8abfdf9cd17ed40d82e9df848701ec",
+      "decision": "confirmed",
+      "side": "left",
+      "reason": "The viewer-right eyelid is closed while the viewer-left eye is visibly open. Both eyes and the slightly open smiling mouth are unobstructed; sunlight does not hide the eye pair.",
+      "sourceCatalogId": "wink-exact-source-6906a3d3fe85088b",
+      "sourceId": "wink-extra-51437ea6acf51fc2d646bcb4",
+      "evidence": {
+        "sampleId": "wink-calibration-001",
+        "imageSha256": "51437ea6acf51fc2d646bcb402ef444f5d8abfdf9cd17ed40d82e9df848701ec",
+        "reviewMethod": "exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false,
+        "visualReviewSha256": "32c55499e6f70bafcd56f5ab32e9e0bf02cb57741b107443090f4cb4b9feda88",
+        "localCalibrationMeasurementsAreNotTheFrozenAudit": true,
+        "frozenAuditCorroborationRequiredAtSelection": true
+      }
+    },
+    {
+      "encodedSha256": "54a5b59099497a2c0f1d42c5957cd258624d1e4b9c1991e0cb9e7672ddbd202f",
+      "decision": "confirmed",
+      "side": "left",
+      "reason": "The viewer-right eyelid is closed while the viewer-left eye is open, matching anatomical-left wink. The tongue is an allowed natural coexpression. Visibility review: The closed eyelid, opposite open eye and extended tongue are all visible. The natural mouth coexpression does not hide the eyes.",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-5547",
+      "evidence": {
+        "sampleId": "WL011",
+        "imageSha256": "54a5b59099497a2c0f1d42c5957cd258624d1e4b9c1991e0cb9e7672ddbd202f",
+        "recordSha256": "bb9f38549dd245ba088378989b61cc921362896f7b2c806243c45890d79a8910",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "5dad711740aba9bb74d5bd72affe7ade81bc96cb68c03c893ce8d41b3e9a32ad",
+      "decision": "does-not-match",
+      "side": null,
+      "reason": "Both eyes are visibly closed in the smile; the opposite eye is not open. Visibility review: Both closed eyelids and the smiling mouth are clearly visible without any external covering.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-d4c37bea432b5c35b2ae0564",
+      "evidence": {
+        "sampleId": "WR026",
+        "imageSha256": "5dad711740aba9bb74d5bd72affe7ade81bc96cb68c03c893ce8d41b3e9a32ad",
+        "recordSha256": "ceecfd749f77b56d5e1d06880470da9a470ad9c9ee6f277f7538de43f0656e06",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "6680daea2b6baa6215da4778872327e407b88f3f1ecbb3201e065251e086d3ca",
+      "decision": "uncertain",
+      "side": null,
+      "reason": "Both eyes are narrowed under the cap shadow; the claimed target closure is not clearly separable from bilateral narrowing and oblique gaze. Visibility review: The cap casts a shadow, but the eye openings and smile remain visible; the microphone stays below and beside the mouth.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-160000-b23d737740c883db3229f74c",
+      "evidence": {
+        "sampleId": "WR036",
+        "imageSha256": "6680daea2b6baa6215da4778872327e407b88f3f1ecbb3201e065251e086d3ca",
+        "recordSha256": "3fcfff4911a4f7d2e4d548853233dcfe03f631e119113ec28efe6849094ec290",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "66ba2e638853e72505a52ec02a44e6141b3b9ccf5d181892c3f24ec8c56bc634",
+      "decision": "uncertain",
+      "side": null,
+      "reason": "The eyes look downward and both are narrowed behind the rims; a definite unilateral closed/open pair cannot be resolved confidently. Visibility review: The downward-looking eyes and mouth remain inspectable through ordinary glasses; eyelid-state interpretation is separately uncertain.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-160000-dd2bbb7b597551023f87ba27",
+      "evidence": {
+        "sampleId": "WL015",
+        "imageSha256": "66ba2e638853e72505a52ec02a44e6141b3b9ccf5d181892c3f24ec8c56bc634",
+        "recordSha256": "785a4f1f5ec1e2520249d5bba8f8969e0ffdcd6bec09c29050756dd1fcf4915d",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "7249bc95c6d79d908564bb974732b73cc4a3bfaf877ad46392882caa7026d545",
+      "decision": "confirmed",
+      "side": "right",
+      "reason": "The viewer-left eyelid is closed while the viewer-right eye is clearly open. Makeup, a hat above the eyes and an extended tongue do not obscure the eye pair.",
+      "sourceCatalogId": "wink-exact-source-6906a3d3fe85088b",
+      "sourceId": "wink-extra-7249bc95c6d79d908564bb97",
+      "evidence": {
+        "sampleId": "wink-calibration-003",
+        "imageSha256": "7249bc95c6d79d908564bb974732b73cc4a3bfaf877ad46392882caa7026d545",
+        "reviewMethod": "exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false,
+        "visualReviewSha256": "32c55499e6f70bafcd56f5ab32e9e0bf02cb57741b107443090f4cb4b9feda88",
+        "localCalibrationMeasurementsAreNotTheFrozenAudit": true,
+        "frozenAuditCorroborationRequiredAtSelection": true
+      }
+    },
+    {
+      "encodedSha256": "7293c71e7f199bd0e6abb334238808314601c19fec4fcca7d1b0b5d78237e50a",
+      "decision": "does-not-match",
+      "side": null,
+      "reason": "Both eyes look lowered with a downward gaze. A clearly closed eye opposite a visibly open eye is not established; the photo remains eligible for other expression profiles if its independent admission and quality gates pass.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-440000-a319a31402b10e590099b1d6",
+      "evidence": {
+        "sampleId": "MF011",
+        "imageSha256": "7293c71e7f199bd0e6abb334238808314601c19fec4fcca7d1b0b5d78237e50a",
+        "recordSha256": "a73c3176b2f50b8c757eea77b34d5383a6d676d51e60fc82c7d4873e320b0232",
+        "sourceRunId": 37472381962,
+        "reviewMethod": "exact-original-image",
+        "pixelChangesApplied": false
+      }
+    },
+    {
+      "encodedSha256": "76e9de66dc1a72605d635af87c25f1cee2e51e4285263bc68b4dded8fd54572c",
+      "decision": "uncertain",
+      "side": null,
+      "reason": "The eye regions are too dark and coarse to verify an unambiguous unilateral closed/open pair. Visibility review: Coarse grain and very dark eye-region detail prevent reliable eyelid inspection. A partly visible item of eyewear rests on the head; the exact lens type is not asserted as the reason for this denial.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-360000-6f5f9780dfcc4184468c8d76",
+      "evidence": {
+        "sampleId": "WR015",
+        "imageSha256": "76e9de66dc1a72605d635af87c25f1cee2e51e4285263bc68b4dded8fd54572c",
+        "recordSha256": "0e6c46c4a00ece27101a2acca6aa8811c963272af6597f43ff1aa68fe3efbb78",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "7b6d2f4b02187007b9798330d702559e445337c2faa86ceeb50dd00253bfece8",
+      "decision": "confirmed",
+      "side": "right",
+      "reason": "The viewer-left eyelid is closed while the viewer-right eye is visibly open, matching anatomical-right wink; the forehead hand does not conceal either eye. Visibility review: The closed viewer-left eyelid and open opposite eye are visible through ordinary glasses. The hand rests on the forehead above the brows and does not cover the eyes or mouth.",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "mirror-wink-seed-ffhq-37466",
+      "evidence": {
+        "sampleId": "WR043",
+        "imageSha256": "7b6d2f4b02187007b9798330d702559e445337c2faa86ceeb50dd00253bfece8",
+        "recordSha256": "b2c591921b4b15a66a811307de827384125893c1057b49208814496f4c7a745d",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "9c8d0a46803298107b34c4fd7ebdfa40f846e02f46d253e7902857a0a8eb9e6e",
+      "decision": "uncertain",
+      "side": null,
+      "reason": "Coarse blur and pixelation prevent a confident reading of a unilateral eye closure. Visibility review: Coarse blur and pixelation make the eye margins and mouth contours unreliable at the original size. The yellow cast alone is not the reason for denial.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-400000-864ec29c386c31d8b9e887d3",
+      "evidence": {
+        "sampleId": "WL047",
+        "imageSha256": "9c8d0a46803298107b34c4fd7ebdfa40f846e02f46d253e7902857a0a8eb9e6e",
+        "recordSha256": "3995232fdcb0408b12ad0f9cfaa94774655496bb293b809790f296747733bb36",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "a15f03733baa41a896f2cce6002f34c491bf5647041760ffdb9b5f716aac32c2",
+      "decision": "does-not-match",
+      "side": null,
+      "reason": "Both eyelids appear lowered/closed; makeup does not supply evidence of an open opposite eye. Visibility review: Dark eye makeup is present, but both eyelid contours and the mouth remain visible; the bandana sits above the brows.",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-68736",
+      "evidence": {
+        "sampleId": "WR021",
+        "imageSha256": "a15f03733baa41a896f2cce6002f34c491bf5647041760ffdb9b5f716aac32c2",
+        "recordSha256": "c2689e3db6f1c1e49b02b3a4f0b2b2a4d4f76cfde5d5f9dac74f6155e9b388cc",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "a8286fcb1fb111a161fc949e903ce7bd37b104421edff13fa73d6afcd31f3143",
+      "decision": "confirmed",
+      "side": "right",
+      "reason": "The viewer-left eyelid is closed while the viewer-right eye is open. The oblique face and smiling lips are clear, and eye makeup does not cover the eyelid contours.",
+      "sourceCatalogId": "wink-exact-source-6906a3d3fe85088b",
+      "sourceId": "wink-extra-a8286fcb1fb111a161fc949e",
+      "evidence": {
+        "sampleId": "wink-calibration-004",
+        "imageSha256": "a8286fcb1fb111a161fc949e903ce7bd37b104421edff13fa73d6afcd31f3143",
+        "reviewMethod": "exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false,
+        "visualReviewSha256": "32c55499e6f70bafcd56f5ab32e9e0bf02cb57741b107443090f4cb4b9feda88",
+        "localCalibrationMeasurementsAreNotTheFrozenAudit": true,
+        "frozenAuditCorroborationRequiredAtSelection": true
+      }
+    },
+    {
+      "encodedSha256": "b6b68b401ab4af6589556144479deb6fc050a1c8d24ca6d4b38430e3de0a578d",
+      "decision": "does-not-match",
+      "side": null,
+      "reason": "Both eyelids are visibly closed rather than one closed and the opposite eye open. Visibility review: Both closed eyelids and the mouth are visible without an external covering; the bilateral eye state is separately compared with the claimed wink.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-7f3b46b625b0452e91147b20",
+      "evidence": {
+        "sampleId": "WL036",
+        "imageSha256": "b6b68b401ab4af6589556144479deb6fc050a1c8d24ca6d4b38430e3de0a578d",
+        "recordSha256": "a242a30fbd73015a4fa87e3683264c9b1c3f3d2add6ddf2d43fbf7c3b2fab5e9",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "d57d196aeb88f5ce0af03f7c3313aae3ea46a64f8b1b61f1b1fedea4884dfab5",
+      "decision": "does-not-match",
+      "side": null,
+      "reason": "Both eyelids appear lowered/closed during downward gaze, without a clear opposite open eye. Visibility review: The original is soft but both lowered eyelid contours and the mouth are readable; no object covers the eye regions.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-bfdf63963c5db057a2cd7cd7",
+      "evidence": {
+        "sampleId": "WR008",
+        "imageSha256": "d57d196aeb88f5ce0af03f7c3313aae3ea46a64f8b1b61f1b1fedea4884dfab5",
+        "recordSha256": "65d0728bdb0f5aa7e0c3881ad2e7247878faf923d2151365b2a7b6a309d2f68c",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "d5d336c03ab156a7a708207279ad6c9f7c42df5e94d6534318aedc8daa6828c0",
+      "decision": "uncertain",
+      "side": null,
+      "reason": "Strong blur prevents verification of a unilateral eye closure. Visibility review: Strong blur removes usable eyelid and lip detail from the original. The defect is image detail rather than ordinary glasses.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-51eaa9d3bf564ebfb5e07d5c",
+      "evidence": {
+        "sampleId": "WL043",
+        "imageSha256": "d5d336c03ab156a7a708207279ad6c9f7c42df5e94d6534318aedc8daa6828c0",
+        "recordSha256": "e44f29ccbed63183728e0c226d08b7977b5a9f48575a31175f927ec29ea06ddb",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "db912512a727b035fe2132ebabc0d9954809587293d2c33fafcbed5b91a57cf1",
+      "decision": "uncertain",
+      "side": null,
+      "reason": "Blur prevents a confident reading of the two eyelid states. Visibility review: Strong blur and compression make the eyelid margins indistinct at the original 256-pixel resolution. The problem is missing eye detail, not the presence of ordinary glasses.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-240000-048c46471be250dd042edd33",
+      "evidence": {
+        "sampleId": "WL007",
+        "imageSha256": "db912512a727b035fe2132ebabc0d9954809587293d2c33fafcbed5b91a57cf1",
+        "recordSha256": "c19c9c46adfa3d317c1fb5e23b8243227f6965a7f961ac83ca180c20e7971b0c",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "e5cbf36a206ccadec2744edbe96476413c6b19bb7ae056c8f6a8929d383c3f37",
+      "decision": "uncertain",
+      "side": null,
+      "reason": "Strong blur makes the claimed eyelid asymmetry visually unverifiable. Visibility review: Strong blur and blocky detail smear the eye regions and lip contours in the original, preventing reliable fine expression inspection.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-120000-2d217ec7bffb76c05a5e7d81",
+      "evidence": {
+        "sampleId": "WL022",
+        "imageSha256": "e5cbf36a206ccadec2744edbe96476413c6b19bb7ae056c8f6a8929d383c3f37",
+        "recordSha256": "c4766f57320c451dff6545a0413abd4d44e3731fd5a6651b1381bd36f35e966b",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "encodedSha256": "f907d936d404990981be7e704b51c86180455558b4eea56e04d740ccf8357f5c",
+      "decision": "does-not-match",
+      "side": null,
+      "reason": "Both eye openings are visible behind the clear glasses; the target eyelid is not visibly closed as a unilateral wink. Visibility review: The cap stays above the eyes and the ordinary transparent glasses preserve visible eye openings and mouth detail.",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-31656",
+      "evidence": {
+        "sampleId": "WL008",
+        "imageSha256": "f907d936d404990981be7e704b51c86180455558b4eea56e04d740ccf8357f5c",
+        "recordSha256": "e112aaf46ae5b2f716bf6df502f1477f03fab4348c8efb65fc00c741de0f8be7",
+        "sourceRunId": 37472381962,
+        "sourceCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
+        "reviewMethod": "contact-sheet-and-exact-original-image",
+        "pixelChangesApplied": false,
+        "humanVerified": false
+      }
+    }
+  ]
+}

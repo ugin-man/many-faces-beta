@@ -1,6 +1,6 @@
 name: Promote reviewed Clean Core v5 artifact
 
-# The marker is written only after local admission, video and visual QA.
+# The marker is written only after candidate admission, video and visual QA.
 # This workflow updates the repository. Existing Site publication is separate.
 on:
   push:
@@ -179,7 +179,14 @@ jobs:
           require(physical.get('status') == 'passed' and physical.get('physicalFaces') == 70000
                   and physical.get('manifestSha256') == candidate['manifestSha256']
                   and physical.get('allSelectedPhotosHavePassingAdmission') is True
-                  and physical.get('allFreshMeasurementsMatch') is True,
+                  and physical.get('allFreshMeasurementsMatch') is True
+                  and physical.get('allSelectedProfilesHaveDeclaredEvidence') is True
+                  and physical.get('allSelectedPhotosAbsentFromSelectionExclusions') is True
+                  and physical.get('allSelectedWinkProfilesHaveReviewedEvidence') is True
+                  and valid_sha(physical.get('selectionReviewSha256'))
+                  and valid_sha(physical.get('winkExpressionReviewSha256'))
+                  and physical.get('winkExpressionReviewSha256') == qa.get('candidate', {}).get('winkExpressionReviewSha256')
+                  and valid_sha(physical.get('selectionIdentitySha256')),
                   'Complete physical admission validation has not passed')
           holdout = qa.get('selectedPhotoHoldout', {})
           require(holdout.get('status') == 'passed'
@@ -239,7 +246,7 @@ jobs:
                   output.write(f'{key}={value}\n')
           print(json.dumps({'candidateRunId': candidate['runId'], 'candidateRunAttempt': candidate['runAttempt'],
                             'artifactId': artifact['id'], 'generationCodeCommit': generation_code,
-                            'qaCodeCommit': qa_code, 'requestCommit': request_commit, 'localQa': 'passed'}))
+                            'qaCodeCommit': qa_code, 'requestCommit': request_commit, 'candidateQa': 'passed'}))
           PY
       - name: Require unchanged application source since candidate QA
         env:
@@ -257,6 +264,11 @@ jobs:
           repository: ${{ github.repository }}
           github-token: ${{ github.token }}
           path: work/clean-v5-promotion/candidate
+      - name: Install frozen dependencies for independent admission verification
+        id: validation_dependencies
+        run: |
+          python -m pip install --disable-pip-version-check -r tools/requirements-clean-admission.txt \
+            2>&1 | tee "$PROMOTION_ROOT/evidence/python-install.log"
       - name: Verify downloaded receipts and every physical photo hash
         id: verify
         env:
@@ -276,7 +288,13 @@ jobs:
 
           sys.path.insert(0, str(Path('tools').resolve()))
           from clean_core_admission import AdmissionPolicy, database_metadata, database_summary
-          from clean_core_policy_v3 import classify_assignment, quantized_pose_cell
+          from clean_core_policy_v3 import (BACKGROUND_PRIORITY, STRICT_PROFILE_PRIORITY,
+                                            POLICY_VERSION, PROFILE_EVIDENCE_TIERS,
+                                            classify_assignment, quantized_pose_cell)
+          from clean_core_selection_review import SelectionReview, WinkExpressionReview
+          from validate_clean_core_admission import (release_requirements, validate_evidence_totals,
+                                                     validate_selection_identity, validate_selection_review_binding,
+                                                     validate_wink_review_binding)
 
           work = Path(os.environ['PROMOTION_ROOT'])
           context = json.loads((work / 'verified-request.json').read_text())
@@ -394,6 +412,51 @@ jobs:
                   and stamp.get('faceModelSha256') == face_hash, 'Face model changed after generation')
           require(sha256(Path('data/catalog-visibility-reviewed.json')) == generation.get('reviewedVisibilitySha256'),
                   'Reviewed visibility policy changed after generation')
+          review_document = read_json(Path('data/catalog-selection-reviewed.json'))
+          previous_review = (catalog / 'selection-review-previous.json'
+                             if review_document.get('previousReviewSha256') is not None else None)
+          selection_review = SelectionReview('data/catalog-selection-reviewed.json', sha256(admission_path),
+                                             admission['recordsSha256'], previous_path=previous_review)
+          require(selection_review.sha256 == generation.get('selectionReviewSha256')
+                  == generation.get('selection', {}).get('additionalSelectionExclusionsSha256')
+                  == sha256(artifact / 'provenance/catalog-selection-reviewed.json')
+                  == context['qa']['physicalAdmission']['selectionReviewSha256'],
+                  'Additional selection exclusion review differs from generation or reviewed QA')
+          previous_review_sha256 = selection_review.document.get('previousReviewSha256')
+          require(generation.get('previousSelectionReviewSha256') == previous_review_sha256
+                  == generation.get('selection', {}).get('previousAdditionalSelectionExclusionsSha256'),
+                  'Previous selection review provenance differs from its bound review')
+          previous_provenance = artifact / 'provenance/catalog-selection-reviewed-previous.json'
+          require((previous_review_sha256 is None and not previous_provenance.exists())
+                  or (previous_review_sha256 is not None and sha256(previous_provenance) == previous_review_sha256),
+                  'Previous selection review provenance bytes are missing or changed')
+          require(manifest.get('selectionReview') == selection_review.stamp(),
+                  'Final catalog does not bind its exact additional exclusion review')
+          wink_review = WinkExpressionReview('data/catalog-wink-expression-reviewed.json',
+                                             sha256(admission_path), admission['recordsSha256'])
+          require(wink_review.sha256 == generation.get('winkExpressionReviewSha256')
+                  == generation.get('selection', {}).get('winkExpressionReviewSha256')
+                  == sha256(artifact / 'provenance/catalog-wink-expression-reviewed.json')
+                  == context['qa']['physicalAdmission']['winkExpressionReviewSha256']
+                  and generation.get('winkExpressionReview') == wink_review.stamp(),
+                  'Wink expression review differs from generation or reviewed QA')
+          generation_request_path = artifact / 'provenance/request.json'
+          require(sha256(generation_request_path) == generation.get('requestSha256'),
+                  'Generation request bytes differ from their receipt')
+          generation_request = read_json(generation_request_path)
+          require(generation_request.get('winkReview') == {
+                      'path': 'data/catalog-wink-expression-reviewed.json', 'sha256': wink_review.sha256}
+                  and generation_request.get('diagnosticOnly', False) is False,
+                  'Generation request does not bind this exact wink review for actual selection')
+          selection_sources = (
+              'tools/build_clean_core_v3.py', 'tools/clean_core_policy_v2.py', 'tools/clean_core_policy_v3.py',
+              'tools/clean_core_selection_review.py', 'tools/run_build_clean_core_v3_real_only.py',
+              'tools/run_build_clean_core_v3_repair.py', 'tools/validate_clean_core_admission.py',
+              'tools/repack-live-pose-packs.mjs', 'scripts/rebuild-clean-wink-support.mjs',
+          )
+          require(generation.get('selection', {}).get('codeCommit') == context['generationCodeCommit']
+                  and generation.get('selection', {}).get('codeFilesSha256') == {name: sha256(Path(name)) for name in selection_sources},
+                  'Selection/validation code changed since the reviewed candidate was generated')
           require(sha256(Path('public/seed-catalog/manifest.json')) == generation.get('sourceManifestSha256', {}).get('current'),
                   'Existing source catalog changed before promotion')
           partitions = admission.get('partitions', [])
@@ -415,19 +478,42 @@ jobs:
                   and validation.get('qualityAdmission') == stamp
                   and validation.get('allSelectedPhotosHavePassingAdmission') is True
                   and validation.get('allFreshMeasurementsMatch') is True
+                  and validation.get('allSelectedProfilesHaveDeclaredEvidence') is True
+                  and validation.get('allSelectedPhotosAbsentFromSelectionExclusions') is True
+                  and validation.get('selectionReviewSha256') == selection_review.sha256
+                  and validation.get('winkExpressionReviewSha256') == wink_review.sha256
+                  and validation.get('winkExpressionReview') == wink_review.stamp()
+                  and validation.get('allSelectedWinkProfilesHaveReviewedEvidence') is True
                   and validation.get('runtimeExclusionOverlayRequired') is False,
                   'Artifact physical validator receipt is missing or bound to different data')
           selection = read_json(catalog / 'clean-core-audit.json')
           require(selection.get('gatePassed') is True and selection.get('selectedFaces') == 70000
                   and selection.get('knownSyntheticFacesSelected') == 0
                   and selection.get('runtimeImagePolicy') == 'real-photo-only-v1'
-                  and selection.get('qualityAdmission') == stamp, 'Selection/real-photograph gates did not pass')
+                  and selection.get('qualityAdmission') == stamp
+                  and selection.get('selectionReview') == selection_review.stamp(), 'Selection/real-photograph gates did not pass')
+          require(sha256(catalog / 'clean-core-audit.json') == generation.get('selection', {}).get('selectionAuditSha256'),
+                  'Selection audit bytes differ from the reviewed generation receipt')
           require(read_json(artifact / 'selection/audit.json') == selection, 'Packaged selection receipts disagree')
+          validate_selection_review_binding(manifest, selection, catalog, selection_review)
+          validate_wink_review_binding(manifest, selection, catalog, wink_review)
+          requirements = release_requirements()
+          selected_identity = validate_selection_identity(manifest, selection, sha256(admission_path),
+                                                           70000, selection_review.sha256, wink_review.sha256)
+          require(all(validation.get(key) == value and context['qa']['physicalAdmission'].get(key) == value
+                      for key, value in selected_identity.items()),
+                  'Selection identity differs from original physical validation or reviewed QA')
+          for key, value in requirements.items():
+              require(selection.get(key) == value, 'Selection release requirement differs from the tested policy: ' + key)
           require(not (catalog / 'images').exists(), 'Final packed core contains extra image assets')
           ids, image_hashes, source_keys, shard_names = set(), set(), set(), set()
           ranges = defaultdict(list)
           profiles, cells = Counter(), Counter()
+          profile_cells = defaultdict(set)
+          evidence_counts = defaultdict(Counter)
+          evidence_cells = defaultdict(lambda: defaultdict(set))
           references = {}
+          wink_sides = {'winkLeft': 'left', 'winkRight': 'right'}
           bytes_total = 0
           records = sqlite3.connect(database_path.resolve().as_uri() + '?mode=ro', uri=True)
           metadata = database_metadata(records)
@@ -435,6 +521,8 @@ jobs:
               require(metadata.get(key) == admission.get(key), 'Admission database metadata differs: ' + key)
           require(all(admission.get(key) == value for key, value in database_summary(records).items()),
                   'Admission database source/decision totals differ from its receipt')
+          selection_review.validate_audit_records(records)
+          wink_review.validate_audit_records(records)
           for cell, descriptor in manifest['cells'].items():
               count = 0
               for name in descriptor.get('shards') or [descriptor.get('shard')]:
@@ -476,9 +564,22 @@ jobs:
                           require(entry.get(field) == record.get(field), 'Final geometry differs from admitted evidence: ' + field)
                       require(record.get('cell') == cell and quantized_pose_cell(record['feature'], 3)[0] == cell,
                               'Final pose cell differs from admitted evidence')
-                      assignment = classify_assignment(record['feature'], record['projection'])
+                      assignment = classify_assignment(record['feature'], record['projection'],
+                                                       allow_observed_wink=wink_review.side_for(digest))
                       require(assignment is not None and entry.get('cleanProfile') == assignment[0].name
                               and entry.get('cleanTier') == assignment[1], 'Final expression assignment differs from fresh features')
+                      profile, tier = assignment
+                      require(tier in PROFILE_EVIDENCE_TIERS.get(profile.name, ())
+                              and entry.get('cleanPolicy') == POLICY_VERSION,
+                              'Final expression uses an undeclared evidence tier or another selection policy')
+                      require(tier != 'observed' or entry.get('cleanPurity') == 0,
+                              'Observed coexpression must not claim isolated purity')
+                      if profile.name in wink_sides:
+                          require(entry.get('winkExpressionEvidence') == wink_review.evidence_for(digest, wink_sides[profile.name]),
+                                  'Selected wink lacks exact-image, same-side reviewed expression evidence')
+                      else:
+                          require('winkExpressionEvidence' not in entry,
+                                  'A non-wink profile carries unsupported wink expression evidence')
                       offset, length = entry.get('offset'), entry.get('length')
                       require(type(offset) is int and offset >= 0 and type(length) is int and length > 0,
                               'Invalid final packed-image range')
@@ -488,7 +589,7 @@ jobs:
                       with pack_path.open('rb') as stream:
                           stream.seek(offset)
                           payload = stream.read(length)
-                      require(len(payload) == length and hashlib.sha256(payload).hexdigest() == digest,
+                      require(len(payload) == length and selection_review.require_payload(payload) == digest,
                               'Downloaded photo bytes differ from their admitted digest')
                       require(payload[:4] == b'RIFF' and payload[8:12] == b'WEBP'
                               and int.from_bytes(payload[4:8], 'little') + 8 == length,
@@ -498,12 +599,15 @@ jobs:
                       source_keys.add(source_key)
                       ranges[entry['pack']].append((offset, offset + length))
                       profiles[entry.get('cleanProfile')] += 1
+                      profile_cells[profile.name].add(cell)
+                      evidence_counts[tier][profile.name] += 1
+                      evidence_cells[tier][profile.name].add(cell)
                       cells[cell] += 1
                       count += 1
                       bytes_total += length
                       references[identity] = {key: entry.get(key) for key in (
                           'pack', 'offset', 'length', 'feature', 'shape', 'mesh', 'projection', 'layout',
-                          'admissionSha256', 'admissionPolicySha256')}
+                          'admissionSha256', 'admissionPolicySha256', 'cleanProfile', 'cleanTier', 'winkExpressionEvidence')}
               require(count == descriptor.get('count'), 'Final pose-cell count differs from its manifest')
           records.close()
           require(len(ids) == 70000 and len(image_hashes) == 70000, 'Physical final photo count is not 70000')
@@ -518,6 +622,22 @@ jobs:
           require(bytes_total == validation.get('bytes') and len(ranges) == validation.get('packs')
                   and len(cells) == validation.get('poseCells')
                   and dict(profiles) == validation.get('selectedProfiles'), 'Physical receipt counts differ from downloaded data')
+          clean_stats = manifest.get('stats', {}).get('cleanCore', {})
+          complete_counts = {name: profiles[name] for name in (*STRICT_PROFILE_PRIORITY, *BACKGROUND_PRIORITY)}
+          complete_cells = {name: len(profile_cells[name]) for name in complete_counts}
+          require(selection.get('selectedProfiles') == clean_stats.get('profileCounts') == complete_counts
+                  and selection.get('selectedProfilePoseCells') == clean_stats.get('profilePoseCells') == complete_cells,
+                  'Final expression/pose counts differ from actual selected photographs')
+          evidence_summary = validate_evidence_totals(selection, clean_stats, evidence_counts, evidence_cells)
+          require(all(validation.get(key) == value and context['qa']['physicalAdmission'].get(key) == value
+                      for key, value in evidence_summary.items()),
+                  'Isolated/observed expression evidence differs from original validation or reviewed QA')
+          for key in ('minimums', 'backgroundMinimums'):
+              for name, minimum in requirements[key].items():
+                  require(profiles[name] >= minimum, 'Final expression minimum failed: ' + name)
+          for key in ('poseCellMinimums', 'backgroundPoseCellMinimums'):
+              for name, minimum in requirements[key].items():
+                  require(len(profile_cells[name]) >= minimum, 'Final expression pose breadth failed: ' + name)
           require({path.name for path in wink_root.iterdir()} == {'catalog.json', 'ATTRIBUTION.html', 'audit.json'}
                   and all(path.is_file() for path in wink_root.iterdir()), 'Wink support contains extra photo assets')
           wink_path = wink_root / 'catalog.json'
@@ -526,6 +646,7 @@ jobs:
           require(wink.get('schemaVersion') == 3 and wink.get('baseCatalogId') == manifest.get('catalogId')
                   and wink.get('baseCatalogManifestSha256') == pin['manifestSha256']
                   and wink.get('policySha256') == stamp['policySha256']
+                  and wink.get('winkExpressionReviewSha256') == wink_review.sha256
                   and wink.get('originalFaces') == 70000 and wink.get('addedPhotographs') == 0,
                   'Wink support is not bound exclusively to the final core')
           wink_ids = set()
@@ -536,8 +657,26 @@ jobs:
               for key, value in references[identity].items():
                   require(entry.get(key) == value, 'Wink geometry/address differs from its final core photo')
               require(entry.get('imageSha256') == references[identity]['admissionSha256'], 'Wink photo digest differs')
+              profile = entry.get('cleanProfile')
+              require(profile in wink_sides and entry.get('supportSide') == wink_sides[profile]
+                      and entry.get('winkExpressionEvidence') == wink_review.evidence_for(entry['imageSha256'], wink_sides[profile]),
+                      'Specialist index contains an unconfirmed or different-side wink')
               wink_ids.add(identity)
+          wink_validation = read_json(wink_root / 'audit.json')
+          require(wink_validation.get('winkExpressionReviewSha256') == wink_review.sha256
+                  and wink_validation.get('allIndexedWinksHaveReviewedEvidence') is True
+                  and wink_validation.get('indexedCoreWinks') == len(wink_ids)
+                  and wink_validation.get('indexSha256') == sha256(wink_path),
+                  'Specialist index validation receipt differs from its reviewed entries')
           result = {'schemaVersion': 1, 'status': 'passed', 'physicalFaces': len(ids),
+                    **selected_identity, **evidence_summary,
+                    'selectionReviewSha256': selection_review.sha256,
+                    'winkExpressionReviewSha256': wink_review.sha256,
+                    'winkExpressionReview': wink_review.stamp(),
+                    'allSelectedWinkProfilesHaveReviewedEvidence': True,
+                    'allIndexedWinksHaveReviewedEvidence': True,
+                    'allSelectedPhotosAbsentFromSelectionExclusions': True,
+                    'allSelectedProfilesHaveDeclaredEvidence': True,
                     'uniqueEncodedImages': len(image_hashes), 'bytes': bytes_total, 'poseCells': len(cells),
                     'manifestSha256': pin['manifestSha256'], 'winkIndexSha256': sha256(wink_path),
                     'winkCoreReferences': len(wink_ids), 'externalWinkAssets': 0,
@@ -570,9 +709,12 @@ jobs:
               'schemaVersion': 1, 'documentKind': 'clean-core-v5-repository-promotion',
               'repository': os.environ['GITHUB_REPOSITORY'], 'targetBranch': os.environ['PROMOTION_BRANCH'],
               'requestCommit': context['requestCommit'], 'requestSha256': context['requestSha256'],
-              'generationCodeCommit': context['generationCodeCommit'], 'localQaCodeCommit': context['qaCodeCommit'],
+              'generationCodeCommit': context['generationCodeCommit'], 'qaCodeCommit': context['qaCodeCommit'],
               'candidate': context['request']['candidate'], 'artifactId': context['artifact']['id'],
-              'localQa': context['qaReference'], 'localQaStatus': 'passed',
+              'candidateQa': context['qaReference'], 'candidateQaStatus': 'passed',
+              'qaExecutionOrigin': context['qa'].get('executionOrigin'),
+              'selectionReviewSha256': context['qa']['physicalAdmission']['selectionReviewSha256'],
+              'winkExpressionReviewSha256': context['qa']['physicalAdmission']['winkExpressionReviewSha256'],
               'selectedPhotoHoldout': context['qa']['selectedPhotoHoldout'],
               'workflowRunId': int(os.environ['GITHUB_RUN_ID']),
               'workflowRunAttempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
@@ -620,8 +762,6 @@ jobs:
         env:
           PYTHONPYCACHEPREFIX: ${{ runner.temp }}/clean-core-v5-pycache
         run: |
-          python -m pip install --disable-pip-version-check -r tools/requirements-clean-admission.txt \
-            2>&1 | tee "$PROMOTION_ROOT/evidence/python-install.log"
           python -m compileall -q tools
           python -m unittest discover -s tests -p 'test_*.py' \
             2>&1 | tee "$PROMOTION_ROOT/evidence/python-tests.log"
@@ -668,6 +808,7 @@ jobs:
         if: always()
         env:
           REQUEST_OUTCOME: ${{ steps.request.outcome }}
+          VALIDATION_DEPENDENCIES_OUTCOME: ${{ steps.validation_dependencies.outcome }}
           VERIFY_OUTCOME: ${{ steps.verify.outcome }}
           INSTALL_OUTCOME: ${{ steps.install.outcome }}
           TEST_OUTCOME: ${{ steps.test.outcome }}
@@ -688,10 +829,10 @@ jobs:
 
           evidence = Path(os.environ['PROMOTION_ROOT'], 'evidence')
           evidence.mkdir(parents=True, exist_ok=True)
-          names = ('request', 'verify', 'install', 'test', 'lint', 'build', 'python', 'structure', 'wink', 'commit')
+          names = ('request', 'validation_dependencies', 'verify', 'install', 'test', 'lint', 'build', 'python', 'structure', 'wink', 'commit')
           outcomes = {name: os.environ.get(name.upper() + '_OUTCOME', '') for name in names}
           checks_passed = all(outcomes[name] == 'success' for name in (
-              'install', 'test', 'lint', 'build', 'python', 'structure', 'wink'))
+              'validation_dependencies', 'install', 'test', 'lint', 'build', 'python', 'structure', 'wink'))
           tests_started = outcomes['test'] in ('success', 'failure', 'cancelled')
           pushed = os.environ.get('PUSHED') == 'true'
           receipt = {

@@ -36,7 +36,7 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
     const bytes = (_received: number, delta: number) => { progress.bytes += delta; report("照合データを受信中"); };
     report("カタログを確認中", true);
     const manifestBytes = await readAssetBytes(new URL("/api/catalog/manifest?source=seed", origin).href, { onBytes: bytes });
-    const manifest = JSON.parse(new TextDecoder().decode(manifestBytes)) as ReviewCatalogManifest & { catalogId?: string; totalFaces?: number; searchableFaces?: number; qualityAdmission?: unknown };
+    const manifest = JSON.parse(new TextDecoder().decode(manifestBytes)) as ReviewCatalogManifest & { catalogId?: string; totalFaces?: number; searchableFaces?: number; qualityAdmission?: unknown; winkExpressionReview?: unknown };
     if (!manifest.cells || Number(manifest.searchableFaces ?? manifest.totalFaces) !== 70000) throw new Error("CATALOG_INVALID: 7万枚のカタログを確認できません。Siteの配信データを確認してください。");
     let qualityExclusions = new Map();
     if (shouldReadLegacyQualityOverlay(manifest.qualityAdmission)) {
@@ -58,7 +58,7 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
           idleMs: 5000, maxMs: 10000, maxBytes: WINK_SUPPORT_MAX_BYTES,
           onBytes: (received, delta) => { winkMetrics.indexBytes = received; bytes(received, delta); },
         });
-        support = parseWinkSupport(payload, origin, { catalogId: manifest.catalogId, manifestSha256, qualityAdmission: manifest.qualityAdmission }).filter(candidate => qualityAllows(candidate.id, qualityExclusions));
+        support = parseWinkSupport(payload, origin, { catalogId: manifest.catalogId, manifestSha256, qualityAdmission: manifest.qualityAdmission, winkExpressionReview: manifest.winkExpressionReview }).filter(candidate => qualityAllows(candidate.id, qualityExclusions));
         winkMetrics.indexedOriginals = support.filter(candidate => candidate.supportKind === "core-refresh").length;
         winkMetrics.addedPhotos = support.filter(candidate => candidate.supportKind === "addition").length;
       } catch (error) {

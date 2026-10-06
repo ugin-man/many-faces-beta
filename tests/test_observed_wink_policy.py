@@ -32,7 +32,7 @@ def eye_fixture(left=.6, right=.1, left_opening=.08, right_opening=.25):
 
 
 class ObservedWinkPolicyTests(unittest.TestCase):
-    def test_unchanged_real_winks_receive_an_honest_observed_tier(self):
+    def test_same_side_review_can_authorize_unchanged_observed_evidence(self):
         for row in FIXTURES["records"]:
             with self.subTest(source=row["sourceId"]):
                 feature, projection = copy.deepcopy(row["feature"]), row["projection"]
@@ -40,12 +40,35 @@ class ObservedWinkPolicyTests(unittest.TestCase):
                 self.assertIsNone(classify_strict_profile(feature, projection))
                 evidence = observed_wink_evidence(feature, projection)
                 self.assertEqual(evidence["side"], row["expectedSide"])
-                profile, tier = classify_assignment(feature, projection)
+                # This tests the conditional expression rule only. Original
+                # admission and separate exact-image denials still apply.
+                profile, tier = classify_assignment(feature, projection, allow_observed_wink=row["expectedSide"])
                 self.assertEqual(profile.name, "wink" + row["expectedSide"].title())
                 self.assertEqual(tier, "observed")
                 self.assertEqual(profile.purity, 0.0)
                 self.assertEqual(feature, row["feature"])
                 self.assertEqual(projection, row["projection"])
+
+    def test_unreviewed_and_wrong_side_photos_cannot_supply_wink_coverage(self):
+        for row in FIXTURES["records"]:
+            for side in (None, "right" if row["expectedSide"] == "left" else "left"):
+                with self.subTest(source=row["sourceId"], review=side):
+                    assignment = classify_assignment(row["feature"], row["projection"], allow_observed_wink=side)
+                    self.assertTrue(assignment is None or assignment[0].name not in ("winkLeft", "winkRight"))
+
+    def test_strict_wink_also_needs_same_side_review_and_landmark_corroboration(self):
+        feature, points = eye_fixture()
+        self.assertEqual(classify_strict_profile(feature, points).name, "winkLeft")
+        for side in (None, "right"):
+            assignment = classify_assignment(feature, points, allow_observed_wink=side)
+            self.assertTrue(assignment is None or assignment[0].name not in ("winkLeft", "winkRight"))
+        profile, tier = classify_assignment(feature, points, allow_observed_wink="left")
+        self.assertEqual((profile.name, tier), ("winkLeft", "strict"))
+        # The historic score-only strict classifier still works for diagnostic
+        # callers, but cannot establish physical wink coverage without geometry.
+        self.assertEqual(classify_strict_profile(feature).name, "winkLeft")
+        assignment = classify_assignment(feature, None, allow_observed_wink="left")
+        self.assertTrue(assignment is None or assignment[0].name not in ("winkLeft", "winkRight"))
 
     def test_expression_evidence_never_overrides_the_hand_occlusion_denial(self):
         policy = AdmissionPolicy.from_document(FIXTURES["visibilityPolicy"])
@@ -91,9 +114,9 @@ class ObservedWinkPolicyTests(unittest.TestCase):
         self.assertAlmostEqual(before["leftAperture"], after["leftAperture"])
         self.assertAlmostEqual(before["rightAperture"], after["rightAperture"])
 
-    def test_only_declared_wink_profiles_accept_observed_evidence(self):
+    def test_only_declared_profiles_accept_observed_evidence(self):
         for name, tiers in PROFILE_EVIDENCE_TIERS.items():
-            self.assertEqual("observed" in tiers, name in ("winkLeft", "winkRight"))
+            self.assertEqual("observed" in tiers, name in ("winkLeft", "winkRight", "mouthWide", "mouthFrown"))
         # Uncorroborated score-only mixed states remain excluded.
         feature, _ = eye_fixture()
         feature[FEATURE_INDEX["jawOpen"]] = .45

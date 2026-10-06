@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "request": "Export every exact completed automatic wink candidate for original-image expression review before final reselection",
+  "request": "Generate exactly 70000 admitted real photographs with preselection image denials and original-image-confirmed wink coverage",
   "createdOn": "2026-10-06",
   "baselineCommit": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e",
   "ffhqSourceCommit": "9d10fb37a825a5f90e5a3671a9564a1f1e9bef53",
@@ -14,7 +14,7 @@
   "sitePublication": false,
   "postSelectionVisualReview": "pending",
   "fixedVideoVerification": "pending",
-  "attempt": 5,
+  "attempt": 6,
   "previousRun": 37464000479,
   "previousRunStatus": "All sixteen inference partitions and merge succeeded; selection stopped at wink and mouth profile minima",
   "nativeRuntimeDependency": [
@@ -22,9 +22,9 @@
     "libegl1"
   ],
   "nativeInferencePreflight": true,
-  "diagnosticOnly": true,
-  "lastVerifiedApplicationCommit": "859c3d916c1a5f226832ce448a51264da5e8e536",
-  "lastVerifiedApplicationCiRun": 37472391816,
+  "diagnosticOnly": false,
+  "lastVerifiedApplicationCommit": "3ef6d6a2edf23bd0f408a4e7ecebeae4bdb1e987",
+  "lastVerifiedApplicationCiRun": 37477683069,
   "reuseAudit": {
     "runId": 37464000479,
     "runAttempt": 1,
@@ -38,13 +38,21 @@
   },
   "selectionReview": {
     "path": "data/catalog-selection-reviewed.json",
-    "sha256": "a9f513be2f5c28fc420bd1aad1ad382e0bc63b91f8de2ac463a3e6f76fee99fe",
+    "sha256": "3b2b8068ea088f51a1d9796424c2d64718e4180dad8e1e763cba30460407efa1",
     "previous": {
-      "path": "data/catalog-selection-reviewed-859c3d9.json",
-      "sha256": "df71ead9db0b51ecc934b7448cc8d1462c94079598e779fe799298e24ed9c5a3"
+      "path": "data/catalog-selection-reviewed-3ef6d6a.json",
+      "sha256": "a9f513be2f5c28fc420bd1aad1ad382e0bc63b91f8de2ac463a3e6f76fee99fe"
     }
   },
-  "previousDiagnosticRun": 37472381962,
-  "diagnosticFocus": "all-observed-winks",
-  "reason": "Visually inspected challenge cases show that automatic blink/aperture evidence can confuse downward gaze or bilateral eye narrowing with a wink. Exact observed candidates must be visually reviewed; unchanged automatic scores alone are not final wink approval."
+  "previousDiagnosticRun": 37477676654,
+  "reason": "The frozen complete admission audit is reused byte-for-byte. Additional exact-image denials are applied before selection and rejected slots are replenished. Only visually confirmed winks with unchanged automatic corroboration can satisfy wink coverage. Mouth categories retain real measured activity while allowing natural eye/brow coexpression. Final physical validation, independent visual holdout and fixed-video comparison remain required before promotion.",
+  "winkReview": {
+    "path": "data/catalog-wink-expression-reviewed.json",
+    "sha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f"
+  },
+  "automaticWinkVisualReview": {
+    "path": "data/catalog-quality/all-wink-visual-review-37477676654.json",
+    "sha256": "a7fe171276293cae84ca322c20bdafa4dfe5c19563bb0057cb369bfad7d13563",
+    "images": 769
+  }
 }

@@ -1,0 +1,1075 @@
+name: Review a pinned Clean Core v5 candidate
+
+# This run retains review evidence. It never promotes data or publishes a Site.
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths:
+      - data/clean-core-v5-qa-request.json
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: many-faces-clean-core-v5-qa-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  QA_BRANCH: astra/realtime-hardening
+  QA_REQUEST: data/clean-core-v5-qa-request.json
+  QA_ROOT: work/clean-v5-qa
+  PREVIOUSLY_INSPECTED: data/catalog-previously-inspected.json
+  BASELINE_COMMIT: 7b6f7f0d42c18e770379bd56577e9608ba2e9f9e
+  FFHQ_SOURCE_COMMIT: 9d10fb37a825a5f90e5a3671a9564a1f1e9bef53
+  ATTRIBUTE_MODEL_SHA256: 1bf7c6453bec2fb28e0830f3a76dceb9ffd020124f87b28da5355940a7bc6e48
+  FIXTURE_SHA256: d470cf5a8aeb847f9c127ed8f0d567fcadd99e83c185ef60b7a8c9c6236a005b
+  PYTHONUNBUFFERED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONPYCACHEPREFIX: /tmp/many-faces-clean-v5-qa-pycache
+  OMP_NUM_THREADS: "1"
+  OPENBLAS_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+
+jobs:
+  qa:
+    if: github.repository == 'ugin-man/many-faces-beta' && github.ref == 'refs/heads/astra/realtime-hardening'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Check out the exact QA code and original catalog
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - name: Verify the request and immutable successful artifact identity
+        id: request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          import subprocess
+          import sys
+          import urllib.request
+          from pathlib import Path
+
+          root = Path.cwd()
+          work = root / os.environ['QA_ROOT']
+          reports = work / 'reports'
+          reports.mkdir(parents=True, exist_ok=True)
+
+          def require(value, message):
+              if not value:
+                  raise ValueError(message)
+
+          def unique(pairs):
+              result = {}
+              for key, value in pairs:
+                  require(key not in result, 'Duplicate JSON key: ' + key)
+                  result[key] = value
+              return result
+
+          def nonfinite(value):
+              raise ValueError('Non-finite JSON value: ' + value)
+
+          def digest(value, size=64):
+              return isinstance(value, str) and re.fullmatch('[0-9a-f]{' + str(size) + '}', value) is not None
+
+          repository = os.environ['GITHUB_REPOSITORY']
+          branch = os.environ['QA_BRANCH']
+          code = os.environ['GITHUB_SHA']
+          require(repository == 'ugin-man/many-faces-beta'
+                  and os.environ['GITHUB_REF'] == 'refs/heads/' + branch, 'Unexpected QA repository or branch')
+          require(subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == code,
+                  'QA checkout differs from the request commit')
+          request_path = Path(os.environ['QA_REQUEST'])
+          require(request_path.is_file() and not request_path.is_symlink()
+                  and all(not parent.is_symlink() for parent in request_path.parents), 'QA request is missing or symlinked')
+          subprocess.run(['git', 'ls-files', '--error-unmatch', '--', str(request_path)],
+                         check=True, stdout=subprocess.DEVNULL)
+          request_raw = request_path.read_bytes()
+          request = json.loads(request_raw, object_pairs_hook=unique, parse_constant=nonfinite)
+          require(request.get('schemaVersion') == 1
+                  and request.get('documentKind') == 'clean-core-v5-qa-request'
+                  and request.get('repository') == repository and request.get('targetBranch') == branch,
+                  'Invalid QA request identity')
+          require(request.get('baselineCommit') == os.environ['BASELINE_COMMIT'], 'QA baseline differs from the accepted baseline')
+          require(request.get('holdout') == {'targetSamples': 360, 'seed': 20261007}, 'QA holdout must use the frozen 360-photo sampling plan')
+          inspected_pin = request.get('previouslyInspected')
+          inspected_path = Path(os.environ['PREVIOUSLY_INSPECTED'])
+          require(isinstance(inspected_pin, dict) and set(inspected_pin) == {'path', 'sha256'}
+                  and inspected_pin['path'] == inspected_path.as_posix() and digest(inspected_pin['sha256'])
+                  and inspected_path.is_file() and not inspected_path.is_symlink()
+                  and all(not parent.is_symlink() for parent in inspected_path.parents),
+                  'QA requires the exact committed previously-inspected image list')
+          subprocess.run(['git', 'ls-files', '--error-unmatch', '--', str(inspected_path)],
+                         check=True, stdout=subprocess.DEVNULL)
+          inspected_raw = inspected_path.read_bytes()
+          require(hashlib.sha256(inspected_raw).hexdigest() == inspected_pin['sha256'],
+                  'Previously-inspected image list differs from the QA request')
+          sys.path.insert(0, str(root / 'tools'))
+          from review_clean_core_selection import load_previously_inspected
+          inspected_count = len(load_previously_inspected(inspected_path))
+          pin = request.get('candidate', {})
+          for key in ('runId', 'runAttempt', 'artifactId'):
+              require(type(pin.get(key)) is int and pin[key] > 0, 'Invalid candidate ' + key)
+          require(pin.get('artifactName') == f"clean-core-v5-candidate-{pin['runId']}-{pin['runAttempt']}",
+                  'Artifact name is not pinned to its run attempt')
+          require(digest(pin.get('archiveSha256')), 'The immutable GitHub artifact archive SHA256 is required')
+          for key in ('manifestSha256', 'generationReceiptSha256'):
+              require(key not in pin or digest(pin[key]), 'Invalid optional candidate ' + key)
+
+          def api(path):
+              query = urllib.request.Request(
+                  'https://api.github.com/repos/' + repository + '/' + path,
+                  headers={'Accept': 'application/vnd.github+json',
+                           'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                           'X-GitHub-Api-Version': '2026-03-10',
+                           'User-Agent': 'many-faces-clean-core-v5-qa'})
+              with urllib.request.urlopen(query, timeout=60) as response:
+                  return json.load(response)
+
+          run = api(f"actions/runs/{pin['runId']}/attempts/{pin['runAttempt']}")
+          require(run.get('id') == pin['runId'] and run.get('run_attempt') == pin['runAttempt']
+                  and run.get('status') == 'completed' and run.get('conclusion') == 'success',
+                  'The pinned candidate generation attempt did not succeed')
+          require(run.get('repository', {}).get('full_name') == repository
+                  and run.get('head_repository', {}).get('full_name') == repository
+                  and run.get('head_branch') == branch
+                  and str(run.get('path', '')).split('@', 1)[0] == '.github/workflows/clean-core-v5-candidate.yml',
+                  'Candidate run came from another repository, branch or workflow')
+          generation_code = run.get('head_sha')
+          require(digest(generation_code, 40) and digest(code, 40), 'Missing generation/QA code identity')
+          if generation_code != code:
+              comparison = api('compare/' + generation_code + '...' + code)
+              require(comparison.get('merge_base_commit', {}).get('sha') == generation_code
+                      and comparison.get('status') in ('ahead', 'identical'), 'QA code is not descended from the candidate generation code')
+          artifact = api(f"actions/artifacts/{pin['artifactId']}")
+          require(artifact.get('id') == pin['artifactId'] and artifact.get('name') == pin['artifactName']
+                  and artifact.get('expired') is False and artifact.get('digest') == 'sha256:' + pin['archiveSha256'],
+                  'The requested immutable archive identity does not match GitHub')
+          origin = artifact.get('workflow_run', {})
+          require(origin.get('id') == pin['runId'] and origin.get('head_sha') == generation_code
+                  and origin.get('head_branch') == branch
+                  and origin.get('repository_id') == run['repository']['id']
+                  and origin.get('head_repository_id') == run['repository']['id'], 'Artifact origin differs from the successful run')
+          require(type(artifact.get('size_in_bytes')) is int and 0 < artifact['size_in_bytes'] <= 8 * 1024 ** 3,
+                  'Artifact archive size is missing or exceeds the bounded runner download')
+          receipt = {
+              'schemaVersion': 1, 'request': request, 'requestSha256': hashlib.sha256(request_raw).hexdigest(),
+              'qaCodeCommit': code, 'generationCodeCommit': generation_code,
+              'previouslyInspectedImageCount': inspected_count,
+              'artifact': {key: artifact.get(key) for key in ('id', 'name', 'digest', 'size_in_bytes', 'created_at')},
+              'executionOrigin': {'kind': 'github-actions', 'repository': repository,
+                  'workflowRunId': int(os.environ['GITHUB_RUN_ID']), 'workflowRunAttempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+                  'codeCommit': code},
+          }
+          (work / 'verified-request.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          (reports / 'request.json').write_bytes(request_raw)
+          (reports / 'previously-inspected.json').write_bytes(inspected_raw)
+          (reports / 'verified-request.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          print(json.dumps({'candidateRunId': pin['runId'], 'candidateRunAttempt': pin['runAttempt'],
+                            'artifactId': pin['artifactId'], 'archiveSha256': pin['archiveSha256'],
+                            'generationCodeCommit': generation_code, 'qaCodeCommit': code}))
+          PY
+      - name: Download, hash and safely extract the exact candidate archive
+        id: artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          import shutil
+          import stat
+          import sys
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+          import zipfile
+          from pathlib import Path, PurePosixPath
+
+          sys.path.insert(0, str(Path('tools').resolve()))
+          from clean_core_selection_review import SelectionReview, WinkExpressionReview
+          from validate_clean_core_admission import validate_selection_review_binding, validate_wink_review_binding
+
+          def require(value, message):
+              if not value:
+                  raise ValueError(message)
+
+          def sha256(path):
+              value = hashlib.sha256()
+              with path.open('rb') as stream:
+                  for block in iter(lambda: stream.read(1024 * 1024), b''):
+                      value.update(block)
+              return value.hexdigest()
+
+          work = Path(os.environ['QA_ROOT'])
+          context = json.loads((work / 'verified-request.json').read_text())
+          pin = context['request']['candidate']
+          destination = work / 'candidate'
+          require(not destination.exists(), 'Candidate extraction directory already exists')
+          archive_path = work / 'candidate.zip'
+          query = urllib.request.Request(
+              'https://api.github.com/repos/' + os.environ['GITHUB_REPOSITORY']
+              + '/actions/artifacts/' + str(pin['artifactId']) + '/zip',
+              headers={'Accept': 'application/vnd.github+json',
+                       'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                       'X-GitHub-Api-Version': '2026-03-10',
+                       'User-Agent': 'many-faces-clean-core-v5-qa'})
+
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, request, file, code, message, headers, newurl):
+                  return None
+
+          # Authorization is sent only to api.github.com. A storage redirect is
+          # followed with a fresh unauthenticated request, without logging it.
+          try:
+              response = urllib.request.build_opener(NoRedirect).open(query, timeout=90)
+          except urllib.error.HTTPError as error:
+              require(error.code in (301, 302, 303, 307, 308), 'Artifact download API did not return a storage redirect')
+              location = error.headers.get('Location', '')
+              parsed = urllib.parse.urlsplit(location)
+              require(parsed.scheme == 'https' and bool(parsed.hostname)
+                      and parsed.username is None and parsed.password is None, 'Unsafe artifact storage redirect')
+              response = urllib.request.urlopen(urllib.request.Request(
+                  location, headers={'User-Agent': 'many-faces-clean-core-v5-qa'}), timeout=120)
+          archive_hash = hashlib.sha256()
+          archive_size = 0
+          with response, archive_path.open('xb') as output:
+              while True:
+                  block = response.read(1024 * 1024)
+                  if not block:
+                      break
+                  archive_size += len(block)
+                  require(archive_size <= 8 * 1024 ** 3, 'Artifact download exceeded its bounded size')
+                  archive_hash.update(block)
+                  output.write(block)
+          require(archive_hash.hexdigest() == pin['archiveSha256'], 'Downloaded archive SHA256 differs from the pinned GitHub artifact')
+          require(archive_size == context['artifact']['size_in_bytes'], 'Downloaded archive size differs from GitHub metadata')
+          destination.mkdir()
+          with zipfile.ZipFile(archive_path) as archive:
+              members = archive.infolist()
+              require(0 < len(members) <= 100000 and sum(item.file_size for item in members) <= 10 * 1024 ** 3,
+                      'Candidate archive expands beyond the bounded extraction')
+              seen = set()
+              for item in members:
+                  name = item.filename.rstrip('/')
+                  path = PurePosixPath(name)
+                  require(name and '\0' not in name and '\\' not in name and not path.is_absolute()
+                          and '..' not in path.parts and path.as_posix() == name and name not in seen,
+                          'Unsafe or repeated candidate archive path')
+                  seen.add(name)
+                  kind = stat.S_IFMT(item.external_attr >> 16)
+                  require(kind in (0, stat.S_IFREG, stat.S_IFDIR), 'Archive contains a nonregular entry')
+                  target = destination.joinpath(*path.parts)
+                  if item.is_dir():
+                      target.mkdir(parents=True, exist_ok=True)
+                  else:
+                      target.parent.mkdir(parents=True, exist_ok=True)
+                      with archive.open(item) as source, target.open('xb') as output:
+                          shutil.copyfileobj(source, output, 1024 * 1024)
+          archive_path.unlink()
+          generation_path = destination / 'provenance/candidate-receipt.json'
+          generation_hash = sha256(generation_path)
+          generation = json.loads(generation_path.read_text())
+          require(generation.get('schemaVersion') == 1
+                  and generation.get('artifactPurpose') == 'physical-catalog-candidate-for-review'
+                  and generation.get('workflowRunId') == pin['runId']
+                  and generation.get('workflowRunAttempt') == pin['runAttempt']
+                  and generation.get('builtFromCommit') == context['generationCodeCommit'],
+                  'Generation receipt differs from the successful run')
+          require(generation.get('targetTotal') == 70000 and generation.get('visibilityMaxScore') == .05
+                  and generation.get('ffhqSourceCommit') == os.environ['FFHQ_SOURCE_COMMIT']
+                  and generation.get('runtimeExclusionOverlayRequired') is False
+                  and generation.get('published') is False, 'Unexpected candidate policy or publication state')
+          manifest_path = destination / 'catalog/manifest.json'
+          manifest_hash = sha256(manifest_path)
+          manifest = json.loads(manifest_path.read_text())
+          require(manifest_hash == generation.get('candidateManifestSha256'), 'Candidate manifest differs from generation receipt')
+          for key, actual in (('manifestSha256', manifest_hash), ('generationReceiptSha256', generation_hash)):
+              require(key not in pin or pin[key] == actual, 'Optional reviewed hash differs: ' + key)
+          require(all(manifest.get(key) == 70000 for key in ('totalFaces', 'sourceFaces', 'searchableFaces')),
+                  'Candidate does not contain exactly 70000 physical searchable photographs')
+          stamp = manifest.get('qualityAdmission', {})
+          require(stamp.get('schemaVersion') == 2 and stamp.get('status') == 'complete'
+                  and stamp.get('selectedCount') == 70000 and stamp.get('runtimeExclusionOverlayRequired') is False,
+                  'Candidate admission stamp is incomplete')
+          admission_path = destination / 'admission/candidate-audit.json'
+          require(sha256(admission_path) == generation.get('candidateAuditSha256') == stamp.get('receiptSha256'),
+                  'Candidate admission receipt binding differs')
+          selection_review_path = destination / 'catalog/selection-review.json'
+          review_document = json.loads(selection_review_path.read_text())
+          previous_review = (destination / 'catalog/selection-review-previous.json'
+                             if review_document.get('previousReviewSha256') is not None else None)
+          selection_review = SelectionReview(selection_review_path, sha256(admission_path),
+                                             stamp.get('recordsSha256'), previous_path=previous_review)
+          require(selection_review.sha256 == generation.get('selectionReviewSha256')
+                  == generation.get('selection', {}).get('additionalSelectionExclusionsSha256')
+                  == sha256(Path('data/catalog-selection-reviewed.json'))
+                  == sha256(destination / 'provenance/catalog-selection-reviewed.json'),
+                  'Additional selection exclusion review changed since generation')
+          previous_review_sha256 = selection_review.document.get('previousReviewSha256')
+          require(generation.get('previousSelectionReviewSha256') == previous_review_sha256
+                  == generation.get('selection', {}).get('previousAdditionalSelectionExclusionsSha256'),
+                  'Previous selection review provenance differs from the bound monotonic review')
+          previous_provenance = destination / 'provenance/catalog-selection-reviewed-previous.json'
+          require((previous_review_sha256 is None and not previous_provenance.exists())
+                  or (previous_review_sha256 is not None and sha256(previous_provenance) == previous_review_sha256),
+                  'Previous selection review provenance bytes are missing or changed')
+          wink_review_path = destination / 'catalog/wink-expression-review.json'
+          wink_review = WinkExpressionReview(wink_review_path, sha256(admission_path), stamp.get('recordsSha256'))
+          require(wink_review.sha256 == generation.get('winkExpressionReviewSha256')
+                  == generation.get('selection', {}).get('winkExpressionReviewSha256')
+                  == sha256(Path('data/catalog-wink-expression-reviewed.json'))
+                  == sha256(destination / 'provenance/catalog-wink-expression-reviewed.json')
+                  and generation.get('winkExpressionReview') == wink_review.stamp(),
+                  'Wink expression review changed since generation')
+          generation_request_path = destination / 'provenance/request.json'
+          require(sha256(generation_request_path) == generation.get('requestSha256'),
+                  'Generation request bytes differ from their receipt')
+          generation_request = json.loads(generation_request_path.read_text())
+          require(generation_request.get('winkReview') == {
+                      'path': 'data/catalog-wink-expression-reviewed.json', 'sha256': wink_review.sha256}
+                  and generation_request.get('diagnosticOnly', False) is False,
+                  'Generation request does not bind this exact wink review for actual selection')
+          selection_audit = json.loads((destination / 'catalog/clean-core-audit.json').read_text())
+          require(sha256(destination / 'catalog/clean-core-audit.json')
+                  == generation.get('selection', {}).get('selectionAuditSha256'),
+                  'Selection audit bytes differ from generation receipt')
+          validate_selection_review_binding(manifest, selection_audit, destination / 'catalog', selection_review)
+          validate_wink_review_binding(manifest, selection_audit, destination / 'catalog', wink_review)
+          require(manifest.get('selectionIdentity', {}).get('additionalSelectionExclusionsSha256') == selection_review.sha256,
+                  'Candidate selection identity does not bind its actual exclusion review')
+          require(manifest.get('selectionIdentity', {}).get('winkExpressionReviewSha256') == wink_review.sha256,
+                  'Candidate selection identity does not bind its exact wink review')
+          selection_sources = (
+              'tools/build_clean_core_v3.py', 'tools/clean_core_policy_v2.py', 'tools/clean_core_policy_v3.py',
+              'tools/clean_core_selection_review.py', 'tools/run_build_clean_core_v3_real_only.py',
+              'tools/run_build_clean_core_v3_repair.py', 'tools/validate_clean_core_admission.py',
+              'tools/repack-live-pose-packs.mjs', 'scripts/rebuild-clean-wink-support.mjs',
+          )
+          require(generation.get('selection', {}).get('codeCommit') == context['generationCodeCommit']
+                  and generation.get('selection', {}).get('codeFilesSha256') == {name: sha256(Path(name)) for name in selection_sources},
+                  'Selection/validation code changed since candidate generation')
+          require(sha256(destination / 'wink-support/v1/catalog.json') == generation.get('winkSupportIndexSha256'),
+                  'Bound wink index differs from generation receipt')
+          wink_index = json.loads((destination / 'wink-support/v1/catalog.json').read_text())
+          wink_validation = json.loads((destination / 'wink-support/v1/audit.json').read_text())
+          require(wink_index.get('schemaVersion') == 3
+                  and wink_index.get('winkExpressionReviewSha256') == wink_review.sha256
+                  and wink_validation.get('winkExpressionReviewSha256') == wink_review.sha256
+                  and wink_validation.get('allIndexedWinksHaveReviewedEvidence') is True,
+                  'Specialist index lacks generation-time reviewed wink evidence')
+          require(sha256(Path('data/catalog-visibility-reviewed.json')) == generation.get('reviewedVisibilitySha256'),
+                  'Visibility review controls changed since candidate generation')
+          require(sha256(Path('public/mediapipe/face_landmarker.task')) == generation.get('faceModelSha256'),
+                  'Bundled face model changed since candidate generation')
+          require(sha256(Path('public/seed-catalog/manifest.json')) == generation.get('sourceManifestSha256', {}).get('current'),
+                  'Current source catalog changed since candidate generation')
+          require(generation.get('attributeModelSha256') == os.environ['ATTRIBUTE_MODEL_SHA256'],
+                  'Candidate used another attribute model')
+          original_validation = json.loads((destination / 'catalog/clean-admission-validation.json').read_text())
+          require(original_validation.get('status') == 'passed'
+                  and original_validation.get('manifestSha256') == manifest_hash
+                  and original_validation.get('physicalFaces') == 70000
+                  and original_validation.get('allSelectedPhotosHavePassingAdmission') is True
+                  and original_validation.get('allFreshMeasurementsMatch') is True
+                  and original_validation.get('allSelectedProfilesHaveDeclaredEvidence') is True
+                  and original_validation.get('allSelectedPhotosAbsentFromSelectionExclusions') is True
+                  and original_validation.get('selectionReviewSha256') == selection_review.sha256
+                  and original_validation.get('winkExpressionReviewSha256') == wink_review.sha256
+                  and original_validation.get('winkExpressionReview') == wink_review.stamp()
+                  and original_validation.get('allSelectedWinkProfilesHaveReviewedEvidence') is True
+                  and original_validation.get('selectionIdentitySha256') == manifest.get('selectionIdentitySha256'),
+                  'Candidate generation lacks completed physical validation')
+          pins = {**pin, 'manifestSha256': manifest_hash, 'generationReceiptSha256': generation_hash,
+                  'selectionReviewSha256': selection_review.sha256,
+                  'previousSelectionReviewSha256': previous_review_sha256,
+                  'winkExpressionReviewSha256': wink_review.sha256,
+                  'selectionIdentitySha256': manifest.get('selectionIdentitySha256'),
+                  'codeCommit': context['qaCodeCommit']}
+          (work / 'candidate-pins.json').write_text(json.dumps(pins, indent=2) + '\n')
+          reports = work / 'reports'
+          (reports / 'candidate-pins.json').write_text(json.dumps(pins, indent=2) + '\n')
+          (reports / 'generation-receipt.json').write_bytes(generation_path.read_bytes())
+          (reports / 'selection-review.json').write_bytes(selection_review_path.read_bytes())
+          (reports / 'wink-expression-review.json').write_bytes(wink_review_path.read_bytes())
+          if previous_review is not None:
+              (reports / 'selection-review-previous.json').write_bytes(previous_review.read_bytes())
+          (reports / 'generation-physical-admission.json').write_bytes((destination / 'catalog/clean-admission-validation.json').read_bytes())
+          (reports / 'archive-validation.json').write_text(json.dumps({
+              'status': 'passed', 'archiveSha256': archive_hash.hexdigest(), 'archiveBytes': archive_size,
+              'artifactId': pin['artifactId'], 'manifestSha256': manifest_hash,
+              'generationReceiptSha256': generation_hash, 'safeExtraction': True,
+              'selectionReviewSha256': selection_review.sha256,
+              'winkExpressionReviewSha256': wink_review.sha256,
+              'fullPhysicalRevalidationCompleted': False, 'visualReviewCompleted': False,
+          }, indent=2) + '\n')
+          print(json.dumps({'artifactId': pin['artifactId'], 'archiveBytes': archive_size,
+                            'manifestSha256': manifest_hash, 'generationReceiptSha256': generation_hash}))
+          PY
+      - name: Check out the accepted baseline separately
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BASELINE_COMMIT }}
+          path: work/clean-v5-qa/baseline
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Check out the pinned FFHQ source separately
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.FFHQ_SOURCE_COMMIT }}
+          path: work/clean-v5-qa/ffhq-snapshot
+          fetch-depth: 1
+          sparse-checkout: public/seed-catalog
+          persist-credentials: false
+      - name: Install locked Python, application and browser dependencies
+        id: dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install --yes --no-install-recommends ffmpeg fonts-noto-cjk libgles2 libegl1 \
+            > "$QA_ROOT/reports/system-dependencies.log" 2>&1
+          python -m pip install --disable-pip-version-check -r tools/requirements-clean-admission.txt \
+            2>&1 | tee "$QA_ROOT/reports/python-install.log"
+          python -m pip freeze > "$QA_ROOT/reports/python-environment.txt"
+          npm ci 2>&1 | tee "$QA_ROOT/reports/npm-ci.log"
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1 esbuild@0.25.12 \
+            2>&1 | tee "$QA_ROOT/reports/browser-install.log"
+          chrome_path="$(command -v google-chrome || command -v chromium)"
+          test -x "$chrome_path"
+          echo "CHROME_PATH=$chrome_path" >> "$GITHUB_ENV"
+          "$chrome_path" --version > "$QA_ROOT/reports/chrome-version.txt"
+          mkdir -p "$QA_ROOT/models"
+          curl --fail --location --retry 3 --connect-timeout 30 --max-time 300 \
+            --output "$QA_ROOT/models/face_attrib_net.onnx" \
+            https://github.com/yakhyo/face-attribute/releases/download/weights/face_attrib_net.onnx
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+          path = Path(os.environ['QA_ROOT'], 'models/face_attrib_net.onnx')
+          if hashlib.sha256(path.read_bytes()).hexdigest() != os.environ['ATTRIBUTE_MODEL_SHA256']:
+              raise ValueError('FaceAttribNet model hash mismatch')
+          PY
+      - name: Prepare exact source catalogs and an isolated candidate application
+        id: sources
+        run: |
+          git fetch --no-tags --depth=1 "$GITHUB_WORKSPACE/$QA_ROOT/baseline" "$BASELINE_COMMIT"
+          git diff --exit-code "$BASELINE_COMMIT" "$GITHUB_SHA" -- \
+            app/live/astra app/live/media-input.ts app/live/frame-arrival.ts app/live/stable-landmarker.ts \
+            app/projection-matching.ts app/live/review-client-lite.tsx app/runtime-identity.ts app/face-presentation.ts \
+            app/offline-matching.ts app/call-stage.tsx app/studio.module.css app/studio-controls.ts \
+            app/live/review-timeline.ts worker build package.json package-lock.json vite.config.ts .openai
+          test "$(git -C "$QA_ROOT/baseline" rev-parse HEAD)" = "$BASELINE_COMMIT"
+          test "$(git -C "$QA_ROOT/ffhq-snapshot" rev-parse HEAD)" = "$FFHQ_SOURCE_COMMIT"
+          python tools/prepare_wink_candidates.py \
+            --source public/wink-support/v1 --out "$QA_ROOT/source-catalogs/wink-extras" \
+            | tee "$QA_ROOT/reports/wink-source.json"
+          git worktree add --detach "$GITHUB_WORKSPACE/$QA_ROOT/app" "$GITHUB_SHA"
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import shutil
+          from pathlib import Path
+
+          def sha256(path):
+              digest = hashlib.sha256()
+              with path.open('rb') as stream:
+                  for block in iter(lambda: stream.read(1024 * 1024), b''):
+                      digest.update(block)
+              return digest.hexdigest()
+
+          work = Path(os.environ['QA_ROOT'])
+          generation = json.loads((work / 'candidate/provenance/candidate-receipt.json').read_text())
+          sources = {'current': Path('public/seed-catalog'),
+                     'ffhq': work / 'ffhq-snapshot/public/seed-catalog',
+                     'wink-extras': work / 'source-catalogs/wink-extras'}
+          for label, root in sources.items():
+              if sha256(root / 'manifest.json') != generation['sourceManifestSha256'][label]:
+                  raise ValueError('Audited source manifest changed: ' + label)
+          app = work / 'app'
+          for source, target in ((work / 'candidate/catalog', app / 'public/seed-catalog'),
+                                 (work / 'candidate/wink-support/v1', app / 'public/wink-support/v1')):
+              if target.is_symlink() or source.is_symlink():
+                  raise ValueError('Candidate source/target must not be symlinked')
+              if target.exists():
+                  shutil.rmtree(target)
+              shutil.copytree(source, target)
+          for checkout in (app, work / 'baseline'):
+              (checkout / 'node_modules').symlink_to(Path('node_modules').resolve(), target_is_directory=True)
+          (app / '.browser-tools').symlink_to(Path('.browser-tools').resolve(), target_is_directory=True)
+          fixture = Path('public/test-fixtures/reference-face-motion.mp4')
+          if sha256(fixture) != os.environ['FIXTURE_SHA256']:
+              raise ValueError('Frozen reference video changed')
+          entries = []
+          for directory in ('public/seed-catalog', 'public/wink-support/v1'):
+              for path in sorted((app / directory).rglob('*')):
+                  if path.is_symlink():
+                      raise ValueError('Candidate asset tree contains a symlink')
+                  if path.is_file():
+                      entries.append({'path': path.relative_to(app).as_posix(), 'bytes': path.stat().st_size, 'sha256': sha256(path)})
+          payload = json.dumps(entries, sort_keys=True, separators=(',', ':')).encode()
+          (work / 'reports/candidate-asset-tree.json').write_text(json.dumps({
+              'qaCodeCommit': os.environ['GITHUB_SHA'], 'manifestSha256': sha256(app / 'public/seed-catalog/manifest.json'),
+              'assetTreeSha256': hashlib.sha256(payload).hexdigest(), 'entries': entries,
+          }, indent=2) + '\n')
+          print(json.dumps({'isolatedCandidateApplication': str(app), 'originalCatalogUnchanged': True,
+                            'candidateAssetFiles': len(entries), 'candidateAssetTreeSha256': hashlib.sha256(payload).hexdigest()}))
+          PY
+      - name: Revalidate every physical selected photo against exact original sources
+        id: physical
+        run: |
+          node tools/validate_face_catalog.mjs "$QA_ROOT/app/public/seed-catalog" \
+            | tee "$QA_ROOT/reports/catalog-structure.json"
+          review_args=(--selection-review "$QA_ROOT/candidate/catalog/selection-review.json" --wink-review "$QA_ROOT/candidate/catalog/wink-expression-review.json")
+          if test -f "$QA_ROOT/candidate/catalog/selection-review-previous.json"; then
+            review_args+=(--previous-selection-review "$QA_ROOT/candidate/catalog/selection-review-previous.json")
+          fi
+          python tools/validate_clean_core_admission.py \
+            --catalog "$QA_ROOT/app/public/seed-catalog" \
+            --candidate-audit "$QA_ROOT/candidate/admission/candidate-audit.json" \
+            --face-attribute-model "$QA_ROOT/models/face_attrib_net.onnx" \
+            --source current=public/seed-catalog \
+            --source "ffhq=$QA_ROOT/ffhq-snapshot/public/seed-catalog" \
+            --source "wink-extras=$QA_ROOT/source-catalogs/wink-extras" \
+            "${review_args[@]}" \
+            --target-total 70000 --report "$QA_ROOT/reports/physical-admission.json" \
+            | tee "$QA_ROOT/reports/physical-admission.log"
+          node --experimental-strip-types scripts/rebuild-clean-wink-support.mjs \
+            "$QA_ROOT/app/public/seed-catalog" "$QA_ROOT/rebuilt-wink-support" \
+            | tee "$QA_ROOT/reports/wink-binding.json"
+          cmp "$QA_ROOT/app/public/wink-support/v1/catalog.json" "$QA_ROOT/rebuilt-wink-support/catalog.json"
+          cmp "$QA_ROOT/app/public/wink-support/v1/ATTRIBUTION.html" "$QA_ROOT/rebuilt-wink-support/ATTRIBUTION.html"
+      - name: Extract 360 untouched holdout originals and contact sheets for pending review
+        id: holdout
+        run: |
+          python tools/review_clean_core_selection.py \
+            --catalog "$QA_ROOT/app/public/seed-catalog" \
+            --candidate-audit "$QA_ROOT/candidate/admission/candidate-audit.json" \
+            --reviewed-visibility data/catalog-visibility-reviewed.json \
+            --previously-inspected "$PREVIOUSLY_INSPECTED" \
+            --out "$QA_ROOT/holdout" \
+            | tee "$QA_ROOT/reports/holdout-preparation.log"
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          work = Path(os.environ['QA_ROOT'])
+          index = json.loads((work / 'holdout/sample-index.json').read_text())
+          pins = json.loads((work / 'candidate-pins.json').read_text())
+          context = json.loads((work / 'verified-request.json').read_text())
+          inspected_sha256 = context['request']['previouslyInspected']['sha256']
+          inspected_document = json.loads(Path(os.environ['PREVIOUSLY_INSPECTED']).read_text())
+          inspected_images = {row['encodedSha256'] for row in inspected_document['images']}
+          if not (index.get('sampleCount') == 360 and index.get('targetSamples') == 360 and index.get('seed') == 20261007
+                  and index.get('manifestSha256') == pins['manifestSha256'] and len(index.get('pages', [])) == 10
+                  and len({row['encodedSha256'] for row in index['samples']}) == 360
+                  and index.get('assistantReviewStatus') == 'pending' and index.get('humanVerified') is False
+                  and index.get('previouslyInspectedSha256') == inspected_sha256
+                  and hashlib.sha256(Path(os.environ['PREVIOUSLY_INSPECTED']).read_bytes()).hexdigest() == inspected_sha256
+                  and index.get('previouslyInspectedImageCount') == len(inspected_images) == context['previouslyInspectedImageCount']
+                  and index.get('inspectionIndexAffectsSamplingOnly') is True
+                  and all(row['encodedSha256'] not in inspected_images for row in index['samples'])
+                  and index.get('population', {}).get('knownDeniedSelected') == []):
+              raise ValueError('Holdout is incomplete, incorrectly bound, already labelled, or contains a reviewed denial')
+          PY
+      - name: Build both frozen applications and test the candidate code
+        id: build
+        run: |
+          (cd "$QA_ROOT/app" && npm run build) 2>&1 | tee "$QA_ROOT/reports/candidate-build.log"
+          (cd "$QA_ROOT/app" && node --experimental-strip-types --test tests/*.test.mjs) \
+            2>&1 | tee "$QA_ROOT/reports/candidate-unit.log"
+          (cd "$QA_ROOT/app" && npm run lint) 2>&1 | tee "$QA_ROOT/reports/candidate-lint.log"
+          (cd "$QA_ROOT/baseline" && npm run build) 2>&1 | tee "$QA_ROOT/reports/baseline-build.log"
+      - name: Run exact fixed-video, tracking, cancellation and virtual-camera checks
+        id: browser
+        env:
+          VIDEO_BASELINE_COMMIT: ${{ env.BASELINE_COMMIT }}
+          VIDEO_BASELINE_ROOT: ${{ github.workspace }}/work/clean-v5-qa/baseline
+          VIDEO_CANDIDATE_ROOT: ${{ github.workspace }}/work/clean-v5-qa/app
+          VIDEO_VALIDATION_REPORT_DIR: ${{ github.workspace }}/work/clean-v5-qa/reports/browser
+          VIDEO_VALIDATION_TIMEOUT_MS: "2700000"
+          VIDEO_VALIDATION_MODE: admitted
+        run: |
+          node scripts/run-video-validation.mjs 2>&1 | tee "$QA_ROOT/reports/browser-launcher.log"
+      - name: Check original assets and tested candidate bytes remained unchanged
+        id: integrity
+        if: always()
+        run: |
+          git diff --exit-code -- app worker scripts tests tools build public package.json package-lock.json vite.config.ts .openai \
+            data/catalog-previously-inspected.json
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          def sha256(path):
+              digest = hashlib.sha256()
+              with path.open('rb') as stream:
+                  for block in iter(lambda: stream.read(1024 * 1024), b''):
+                      digest.update(block)
+              return digest.hexdigest()
+
+          work = Path(os.environ['QA_ROOT'])
+          report = {'status': 'not-prepared', 'originalCheckoutUnchanged': True,
+                    'sitePublished': False, 'datasetPromoted': False}
+          asset_receipt = work / 'reports/candidate-asset-tree.json'
+          if asset_receipt.is_file():
+              before = json.loads(asset_receipt.read_text())
+              app = work / 'app'
+              actual = []
+              for directory in ('public/seed-catalog', 'public/wink-support/v1'):
+                  for path in sorted((app / directory).rglob('*')):
+                      if path.is_symlink():
+                          raise ValueError('Candidate asset tree became symlinked')
+                      if path.is_file():
+                          actual.append({'path': path.relative_to(app).as_posix(), 'bytes': path.stat().st_size, 'sha256': sha256(path)})
+              if actual != before['entries']:
+                  raise ValueError('Candidate asset bytes changed during QA')
+              subprocess.run(['git', '-C', str(app), 'diff', '--exit-code', '--',
+                              'app', 'worker', 'scripts', 'tests', 'tools', 'build', 'package.json',
+                              'package-lock.json', 'vite.config.ts', '.openai'], check=True)
+              subprocess.run(['git', '-C', str(work / 'baseline'), 'diff', '--exit-code', '--',
+                              'app', 'worker', 'scripts', 'tests', 'tools', 'build', 'public',
+                              'package.json', 'package-lock.json', 'vite.config.ts', '.openai'], check=True)
+              report.update({'status': 'passed', 'candidateAssetTreeSha256': before['assetTreeSha256'],
+                             'qaCodeCommit': os.environ['GITHUB_SHA'], 'baselineCommit': os.environ['BASELINE_COMMIT']})
+          (work / 'reports').mkdir(parents=True, exist_ok=True)
+          (work / 'reports/integrity.json').write_text(json.dumps(report, indent=2) + '\n')
+          PY
+      - name: Package factual reports and bounded review artifacts
+        id: package
+        if: always()
+        env:
+          REQUEST_OUTCOME: ${{ steps.request.outcome }}
+          ARTIFACT_OUTCOME: ${{ steps.artifact.outcome }}
+          DEPENDENCIES_OUTCOME: ${{ steps.dependencies.outcome }}
+          SOURCES_OUTCOME: ${{ steps.sources.outcome }}
+          PHYSICAL_OUTCOME: ${{ steps.physical.outcome }}
+          HOLDOUT_OUTCOME: ${{ steps.holdout.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          BROWSER_OUTCOME: ${{ steps.browser.outcome }}
+          INTEGRITY_OUTCOME: ${{ steps.integrity.outcome }}
+        run: |
+          python - <<'PY'
+          import gzip
+          import hashlib
+          import json
+          import os
+          import shutil
+          import tarfile
+          from pathlib import Path, PurePosixPath
+
+          def require(value, message):
+              if not value:
+                  raise ValueError(message)
+
+          def sha256(path):
+              digest = hashlib.sha256()
+              with path.open('rb') as stream:
+                  for block in iter(lambda: stream.read(1024 * 1024), b''):
+                      digest.update(block)
+              return digest.hexdigest()
+
+          def read(path):
+              if not path.is_file():
+                  return None
+              try:
+                  return json.loads(path.read_text())
+              except (ValueError, OSError):
+                  return None
+
+          def write(path, value):
+              path.parent.mkdir(parents=True, exist_ok=True)
+              path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+          work = Path(os.environ['QA_ROOT'])
+          reports, bundles = work / 'reports', work / 'bundles'
+          staging = work / 'bundle-staging'
+          summary = staging / 'summary'
+          fallback_summary = bundles / 'summary'
+          reports.mkdir(parents=True, exist_ok=True)
+          summary.mkdir(parents=True, exist_ok=True)
+          fallback_summary.mkdir(parents=True, exist_ok=True)
+          prefix = 'clean-core-v5-qa-'
+          suffix = os.environ['GITHUB_RUN_ID'] + '-' + os.environ['GITHUB_RUN_ATTEMPT']
+          names = ('request', 'artifact', 'dependencies', 'sources', 'physical', 'holdout', 'build', 'browser', 'integrity')
+          outcomes = {name: os.environ.get(name.upper() + '_OUTCOME', '') for name in names}
+          context = read(work / 'verified-request.json') or {}
+          pins = read(work / 'candidate-pins.json')
+          launcher = read(reports / 'browser/launcher-report.json') or {}
+          comparison = read(reports / 'browser/admitted-catalog/report.json') or {}
+          physical = read(reports / 'physical-admission.json') or {}
+          cancellation = read(reports / 'browser/cancellation/cancellation.json') or {}
+          fullscreen = read(reports / 'browser/fullscreen/report.json') or {}
+          holdout = read(work / 'holdout/sample-index.json') or {}
+          candidate_trial = next((row for row in comparison.get('trials', []) if row.get('name') == 'candidate'), {})
+          fixed_passed = comparison.get('passed') is True and candidate_trial.get('passed') is True
+          automated_passed = all(value == 'success' for value in outcomes.values()) and (
+              launcher.get('passed') is True and launcher.get('mode') == 'admitted'
+              and fixed_passed and physical.get('status') == 'passed'
+              and physical.get('allSelectedProfilesHaveDeclaredEvidence') is True
+              and physical.get('allSelectedPhotosAbsentFromSelectionExclusions') is True
+              and bool(pins) and physical.get('selectionReviewSha256') == pins.get('selectionReviewSha256')
+              and physical.get('selectionIdentitySha256') == pins.get('selectionIdentitySha256')
+              and physical.get('winkExpressionReviewSha256') == pins.get('winkExpressionReviewSha256')
+              and physical.get('allSelectedWinkProfilesHaveReviewedEvidence') is True
+              and cancellation.get('passed') is True and fullscreen.get('passed') is True
+              and holdout.get('sampleCount') == 360
+              and holdout.get('previouslyInspectedSha256') == context.get('request', {}).get('previouslyInspected', {}).get('sha256'))
+          origin = {'kind': 'github-actions', 'repository': os.environ['GITHUB_REPOSITORY'],
+                    'workflowRunId': int(os.environ['GITHUB_RUN_ID']), 'workflowRunAttempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+                    'codeCommit': os.environ['GITHUB_SHA'], 'runnerOs': os.environ.get('RUNNER_OS'),
+                    'browserRuntime': 'Chromium on the GitHub Actions runner'}
+          receipt = {
+              'schemaVersion': 1, 'documentKind': 'clean-core-v5-candidate-qa',
+              'status': 'automated-checks-passed-visual-review-pending' if automated_passed else 'automated-checks-incomplete',
+              'passed': False, 'automatedChecksPassed': automated_passed,
+              'executionOrigin': origin, 'candidate': pins, 'baselineCommit': os.environ['BASELINE_COMMIT'],
+              'requestSha256': context.get('requestSha256'), 'outcomes': outcomes,
+              'fixedVideo': {'status': 'passed' if fixed_passed else 'not-passed',
+                  'fixtureSha256': comparison.get('fixtureSha256'),
+                  'densityFps': 20 if fixed_passed else None,
+                  'plannedFrames': (candidate_trial.get('video') or {}).get('plannedFrames'),
+                  'sameAcquiredFrames': (comparison.get('comparison') or {}).get('sameAcquiredFrames') is True,
+                  'sameTimeline': (comparison.get('comparison') or {}).get('sameTimeline') is True,
+                  'comparison': comparison.get('comparison')},
+              'facePositionSizeTracking': {'status': 'passed' if fixed_passed else 'not-passed',
+                  'defaultEnabled': True if fixed_passed else None,
+                  'presentationControlsPreserveSelection': True if fixed_passed else None,
+                  'evidence': 'reports/browser/admitted-catalog/report.json'},
+              'physicalAdmission': physical,
+              'pendingNetworkCancellation': {'status': 'passed' if cancellation.get('passed') is True else 'not-passed',
+                  'cancelToIdleMs': cancellation.get('cancelToIdleMs')},
+              'virtualCamera': {'status': 'passed' if fullscreen.get('passed') is True else 'not-passed',
+                  'cameraPhase': (fullscreen.get('camera') or {}).get('phase'),
+                  'catalogTotal': (fullscreen.get('camera') or {}).get('catalogTotal'),
+                  'physicalCameraVerified': False},
+              'selectedPhotoHoldout': {'status': 'pending', 'reviewer': 'assistant visual inspection',
+                  'humanVerified': False, 'checkedPhotos': 0, 'preparedPhotos': holdout.get('sampleCount', 0),
+                  'previouslyInspectedSha256': holdout.get('previouslyInspectedSha256'),
+                  'previouslyInspectedImageCount': holdout.get('previouslyInspectedImageCount'),
+                  'sampleIndexSha256': sha256(work / 'holdout/sample-index.json') if holdout else None},
+              'qualityImprovementEstablished': False, 'physicalCameraVerified': False,
+              'hostedSiteVerified': False, 'datasetPromoted': False, 'sitePublished': False,
+              'promotionReady': False,
+          }
+          write(reports / 'qa-receipt.json', receipt)
+          write(summary / 'qa-receipt.json', receipt)
+          require((summary / 'qa-receipt.json').stat().st_size <= 24 * 1024 * 1024,
+                  'QA receipt alone exceeds the bounded summary payload')
+          # Keep a small factual receipt even if later bundle preparation fails.
+          shutil.copy2(summary / 'qa-receipt.json', fallback_summary / 'qa-receipt.json')
+          for name in ('candidate-pins.json', 'generation-receipt.json', 'generation-physical-admission.json',
+                       'archive-validation.json', 'physical-admission.json', 'selection-review.json',
+                       'selection-review-previous.json', 'wink-expression-review.json',
+                       'previously-inspected.json', 'request.json', 'integrity.json'):
+              source = reports / name
+              if source.is_file():
+                  shutil.copy2(source, summary / name)
+          if holdout:
+              shutil.copy2(work / 'holdout/sample-index.json', summary / 'sample-index.json')
+          bundle_index = {'schemaVersion': 1, 'executionOrigin': origin, 'candidate': pins,
+                          'maximumArtifactPayloadBytes': 24 * 1024 * 1024,
+                          'assistantReviewStatus': 'pending', 'humanVerified': False,
+                          'containsCandidateCatalogOrAdmissionDatabase': False, 'artifacts': []}
+          if holdout:
+              require(len(holdout.get('pages', [])) <= 10, 'Holdout exceeds the ten bounded page artifacts')
+              samples = {row['sample']: row for row in holdout.get('samples', [])}
+              for number, page in enumerate(holdout.get('pages', []), 1):
+                  page_name = f'holdout-{number:02d}'
+                  target = staging / page_name
+                  target.mkdir()
+                  rows = []
+                  names = [page['path']]
+                  for identity in page['samples']:
+                      row = samples[identity]
+                      names.append(row['imagePath'])
+                      rows.append(row)
+                  copied = []
+                  for name in names:
+                      relative = PurePosixPath(name)
+                      require(not relative.is_absolute() and '..' not in relative.parts
+                              and relative.as_posix() == name and '\0' not in name, 'Unsafe holdout path')
+                      source = work / 'holdout' / name
+                      require(source.is_file() and not source.is_symlink(), 'Missing holdout original or contact sheet')
+                      output = target / name
+                      output.parent.mkdir(parents=True, exist_ok=True)
+                      shutil.copy2(source, output)
+                      copied.append({'path': name, 'sha256': sha256(output), 'bytes': output.stat().st_size})
+                  for row in rows:
+                      require(sha256(target / row['imagePath']) == row['encodedSha256'], 'Holdout original hash changed during packaging')
+                  write(target / 'page-index.json', {'manifestSha256': holdout.get('manifestSha256'),
+                        'sampleIndexSha256': sha256(work / 'holdout/sample-index.json'), 'page': page,
+                        'samples': rows, 'assistantReviewStatus': 'pending', 'humanVerified': False})
+                  total = sum(path.stat().st_size for path in target.rglob('*') if path.is_file())
+                  require(total <= 24 * 1024 * 1024, 'A holdout page artifact exceeds the 24 MiB payload cap')
+                  target.rename(bundles / page_name)
+                  bundle_index['artifacts'].append({'name': prefix + page_name + '-' + suffix,
+                      'kind': 'holdout-page-with-exact-originals', 'bytes': total, 'samples': page['samples'], 'files': copied})
+          # Detailed reports are the only tar input. The generated Y4M camera
+          # fixture, candidate packs, SQLite databases and models are omitted.
+          report_files = []
+          for source in sorted(reports.rglob('*')):
+              require(not source.is_symlink(), 'A QA report is symlinked')
+              if not source.is_file() or 'fixtures' in source.relative_to(reports).parts:
+                  continue
+              require(source.suffix.lower() in ('.json', '.log', '.txt', '.png', '.csv', '.sha256'),
+                      'Unexpected binary in the report-only archive')
+              report_files.append({'path': 'reports/' + source.relative_to(reports).as_posix(),
+                                   'sha256': sha256(source), 'bytes': source.stat().st_size})
+          write(summary / 'report-files.json', report_files)
+          archive_path = work / 'qa-reports.tar.gz'
+          with archive_path.open('wb') as output, gzip.GzipFile(fileobj=output, mode='wb', mtime=0) as compressed:
+              with tarfile.open(fileobj=compressed, mode='w|') as archive:
+                  for entry in report_files:
+                      source = work / entry['path']
+                      info = archive.gettarinfo(str(source), arcname=entry['path'])
+                      info.uid = info.gid = 0
+                      info.uname = info.gname = ''
+                      info.mtime = 0
+                      with source.open('rb') as stream:
+                          archive.addfile(info, stream)
+          parts = []
+          with archive_path.open('rb') as stream:
+              for number in range(1, 9):
+                  chunk = stream.read(20 * 1024 * 1024)
+                  if not chunk:
+                      break
+                  target = bundles / f'reports-{number:02d}'
+                  target.mkdir()
+                  name = f'qa-reports.tar.gz.part{number:02d}'
+                  (target / name).write_bytes(chunk)
+                  part = {'artifact': prefix + f'reports-{number:02d}-' + suffix,
+                          'path': name, 'bytes': len(chunk), 'sha256': hashlib.sha256(chunk).hexdigest()}
+                  parts.append(part)
+                  bundle_index['artifacts'].append({'name': part['artifact'], 'kind': 'ordered-report-archive-part',
+                                                    'bytes': len(chunk), 'files': [part]})
+              require(not stream.read(1), 'Report archive exceeds the bounded eight-part report output')
+          bundle_index['reportArchive'] = {'path': 'qa-reports.tar.gz', 'sha256': sha256(archive_path),
+              'bytes': archive_path.stat().st_size, 'parts': parts,
+              'reconstruction': 'Concatenate part01, part02, etc. in numeric order; verify the archive SHA256 before extracting.'}
+          bundle_index['artifacts'].insert(0, {'name': prefix + 'summary-' + suffix,
+                                               'kind': 'qa-receipts-and-global-holdout-index'})
+          write(summary / 'bundle-index.json', bundle_index)
+          require(sum(path.stat().st_size for path in summary.rglob('*') if path.is_file()) <= 24 * 1024 * 1024,
+                  'Summary artifact exceeds the bounded payload size')
+          shutil.rmtree(fallback_summary)
+          summary.rename(fallback_summary)
+          print(json.dumps({'automatedChecksPassed': automated_passed, 'visualReview': 'pending',
+                            'holdoutPhotos': holdout.get('sampleCount', 0), 'holdoutPages': len(holdout.get('pages', [])),
+                            'reportArchiveParts': len(parts), 'maximumPayloadMiB': 24,
+                            'datasetPromoted': False, 'sitePublished': False}))
+          PY
+      - name: Retain the small QA summary, actual candidate hashes and global sample index
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-summary-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/summary/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded holdout page 01
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-holdout-01-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/holdout-01/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded holdout page 02
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-holdout-02-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/holdout-02/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded holdout page 03
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-holdout-03-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/holdout-03/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded holdout page 04
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-holdout-04-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/holdout-04/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded holdout page 05
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-holdout-05-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/holdout-05/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded holdout page 06
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-holdout-06-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/holdout-06/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded holdout page 07
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-holdout-07-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/holdout-07/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded holdout page 08
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-holdout-08-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/holdout-08/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded holdout page 09
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-holdout-09-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/holdout-09/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded holdout page 10
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-holdout-10-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/holdout-10/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded report archive part 01
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-reports-01-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/reports-01/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded report archive part 02
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-reports-02-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/reports-02/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded report archive part 03
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-reports-03-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/reports-03/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded report archive part 04
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-reports-04-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/reports-04/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded report archive part 05
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-reports-05-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/reports-05/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded report archive part 06
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-reports-06-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/reports-06/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded report archive part 07
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-reports-07-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/reports-07/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+
+      - name: Retain bounded report archive part 08
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-qa-reports-08-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-qa/bundles/reports-08/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30

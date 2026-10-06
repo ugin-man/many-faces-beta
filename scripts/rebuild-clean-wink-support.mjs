@@ -20,19 +20,57 @@ const safeName = value => {
   return value;
 };
 
-export function admittedCoreWink(entry, bytes, policySha256) {
+export function readWinkExpressionReview(rawBytes, manifest) {
+  const document = JSON.parse(rawBytes);
+  const reviewSha256 = sha256(rawBytes), admission = manifest.qualityAdmission;
+  assert(document && document.schemaVersion === 1 && document.documentKind === 'clean-core-wink-expression-review' && document.mode === 'confirmed-side-only', 'Invalid wink expression review document');
+  assert(validHash(admission?.receiptSha256) && document.candidateAuditSha256 === admission.receiptSha256 && validHash(admission?.recordsSha256) && document.recordsSha256 === admission.recordsSha256, 'Wink review belongs to another admission audit');
+  assert(document.reviewer === 'assistant-visual-review' && document.humanVerified === false, 'Wink review must accurately identify assistant visual review');
+  assert(typeof document.reviewedOn === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(document.reviewedOn) && Number.isFinite(Date.parse(document.reviewedOn)) && new Date(document.reviewedOn).toISOString().slice(0, 10) === document.reviewedOn, 'Invalid wink review date');
+  assert(Array.isArray(document.reviews), 'Wink review requires a reviews array');
+  const seen = new Set(), sides = new Map();
+  for (const row of document.reviews) {
+    assert(row && validHash(row.encodedSha256) && !seen.has(row.encodedSha256), 'Invalid or repeated wink review image digest');
+    assert(['confirmed', 'uncertain', 'does-not-match'].includes(row.decision), 'Invalid wink review decision');
+    assert(row.decision === 'confirmed' ? ['left', 'right'].includes(row.side) : row.side == null, 'Only a confirmed wink may declare its side');
+    assert(typeof row.reason === 'string' && row.reason.trim(), 'Wink review requires a reason');
+    if (row.evidence?.imageSha256 !== undefined) assert.equal(row.evidence.imageSha256, row.encodedSha256, 'Wink evidence image bytes differ');
+    if (row.evidence?.pixelChangesApplied !== undefined) assert.equal(row.evidence.pixelChangesApplied, false, 'Wink review must inspect unchanged original pixels');
+    seen.add(row.encodedSha256);
+    if (row.decision === 'confirmed') sides.set(row.encodedSha256, row.side);
+  }
+  const stamp = {
+    schemaVersion: 1, documentKind: 'clean-core-wink-expression-review', mode: 'confirmed-side-only',
+    reviewPath: 'wink-expression-review.json', reviewSha256,
+    candidateAuditSha256: document.candidateAuditSha256, recordsSha256: document.recordsSha256,
+    reviewedEncodedImages: document.reviews.length, confirmedEncodedImages: sides.size,
+    confirmedSides: {left: [...sides.values()].filter(side => side === 'left').length, right: [...sides.values()].filter(side => side === 'right').length},
+    reviewer: document.reviewer, humanVerified: document.humanVerified, reviewedOn: document.reviewedOn,
+  };
+  assert.deepEqual(manifest.winkExpressionReview, stamp, 'Manifest wink review stamp differs from its exact file');
+  assert.equal(manifest.selectionIdentity?.winkExpressionReviewSha256, reviewSha256, 'Selection identity does not bind this wink review');
+  return {sha256: reviewSha256, sides, stamp};
+}
+
+export function admittedCoreWink(entry, bytes, policySha256, winkReview) {
   assert(validHash(entry.admissionSha256) && entry.admissionPolicySha256 === policySha256, `Missing current admission evidence: ${entry.id}`);
   assert.equal(sha256(bytes), entry.admissionSha256, `Admitted photo bytes changed: ${entry.id}`);
   assert.equal(entry.id, 'clean-v5-' + entry.admissionSha256.slice(0, 28), 'Use the final content-addressed v5 core ID');
   assert(!Object.hasOwn(entry, 'image') && typeof entry.pack === 'string', 'Build the bound wink index from the final packed core');
   safeName(entry.pack);
+  assert(validHash(winkReview?.sha256) && winkReview.sides instanceof Map && winkReview.stamp?.reviewSha256 === winkReview.sha256, 'An exact bound wink review is required');
+  const side = entry.cleanProfile === 'winkLeft' ? 'left' : entry.cleanProfile === 'winkRight' ? 'right' : null;
+  if (!side) return null;
+  assert(['strict', 'observed'].includes(entry.cleanTier), 'Selected wink requires a declared expression evidence tier');
+  assert.equal(winkReview.sides.get(entry.admissionSha256), side, 'Selected wink lacks same-side exact-image visual confirmation');
+  assert.deepEqual(entry.winkExpressionEvidence, {schemaVersion: 1, encodedSha256: entry.admissionSha256, side, reviewSha256: winkReview.sha256}, 'Selected wink review evidence differs from its exact image and side');
   const candidate = liveCandidateFromEntry(entry, 'admitted-core-wink');
   assert(candidate, `Invalid admitted geometry: ${entry.id}`);
   const evidence = winkEvidence(candidate.feature, candidate.geometry.projection);
-  if (!evidence) return null;
-  const fields = ['id', 'name', 'pack', 'offset', 'length', 'feature', 'shape', 'mesh', 'projection', 'layout', 'sourceName', 'sourceUrl', 'creator', 'license', 'licenseUrl', 'sourceCatalogId', 'changes', 'admissionSha256', 'admissionPolicySha256'];
+  assert(evidence?.side === side, 'Reviewed wink lacks unchanged same-side automatic corroboration');
+  const fields = ['id', 'name', 'pack', 'offset', 'length', 'feature', 'shape', 'mesh', 'projection', 'layout', 'sourceName', 'sourceUrl', 'creator', 'license', 'licenseUrl', 'sourceCatalogId', 'changes', 'admissionSha256', 'admissionPolicySha256', 'cleanProfile', 'cleanTier', 'winkExpressionEvidence'];
   const row = Object.fromEntries(fields.filter(key => entry[key] !== undefined).map(key => [key, entry[key]]));
-  return {...row, supportKind: 'core-refresh', side: evidence.side, evidence, imageSha256: entry.admissionSha256, validation: 'Selected physical core image; exact admitted bytes and features; no external supplement photo'};
+  return {...row, supportKind: 'core-refresh', side, evidence, imageSha256: entry.admissionSha256, validation: 'Selected admitted core image; exact-image anatomical side confirmed by assistant visual review and corroborated by unchanged automatic features; not independently human-verified'};
 }
 
 export function boundedWinkIndex(items, header, byteLimit = WINK_SUPPORT_MAX_BYTES) {
@@ -78,8 +116,10 @@ export async function rebuildCleanWinkSupport(catalogRoot, outputRoot) {
   const manifest = JSON.parse(manifestBytes);
   assert.equal(manifest.totalFaces, 70000); assert.equal(manifest.searchableFaces, 70000);
   const stamp = manifest.qualityAdmission;
-  const binding = {catalogId: manifest.catalogId, manifestSha256: sha256(manifestBytes), qualityAdmission: stamp};
-  const header = {schemaVersion: 3, baseCatalogId: manifest.catalogId, baseCatalogManifestSha256: binding.manifestSha256, policySha256: stamp?.policySha256, originalFaces: 70000, addedPhotographs: 0, validationStatus: 'admitted-core-only; automatic wink evidence, not independent human labels'};
+  const winkReviewBytes = await fs.readFile(path.join(root, 'wink-expression-review.json'));
+  const winkReview = readWinkExpressionReview(winkReviewBytes, manifest);
+  const binding = {catalogId: manifest.catalogId, manifestSha256: sha256(manifestBytes), qualityAdmission: stamp, winkExpressionReview: winkReview.stamp};
+  const header = {schemaVersion: 3, baseCatalogId: manifest.catalogId, baseCatalogManifestSha256: binding.manifestSha256, policySha256: stamp?.policySha256, winkExpressionReviewSha256: winkReview.sha256, originalFaces: 70000, addedPhotographs: 0, validationStatus: 'admitted-core-only; assistant visual confirmation plus same-side automatic corroboration; not independently human-verified'};
   parseWinkSupport({...header, items: []}, 'https://verification.invalid', binding);
   const ids = new Set(), shardHashes = [], entries = [];
   const handles = new Map();
@@ -97,7 +137,9 @@ export async function rebuildCleanWinkSupport(catalogRoot, outputRoot) {
           ids.add(entry.id); count++;
           const candidate = liveCandidateFromEntry(entry, file);
           assert(candidate, `Invalid admitted candidate: ${entry.id}`);
-          if (!winkEvidence(candidate.feature, candidate.geometry.projection)) continue;
+          // Only a final reviewed wink assignment may enter the specialist index.
+          // Automatic asymmetry in an ordinary core photo never creates one here.
+          if (!['winkLeft', 'winkRight'].includes(entry.cleanProfile)) continue;
           assert(!Object.hasOwn(entry, 'image') && Number.isSafeInteger(entry.offset) && entry.offset >= 0 && Number.isSafeInteger(entry.length) && entry.length > 0, `Invalid final image address: ${entry.id}`);
           const pack = safeName(entry.pack);
           if (!handles.has(pack)) {
@@ -106,7 +148,7 @@ export async function rebuildCleanWinkSupport(catalogRoot, outputRoot) {
           }
           const bytes = Buffer.alloc(entry.length), result = await handles.get(pack).read(bytes, 0, entry.length, entry.offset);
           assert.equal(result.bytesRead, entry.length, `Truncated admitted photo: ${entry.id}`);
-          const row = admittedCoreWink(entry, bytes, stamp.policySha256);
+          const row = admittedCoreWink(entry, bytes, stamp.policySha256, winkReview);
           if (row) entries.push(row);
         }
       }
@@ -118,10 +160,11 @@ export async function rebuildCleanWinkSupport(catalogRoot, outputRoot) {
   const parsed = parseWinkSupport(payload, 'https://verification.invalid', binding);
   assert(parsed.every(candidate => ids.has(candidate.id) && candidate.supportKind === 'core-refresh'));
   assert.equal(sha256(await fs.readFile(path.join(root, 'manifest.json'))), binding.manifestSha256, 'Final manifest changed during index generation');
+  assert.equal(sha256(await fs.readFile(path.join(root, 'wink-expression-review.json'))), winkReview.sha256, 'Bound wink review changed during index generation');
   for (const row of shardHashes) assert.equal(sha256(await fs.readFile(path.join(root, 'shards', row.file))), row.sha256, 'Final shards changed during index generation');
   const escape = value => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
-  const attribution = '<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Many Faces — 画像の出典</title><style>body{max-width:820px;margin:40px auto;padding:0 20px;font:16px/1.7 system-ui}article{padding:18px 0;border-bottom:1px solid #ccc;overflow-wrap:anywhere}</style><h1>画像の出典・利用条件</h1><p>この補助索引は、品質検査に合格して最終7万枚に採用された写真だけを参照しています。追加の画像データは使用していません。ウィンクの左右は自動解析の結果です。</p>' + payload.items.map(entry => `<article id="${escape(entry.id)}"><strong>${escape(entry.id)}</strong><p>${escape(entry.creator)} — <a href="${escape(entry.sourceUrl)}" rel="noopener noreferrer">元画像・出典</a></p><p><a href="${escape(entry.licenseUrl || entry.sourceUrl)}" rel="noopener noreferrer">${escape(entry.license)}</a></p><p>${escape(entry.changes || '採用済みの顔写真を使用。補助索引の生成では画像を変更していません。')}</p></article>`).join('') + '</html>';
-  const audit = {schemaVersion: 1, catalogRoot: root, baseCatalogId: manifest.catalogId, baseCatalogManifestSha256: binding.manifestSha256, policySha256: stamp.policySha256, physicalCoreCount: ids.size, eligibleCoreWinks: entries.length, indexedCoreWinks: payload.items.length, omittedFromSpecialistIndex: payload.omittedFromSpecialistIndex, left: parsed.filter(entry => entry.supportSide === 'left').length, right: parsed.filter(entry => entry.supportSide === 'right').length, outputIndexBytes: Buffer.byteLength(JSON.stringify(payload)), separatePhotoAssets: 0, coreImagesRemoved: 0, independentHumanLabels: false, indexSha256: sha256(JSON.stringify(payload) + '\n')};
+  const attribution = '<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Many Faces — 画像の出典</title><style>body{max-width:820px;margin:40px auto;padding:0 20px;font:16px/1.7 system-ui}article{padding:18px 0;border-bottom:1px solid #ccc;overflow-wrap:anywhere}</style><h1>画像の出典・利用条件</h1><p>この補助索引は、品質検査に合格して最終7万枚に採用された写真だけを参照しています。追加の画像データは使用していません。ウィンクの左右は、アシスタントによる元画像の目視確認と、同じ左右を示す自動解析結果の両方に基づきます。人間による独立した確認は未実施です。</p>' + payload.items.map(entry => `<article id="${escape(entry.id)}"><strong>${escape(entry.id)}</strong><p>${escape(entry.creator)} — <a href="${escape(entry.sourceUrl)}" rel="noopener noreferrer">元画像・出典</a></p><p><a href="${escape(entry.licenseUrl || entry.sourceUrl)}" rel="noopener noreferrer">${escape(entry.license)}</a></p><p>${escape(entry.changes || '採用済みの顔写真を使用。補助索引の生成では画像を変更していません。')}</p></article>`).join('') + '</html>';
+  const audit = {schemaVersion: 1, catalogRoot: root, baseCatalogId: manifest.catalogId, baseCatalogManifestSha256: binding.manifestSha256, policySha256: stamp.policySha256, winkExpressionReviewSha256: winkReview.sha256, confirmedReviewSides: winkReview.stamp.confirmedSides, allIndexedWinksHaveReviewedEvidence: true, physicalCoreCount: ids.size, eligibleCoreWinks: entries.length, indexedCoreWinks: payload.items.length, omittedFromSpecialistIndex: payload.omittedFromSpecialistIndex, left: parsed.filter(entry => entry.supportSide === 'left').length, right: parsed.filter(entry => entry.supportSide === 'right').length, outputIndexBytes: Buffer.byteLength(JSON.stringify(payload)), separatePhotoAssets: 0, coreImagesRemoved: 0, independentHumanLabels: false, indexSha256: sha256(JSON.stringify(payload) + '\n')};
   await fs.mkdir(output, {recursive: true});
   await fs.writeFile(path.join(output, 'catalog.json'), JSON.stringify(payload) + '\n');
   await fs.writeFile(path.join(output, 'ATTRIBUTION.html'), attribution + '\n');

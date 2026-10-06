@@ -8,7 +8,7 @@ import {FACE_ACTION_FEATURE_INDEX as I} from '../app/face-actions.ts';
 const raw=JSON.parse(await readFile(new URL('../public/wink-support/v1/catalog.json',import.meta.url),'utf8'));
 const manifestBytes=await readFile(new URL('../public/seed-catalog/manifest.json',import.meta.url));
 const manifest=JSON.parse(manifestBytes);
-const binding={catalogId:manifest.catalogId,manifestSha256:createHash('sha256').update(manifestBytes).digest('hex'),qualityAdmission:manifest.qualityAdmission};
+const binding={catalogId:manifest.catalogId,manifestSha256:createHash('sha256').update(manifestBytes).digest('hex'),qualityAdmission:manifest.qualityAdmission,winkExpressionReview:manifest.winkExpressionReview};
 const parse=value=>parseWinkSupport(value,'https://example.test',binding);
 const support=parse(raw);
 const frame=c=>({time:0,feature:c.feature,geometry:c.geometry});
@@ -17,6 +17,7 @@ test('the published index retains exact raw actions and the correct catalog prov
  assert.equal(support.length,raw.items.length);
  if(raw.schemaVersion===3){
   assert.equal(raw.baseCatalogManifestSha256,binding.manifestSha256);
+  assert.equal(raw.winkExpressionReviewSha256,binding.winkExpressionReview.reviewSha256);
   assert.equal(support.filter(c=>c.supportKind==='addition').length,0);
   assert.equal(support.filter(c=>c.supportKind==='core-refresh').length,support.length);
  }else{

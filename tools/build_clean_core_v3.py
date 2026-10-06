@@ -29,6 +29,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageOps
 
 from clean_core_admission import AdmissionAudit, sha256_file
+from clean_core_selection_review import SelectionReview, WinkExpressionReview
 
 try:
     import onnxruntime as ort
@@ -121,6 +122,12 @@ def parse_args() -> argparse.Namespace:
                         help="FaceAttribNet ONNX; sunglasses/mask candidates are rejected before catalog selection")
     parser.add_argument("--candidate-audit", "--quality-exclusions", dest="quality_exclusions", type=Path, required=True,
                         help="Completed schema-2 candidate audit receipt; old exclusion-only JSON cannot certify candidates")
+    parser.add_argument("--selection-review", type=Path, required=True,
+                        help="Deny-only exact-image review bound to the original candidate audit")
+    parser.add_argument("--previous-selection-review", type=Path,
+                        help="Exact predecessor review when the current review adds further exclusions")
+    parser.add_argument("--wink-review", type=Path, required=True,
+                        help="Exact-image visual wink-side confirmations bound to the original candidate audit")
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
     if not args.catalog: parser.error("at least one --catalog LABEL=PATH is required")
@@ -128,6 +135,10 @@ def parse_args() -> argparse.Namespace:
     if args.preselect_multiplier < 1: parser.error("preselect-multiplier must be at least 1")
     if not args.face_attribute_model.is_file(): parser.error("--face-attribute-model must point to a readable ONNX file")
     if not args.quality_exclusions.is_file(): parser.error("--quality-exclusions must point to a completed pre-selection audit")
+    if not args.selection_review.is_file(): parser.error("--selection-review must point to a readable deny-only review")
+    if not args.wink_review.is_file(): parser.error("--wink-review must point to a readable expression review")
+    if args.previous_selection_review is not None and not args.previous_selection_review.is_file():
+        parser.error("--previous-selection-review must point to its exact predecessor file")
     if ort is None: parser.error("onnxruntime is required for the mandatory face-visibility gate")
     return args
 
@@ -174,7 +185,7 @@ def title_rejection(entry: dict[str, Any], profile: CleanProfile) -> str | None:
 
 def admitted_entry(entry: dict[str, Any], record: dict[str, Any]) -> dict[str, Any]:
     """Replace all stale measurements before pose/expression classification."""
-    fresh = {key: value for key, value in entry.items() if not key.startswith("clean") and key != "image"}
+    fresh = {key: value for key, value in entry.items() if not key.startswith("clean") and key not in ("image", "winkExpressionEvidence")}
     for key in ("feature", "shape", "mesh", "projection", "layout"):
         fresh[key] = record[key]
     fresh.update(admissionSha256=record["encodedSha256"],
@@ -185,19 +196,20 @@ def admitted_entry(entry: dict[str, Any], record: dict[str, Any]) -> dict[str, A
 
 
 def selection_identity(receipt_sha256: str, target_total: int, preselect_multiplier: int,
-                       additional_exclusions_sha256: str | None = None) -> dict[str, Any]:
+                       additional_exclusions_sha256: str | None = None,
+                       wink_review_sha256: str | None = None) -> dict[str, Any]:
     """Bind catalog identity to effective selection, separately from inference.
 
-    The reserved review digest can later bind a deny-only selection gate. No
-    caller currently supplies it; physical validation rejects a claimed gate
-    until its exact review file is also verified and enforced.
+    The review digest binds the additional deny-only selection gate. Original
+    image admission remains independently bound to its frozen audit receipt.
     """
-    for digest in (receipt_sha256, additional_exclusions_sha256):
+    for digest in (receipt_sha256, additional_exclusions_sha256, wink_review_sha256):
         if digest is not None and not re.fullmatch(r"[0-9a-f]{64}", digest):
             raise ValueError("Invalid selection identity digest")
     root = Path(__file__).resolve().parent
     programs = ("clean_core_policy_v2.py", "clean_core_policy_v3.py", "build_clean_core_v3.py",
-                "run_build_clean_core_v3_real_only.py", "run_build_clean_core_v3_repair.py")
+                "run_build_clean_core_v3_real_only.py", "run_build_clean_core_v3_repair.py",
+                "clean_core_selection_review.py")
     return {"schemaVersion": 1, "policyVersion": POLICY_VERSION,
             "candidateAuditSha256": receipt_sha256,
             "selectionCodeSha256": {name: sha256_file(root / name) for name in programs},
@@ -206,7 +218,8 @@ def selection_identity(receipt_sha256: str, target_total: int, preselect_multipl
             "profileMinimums": dict(PROFILE_MINIMUMS), "profilePoseCellMinimums": dict(PROFILE_POSE_CELL_MINIMUMS),
             "backgroundMinimums": dict(BACKGROUND_MINIMUMS), "backgroundPoseCellMinimums": dict(BACKGROUND_POSE_CELL_MINIMUMS),
             "profileCellLimits": dict(PROFILE_CELL_LIMITS),
-            "additionalSelectionExclusionsSha256": additional_exclusions_sha256}
+            "additionalSelectionExclusionsSha256": additional_exclusions_sha256,
+            "winkExpressionReviewSha256": wink_review_sha256}
 
 
 def selection_identity_sha256(identity: dict[str, Any]) -> str:
@@ -365,19 +378,31 @@ def main()->int:
     packs.mkdir(parents=True); shards.mkdir(parents=True); sheets.mkdir(parents=True)
     sources=[load_catalog(*parse_catalog_arg(value)) for value in args.catalog]
     admission=AdmissionAudit(args.quality_exclusions,args.face_attribute_model,sources)
-    selection=selection_identity(sha256_file(args.quality_exclusions), args.target_total, args.preselect_multiplier)
-    selection_sha256=selection_identity_sha256(selection)
     rejects:Counter[str]=Counter(); classified:Counter[str]=Counter(); groups:dict[tuple[str,str],list[Candidate]]=defaultdict(list)
     input_entries=sum(len(source.entries) for source in sources)
     try:
+        selection_review=SelectionReview(args.selection_review,sha256_file(args.quality_exclusions),
+                                         admission.receipt["recordsSha256"],args.previous_selection_review)
+        selection_review.validate_audit_records(admission.connection)
+        selection_review.write_catalog_files(catalog)
+        wink_review=WinkExpressionReview(args.wink_review,sha256_file(args.quality_exclusions),
+                                         admission.receipt["recordsSha256"])
+        wink_review.validate_audit_records(admission.connection)
+        wink_review.write_catalog_files(catalog)
+        selection=selection_identity(sha256_file(args.quality_exclusions),args.target_total,
+                                     args.preselect_multiplier,selection_review.sha256,wink_review.sha256)
+        selection_sha256=selection_identity_sha256(selection)
         for source in sources:
             for original_entry in source.entries:
                 record=admission.record(source.catalog_id,original_entry)
                 if record is None: rejects["candidate_admission_not_passed"]+=1; continue
+                if selection_review.excludes(record["encodedSha256"]):
+                    rejects["selection_review_exact_image_exclusion"]+=1; continue
                 entry=admitted_entry(original_entry,record)
                 feature=entry.get("feature")
                 if not isinstance(feature,list) or len(feature)!=FEATURE_LENGTH or not all(math.isfinite(float(v)) for v in feature): rejects["invalid_feature"]+=1; continue
-                assignment=classify_assignment(feature,entry.get("projection"))
+                assignment=classify_assignment(feature,entry.get("projection"),
+                                               allow_observed_wink=wink_review.side_for(record["encodedSha256"]))
                 if assignment is None: rejects["mixed_or_unsupported_state"]+=1; continue
                 profile,tier=assignment
                 if tier not in PROFILE_EVIDENCE_TIERS[profile.name]:
@@ -398,7 +423,7 @@ def main()->int:
             for c in ranked:
                 if len(accepted)>=preselect: break
                 try:
-                    payload=c.source.read_image(c.entry); digest=hashlib.sha256(payload).hexdigest()
+                    payload=c.source.read_image(c.entry); digest=selection_review.require_payload(payload)
                     if digest in exact: rejects["exact_image_duplicate"]+=1; continue
                     if digest != c.entry["admissionSha256"]:
                         raise ValueError("Admitted image bytes changed before selection")
@@ -464,6 +489,12 @@ def main()->int:
         gate_failures=list(minimum_failures)
         if len(selected)!=args.target_total: gate_failures.append(f"total: {len(selected):,} != required {args.target_total:,}")
         if len({c.image_sha256 for c in selected})!=len(selected): gate_failures.append("duplicate encoded image in final selection")
+        excluded_selected=sum(selection_review.excludes(c.image_sha256) for c in selected)
+        if excluded_selected: gate_failures.append("reviewed excluded image in final selection")
+        wink_sides={"winkLeft":"left","winkRight":"right"}
+        unconfirmed_selected_winks=sum(c.profile.name in wink_sides and
+            wink_review.side_for(c.image_sha256)!=wink_sides[c.profile.name] for c in selected)
+        if unconfirmed_selected_winks: gate_failures.append("wink profile lacks exact-image visual confirmation")
         for p,required in PROFILE_POSE_CELL_MINIMUMS.items():
             if profile_cells[p]<required: gate_failures.append(f"{p} pose cells: {profile_cells[p]:,} < required {required:,}")
         for p,required in BACKGROUND_MINIMUMS.items():
@@ -476,6 +507,11 @@ def main()->int:
         audit={
             "policyVersion":POLICY_VERSION,"inputEntries":input_entries,
             "selectionIdentity":selection,"selectionIdentitySha256":selection_sha256,
+            "selectionReview":selection_review.stamp(),"selectionReviewSha256":selection_review.sha256,
+            "selectionReviewedCandidatesExcluded":rejects["selection_review_exact_image_exclusion"],
+            "allSelectedPhotosAbsentFromSelectionExclusions":excluded_selected==0,
+            "winkExpressionReview":wink_review.stamp(),"winkExpressionReviewSha256":wink_review.sha256,
+            "allSelectedWinkProfilesHaveReviewedEvidence":unconfirmed_selected_winks==0,
             "inputCatalogs":{s.catalog_id:len(s.entries) for s in sources},
             "classifiedCandidates":sum(classified.values()),"classifiedProfiles":dict(sorted(classified.items())),
             "selectedFaces":len(selected),"targetFaces":args.target_total,
@@ -512,11 +548,13 @@ def main()->int:
         for c in selected:
             payload=c.image_bytes
             if payload is None:raise RuntimeError("selected image missing")
-            if hashlib.sha256(payload).hexdigest()!=c.entry["admissionSha256"]:raise ValueError("Selected image changed before packing")
+            if selection_review.require_payload(payload)!=c.entry["admissionSha256"]:raise ValueError("Selected image changed before packing")
             pack,offset,length=append(payload)
             entry={**c.entry,"id":f"clean-v5-{c.image_sha256[:28]}","pack":pack,"offset":offset,"length":length,
                    "cleanProfile":c.profile.name,"cleanGroup":c.profile.group,"cleanTier":c.tier,"cleanPolicy":POLICY_VERSION,
                    "cleanPurity":round(c.profile.purity,6),"cleanScore":round(c.score,6),"sourceCatalogId":c.source.catalog_id}
+            if c.profile.name in wink_sides:
+                entry["winkExpressionEvidence"]=wink_review.evidence_for(c.image_sha256,wink_sides[c.profile.name])
             output_entries[c.cell].append(entry)
         if handle:handle.close()
         cells_manifest={};shard_count=0
@@ -535,6 +573,8 @@ def main()->int:
             "shardsContainGeometry":True,"indexFiles":[],"cells":cells_manifest,
             "qualityAdmission":audit["qualityAdmission"],
             "selectionIdentity":selection,"selectionIdentitySha256":selection_sha256,
+            "selectionReview":selection_review.stamp(),
+            "winkExpressionReview":wink_review.stamp(),
             "stats":{"cleanCore":{"policyVersion":POLICY_VERSION,"selectedFaces":len(selected),"profileCounts":profile_counts,
                     "profilePoseCells":profile_cells,"strictProfileCounts":strict_counts,
                     "strictProfilePoseCells":strict_cells,"observedProfileCounts":observed_counts,"observedProfilePoseCells":observed_cells,
@@ -553,7 +593,7 @@ def main()->int:
                     yaw,pitch=map(int,cell.split(":"));writer.writerow((p,tier,cell,yaw,pitch,len(items),f"{max(c.score for c in items):.6f}"))
         for p,items in by_profile.items():write_contact_sheet(sheets/f"{p}.jpg",p,items)
         cards="\n".join(f"<section><h2>{html.escape(p)} — {profile_counts[p]:,} / {profile_cells[p]:,} pose cells</h2><img src='contact-sheets/{html.escape(p)}.jpg'></section>" for p in PROFILE_PRIORITY if profile_counts[p])
-        (review/"index.html").write_text(f"<!doctype html><meta charset='utf-8'><title>Clean Core v5</title><style>body{{font:16px system-ui;margin:24px;background:#eee}}section,header{{background:white;padding:16px;margin:14px 0;border-radius:12px}}img{{max-width:100%}}</style><header><h1>Many Faces Clean Core v5</h1><p>{len(selected):,} physical images. Required profiles passed their declared evidence, count and 3-degree pose-coverage gates. Observed winks may retain natural coexpressions and are counted separately from isolated strict profiles.</p></header>{cards}",encoding="utf-8")
+        (review/"index.html").write_text(f"<!doctype html><meta charset='utf-8'><title>Clean Core v5</title><style>body{{font:16px system-ui;margin:24px;background:#eee}}section,header{{background:white;padding:16px;margin:14px 0;border-radius:12px}}img{{max-width:100%}}</style><header><h1>Many Faces Clean Core v5</h1><p>{len(selected):,} physical images. Required profiles passed their declared evidence, count and 3-degree pose-coverage gates. Observed profiles may retain natural coexpressions and are counted separately from isolated strict profiles. Additional exact-image review exclusions were applied before selection.</p></header>{cards}",encoding="utf-8")
         (output/"README.md").write_text(f"# Many Faces Clean Core v3\n\nPhysical searchable faces: **{len(selected):,}**.\n\nSee `audit.json`, `coverage.csv`, and `review/index.html`.\n",encoding="utf-8")
         print(json.dumps(audit,indent=2));return 0
     finally:

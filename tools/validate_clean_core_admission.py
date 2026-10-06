@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
 from clean_core_admission import AdmissionAudit, PackedImageReader, iter_catalog_entries, safe_child, sha256_file, source_key
+from clean_core_selection_review import SelectionReview, WinkExpressionReview, valid_digest
 from clean_core_policy_v3 import (BACKGROUND_PRIORITY, STRICT_PROFILE_PRIORITY, OBSERVED_PROFILE_PRIORITY,
                                   POLICY_VERSION, PROFILE_EVIDENCE_TIERS, classify_assignment, quantized_pose_cell)
 
@@ -75,16 +75,17 @@ def validate_evidence_totals(selection: dict, stats: dict, counts: dict, cells: 
     return result
 
 
-def validate_selection_identity(manifest: dict, selection_audit: dict, receipt_sha256: str, target: int) -> dict:
+def validate_selection_identity(manifest: dict, selection_audit: dict, receipt_sha256: str, target: int,
+                                selection_review_sha256: str, wink_review_sha256: str) -> dict:
     from build_clean_core_v3 import selection_identity, selection_identity_sha256
 
     identity = manifest.get("selectionIdentity")
     require(isinstance(identity, dict), "Missing classification/selection identity")
     preselect = identity.get("preselectMultiplier")
     require(type(preselect) is int and preselect >= 1, "Invalid selection preselection parameter")
-    require(identity.get("additionalSelectionExclusionsSha256") is None,
-            "Additional selection exclusions require the bound deny-only review validator")
-    expected = selection_identity(receipt_sha256, target, preselect)
+    require(valid_digest(selection_review_sha256), "Missing validated additional selection review digest")
+    require(valid_digest(wink_review_sha256), "Missing validated wink expression review digest")
+    expected = selection_identity(receipt_sha256, target, preselect, selection_review_sha256, wink_review_sha256)
     require(identity == selection_audit.get("selectionIdentity") == expected,
             "Selection policy, program, parameters or admission receipt differ")
     digest = selection_identity_sha256(expected)
@@ -96,11 +97,36 @@ def validate_selection_identity(manifest: dict, selection_audit: dict, receipt_s
     return {"selectionIdentity": expected, "selectionIdentitySha256": digest}
 
 
+def validate_selection_review_binding(manifest: dict, selection_audit: dict, catalog: Path,
+                                      selection_review: SelectionReview) -> None:
+    selection_review.verify_catalog_files(catalog)
+    require(manifest.get("selectionReview") == selection_audit.get("selectionReview") == selection_review.stamp(),
+            "Selection review stamp differs from its exact bound file")
+    require(selection_audit.get("selectionReviewSha256") == selection_review.sha256,
+            "Selection audit review digest differs")
+    require(selection_audit.get("allSelectedPhotosAbsentFromSelectionExclusions") is True,
+            "Selection audit did not enforce the additional exclusion gate")
+
+
+def validate_wink_review_binding(manifest: dict, selection_audit: dict, catalog: Path,
+                                 wink_review: WinkExpressionReview) -> None:
+    wink_review.verify_catalog_files(catalog)
+    require(manifest.get("winkExpressionReview") == selection_audit.get("winkExpressionReview") == wink_review.stamp(),
+            "Wink expression review stamp differs from its exact bound file")
+    require(selection_audit.get("winkExpressionReviewSha256") == wink_review.sha256,
+            "Selection audit wink review digest differs")
+    require(selection_audit.get("allSelectedWinkProfilesHaveReviewedEvidence") is True,
+            "Selection audit did not enforce reviewed wink coverage")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--catalog", required=True, type=Path)
     parser.add_argument("--candidate-audit", required=True, type=Path)
     parser.add_argument("--face-attribute-model", required=True, type=Path)
+    parser.add_argument("--selection-review", required=True, type=Path)
+    parser.add_argument("--previous-selection-review", type=Path)
+    parser.add_argument("--wink-review", required=True, type=Path)
     parser.add_argument("--source", action="append", required=True, metavar="LABEL=PATH")
     parser.add_argument("--target-total", default=70000, type=int)
     parser.add_argument("--report", type=Path)
@@ -113,7 +139,6 @@ def main() -> int:
     require(selection_audit.get("gatePassed") is True and not selection_audit.get("gateFailures"), "Physical selection audit did not pass")
     require(selection_audit.get("knownSyntheticFacesSelected") == 0, "Real-photograph audit did not pass")
     requirements = release_requirements()
-    selected_identity = validate_selection_identity(manifest, selection_audit, sha256_file(args.candidate_audit), args.target_total)
     for key, expected in requirements.items():
         require(selection_audit.get(key) == expected, "Selection release requirements differ from configured real-only policy: " + key)
     for key in ("totalFaces", "sourceFaces", "searchableFaces"):
@@ -127,6 +152,15 @@ def main() -> int:
         selected_keys.add(source_key(entry.get("admissionSourceCatalogId", ""), entry.get("admissionSourceId", "")))
     require(len(selected_keys) == args.target_total, "Missing or repeated admitted source IDs")
     with AdmissionAudit(args.candidate_audit, args.face_attribute_model, args.source) as audit:
+        selection_review = SelectionReview(args.selection_review, sha256_file(args.candidate_audit),
+                                           audit.receipt["recordsSha256"], args.previous_selection_review)
+        selection_review.validate_audit_records(audit.connection)
+        validate_selection_review_binding(manifest, selection_audit, catalog, selection_review)
+        wink_review = WinkExpressionReview(args.wink_review, sha256_file(args.candidate_audit), audit.receipt["recordsSha256"])
+        wink_review.validate_audit_records(audit.connection)
+        validate_wink_review_binding(manifest, selection_audit, catalog, wink_review)
+        selected_identity = validate_selection_identity(manifest, selection_audit, sha256_file(args.candidate_audit),
+                                                        args.target_total, selection_review.sha256, wink_review.sha256)
         expected_stamp = {
             "policyId": audit.policy.document()["policyId"], "policySha256": audit.policy.sha256,
             "receiptSha256": sha256_file(args.candidate_audit), "recordsSha256": audit.receipt["recordsSha256"],
@@ -159,7 +193,7 @@ def main() -> int:
                 source_catalog = entry["admissionSourceCatalogId"]
                 key = source_key(source_catalog, entry["admissionSourceId"])
                 payload = reader.read(entry)
-                digest = hashlib.sha256(payload).hexdigest()
+                digest = selection_review.require_payload(payload)
                 require(digest not in digests, "Duplicate physical encoded image")
                 digests.add(digest)
                 require(digest == entry.get("admissionSha256"), "Final image differs from admitted pixels")
@@ -168,7 +202,8 @@ def main() -> int:
                 require(record is not None, "A rejected/unresolved photo was physically selected")
                 for field in ("feature", "shape", "mesh", "projection", "layout"):
                     require(entry.get(field) == record.get(field), "Stale or changed final face measurement: " + field)
-                assignment = classify_assignment(record["feature"], record["projection"])
+                assignment = classify_assignment(record["feature"], record["projection"],
+                                                 allow_observed_wink=wink_review.side_for(digest))
                 require(assignment is not None, "Final photo has no supported expression assignment")
                 profile, tier = assignment
                 require(entry.get("cleanProfile") == profile.name and entry.get("cleanTier") == tier, "Final expression classification differs from fresh evidence")
@@ -176,6 +211,12 @@ def main() -> int:
                 require(entry.get("cleanPolicy") == POLICY_VERSION, "Final photo uses another expression selection policy")
                 if tier == "observed":
                     require(entry.get("cleanPurity") == 0, "Observed coexpression must not claim isolated purity")
+                wink_sides = {"winkLeft": "left", "winkRight": "right"}
+                if profile.name in wink_sides:
+                    require(entry.get("winkExpressionEvidence") == wink_review.evidence_for(digest, wink_sides[profile.name]),
+                            "Final wink lacks same-side bound visual evidence")
+                else:
+                    require("winkExpressionEvidence" not in entry, "Non-wink profile carries unsupported wink evidence")
                 cell, yaw, pitch = quantized_pose_cell(record["feature"], 3)
                 profiles[profile.name] += 1
                 profile_cells[profile.name].add(cell)
@@ -218,6 +259,10 @@ def main() -> int:
         report = {
             "schemaVersion": 1, "status": "passed", "physicalFaces": len(ids), "uniqueEncodedImages": len(digests),
             "allSelectedPhotosHavePassingAdmission": True, "allFreshMeasurementsMatch": True,
+            "selectionReviewSha256": selection_review.sha256, "selectionReview": selection_review.stamp(),
+            "allSelectedPhotosAbsentFromSelectionExclusions": True,
+            "winkExpressionReviewSha256": wink_review.sha256, "winkExpressionReview": wink_review.stamp(),
+            "allSelectedWinkProfilesHaveReviewedEvidence": True,
             "allSelectedProfilesHaveDeclaredEvidence": True, **evidence_summary,
             **selected_identity,
             "runtimeExclusionOverlayRequired": False, "bytes": bytes_total, "packs": len(ranges), "poseCells": len(cells),

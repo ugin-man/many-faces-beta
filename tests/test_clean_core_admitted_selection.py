@@ -37,7 +37,8 @@ class AdmittedSelectionTests(unittest.TestCase):
 
     def test_all_measurements_are_fresh_before_classification(self):
         source = {"id": "original", "feature": [-.5] * 55, "shape": "old", "mesh": "old",
-                  "projection": "old", "layout": [0, 0, 0, 0], "cleanProfile": "old-profile", "name": "Photo"}
+                  "projection": "old", "layout": [0, 0, 0, 0], "cleanProfile": "old-profile", "name": "Photo",
+                  "winkExpressionEvidence": {"side": "left", "reviewSha256": "stale"}}
         record = {"feature": [.25] * 55, "shape": "new-shape", "mesh": "new-mesh", "projection": "new-projection",
                   "layout": [.5, .5, .6, .8], "encodedSha256": "a" * 64, "policySha256": "b" * 64,
                   "sourceCatalogId": "source", "sourceId": "original"}
@@ -45,6 +46,7 @@ class AdmittedSelectionTests(unittest.TestCase):
         for key in ("feature", "shape", "mesh", "projection", "layout"):
             self.assertEqual(fresh[key], record[key])
         self.assertNotIn("cleanProfile", fresh)
+        self.assertNotIn("winkExpressionEvidence", fresh)
         self.assertEqual(source["feature"][0], -.5)
         self.assertEqual(fresh["admissionSourceId"], "original")
 
@@ -63,11 +65,12 @@ class AdmittedSelectionTests(unittest.TestCase):
             selection_identity("b" * 64, 70000, 6),
             selection_identity("a" * 64, 70000, 7),
             selection_identity("a" * 64, 70000, 6, "c" * 64),
+            selection_identity("a" * 64, 70000, 6, None, "d" * 64),
         ):
             self.assertNotEqual(digest, selection_identity_sha256(changed))
         self.assertEqual(set(original["selectionCodeSha256"]), {
             "clean_core_policy_v2.py", "clean_core_policy_v3.py", "build_clean_core_v3.py",
-            "run_build_clean_core_v3_real_only.py", "run_build_clean_core_v3_repair.py"})
+            "run_build_clean_core_v3_real_only.py", "run_build_clean_core_v3_repair.py", "clean_core_selection_review.py"})
 
 
 if __name__ == "__main__":

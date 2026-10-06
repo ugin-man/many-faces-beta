@@ -64,7 +64,7 @@ class PhysicalEvidenceTierTests(unittest.TestCase):
 
     def test_undeclared_observed_profile_cannot_satisfy_a_minimum(self):
         selection, stats, counts, cells = self.fixture()
-        counts["observed"]["mouthFrown"] = 1
+        counts["observed"]["mouthPucker"] = 1
         with self.assertRaisesRegex(ValueError, "undeclared evidence tier"):
             validate_evidence_totals(selection, stats, counts, cells)
 
@@ -76,14 +76,14 @@ class PhysicalEvidenceTierTests(unittest.TestCase):
 
 
 class PhysicalSelectionIdentityTests(unittest.TestCase):
-    def fixture(self, additional=None):
+    def fixture(self, additional="c" * 64, wink_review="d" * 64):
         try:
             from build_clean_core_v3 import selection_identity, selection_identity_sha256
         except ModuleNotFoundError as error:
             if error.name in {"numpy", "PIL"}:
                 self.skipTest("catalog image dependencies unavailable")
             raise
-        identity = selection_identity("a" * 64, 70000, 6, additional)
+        identity = selection_identity("a" * 64, 70000, 6, additional, wink_review)
         digest = selection_identity_sha256(identity)
         selection = {"selectionIdentity": identity, "selectionIdentitySha256": digest}
         manifest = {**copy.deepcopy(selection), "catalogId": "many-faces-clean-core-v5-" + digest[:16] + "-pose-local-v1"}
@@ -91,21 +91,30 @@ class PhysicalSelectionIdentityTests(unittest.TestCase):
 
     def test_catalog_id_binds_the_effective_policy_and_original_audit(self):
         manifest, selection = self.fixture()
-        validated = validate_selection_identity(manifest, selection, "a" * 64, 70000)
+        validated = validate_selection_identity(manifest, selection, "a" * 64, 70000, "c" * 64, "d" * 64)
         self.assertEqual(validated["selectionIdentitySha256"], manifest["selectionIdentitySha256"])
         with self.assertRaisesRegex(ValueError, "admission receipt differ"):
-            validate_selection_identity(manifest, selection, "b" * 64, 70000)
+            validate_selection_identity(manifest, selection, "b" * 64, 70000, "c" * 64, "d" * 64)
 
     def test_old_receipt_only_catalog_id_cannot_alias_changed_selection(self):
         manifest, selection = self.fixture()
         manifest["catalogId"] = "many-faces-clean-core-v5-" + "a" * 12 + "-pose-local-v1"
         with self.assertRaisesRegex(ValueError, "Catalog identity is not bound"):
-            validate_selection_identity(manifest, selection, "a" * 64, 70000)
+            validate_selection_identity(manifest, selection, "a" * 64, 70000, "c" * 64, "d" * 64)
 
     def test_an_unenforced_additional_review_gate_cannot_be_claimed(self):
         manifest, selection = self.fixture("c" * 64)
-        with self.assertRaisesRegex(ValueError, "bound deny-only review validator"):
-            validate_selection_identity(manifest, selection, "a" * 64, 70000)
+        with self.assertRaisesRegex(ValueError, "Missing validated additional selection review digest"):
+            validate_selection_identity(manifest, selection, "a" * 64, 70000, None, "d" * 64)
+        with self.assertRaisesRegex(ValueError, "admission receipt differ"):
+            validate_selection_identity(manifest, selection, "a" * 64, 70000, "d" * 64, "d" * 64)
+
+    def test_wink_confirmation_review_must_be_bound_to_the_selection_identity(self):
+        manifest, selection = self.fixture()
+        with self.assertRaisesRegex(ValueError, "Missing validated wink expression review digest"):
+            validate_selection_identity(manifest, selection, "a" * 64, 70000, "c" * 64, None)
+        with self.assertRaisesRegex(ValueError, "admission receipt differ"):
+            validate_selection_identity(manifest, selection, "a" * 64, 70000, "c" * 64, "e" * 64)
 
 if __name__ == "__main__":
     unittest.main()

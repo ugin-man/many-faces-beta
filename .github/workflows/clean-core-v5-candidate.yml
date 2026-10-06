@@ -147,6 +147,19 @@ jobs:
               review_records = request['reuseAudit']['recordsSha256'] if mode == 'reuse' else review_document.get('recordsSha256')
               SelectionReview(selection_review, review_receipt, review_records,
                               previous_path=Path(previous_review_path) if previous_review_path else None)
+          if not diagnostic_only:
+              wink_path = Path('data/catalog-wink-expression-reviewed.json')
+              wink_pin = request.get('winkReview')
+              if (not isinstance(wink_pin, dict) or set(wink_pin) != {'path', 'sha256'}
+                      or wink_pin['path'] != wink_path.as_posix()
+                      or not wink_path.is_file() or wink_path.is_symlink()
+                      or any(parent.is_symlink() for parent in wink_path.parents)
+                      or hashlib.sha256(wink_path.read_bytes()).hexdigest() != wink_pin['sha256']):
+                  raise ValueError('Candidate selection requires the exact request-bound wink expression review')
+              subprocess.run(['git', 'ls-files', '--error-unmatch', '--', ':(literal)' + wink_path.as_posix()],
+                             check=True, stdout=subprocess.DEVNULL)
+              from clean_core_selection_review import WinkExpressionReview
+              WinkExpressionReview(wink_path, review_receipt, review_records)
           with Path(os.environ['GITHUB_OUTPUT']).open('a') as output:
               output.write('audit_mode=' + mode + '\n')
               output.write('diagnostic_only=' + str(diagnostic_only).lower() + '\n')
@@ -890,7 +903,7 @@ jobs:
         env:
           PREVIOUS_SELECTION_REVIEW: ${{ needs.preflight.outputs.previous_review_path }}
         run: |
-          review_args=(--selection-review data/catalog-selection-reviewed.json)
+          review_args=(--selection-review data/catalog-selection-reviewed.json --wink-review data/catalog-wink-expression-reviewed.json)
           if test -n "$PREVIOUS_SELECTION_REVIEW"; then
             review_args+=(--previous-selection-review "$PREVIOUS_SELECTION_REVIEW")
           fi
@@ -922,7 +935,7 @@ jobs:
         run: |
           node tools/validate_face_catalog.mjs work/clean-v5-candidate/catalog \
             | tee work/clean-v5-candidate/catalog-validation.json
-          review_args=(--selection-review data/catalog-selection-reviewed.json)
+          review_args=(--selection-review data/catalog-selection-reviewed.json --wink-review data/catalog-wink-expression-reviewed.json)
           if test -n "$PREVIOUS_SELECTION_REVIEW"; then
             review_args+=(--previous-selection-review "$PREVIOUS_SELECTION_REVIEW")
           fi
@@ -952,6 +965,7 @@ jobs:
           cp -a work/clean-v5-build/review work/clean-v5-candidate/selection/review
           cp data/catalog-visibility-reviewed.json work/clean-v5-provenance/
           cp data/catalog-selection-reviewed.json work/clean-v5-provenance/
+          cp data/catalog-wink-expression-reviewed.json work/clean-v5-provenance/
           cp data/catalog-quality/existing-audit-evidence.json.gz work/clean-v5-provenance/
           cp .github/workflows/clean-core-v5-candidate.yml work/clean-v5-provenance/workflow.yml
           python - <<'PY'
@@ -962,7 +976,8 @@ jobs:
           from pathlib import Path
 
           sys.path.insert(0, str(Path('tools').resolve()))
-          from clean_core_selection_review import SelectionReview
+          from clean_core_selection_review import SelectionReview, WinkExpressionReview
+          from validate_clean_core_admission import validate_wink_review_binding
 
           def digest(file):
               value = hashlib.sha256()
@@ -994,6 +1009,26 @@ jobs:
                   raise ValueError('Previous selection review changed after preflight')
               Path('work/clean-v5-provenance/catalog-selection-reviewed-previous.json').write_bytes(previous_path.read_bytes())
           previous_review_sha256 = selection_review.document.get('previousReviewSha256')
+          wink_review = WinkExpressionReview('data/catalog-wink-expression-reviewed.json',
+                                             digest('work/clean-v5-audit/candidate-audit.json'), admission['recordsSha256'])
+          if wink_review.sha256 != request_document.get('winkReview', {}).get('sha256'):
+              raise ValueError('Wink expression review changed after preflight')
+          final_catalog = Path('work/clean-v5-candidate/catalog')
+          final_manifest = json.loads((final_catalog / 'manifest.json').read_text())
+          selection_audit = json.loads((final_catalog / 'clean-core-audit.json').read_text())
+          validate_wink_review_binding(final_manifest, selection_audit, final_catalog, wink_review)
+          if final_manifest.get('selectionIdentity', {}).get('winkExpressionReviewSha256') != wink_review.sha256:
+              raise ValueError('Final selection identity does not bind the exact wink expression review')
+          physical = json.loads((final_catalog / 'clean-admission-validation.json').read_text())
+          wink_index = json.loads(Path('work/clean-v5-candidate/wink-support/v1/catalog.json').read_text())
+          wink_validation = json.loads(Path('work/clean-v5-candidate/wink-support/v1/audit.json').read_text())
+          if (physical.get('status') != 'passed'
+                  or physical.get('winkExpressionReviewSha256') != wink_review.sha256
+                  or physical.get('allSelectedWinkProfilesHaveReviewedEvidence') is not True
+                  or wink_index.get('winkExpressionReviewSha256') != wink_review.sha256
+                  or wink_validation.get('winkExpressionReviewSha256') != wink_review.sha256
+                  or wink_validation.get('allIndexedWinksHaveReviewedEvidence') is not True):
+              raise ValueError('Final physical catalog or specialist index lacks reviewed wink evidence')
           reuse_path = Path('work/clean-v5-provenance/audit-reuse.json')
           reuse = json.loads(reuse_path.read_text()) if reuse_path.is_file() else None
           if reuse is not None:
@@ -1041,6 +1076,7 @@ jobs:
               'selection': {'codeCommit': os.environ['GITHUB_SHA'],
                             'additionalSelectionExclusionsSha256': selection_review_sha256,
                             'previousAdditionalSelectionExclusionsSha256': previous_review_sha256,
+                            'winkExpressionReviewSha256': wink_review.sha256,
                             'codeFilesSha256': {name: digest(name) for name in selection_sources},
                             'selectionAuditSha256': digest('work/clean-v5-build/audit.json')},
               'ffhqSourceCommit': os.environ['FFHQ_SOURCE_COMMIT'],
@@ -1057,6 +1093,8 @@ jobs:
               'reviewedVisibilitySha256': digest('data/catalog-visibility-reviewed.json'),
               'selectionReviewSha256': selection_review_sha256,
               'previousSelectionReviewSha256': previous_review_sha256,
+              'winkExpressionReviewSha256': wink_review.sha256,
+              'winkExpressionReview': wink_review.stamp(),
               'candidateAuditSha256': digest('work/clean-v5-audit/candidate-audit.json'),
               'candidateManifestSha256': digest('work/clean-v5-candidate/catalog/manifest.json'),
               'winkSupportIndexSha256': digest('work/clean-v5-candidate/wink-support/v1/catalog.json'),

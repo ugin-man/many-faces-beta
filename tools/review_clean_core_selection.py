@@ -30,6 +30,29 @@ def require(condition: bool, message: str) -> None:
         raise ValueError(message)
 
 
+def load_previously_inspected(path: Path | None) -> frozenset[str]:
+    """Remove prior visual observations from sampling only, never admission."""
+    if path is None:
+        return frozenset()
+    document = json.loads(path.read_text(encoding="utf-8"))
+    require(isinstance(document, dict) and type(document.get("schemaVersion")) is int
+            and document["schemaVersion"] == 1, "Invalid previously inspected image index schema")
+    require(document.get("documentKind") == "clean-core-previously-inspected-images"
+            and document.get("scope") == "sampling-only", "Image inspection index must be sampling-only")
+    require(document.get("reviewer") == "assistant-visual-review" and document.get("humanVerified") is False,
+            "Previously inspected index must accurately identify assistant visual review")
+    images = document.get("images")
+    require(isinstance(images, list), "Previously inspected index requires an images array")
+    digests = set()
+    for row in images:
+        require(isinstance(row, dict) and admission.valid_digest(row.get("encodedSha256")),
+                "Previously inspected image requires an exact encoded SHA-256")
+        digest = row["encodedSha256"]
+        require(digest not in digests, "Repeated previously inspected image digest")
+        digests.add(digest)
+    return frozenset(digests)
+
+
 def read_evidence(receipt_path: Path):
     receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
     require(receipt.get("schemaVersion") == 2 and receipt.get("status") == "complete",
@@ -51,13 +74,15 @@ def read_evidence(receipt_path: Path):
         raise
 
 
-def selected_candidates(catalog: Path, manifest: dict, receipt: dict, database, reviews: dict):
+def selected_candidates(catalog: Path, manifest: dict, receipt: dict, database, reviews: dict,
+                        previously_inspected: frozenset[str] = frozenset()):
     stamp = manifest.get("qualityAdmission", {})
     require(stamp.get("schemaVersion") == 2 and stamp.get("status") == "complete", "Missing selected-catalog admission stamp")
     require(stamp.get("recordsSha256") == receipt["recordsSha256"] and stamp.get("policySha256") == receipt["policySha256"],
             "The selected catalog is bound to different admission evidence")
     eligible, known_denied = [], []
     reviewed_counts: Counter[str] = Counter()
+    previously_inspected_excluded = 0
     seen_ids, seen_digests, seen_keys = set(), set(), set()
     profile_counts: Counter[str] = Counter()
     for entry in admission.iter_catalog_entries(catalog):
@@ -91,6 +116,9 @@ def selected_candidates(catalog: Path, manifest: dict, receipt: dict, database, 
             if reviews[digest]["decision"] == "deny":
                 known_denied.append({"id": identity, "encodedSha256": digest, "sourceKey": key, "review": reviews[digest]})
             continue
+        if digest in previously_inspected:
+            previously_inspected_excluded += 1
+            continue
         # Keep only sampling metadata and byte references in memory, not the
         # full geometry of every selected photograph.
         eligible.append({
@@ -109,7 +137,10 @@ def selected_candidates(catalog: Path, manifest: dict, receipt: dict, database, 
     require(count == manifest.get("searchableFaces") == manifest.get("totalFaces") == stamp.get("selectedCount"),
             "Final selected-catalog counts are inconsistent")
     return eligible, {"physicalRows": count, "eligibleUniqueImages": len(eligible),
-                      "excludedReviewedImages": sum(reviewed_counts.values()), "reviewedSelectedDecisions": dict(reviewed_counts),
+                      "excludedReviewedImages": sum(reviewed_counts.values()) + previously_inspected_excluded,
+                      "excludedCalibrationReviewedImages": sum(reviewed_counts.values()),
+                      "excludedPreviouslyInspectedImages": previously_inspected_excluded,
+                      "reviewedSelectedDecisions": dict(reviewed_counts),
                       "knownDeniedSelected": known_denied, "profileCounts": dict(sorted(profile_counts.items()))}
 
 
@@ -117,13 +148,15 @@ def sample_buckets():
     # Random controls are drawn first from the entire eligible population.
     # Later strata provide targeted coverage without duplicating those images.
     return [
-        ("random-control", 144, "All unreviewed selected images", lambda row: True),
+        ("random-control", 120, "All unreviewed selected images", lambda row: True),
         ("yaw-negative-extreme", 36, "Fresh yaw <= -30 degrees", lambda row: row["freshYaw"] <= -30),
         ("yaw-positive-extreme", 36, "Fresh yaw >= +30 degrees", lambda row: row["freshYaw"] >= 30),
         ("pitch-negative-extreme", 24, "Fresh pitch <= -24 degrees", lambda row: row["freshPitch"] <= -24),
         ("pitch-positive-extreme", 24, "Fresh pitch >= +24 degrees", lambda row: row["freshPitch"] >= 24),
         ("wink-left", 12, "winkLeft with declared strict or observed evidence", lambda row: row["cleanProfile"] == "winkLeft"),
         ("wink-right", 12, "winkRight with declared strict or observed evidence", lambda row: row["cleanProfile"] == "winkRight"),
+        ("mouth-wide", 12, "mouthWide with declared strict or observed evidence", lambda row: row["cleanProfile"] == "mouthWide"),
+        ("mouth-frown", 12, "mouthFrown with declared strict or observed evidence", lambda row: row["cleanProfile"] == "mouthFrown"),
         ("smile-closed", 12, "Strict smileClosed profile", lambda row: row["cleanProfile"] == "smileClosed"),
         ("smile-open", 12, "Strict smileOpen profile", lambda row: row["cleanProfile"] == "smileOpen"),
         ("mouth-open", 12, "Strict mouthOpen profile", lambda row: row["cleanProfile"] == "mouthOpen"),
@@ -219,6 +252,8 @@ def main() -> int:
     parser.add_argument("--candidate-audit", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--reviewed-visibility", type=Path, required=True)
+    parser.add_argument("--previously-inspected", type=Path,
+                        help="Optional exact-SHA index of prior visual observations; affects holdout sampling only")
     args = parser.parse_args()
     catalog, output, receipt_path = args.catalog.resolve(), args.out.resolve(), args.candidate_audit.resolve()
     require(not output.exists() or not any(output.iterdir()), "Holdout output must be empty; previous samples are never overwritten")
@@ -227,11 +262,12 @@ def main() -> int:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     require(manifest.get("schemaVersion") == 3 and manifest.get("shardsContainGeometry") is True, "Expected a completed physical sharded catalog")
     reviews = admission.load_visibility_reviews(args.reviewed_visibility)
+    previously_inspected = load_previously_inspected(args.previously_inspected)
     receipt, database = read_evidence(receipt_path)
     try:
         require(manifest.get("qualityAdmission", {}).get("receiptSha256") == admission.sha256_file(receipt_path),
                 "The selected catalog is bound to another admission receipt")
-        eligible, population = selected_candidates(catalog, manifest, receipt, database, reviews)
+        eligible, population = selected_candidates(catalog, manifest, receipt, database, reviews, previously_inspected)
     finally:
         database.close()
     require(len(eligible) >= 320, "Fewer than 320 unique unreviewed selected photos are available")
@@ -243,6 +279,9 @@ def main() -> int:
         "schemaVersion": 1, "documentKind": "post-selection-visual-holdout", "catalogId": manifest["catalogId"],
         "manifestSha256": manifest_hash, "candidateAuditSha256": admission.sha256_file(receipt_path),
         "recordsSha256": receipt["recordsSha256"], "reviewedVisibilitySha256": admission.sha256_file(args.reviewed_visibility),
+        "previouslyInspectedSha256": admission.sha256_file(args.previously_inspected) if args.previously_inspected else None,
+        "previouslyInspectedImageCount": len(previously_inspected),
+        "inspectionIndexAffectsSamplingOnly": True,
         "seed": SEED, "ranking": "SHA256(seed + NUL + bucket + NUL + encodedSha256), ascending",
         "targetSamples": TARGET_SAMPLES, "sampleCount": len(selected), "population": population, "buckets": coverage,
         "assistantReviewStatus": "pending", "humanVerified": False, "scoresCalibrated": False,

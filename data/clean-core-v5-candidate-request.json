@@ -14,9 +14,9 @@
   "sitePublication": false,
   "postSelectionVisualReview": "pending",
   "fixedVideoVerification": "pending",
-  "attempt": 7,
-  "previousRun": 37483155201,
-  "previousRunStatus": "Generated and physically validated exactly 70000 images; later independent 360-image review found 20 definite defects and 21 unresolved-readability images. Browser QA also found a stale initial-draw callback requiring correction.",
+  "attempt": 8,
+  "previousRun": 37491677036,
+  "previousRunStatus": "Generated and physically validated exactly 70000 images. A new independent 360-image review found 27 definite defects and 32 uncertain visibility/readability cases. Browser QA stopped at the frozen old baseline initial drawing failure; candidate browser checks did not execute.",
   "nativeRuntimeDependency": [
     "libgles2",
     "libegl1"
@@ -38,14 +38,14 @@
   },
   "selectionReview": {
     "path": "data/catalog-selection-reviewed.json",
-    "sha256": "da2b294442ed56c87db3362885e5765e909809ebdb95b1a25ae9bdd8d7618c77",
+    "sha256": "fe6444a7e54bae14eb3a82fa16b87823f63687ff0d37f45957262e3cdc065416",
     "previous": {
-      "path": "data/catalog-selection-reviewed-de71753.json",
-      "sha256": "3b2b8068ea088f51a1d9796424c2d64718e4180dad8e1e763cba30460407efa1"
+      "path": "data/catalog-selection-reviewed-c92fba3.json",
+      "sha256": "da2b294442ed56c87db3362885e5765e909809ebdb95b1a25ae9bdd8d7618c77"
     }
   },
   "previousDiagnosticRun": 37477676654,
-  "reason": "Reuse the complete original admission audit byte-for-byte. Preserve all prior 146 denials and all 71 corroborated wink confirmations. Apply 41 additional exact-image pre-selection exclusions: 20 confirmed defects and 21 conservatively quarantined images whose readability remained uncertain. Replenish all withheld slots before packing exactly 70000 physical real photographs. A new independent holdout, fixed-video comparison and initial face-position/size checks are required before promotion.",
+  "reason": "Preserve the original complete admission audit, its general models/thresholds, unchanged expression and pose classification, and all 71 corroborated wink confirmations. Preserve all prior 187 exact denials and add 59 exact-image pre-selection exclusions: 27 confirmed defects and 32 uncertain cases kept as uncertain. Replenish every withheld slot before packing exactly 70000 physical photographs. Keep the independent second holdout failed. Compare every final encoded image against the evaluated candidate and require original-image quality approval for the complete added set, without resampling or treating it as a new independent holdout. Final same-input video and strict candidate initial face-position/size checks remain required before promotion.",
   "winkReview": {
     "path": "data/catalog-wink-expression-reviewed.json",
     "sha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f"
@@ -56,12 +56,12 @@
     "images": 769
   },
   "failedSelectedPhotoHoldout": {
-    "path": "data/catalog-quality/holdout-visual-review-37484611339.json",
-    "sha256": "51f90974b37ee82475ccad9766938a95e7e0876ee3e3b4f50b077854aebcdae4",
-    "qaRunId": 37484611339,
+    "path": "data/catalog-quality/holdout-visual-review-37494402324.json",
+    "sha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c",
+    "qaRunId": 37494402324,
     "checkedPhotos": 360,
-    "confirmedDefects": 20,
-    "uncertainReadability": 21
+    "confirmedDefects": 27,
+    "uncertainVisibilityOrReadability": 32
   },
   "qualityThresholdAssessment": {
     "appliedAdditionalThreshold": false,
@@ -85,5 +85,35 @@
       "sha256": "90686e1a9f37bdbd3b9475fda9384503a082c2f86c79a9d99e72ec70d48a7960"
     },
     "newCatalogBrowserVerification": "pending"
+  },
+  "additionalQualityDiagnostic": {
+    "status": "no-additional-automatic-gate-adopted",
+    "automaticallyAdoptedAsGate": false,
+    "photoType": {
+      "path": "data/catalog-quality/photo-type-diagnostic-20261006.json",
+      "sha256": "86940bca54588386bdd67efcece5bf3523ad5aa7b9cbc84179935bfd3a80c3ed"
+    },
+    "ofiq": {
+      "status": "reference-diagnostic-in-progress",
+      "automaticallyAdoptedAsGate": false
+    },
+    "reason": "Existing admission, models, general quality thresholds and expression/pose classification remain unchanged. Diagnostic scores are not reliable enough to justify another automatic rejection gate. Apply the exact reviewed denials before selection and review every actual replenishment image."
+  },
+  "visualVerificationPlan": {
+    "mode": "remediation-of-evaluated-candidate",
+    "evaluatedCandidateRunId": 37491677036,
+    "evaluatedManifestSha256": "d8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785",
+    "originalFailedHoldout": {
+      "path": "data/catalog-quality/holdout-visual-review-37494402324.json",
+      "sha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c",
+      "qaRunId": 37494402324,
+      "checkedPhotos": 360,
+      "confirmedDefects": 27,
+      "uncertainVisibilityOrReadability": 32
+    },
+    "generalAdmissionPolicyMustRemainUnchanged": true,
+    "allAddedEncodedImagesRequireOriginalQualityReview": true,
+    "independentFinalHoldoutClaim": false,
+    "status": "pending-generation-and-complete-replenishment-review"
   }
 }

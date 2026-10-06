@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-v5-qa-request",
+  "repository": "ugin-man/many-faces-beta",
+  "targetBranch": "astra/realtime-hardening",
+  "baselineCommit": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e",
+  "holdout": {
+    "targetSamples": 360,
+    "seed": 20261007
+  },
+  "candidate": {
+    "runId": 37483155201,
+    "runAttempt": 1,
+    "artifactName": "clean-core-v5-candidate-37483155201-1",
+    "artifactId": 11422632777,
+    "archiveSha256": "0f18db293d249e784c0d4f5515247261b4a7d8771cfbcad87d0ad4515014f96f",
+    "manifestSha256": "9287e4d84dfa58f8651430ff94297571b4d60c5e6869da9e1806d1f43df7f31d",
+    "generationReceiptSha256": "51bf03a8e0094f5480355dc3c45bae0b90780df1e477d9dd29bbe33a77f28b79"
+  },
+  "previouslyInspected": {
+    "path": "data/catalog-previously-inspected.json",
+    "sha256": "03381c36e0d4cf64e8629b96a769c19cb520f50234f602f82d4912a90f0483fd"
+  },
+  "createdOn": "2026-10-06",
+  "request": "Inspect 360 unseen selected photos and compare the complete fixed video against the accepted 70k baseline, preserving position/size tracking.",
+  "candidateOnly": true,
+  "promotionReady": false,
+  "sitePublication": false
+}

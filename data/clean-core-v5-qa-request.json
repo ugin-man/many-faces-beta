@@ -21,17 +21,17 @@
     }
   },
   "candidate": {
-    "runId": 37513093051,
+    "runId": 37519882295,
     "runAttempt": 1,
-    "artifactName": "clean-core-v5-candidate-37513093051-1",
-    "artifactId": 11435937263,
-    "archiveSha256": "e71086c653a2546b07fa71e157c28ac8741257de486b6b337050e8b8e73419b0",
-    "manifestSha256": "635a0a8053d16e5581fa6eda8cdf7f024e20e65444babbec3b983a9e528dc992",
-    "generationReceiptSha256": "efc3fb6b962bf462738aabe9e9ae5d754aedcc24797c3f86918da9e21e18cad3"
+    "artifactName": "clean-core-v5-candidate-37519882295-1",
+    "artifactId": 11440656084,
+    "archiveSha256": "a1f13922732172bd0c602e83b79bdc7c8191934971f821e38a78be974c606caf",
+    "manifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "generationReceiptSha256": "d10bc862b779bdda7bd606d40408f5fda41eb7c43059fce61a63f9361d2441eb"
   },
   "previouslyInspected": {
     "path": "data/catalog-previously-inspected.json",
-    "sha256": "c4d7a71ed150fafd807388d35a3cfabcfe0ad9c250598f8d5cac0d9367e83af9"
+    "sha256": "b0981f1c3b45eb7bb3c9502002aa64cff896afdfd1d933cdf6a69c8225672eed"
   },
   "createdOn": "2026-10-06",
   "request": "Compare every encoded photo with the fixed evaluated c92 candidate and extract all added originals for complete quality review. Preserve the failed 360-photo evaluation unchanged. Revalidate the full 70000-photo catalog, compare the complete same-input fixed video, and check initial presentation, face position/size tracking, cancellation and virtual camera behavior.",

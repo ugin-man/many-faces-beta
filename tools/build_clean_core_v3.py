@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build an honest >=70k Clean Core v3 catalog.
+"""Build an exact-size Clean Core catalog from completed pixel admission.
 
 Strict isolated profiles are gated first. A separately labelled one-family
 background pool then supplies pose and identity density without pretending to
@@ -27,6 +27,8 @@ from typing import Any, BinaryIO, Sequence
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageOps
+
+from clean_core_admission import AdmissionAudit, sha256_file
 
 try:
     import onnxruntime as ort
@@ -117,8 +119,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--preselect-multiplier", type=int, default=6)
     parser.add_argument("--face-attribute-model", type=Path, required=True,
                         help="FaceAttribNet ONNX; sunglasses/mask candidates are rejected before catalog selection")
-    parser.add_argument("--quality-exclusions", type=Path, required=True,
-                        help="Pre-selection audit JSON; independently verified yaw/visibility failures are rejected before selection")
+    parser.add_argument("--candidate-audit", "--quality-exclusions", dest="quality_exclusions", type=Path, required=True,
+                        help="Completed schema-2 candidate audit receipt; old exclusion-only JSON cannot certify candidates")
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
     if not args.catalog: parser.error("at least one --catalog LABEL=PATH is required")
@@ -160,45 +162,25 @@ def decode_vector(encoded: str | None, *, stride: int = 2, limit: int = 96) -> t
 
 def title_rejection(entry: dict[str, Any], profile: CleanProfile) -> str | None:
     text = str(entry.get("name", "")).lower()
-    if any(term in text for term in ARTWORK_TERMS): return "likely_artwork"
-    if any(term in text for term in GLOBAL_FACE_OCCLUSION_TERMS): return "face_occlusion_title"
-    if "mouth" in profile.group and any(term in text for term in MOUTH_OCCLUSION_TERMS): return "mouth_occlusion_title"
+    # Face paint is a permitted photograph, including titles saying "face painting".
+    # Occlusion is decided from exact image pixels and recorded visual review;
+    # an incidental title such as DSCN9586 or "50 shades" cannot veto a face.
+    artwork_text = re.sub(r"\b(?:face|body)[ -]?paint(?:ing|ed)?\b", "", text)
+    if any(re.search(r"\b" + re.escape(term) + r"\b", artwork_text) for term in ARTWORK_TERMS):
+        return "likely_artwork"
     return None
 
-def load_quality_exclusions(path: Path | None) -> set[str]:
-    if path is None: return set()
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    rows = payload.get("excluded", []) if isinstance(payload, dict) else []
-    return {str(row.get("id")) for row in rows if isinstance(row, dict) and row.get("id")}
 
-class FaceVisibilityGate:
-    """Mandatory image-pixel gate. Clear eyeglasses and face paint are allowed."""
-    def __init__(self, model: Path):
-        self.session = ort.InferenceSession(str(model), providers=["CPUExecutionProvider"])
-        self.input_name = self.session.get_inputs()[0].name
-        self.output_name = self.session.get_outputs()[0].name
-
-    def _blob(self, payload: bytes) -> np.ndarray:
-        with Image.open(io.BytesIO(payload)) as opened:
-            image = ImageOps.exif_transpose(opened).convert("RGB")
-        width, height = image.size
-        scale = min(128 / max(1, width), 128 / max(1, height))
-        resized = image.resize((max(1, round(width * scale)), max(1, round(height * scale))), Image.Resampling.BILINEAR)
-        canvas = Image.new("RGB", (128, 128))
-        canvas.paste(resized, ((128 - resized.width)//2, (128 - resized.height)//2))
-        array = np.asarray(canvas, dtype=np.float32) / 255.0
-        return np.transpose(array, (2, 0, 1))[None, ...]
-
-    def reject(self, payload: bytes, entry: dict[str, Any]) -> str | None:
-        values = np.asarray(self.session.run([self.output_name], {self.input_name: self._blob(payload)})[0]).reshape(-1)
-        if len(values) < 5: raise ValueError("FaceAttribNet output must contain five attributes")
-        mask, sunglasses = float(values[3]), float(values[4])
-        text = str(entry.get("name", "")).lower()
-        title_mask = any(term in text for term in ("face mask","facemask","surgical mask","n95","kn95","masked face"))
-        title_sun = any(term in text for term in ("sunglasses","sun glasses","shades"))
-        if sunglasses >= .985 or (sunglasses >= .94 and title_sun): return "sunglasses"
-        if mask >= .985 or (mask >= .94 and title_mask): return "face_mask"
-        return None
+def admitted_entry(entry: dict[str, Any], record: dict[str, Any]) -> dict[str, Any]:
+    """Replace all stale measurements before pose/expression classification."""
+    fresh = {key: value for key, value in entry.items() if not key.startswith("clean") and key != "image"}
+    for key in ("feature", "shape", "mesh", "projection", "layout"):
+        fresh[key] = record[key]
+    fresh.update(admissionSha256=record["encodedSha256"],
+                 admissionPolicySha256=record["policySha256"],
+                 admissionSourceCatalogId=record["sourceCatalogId"],
+                 admissionSourceId=record["sourceId"])
+    return fresh
 
 
 def layout_score(entry: dict[str, Any]) -> float:
@@ -308,6 +290,25 @@ def choose_minimums(selected_by_group: dict[tuple[str,str],list[Candidate]]) -> 
     return chosen, failures
 
 
+def fill_breadth_first(selected: list[Candidate], groups: dict[tuple[str, str], list[Candidate]],
+                      profiles: Sequence[str], target: int) -> None:
+    """Fill remaining slots without trimming already-reserved profile minimums."""
+    if len(selected) >= target:
+        return
+    used = {candidate.key for candidate in selected}
+    cells = sorted({cell for _, cell in groups}, key=lambda cell: tuple(map(int, cell.split(":"))))
+    rounds = max((len(items) for (profile, _), items in groups.items() if profile in profiles), default=0)
+    for round_index in range(rounds):
+        for profile in profiles:
+            for cell in cells:
+                items = groups.get((profile, cell), [])
+                if round_index < len(items) and items[round_index].key not in used:
+                    selected.append(items[round_index])
+                    used.add(items[round_index].key)
+                    if len(selected) == target:
+                        return
+
+
 def write_contact_sheet(path:Path,profile:str,items:list[Candidate])->None:
     if not items:return
     ordered=sorted(items,key=lambda c:(c.yaw,c.pitch,-c.score)); chosen=[]; seen=set()
@@ -332,14 +333,15 @@ def main()->int:
     catalog=output/"catalog"; packs=catalog/"packs"; shards=catalog/"shards"; review=output/"review"; sheets=review/"contact-sheets"
     packs.mkdir(parents=True); shards.mkdir(parents=True); sheets.mkdir(parents=True)
     sources=[load_catalog(*parse_catalog_arg(value)) for value in args.catalog]
-    visibility_gate=FaceVisibilityGate(args.face_attribute_model)
-    quality_exclusions=load_quality_exclusions(args.quality_exclusions)
+    admission=AdmissionAudit(args.quality_exclusions,args.face_attribute_model,sources)
     rejects:Counter[str]=Counter(); classified:Counter[str]=Counter(); groups:dict[tuple[str,str],list[Candidate]]=defaultdict(list)
     input_entries=sum(len(source.entries) for source in sources)
     try:
         for source in sources:
-            for entry in source.entries:
-                if str(entry.get("id")) in quality_exclusions: rejects["preselection_quality_exclusion"]+=1; continue
+            for original_entry in source.entries:
+                record=admission.record(source.catalog_id,original_entry)
+                if record is None: rejects["candidate_admission_not_passed"]+=1; continue
+                entry=admitted_entry(original_entry,record)
                 feature=entry.get("feature")
                 if not isinstance(feature,list) or len(feature)!=FEATURE_LENGTH or not all(math.isfinite(float(v)) for v in feature): rejects["invalid_feature"]+=1; continue
                 assignment=classify_assignment(feature,entry.get("projection"))
@@ -363,11 +365,11 @@ def main()->int:
                 try:
                     payload=c.source.read_image(c.entry); digest=hashlib.sha256(payload).hexdigest()
                     if digest in exact: rejects["exact_image_duplicate"]+=1; continue
-                    visibility_reason=visibility_gate.reject(payload,c.entry)
-                    if visibility_reason: rejects[visibility_reason]+=1; continue
+                    if digest != c.entry["admissionSha256"]:
+                        raise ValueError("Admitted image bytes changed before selection")
                     metrics,dhash=image_metrics(payload); ok,reason,q=quality_decision(c.source,metrics)
                     if not ok: rejects[reason]+=1; continue
-                except Exception: rejects["image_read_error"]+=1; continue
+                except (OSError,EOFError): rejects["image_read_error"]+=1; continue
                 c.image_bytes=payload;c.image_sha256=digest;c.dhash=dhash;c.quality=metrics
                 c.score=c.preliminary*.66+q*.29+layout_score(c.entry)*.05
                 accepted.append(c);exact.add(digest)
@@ -393,34 +395,14 @@ def main()->int:
                 if not added: break
                 round_index+=1
 
-        cells=sorted({cell for _,cell in selected_by_group},key=lambda x:tuple(map(int,x.split(":"))))
-
         # Add strict profile diversity first. Missing strict minima can never be
         # hidden by background faces.
-        strict_max_round=max(PROFILE_CELL_LIMITS[p] for p in STRICT_PROFILE_PRIORITY)
-        for round_index in range(strict_max_round):
-            for profile in STRICT_PROFILE_PRIORITY:
-                for cell in cells:
-                    items=selected_by_group.get((profile,cell),[])
-                    if round_index<len(items):
-                        c=items[round_index]
-                        if c.key not in used: selected.append(c);used.add(c.key)
-                # Do not stop at target here; all available strict coverage is
-                # valuable until the physical target is reached later.
+        fill_breadth_first(selected,selected_by_group,STRICT_PROFILE_PRIORITY,args.target_total)
 
         # Fill to 70k from an explicitly labelled one-family background pool.
         # Breadth-first rounds prevent a frontal neutral pile-up.
-        background_max_round=max(PROFILE_CELL_LIMITS[p] for p in BACKGROUND_PRIORITY)
-        for round_index in range(background_max_round):
-            for profile in BACKGROUND_PRIORITY:
-                for cell in cells:
-                    items=selected_by_group.get((profile,cell),[])
-                    if round_index<len(items):
-                        c=items[round_index]
-                        if c.key not in used: selected.append(c);used.add(c.key)
-                        if len(selected)>=args.target_total:break
-                if len(selected)>=args.target_total:break
-            if len(selected)>=args.target_total:break
+        fill_breadth_first(selected,selected_by_group,BACKGROUND_PRIORITY,args.target_total)
+        used={c.key for c in selected}
 
         # Final overflow remains clean single-family data and is separately
         # labelled. It cannot repair a strict-profile gate.
@@ -443,7 +425,8 @@ def main()->int:
         background_cells={p:profile_cells[p] for p in BACKGROUND_PRIORITY}
         tier_counts=Counter(c.tier for c in selected)
         gate_failures=list(minimum_failures)
-        if len(selected)<args.target_total: gate_failures.append(f"total: {len(selected):,} < required {args.target_total:,}")
+        if len(selected)!=args.target_total: gate_failures.append(f"total: {len(selected):,} != required {args.target_total:,}")
+        if len({c.image_sha256 for c in selected})!=len(selected): gate_failures.append("duplicate encoded image in final selection")
         for p,required in PROFILE_POSE_CELL_MINIMUMS.items():
             if profile_cells[p]<required: gate_failures.append(f"{p} pose cells: {profile_cells[p]:,} < required {required:,}")
         for p,required in BACKGROUND_MINIMUMS.items():
@@ -466,6 +449,12 @@ def main()->int:
             "limits":PROFILE_CELL_LIMITS,"minimums":PROFILE_MINIMUMS,"poseCellMinimums":PROFILE_POSE_CELL_MINIMUMS,
             "backgroundMinimums":BACKGROUND_MINIMUMS,"backgroundPoseCellMinimums":BACKGROUND_POSE_CELL_MINIMUMS,
             "gatePassed":not gate_failures,"gateFailures":gate_failures,
+            "qualityAdmission":{"schemaVersion":2,"status":"complete","policyId":admission.policy.document()["policyId"],
+                "policySha256":admission.policy.sha256,"receiptSha256":sha256_file(args.quality_exclusions),
+                "recordsSha256":admission.receipt["recordsSha256"],
+                "attributeModelSha256":admission.receipt["models"]["attributeSha256"],
+                "faceModelSha256":admission.receipt["models"]["faceSha256"],
+                "selectedCount":len(selected),"runtimeExclusionOverlayRequired":False},
         }
         (output/"audit.json").write_text(json.dumps(audit,indent=2),encoding="utf-8")
         if gate_failures:
@@ -483,8 +472,9 @@ def main()->int:
         for c in selected:
             payload=c.image_bytes
             if payload is None:raise RuntimeError("selected image missing")
-            pack,offset,length=append(payload);source_slug=safe_slug(c.source.catalog_id);original=str(c.entry.get("id"))
-            entry={**c.entry,"id":f"clean-v3-{source_slug}-{original}","pack":pack,"offset":offset,"length":length,
+            if hashlib.sha256(payload).hexdigest()!=c.entry["admissionSha256"]:raise ValueError("Selected image changed before packing")
+            pack,offset,length=append(payload)
+            entry={**c.entry,"id":f"clean-v5-{c.image_sha256[:28]}","pack":pack,"offset":offset,"length":length,
                    "cleanProfile":c.profile.name,"cleanGroup":c.profile.group,"cleanTier":c.tier,"cleanPolicy":POLICY_VERSION,
                    "cleanPurity":round(c.profile.purity,6),"cleanScore":round(c.score,6),"sourceCatalogId":c.source.catalog_id}
             output_entries[c.cell].append(entry)
@@ -498,11 +488,12 @@ def main()->int:
                 names.append(name);shard_count+=1
             cells_manifest[cell]={"count":len(items),"shards":names}
         manifest={
-            "schemaVersion":3,"catalogId":"many-faces-clean-core-v3","generatedAt":datetime.now(timezone.utc).isoformat(),
+            "schemaVersion":3,"catalogId":"many-faces-clean-core-v5-"+audit["qualityAdmission"]["receiptSha256"][:12],"generatedAt":datetime.now(timezone.utc).isoformat(),
             "totalFaces":len(selected),"sourceFaces":len(selected),"searchableFaces":len(selected),"poseStep":3,
             "bounds":{"yawMin":-45,"yawMax":45,"pitchMin":-36,"pitchMax":36},"outputSize":256,
             "shapeVersion":"mediapipe-projection-468-v4","featureSchema":"mediapipe-face-actions-v2","featureLength":FEATURE_LENGTH,
             "shardsContainGeometry":True,"indexFiles":[],"cells":cells_manifest,
+            "qualityAdmission":audit["qualityAdmission"],
             "stats":{"cleanCore":{"policyVersion":POLICY_VERSION,"selectedFaces":len(selected),"profileCounts":profile_counts,
                     "profilePoseCells":profile_cells,"strictProfileCounts":strict_counts,
                     "backgroundProfileCounts":background_counts,"tierCounts":dict(sorted(tier_counts.items())),"sourceCatalogCounts":dict(sorted(source_counts.items())),
@@ -512,7 +503,9 @@ def main()->int:
         (catalog/"manifest.json").write_text(json.dumps(manifest,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
         with (output/"coverage.csv").open("w",encoding="utf-8",newline="") as f:
             writer=csv.writer(f);writer.writerow(("profile","cell","yaw","pitch","count","best_score"))
-            for (p,cell),items in sorted(selected_by_group.items()):
+            final_groups:dict[tuple[str,str],list[Candidate]]=defaultdict(list)
+            for c in selected:final_groups[(c.profile.name,c.cell)].append(c)
+            for (p,cell),items in sorted(final_groups.items()):
                 if items:
                     yaw,pitch=map(int,cell.split(":"));writer.writerow((p,cell,yaw,pitch,len(items),f"{max(c.score for c in items):.6f}"))
         for p,items in by_profile.items():write_contact_sheet(sheets/f"{p}.jpg",p,items)
@@ -521,6 +514,7 @@ def main()->int:
         (output/"README.md").write_text(f"# Many Faces Clean Core v3\n\nPhysical searchable faces: **{len(selected):,}**.\n\nSee `audit.json`, `coverage.csv`, and `review/index.html`.\n",encoding="utf-8")
         print(json.dumps(audit,indent=2));return 0
     finally:
+        admission.close()
         for source in sources:source.close()
 
 if __name__=="__main__":raise SystemExit(main())

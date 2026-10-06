@@ -1,0 +1,322 @@
+name: Build audited Clean Core v5 candidate
+
+# Updating the request marker starts a candidate run after calibration.
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths:
+      - data/clean-core-v5-candidate-request.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: many-faces-clean-core-v5-candidate-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  FFHQ_SOURCE_COMMIT: 9d10fb37a825a5f90e5a3671a9564a1f1e9bef53
+  ATTRIBUTE_MODEL_PATH: work/models/face_attrib_net.onnx
+  ATTRIBUTE_MODEL_SHA256: 1bf7c6453bec2fb28e0830f3a76dceb9ffd020124f87b28da5355940a7bc6e48
+  FACE_MODEL_PATH: public/mediapipe/face_landmarker.task
+  AUDIT_PARTS: "16"
+  VISIBILITY_MAX_SCORE: "0.05"
+  PYTHONUNBUFFERED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  OMP_NUM_THREADS: "1"
+  OPENBLAS_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+
+jobs:
+  audit:
+    if: github.ref == 'refs/heads/astra/realtime-hardening'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    env:
+      AUDIT_PART: ${{ matrix.part }}
+    steps:
+      - name: Check out the exact candidate code and current catalog
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Check out the pinned FFHQ source catalog
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.FFHQ_SOURCE_COMMIT }}
+          path: work/pinned-ffhq
+          fetch-depth: 1
+          sparse-checkout: public/seed-catalog
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install and check the candidate admission tools
+        run: |
+          python -m pip install --disable-pip-version-check -r tools/requirements-clean-admission.txt
+          python -m compileall -q tools
+          python -m unittest discover -s tests -p 'test_*.py'
+      - name: Prepare exact source catalogs and prior audit evidence
+        run: |
+          test "$(git -C work/pinned-ffhq rev-parse HEAD)" = "$FFHQ_SOURCE_COMMIT"
+          mkdir -p work/source-catalogs work/catalog-quality work/models
+          mv work/pinned-ffhq/public/seed-catalog work/source-catalogs/ffhq-main
+          python tools/prepare_wink_candidates.py \
+            --source public/wink-support/v1 \
+            --out work/source-catalogs/wink-extras
+          gzip -dc data/catalog-quality/existing-audit-evidence.json.gz \
+            > work/catalog-quality/merged-evidence.json
+          test -s "$FACE_MODEL_PATH"
+      - name: Download and verify the pinned FaceAttribNet model
+        run: |
+          curl --fail --location --retry 3 --connect-timeout 30 --max-time 300 \
+            --output "$ATTRIBUTE_MODEL_PATH" \
+            https://github.com/yakhyo/face-attribute/releases/download/weights/face_attrib_net.onnx
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+
+          model = Path(os.environ['ATTRIBUTE_MODEL_PATH'])
+          actual = hashlib.sha256(model.read_bytes()).hexdigest()
+          if actual != os.environ['ATTRIBUTE_MODEL_SHA256']:
+              raise SystemExit('FaceAttribNet SHA256 mismatch: ' + actual)
+          print('Verified FaceAttribNet SHA256: ' + actual)
+          PY
+      - name: Audit one exact partition before candidate selection
+        run: |
+          python tools/audit_clean_core_candidates.py \
+            --catalog current=public/seed-catalog \
+            --catalog ffhq=work/source-catalogs/ffhq-main \
+            --catalog wink-extras=work/source-catalogs/wink-extras \
+            --out work/clean-v5-audit \
+            --face-attribute-model "$ATTRIBUTE_MODEL_PATH" \
+            --face-model "$FACE_MODEL_PATH" \
+            --reviewed-visibility data/catalog-visibility-reviewed.json \
+            --prior-yaw-evidence work/catalog-quality/merged-evidence.json \
+            --part "$AUDIT_PART" --parts "$AUDIT_PARTS" --workers 1 \
+            --visibility-max-score "$VISIBILITY_MAX_SCORE"
+      - name: Retain the partition evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-audit-part-${{ matrix.part }}-${{ github.run_id }}
+          path: work/clean-v5-audit/
+          if-no-files-found: error
+          overwrite: true
+          compression-level: 0
+          retention-days: 14
+
+  assemble:
+    needs: audit
+    if: github.ref == 'refs/heads/astra/realtime-hardening' && needs.audit.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Check out the exact candidate code and current catalog
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Check out the pinned FFHQ source catalog
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.FFHQ_SOURCE_COMMIT }}
+          path: work/pinned-ffhq
+          fetch-depth: 1
+          sparse-checkout: public/seed-catalog
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+      - name: Install tools and check pose-local repacking
+        run: |
+          python -m pip install --disable-pip-version-check -r tools/requirements-clean-admission.txt
+          node --test tests/repack-live-pose-packs.test.mjs
+          mkdir -p work/clean-v5-provenance
+          python -m pip freeze > work/clean-v5-provenance/python-environment.txt
+      - name: Prepare the identical source catalogs and prior evidence
+        run: |
+          test "$(git -C work/pinned-ffhq rev-parse HEAD)" = "$FFHQ_SOURCE_COMMIT"
+          mkdir -p work/source-catalogs work/catalog-quality work/models
+          mv work/pinned-ffhq/public/seed-catalog work/source-catalogs/ffhq-main
+          python tools/prepare_wink_candidates.py \
+            --source public/wink-support/v1 \
+            --out work/source-catalogs/wink-extras
+          gzip -dc data/catalog-quality/existing-audit-evidence.json.gz \
+            > work/catalog-quality/merged-evidence.json
+          test -s "$FACE_MODEL_PATH"
+      - name: Download and verify the same FaceAttribNet model
+        run: |
+          curl --fail --location --retry 3 --connect-timeout 30 --max-time 300 \
+            --output "$ATTRIBUTE_MODEL_PATH" \
+            https://github.com/yakhyo/face-attribute/releases/download/weights/face_attrib_net.onnx
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+
+          model = Path(os.environ['ATTRIBUTE_MODEL_PATH'])
+          actual = hashlib.sha256(model.read_bytes()).hexdigest()
+          if actual != os.environ['ATTRIBUTE_MODEL_SHA256']:
+              raise SystemExit('FaceAttribNet SHA256 mismatch: ' + actual)
+          print('Verified FaceAttribNet SHA256: ' + actual)
+          PY
+      - name: Download all partitions from this workflow run
+        uses: actions/download-artifact@v4
+        with:
+          pattern: clean-core-v5-audit-part-*-${{ github.run_id }}
+          path: work/clean-v5-audit
+          merge-multiple: true
+      - name: Validate complete partition coverage and merge admission evidence
+        run: |
+          python tools/audit_clean_core_candidates.py \
+            --catalog current=public/seed-catalog \
+            --catalog ffhq=work/source-catalogs/ffhq-main \
+            --catalog wink-extras=work/source-catalogs/wink-extras \
+            --out work/clean-v5-audit \
+            --face-attribute-model "$ATTRIBUTE_MODEL_PATH" \
+            --face-model "$FACE_MODEL_PATH" \
+            --reviewed-visibility data/catalog-visibility-reviewed.json \
+            --prior-yaw-evidence work/catalog-quality/merged-evidence.json \
+            --merge-only --parts "$AUDIT_PARTS" --workers 1 \
+            --visibility-max-score "$VISIBILITY_MAX_SCORE"
+      - name: Select exactly 70000 admitted real photographs
+        run: |
+          python tools/run_build_clean_core_v3_real_only.py \
+            work/clean-v5-build \
+            --catalog current=public/seed-catalog \
+            --catalog ffhq=work/source-catalogs/ffhq-main \
+            --catalog wink-extras=work/source-catalogs/wink-extras \
+            --target-total 70000 \
+            --face-attribute-model "$ATTRIBUTE_MODEL_PATH" \
+            --candidate-audit work/clean-v5-audit/candidate-audit.json
+      - name: Validate assembled catalog structure
+        run: |
+          node tools/validate_face_catalog.mjs work/clean-v5-build/catalog \
+            | tee work/clean-v5-build/catalog-validation.json
+      - name: Repack the selected photos by pose cell
+        run: |
+          node tools/repack-live-pose-packs.mjs \
+            work/clean-v5-build/catalog \
+            work/clean-v5-candidate/catalog
+          cp work/clean-v5-build/audit.json work/clean-v5-candidate/catalog/clean-core-audit.json
+      - name: Validate the final physical catalog and admission correspondence
+        run: |
+          node tools/validate_face_catalog.mjs work/clean-v5-candidate/catalog \
+            | tee work/clean-v5-candidate/catalog-validation.json
+          python tools/validate_clean_core_admission.py \
+            --catalog work/clean-v5-candidate/catalog \
+            --candidate-audit work/clean-v5-audit/candidate-audit.json \
+            --face-attribute-model "$ATTRIBUTE_MODEL_PATH" \
+            --source current=public/seed-catalog \
+            --source ffhq=work/source-catalogs/ffhq-main \
+            --source wink-extras=work/source-catalogs/wink-extras \
+            --target-total 70000 \
+            | tee work/clean-v5-candidate/admission-validation.json
+      - name: Bind wink support to the validated final catalog
+        run: |
+          node --experimental-strip-types scripts/rebuild-clean-wink-support.mjs \
+            work/clean-v5-candidate/catalog \
+            work/clean-v5-candidate/wink-support/v1
+      - name: Package complete candidate and evidence for subsequent review
+        run: |
+          cp -a work/clean-v5-audit work/clean-v5-candidate/admission
+          mkdir -p work/clean-v5-candidate/selection
+          cp work/clean-v5-build/audit.json work/clean-v5-candidate/selection/audit.json
+          cp work/clean-v5-build/coverage.csv work/clean-v5-candidate/selection/coverage.csv
+          cp -a work/clean-v5-build/review work/clean-v5-candidate/selection/review
+          cp data/catalog-visibility-reviewed.json work/clean-v5-provenance/
+          cp data/catalog-quality/existing-audit-evidence.json.gz work/clean-v5-provenance/
+          cp .github/workflows/clean-core-v5-candidate.yml work/clean-v5-provenance/workflow.yml
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          def digest(file):
+              return hashlib.sha256(Path(file).read_bytes()).hexdigest()
+
+          source_paths = {
+              'current': 'public/seed-catalog',
+              'ffhq': 'work/source-catalogs/ffhq-main',
+              'wink-extras': 'work/source-catalogs/wink-extras',
+          }
+          request = Path('data/clean-core-v5-candidate-request.json')
+          receipt = {
+              'schemaVersion': 1,
+              'artifactPurpose': 'physical-catalog-candidate-for-review',
+              'workflowRunId': int(os.environ['GITHUB_RUN_ID']),
+              'workflowRunAttempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'builtFromCommit': os.environ['GITHUB_SHA'],
+              'ffhqSourceCommit': os.environ['FFHQ_SOURCE_COMMIT'],
+              'targetTotal': 70000,
+              'auditPartitions': int(os.environ['AUDIT_PARTS']),
+              'visibilityMaxScore': float(os.environ['VISIBILITY_MAX_SCORE']),
+              'sourceManifestSha256': {
+                  label: digest(Path(root) / 'manifest.json')
+                  for label, root in source_paths.items()
+              },
+              'attributeModelSha256': digest(os.environ['ATTRIBUTE_MODEL_PATH']),
+              'faceModelSha256': digest(os.environ['FACE_MODEL_PATH']),
+              'priorYawEvidenceSha256': digest('work/catalog-quality/merged-evidence.json'),
+              'reviewedVisibilitySha256': digest('data/catalog-visibility-reviewed.json'),
+              'candidateAuditSha256': digest('work/clean-v5-audit/candidate-audit.json'),
+              'candidateManifestSha256': digest('work/clean-v5-candidate/catalog/manifest.json'),
+              'winkSupportIndexSha256': digest('work/clean-v5-candidate/wink-support/v1/catalog.json'),
+              'requestSha256': digest(request) if request.is_file() else None,
+              'runtimeExclusionOverlayRequired': False,
+              'selectedPhotoHoldoutReviewed': False,
+              'sameVideoComparisonCompleted': False,
+              'hostedSiteVerified': False,
+              'physicalCameraVerified': False,
+              'published': False,
+          }
+          Path('work/clean-v5-provenance/candidate-receipt.json').write_text(
+              json.dumps(receipt, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+          if request.is_file():
+              Path('work/clean-v5-provenance/request.json').write_bytes(request.read_bytes())
+          PY
+          cp -a work/clean-v5-provenance work/clean-v5-candidate/provenance
+      - name: Upload the complete validated candidate catalog and audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-candidate/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+      - name: Retain diagnostics if candidate generation fails
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: clean-core-v5-failure-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            work/clean-v5-audit/
+            work/clean-v5-build/audit.json
+            work/clean-v5-build/catalog-validation.json
+            work/clean-v5-build/coverage.csv
+            work/clean-v5-build/review/
+            work/clean-v5-candidate/catalog-validation.json
+            work/clean-v5-candidate/admission-validation.json
+            work/clean-v5-candidate/wink-support/
+            work/clean-v5-provenance/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 14

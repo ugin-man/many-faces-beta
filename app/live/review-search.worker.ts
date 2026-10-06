@@ -4,11 +4,11 @@ import { liveCandidateFromEntry, type LiveCandidate, type LiveCatalogEntry } fro
 import { optimizeDistinctProjectionSequence, type ProjectionError } from "../projection-matching";
 import { ReviewStrictRanker } from "./review-strict-ranker";
 import { poseWindowCellKeys, shardFilesForCells, shouldExpandPoseWindow, type ReviewCatalogManifest } from "./review-local-catalog";
-import { readAssetJson } from "./asset-reader";
+import { readAssetBytes, readAssetJson } from "./asset-reader";
 import { runtimeIdentity } from "../runtime-identity";
 import { createReviewYield, ReviewWindowCache } from "./review-work-cache";
 import { winkEvidence } from "./wink-evidence";
-import { parseWinkSupport, rankWinkSupport, type WinkSupportCandidate } from "./wink-support";
+import { parseWinkSupport, rankWinkSupport, WINK_SUPPORT_MAX_BYTES, type WinkSupportCandidate } from "./wink-support";
 import type { SearchProgress } from "./review-search";
 import { parseCatalogQualityOverlay, qualityAllows } from "./catalog-quality";
 const scope = self as unknown as DedicatedWorkerGlobalScope;
@@ -35,7 +35,8 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
     };
     const bytes = (_received: number, delta: number) => { progress.bytes += delta; report("照合データを受信中"); };
     report("カタログを確認中", true);
-    const manifest = await readAssetJson<ReviewCatalogManifest & { catalogId?: string; totalFaces?: number; searchableFaces?: number }>(new URL("/api/catalog/manifest?source=seed", origin).href, { onBytes: bytes });
+    const manifestBytes = await readAssetBytes(new URL("/api/catalog/manifest?source=seed", origin).href, { onBytes: bytes });
+    const manifest = JSON.parse(new TextDecoder().decode(manifestBytes)) as ReviewCatalogManifest & { catalogId?: string; totalFaces?: number; searchableFaces?: number; qualityAdmission?: unknown };
     if (!manifest.cells || Number(manifest.searchableFaces ?? manifest.totalFaces) !== 70000) throw new Error("CATALOG_INVALID: 7万枚のカタログを確認できません。Siteの配信データを確認してください。");
     let qualityExclusions = new Map();
     try {
@@ -48,11 +49,14 @@ async function run({ frames, origin, build }: { frames: SequenceFrame[]; origin:
     if (winkMetrics.requestedFrames) {
       const loadStarted = performance.now();
       try {
-        const payload = await readAssetJson<unknown>(new URL("/wink-support/v1/catalog.json", origin).href, {
-          idleMs: 5000, maxMs: 10000, maxBytes: 4 * 1024 * 1024,
+        const manifestSha256 = manifest.qualityAdmission === undefined ? undefined : Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", manifestBytes)), byte => byte.toString(16).padStart(2, "0")).join("");
+        const supportUrl = new URL("/wink-support/v1/catalog.json", origin);
+        if (manifestSha256) supportUrl.searchParams.set("catalog", manifestSha256);
+        const payload = await readAssetJson<unknown>(supportUrl.href, {
+          idleMs: 5000, maxMs: 10000, maxBytes: WINK_SUPPORT_MAX_BYTES,
           onBytes: (received, delta) => { winkMetrics.indexBytes = received; bytes(received, delta); },
         });
-        support = parseWinkSupport(payload, origin).filter(candidate => qualityAllows(candidate.id, qualityExclusions));
+        support = parseWinkSupport(payload, origin, { catalogId: manifest.catalogId, manifestSha256, qualityAdmission: manifest.qualityAdmission }).filter(candidate => qualityAllows(candidate.id, qualityExclusions));
         winkMetrics.indexedOriginals = support.filter(candidate => candidate.supportKind === "core-refresh").length;
         winkMetrics.addedPhotos = support.filter(candidate => candidate.supportKind === "addition").length;
       } catch (error) {

@@ -1,22 +1,33 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 import {parseWinkSupport,supportForFrame,rankWinkSupport} from '../app/live/wink-support.ts';
 import {ReviewStrictRanker} from '../app/live/review-strict-ranker.ts';
 import {FACE_ACTION_FEATURE_INDEX as I} from '../app/face-actions.ts';
 const raw=JSON.parse(await readFile(new URL('../public/wink-support/v1/catalog.json',import.meta.url),'utf8'));
-const support=parseWinkSupport(raw,'https://example.test');
+const manifestBytes=await readFile(new URL('../public/seed-catalog/manifest.json',import.meta.url));
+const manifest=JSON.parse(manifestBytes);
+const binding={catalogId:manifest.catalogId,manifestSha256:createHash('sha256').update(manifestBytes).digest('hex'),qualityAdmission:manifest.qualityAdmission};
+const parse=value=>parseWinkSupport(value,'https://example.test',binding);
+const support=parse(raw);
 const frame=c=>({time:0,feature:c.feature,geometry:c.geometry});
 
-test('additive index retains original-photo links, exact raw actions and new-image provenance',()=>{
+test('the published index retains exact raw actions and the correct catalog provenance',()=>{
  assert.equal(support.length,raw.items.length);
- assert.equal(support.filter(c=>c.supportKind==='addition').length,6);
- assert.equal(support.filter(c=>c.supportKind==='core-refresh').length,271);
+ if(raw.schemaVersion===3){
+  assert.equal(raw.baseCatalogManifestSha256,binding.manifestSha256);
+  assert.equal(support.filter(c=>c.supportKind==='addition').length,0);
+  assert.equal(support.filter(c=>c.supportKind==='core-refresh').length,support.length);
+ }else{
+  assert.equal(support.filter(c=>c.supportKind==='addition').length,6);
+  assert.equal(support.filter(c=>c.supportKind==='core-refresh').length,271);
+ }
  for(const c of support){
   const r=raw.items.find(x=>x.id===c.id);assert.deepEqual(c.feature,r.feature);
   const url=new URL(c.url);assert.equal(url.origin,'https://example.test');
   if(c.supportKind==='addition')assert.match(url.pathname,/^\/wink-support\/v1\/images\/wink-extra-[a-f0-9]{24}\.webp$/);
-  else{assert.equal(url.pathname,'/api/catalog/image');assert.equal(url.searchParams.get('source'),'seed');}
+  else{assert.equal(url.pathname,'/api/catalog/image');assert.equal(url.searchParams.get('source'),'seed');if(raw.schemaVersion===3)assert.equal(url.searchParams.get('catalog'),binding.manifestSha256);}
  }
 });
 test('ordinary and bilateral-closure frames never enter the specialist path',()=>{
@@ -36,8 +47,8 @@ test('only matching anatomical side and bounded poses are admitted; no data is m
  }
 });
 test('malformed metadata, another base catalog and path escapes are rejected',()=>{
- assert.throws(()=>parseWinkSupport({...raw,baseCatalogTree:'wrong'},'https://example.test'));
- const extra=raw.items.find(x=>x.supportKind==='addition');
- for(const override of [{image:'../escape.webp'},{sourceUrl:'javascript:alert(1)'},{side:'unknown'},{feature:[]}])assert.throws(()=>parseWinkSupport({...raw,items:[{...extra,...override}]},'https://example.test'));
- assert.throws(()=>parseWinkSupport({...raw,items:[extra,extra]},'https://example.test'));
+ assert.throws(()=>parse(raw.schemaVersion===3?{...raw,baseCatalogId:'wrong'}:{...raw,baseCatalogTree:'wrong'}));
+ const extra=raw.items.find(x=>x.supportKind==='addition')??raw.items[0];
+ for(const override of [{image:'../escape.webp'},{sourceUrl:'javascript:alert(1)'},{side:'unknown'},{feature:[]}])assert.throws(()=>parse({...raw,items:[{...extra,...override}]}));
+ assert.throws(()=>parse({...raw,items:[extra,extra]}));
 });

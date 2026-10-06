@@ -1,0 +1,77 @@
+name: Published Site v55 regression
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths:
+      - '.github/workflows/production-site-check.yml'
+      - 'scripts/verify-production-site-pins.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: published-site-v55
+  cancel-in-progress: false
+jobs:
+  production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      MANY_FACES_BASE_URL: https://many-faces-prototype.uginn-poppo.chatgpt.site
+      FULLSCREEN_REPORT_DIR: work/production-site-v55/harness
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            /.github/workflows/production-site-check.yml
+            /scripts/verify-production-site-pins.mjs
+            /scripts/verify-fullscreen-ui.mjs
+            /public/test-fixtures/reference-face-motion.mp4
+            /package.json
+            /package-lock.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: Prepare unchanged harness and original reference fixture
+        id: prepare
+        run: |
+          set -euo pipefail
+          mkdir -p work/production-site-v55/harness work/fullscreen-fixtures
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-noto-cjk libgles2 libegl1 > work/production-site-v55/system-dependencies.log 2>&1
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1 > work/production-site-v55/playwright-install.log 2>&1
+          echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
+          ffmpeg -hide_banner -loglevel error -y -i public/test-fixtures/reference-face-motion.mp4 -t 8 -vf 'scale=480:480:force_original_aspect_ratio=decrease,pad=480:480:(ow-iw)/2:(oh-ih)/2,fps=30' -pix_fmt yuv420p work/fullscreen-fixtures/moving.y4m
+      - name: Authenticate pinned public runtime, full fixture, catalog and exact image routes before execution
+        id: pre
+        run: node scripts/verify-production-site-pins.mjs pre
+      - name: Run existing full-video and two-mode virtual-camera checks on the public Site
+        id: browser
+        run: |
+          set +e
+          node scripts/verify-fullscreen-ui.mjs > work/production-site-v55/harness.log 2>&1
+          result=$?
+          printf '%s\n' "$result" > work/production-site-v55/harness-exit-code.txt
+          cat work/production-site-v55/harness.log
+          exit "$result"
+      - name: Recheck the exact same deployed source and assets after native browser execution
+        id: post
+        if: always() && steps.prepare.outcome == 'success'
+        run: node scripts/verify-production-site-pins.mjs post
+      - name: Bind native raw outcome into a separate truthful production receipt
+        if: always() && steps.prepare.outcome == 'success'
+        env:
+          PRE_OUTCOME: ${{ steps.pre.outcome }}
+          BROWSER_OUTCOME: ${{ steps.browser.outcome }}
+          POST_OUTCOME: ${{ steps.post.outcome }}
+        run: node scripts/verify-production-site-pins.mjs receipt
+      - name: Preserve raw report, screenshots, pre/post responses and production receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: published-site-v55-regression-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/production-site-v55
+          if-no-files-found: error
+          retention-days: 14

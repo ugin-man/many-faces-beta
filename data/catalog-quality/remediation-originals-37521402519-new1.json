@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-remediation-image-review",
+  "scope": "full-original-image-quality",
+  "remediationIndexSha256": "f13aff1392da62804f5096f17608baf4570ef58a9a4db60e6bf5a0fd8206d01c",
+  "finalManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+  "reviewer": "assistant-visual-review",
+  "reviewerTask": "/root/quality_review",
+  "humanVerified": false,
+  "qaRunId": 37521402519,
+  "candidateRunId": 37519882295,
+  "reviewedOriginalPhotos": 1,
+  "counts": {
+    "pass": 1,
+    "deny": 0,
+    "uncertain": 0
+  },
+  "passed": true,
+  "reviewedSubset": "Only the one genuinely new original was displayed in this review. The other 58 additions rely on separately bound direct prior full-original quality reviews.",
+  "reviews": [
+    {
+      "sample": "H001",
+      "encodedSha256": "0075ff7b95529b42bca9151e8b8ed06b2a7a375a258b1abc49413741d0fe2c97",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-12215",
+      "recordSha256": "36d9cb878fea0813c5301abcac2a927cdb9c5be74c4682aec2f77141bb4bdc24",
+      "cleanProfile": "backgroundMouth",
+      "cleanTier": "background",
+      "poseCell": "9:-12",
+      "freshYaw": 9.634475860084997,
+      "freshPitch": -11.88749385948413,
+      "decision": "pass",
+      "reason": "やや柔らかい画質と強い照明はあるが、両眉、自然に細まった両眼の瞼、鼻、唇・口角・笑顔の歯が読み取れる。帽子の縁は眉・眼より上にあり、背景の明るい線も表情領域を横切って隠していない。サングラス、マスク、目や口を覆う物体は確認しない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false,
+      "originalImagePath": "holdout-01/images/H001.webp",
+      "originalByteLength": 5588
+    }
+  ]
+}

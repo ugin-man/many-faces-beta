@@ -1,0 +1,1575 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "many-faces-native-comparison-evidence-summary",
+  "draft": true,
+  "qaRunId": 37521402519,
+  "qaCodeCommit": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+  "generatedAtUtc": "2026-10-06T20:14:36.290516+00:00",
+  "source": "Unchanged native GitHub Actions QA report bytes, parsed and cross-checked locally",
+  "executionOrigin": {
+    "kind": "github-actions",
+    "repository": "ugin-man/many-faces-beta",
+    "workflowRunId": 37521402519,
+    "workflowRunAttempt": 1,
+    "codeCommit": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+    "runnerOs": "Linux",
+    "browserRuntime": "Chromium on the GitHub Actions runner"
+  },
+  "candidate": {
+    "runId": 37519882295,
+    "runAttempt": 1,
+    "artifactName": "clean-core-v5-candidate-37519882295-1",
+    "artifactId": 11440656084,
+    "archiveSha256": "a1f13922732172bd0c602e83b79bdc7c8191934971f821e38a78be974c606caf",
+    "manifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "generationReceiptSha256": "d10bc862b779bdda7bd606d40408f5fda41eb7c43059fce61a63f9361d2441eb",
+    "selectionReviewSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+    "previousSelectionReviewSha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff",
+    "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+    "selectionIdentitySha256": "28e6092363ed981f622773c00356fd42790c75bdc894d756abceb95d99b33029",
+    "codeCommit": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4"
+  },
+  "nativeQaStatus": "automated-checks-passed-visual-review-pending",
+  "nativeAutomatedChecksPassed": true,
+  "nativeOutcomes": {
+    "request": "success",
+    "artifact": "success",
+    "dependencies": "success",
+    "sources": "success",
+    "physical": "success",
+    "holdout": "success",
+    "build": "success",
+    "browser": "success",
+    "integrity": "success"
+  },
+  "nativeReceiptPassed": false,
+  "comparisonContract": {
+    "schemaVersion": 1,
+    "status": "complete",
+    "candidatePassed": true,
+    "candidateInitialPresentationPassed": true,
+    "baselinePassed": true,
+    "baselineInitialPresentationPassed": true,
+    "baselineRemainingChecksPassed": true,
+    "baselineKnownInitialFailureAccepted": false,
+    "sameAcquiredFrames": true,
+    "sameTimeline": true,
+    "acquiredFramesSha256": "e14e8727696fc54a4be92a380436722d6a60b5d2f07632235f1cb412c2dd4fc1",
+    "timelineSha256": "3db75403f6d628aee0558a40334969d356dc528eb6ef04d6ba6d7f146e97fd5f",
+    "comparedFaceFrames": 410
+  },
+  "comparisonContractCli": {
+    "command": "node scripts/clean-catalog-comparison-contract.mjs work/clean-v5-qa-37521402519/reports/browser/admitted-catalog/report.json",
+    "exitCode": 0,
+    "outputMatchesNativeReportAndReceipt": true,
+    "newBrowserExecution": false
+  },
+  "rawInputDescriptorBytesIdentical": true,
+  "inputDescriptorRows": 410,
+  "inputDescriptorRawFileSha256": "175af5180f5172706880556e762e034a0fb7a9d9dd03798d53296a1113c111a2",
+  "jsonStringifyHashesReconciled": {
+    "method": "Local Node JSON.stringify of both native input/choice files; SHA256 compared with native trial framesHash, choicesHash and timelineHash. No browser execution.",
+    "acquiredFramesSha256": "e14e8727696fc54a4be92a380436722d6a60b5d2f07632235f1cb412c2dd4fc1",
+    "timelineSha256": "3db75403f6d628aee0558a40334969d356dc528eb6ef04d6ba6d7f146e97fd5f",
+    "bothVariantsMatch": true
+  },
+  "inputSampling": {
+    "durationSeconds": 23.3,
+    "densityFps": 20,
+    "plannedFrames": 466,
+    "faceFrames": 410,
+    "framesWithoutDetectedFace": 56,
+    "sequenceFrames": 410,
+    "imageFailures": 0,
+    "sameAcquiredFrames": true,
+    "sameTimeline": true,
+    "fixtureSha256": "d470cf5a8aeb847f9c127ed8f0d567fcadd99e83c185ef60b7a8c9c6236a005b"
+  },
+  "trials": {
+    "baseline": {
+      "identity": {
+        "version": "camera-arrival-v3",
+        "build": "1974b9a72d971acf",
+        "revision": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e"
+      },
+      "builds": {
+        "client": "1974b9a72d971acf",
+        "runtime": "1974b9a72d971acf",
+        "input": "1974b9a72d971acf",
+        "worker": "1974b9a72d971acf",
+        "version": "camera-arrival-v3"
+      },
+      "catalog": {
+        "root": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/baseline/public/seed-catalog",
+        "manifestHash": "6391efaa2d2b2d38443e337f2cc7926347f7722796ff3b12e27e4499675608d1",
+        "imageBytesHash": "4f79b5bbda40a6b87f8449723bb4d71e82bf5a6799b370a35c12aae6332f4bdb",
+        "images": 70000,
+        "uniqueIds": 70000,
+        "physicalAddresses": 70000,
+        "bytes": 390949348,
+        "poseCells": 775
+      },
+      "passed": true,
+      "initialPresentationPassed": true,
+      "remainingChecksPassed": true,
+      "verificationStages": {
+        "completeVideo": true,
+        "presentation": true,
+        "layout": true,
+        "playback": true,
+        "freshPixels": true,
+        "modeSwitch": true,
+        "downloadedAssets": true,
+        "runtimeAndCatalogStable": true
+      },
+      "completeVideo": {
+        "sourceName": "reference-face-motion.mp4",
+        "plannedFrames": 466,
+        "faceFrames": 410,
+        "sequenceFrames": 410,
+        "selectedImages": 144,
+        "imageFailures": 0,
+        "outputChanges": 156,
+        "uniqueFaces": 144,
+        "processingMs": 96529.90000000002,
+        "phaseTimingsMs": {
+          "preparation": 0.1,
+          "faceMesh": 41505.2,
+          "candidateSearch": 52163,
+          "pathOptimization": 1702.5,
+          "imagePreload": 885.3
+        },
+        "sequenceFingerprint": "29cf3873",
+        "canvasNonBlank": true,
+        "faceCoverage": 0.8798283261802575,
+        "passed": true,
+        "reasons": [],
+        "frameEvidence": {
+          "presentationCallbacks": 325,
+          "decodedPausedReadbacks": 141
+        },
+        "inputBuild": "camera-arrival-v3",
+        "build": "1974b9a72d971acf",
+        "searchTraffic": {
+          "bytes": 419271118,
+          "files": 722,
+          "decoded": 67131
+        },
+        "matching": {
+          "meanYawErrorDegrees": 4.584621685231977,
+          "meanPitchErrorDegrees": 3.285485182437525,
+          "meanMouthError": 0.11857268669741274,
+          "meanEyeError": 0.026455330723142823,
+          "meanProjectionError": 0.15068803938765102
+        }
+      },
+      "acquiredFrameCount": 410,
+      "acquiredFramesSha256": "e14e8727696fc54a4be92a380436722d6a60b5d2f07632235f1cb412c2dd4fc1",
+      "timelineSha256": "3db75403f6d628aee0558a40334969d356dc528eb6ef04d6ba6d7f146e97fd5f",
+      "choicesSha256": "3f8af60f3360fd89fdf2d9ef56c02ab17d179579542e4682a5c6c39a82aef63e",
+      "downloadedShardCount": 722,
+      "downloadedCoreImages": 142,
+      "pageErrors": [],
+      "runtimeQualityOverlayEntries": 0,
+      "legacyQualityOverlayRequestCount": 1,
+      "boundWinkIndex": null,
+      "freshPixels": {
+        "photosInspected": 144,
+        "photosDetected": 142,
+        "errors": [],
+        "undetected": [
+          {
+            "id": "clean-v3-clean-v3-source-train-320000-b9b83f0f1bd808b617537b10",
+            "url": "http://127.0.0.1:4185/api/catalog/image?pack=live_yaw_p045_pitch_n009.bin&offset=283760&length=4818&source=seed&catalog=many-faces-clean-core-v3-pose-local-v1",
+            "feature": null,
+            "wink": null
+          },
+          {
+            "id": "clean-v3-clean-v3-source-train-360000-2c91ee76ddd0ac34b2d03b75",
+            "url": "http://127.0.0.1:4185/api/catalog/image?pack=live_yaw_p045_pitch_p036.bin&offset=9554&length=4420&source=seed&catalog=many-faces-clean-core-v3-pose-local-v1",
+            "feature": null,
+            "wink": null
+          }
+        ],
+        "storedContradictions": [],
+        "detectedFrames": 408,
+        "meanYawErrorDegrees": 3.6077595034190675,
+        "meanPitchErrorDegrees": 3.612341109853401,
+        "reversedInputYawFrames": [],
+        "winks": {
+          "frames": 16,
+          "correctSide": 16
+        }
+      },
+      "initialDrawing": {
+        "beforeAnySeek": true,
+        "videoTime": 0,
+        "videoSize": [
+          512,
+          910
+        ],
+        "sourceAspectRatio": 0.5626373626373626,
+        "actualMatrix": [
+          0.7656278014183044,
+          0,
+          0,
+          0.7656278014183044,
+          348.4708557128906,
+          346.67828369140625
+        ],
+        "expectedCurrentMatrix": [
+          0.7656278048187918,
+          0,
+          0,
+          0.7656278048187918,
+          348.4708697626502,
+          346.67829726799016
+        ],
+        "maximumCurrentMatrixComponentError": 1.4049759556655772e-05,
+        "pixelHash": "d436286eaf913a7395ce3d8feb40dd1dfb59121de4ac397735fff25f02b741ee",
+        "passed": true
+      },
+      "knownInitialFailure": null,
+      "initialRecovery": null,
+      "presentation": {
+        "trackingStartsEnabled": true,
+        "motionSamples": 5,
+        "selectedIdAtToggle": "clean-v3-clean-v3-source-train-360000-2c91ee76ddd0ac34b2d03b75",
+        "selectedTimeAtToggle": 17.2,
+        "normal": {
+          "matrix": [
+            0.6310358047485352,
+            0,
+            0,
+            0.6310358047485352,
+            530.7988891601562,
+            561.7828979492188
+          ],
+          "pixelHash": "7ae81228d2a010d0d5a2b7e71af6c8f44a56d7122a7de8ed454cc9cde80d5925"
+        },
+        "untracked": {
+          "matrix": [
+            1,
+            0,
+            0,
+            1,
+            384,
+            384
+          ],
+          "pixelHash": "bc7a9e20f9b96ac0c4c037d40c21e74d65f37b2fa3d51549c4bcc5a4a1fcdbae"
+        },
+        "tracked": {
+          "matrix": [
+            0.6310358047485352,
+            0,
+            0,
+            0.6310358047485352,
+            530.7988891601562,
+            561.7828979492188
+          ],
+          "pixelHash": "7ae81228d2a010d0d5a2b7e71af6c8f44a56d7122a7de8ed454cc9cde80d5925"
+        },
+        "faceOnly": {
+          "matrix": [
+            0.6310358047485352,
+            0,
+            0,
+            0.6310358047485352,
+            530.7988891601562,
+            561.7828979492188
+          ],
+          "pixelHash": "6c22abd9040cb0a09552a277f77003b8c1c4ff5b94bf06160ff2bb792b4be11f"
+        },
+        "mirrored": {
+          "input-video": "matrix(-1, 0, 0, 1, 0, 0)",
+          "output-canvas": "matrix(-1, 0, 0, 1, 0, 0)"
+        },
+        "unmirrored": {
+          "input-video": "none",
+          "output-canvas": "none"
+        },
+        "selectionPreservationEvidence": "Native trial assertions passed: every selected ID unchanged and search not rerun by tracking, face-only or paired mirror controls."
+      },
+      "layout": [
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "stage": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844
+          },
+          "canvas": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844
+          },
+          "pip": {
+            "x": 270.703125,
+            "y": 14,
+            "width": 105.296875,
+            "height": 140.390625
+          },
+          "scroll": 390,
+          "oldTabs": 0,
+          "modes": 2,
+          "objectFit": "cover"
+        },
+        {
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "stage": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 900
+          },
+          "canvas": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 900
+          },
+          "pip": {
+            "x": 1230,
+            "y": 20,
+            "width": 190,
+            "height": 253.328125
+          },
+          "scroll": 1440,
+          "oldTabs": 0,
+          "modes": 2,
+          "objectFit": "cover"
+        }
+      ],
+      "playback": {
+        "stepAnchorSeconds": 1,
+        "frameStepSeconds": 0.05,
+        "frameStepToleranceSeconds": 0.005,
+        "pauseAfterPlayback": {
+          "time": 0.304346,
+          "paused": true,
+          "seeking": false,
+          "reviewTime": 0.3,
+          "ui": {
+            "reviewTime": 0.3,
+            "slider": {
+              "value": "0.3",
+              "valueAttribute": "0.297071",
+              "min": "0",
+              "max": "23.3",
+              "step": "0.05",
+              "disabled": false
+            },
+            "playPause": {
+              "label": "再生",
+              "text": "再生",
+              "disabled": false
+            }
+          },
+          "canvas": {
+            "width": 768,
+            "height": 768,
+            "drawCount": 55,
+            "lastDraw": {
+              "matrix": [
+                0.7775263786315918,
+                0,
+                0,
+                0.7775263786315918,
+                354.60906982421875,
+                351.37835693359375
+              ],
+              "args": [
+                -384,
+                -384
+              ],
+              "at": 103248.69999999995,
+              "sourceWidth": 768,
+              "sourceHeight": 768,
+              "sourceImage": {
+                "url": "http://127.0.0.1:4185/api/catalog/image?pack=live_yaw_p003_pitch_p006.bin&offset=392804&length=10936&source=seed&catalog=many-faces-clean-core-v3-pose-local-v1",
+                "width": 256,
+                "height": 256,
+                "naturalWidth": 256,
+                "naturalHeight": 256,
+                "complete": true
+              }
+            },
+            "videoTime": 0.304346,
+            "videoWidth": 512,
+            "videoHeight": 910,
+            "paused": true,
+            "seeking": false,
+            "pixelHash": "231c6d4401b4ffe769462710056d7d5ef46c222f2e518b0770b87b6dfbf93383"
+          }
+        },
+        "paused": {
+          "time": 1,
+          "paused": true,
+          "seeking": false,
+          "reviewTime": 1,
+          "ui": {
+            "reviewTime": 1,
+            "slider": {
+              "value": "1",
+              "valueAttribute": "1",
+              "min": "0",
+              "max": "23.3",
+              "step": "0.05",
+              "disabled": false
+            },
+            "playPause": {
+              "label": "再生",
+              "text": "再生",
+              "disabled": false
+            }
+          },
+          "canvas": {
+            "width": 768,
+            "height": 768,
+            "drawCount": 57,
+            "lastDraw": {
+              "matrix": [
+                0.8042910695075989,
+                0,
+                0,
+                0.8042910695075989,
+                393.9324645996094,
+                316.2786560058594
+              ],
+              "args": [
+                -384,
+                -384
+              ],
+              "at": 103287.69999999995,
+              "sourceWidth": 768,
+              "sourceHeight": 768,
+              "sourceImage": {
+                "url": "http://127.0.0.1:4185/api/catalog/image?pack=live_yaw_p009_pitch_p000.bin&offset=637340&length=4918&source=seed&catalog=many-faces-clean-core-v3-pose-local-v1",
+                "width": 256,
+                "height": 256,
+                "naturalWidth": 256,
+                "naturalHeight": 256,
+                "complete": true
+              }
+            },
+            "videoTime": 1,
+            "videoWidth": 512,
+            "videoHeight": 910,
+            "paused": true,
+            "seeking": false,
+            "pixelHash": "67611906e9d06697707523cf29b1f0cd83ae3b696efee08d42ac3d60982d93b4"
+          }
+        },
+        "stepped": {
+          "time": 1.05,
+          "paused": true,
+          "seeking": false,
+          "reviewTime": 1.05,
+          "ui": {
+            "reviewTime": 1.05,
+            "slider": {
+              "value": "1.05",
+              "valueAttribute": "1.05",
+              "min": "0",
+              "max": "23.3",
+              "step": "0.05",
+              "disabled": false
+            },
+            "playPause": {
+              "label": "再生",
+              "text": "再生",
+              "disabled": false
+            }
+          },
+          "canvas": {
+            "width": 768,
+            "height": 768,
+            "drawCount": 59,
+            "lastDraw": {
+              "matrix": [
+                0.7926076054573059,
+                0,
+                0,
+                0.7926076054573059,
+                410.4723815917969,
+                317.4865417480469
+              ],
+              "args": [
+                -384,
+                -384
+              ],
+              "at": 103381.90000000014,
+              "sourceWidth": 768,
+              "sourceHeight": 768,
+              "sourceImage": {
+                "url": "http://127.0.0.1:4185/api/catalog/image?pack=live_yaw_p021_pitch_p003.bin&offset=575594&length=6214&source=seed&catalog=many-faces-clean-core-v3-pose-local-v1",
+                "width": 256,
+                "height": 256,
+                "naturalWidth": 256,
+                "naturalHeight": 256,
+                "complete": true
+              }
+            },
+            "videoTime": 1.05,
+            "videoWidth": 512,
+            "videoHeight": 910,
+            "paused": true,
+            "seeking": false,
+            "pixelHash": "695bda388a7d12cf767288b34dd85a519407e7506e3510e7bcc44299706e11ee"
+          }
+        },
+        "seekSeconds": 22
+      },
+      "nativeChecks": [
+        "Default face tracking is ON before analysis",
+        "Every downloaded candidate shard and core photo matches the inventoried physical catalog",
+        "Complete 23.3s/20fps input, every detected frame returned, nonblank output, zero image failures and aligned build IDs",
+        "The real fixture contains a nontrivial face-tracking stimulus",
+        "Initial completed canvas has the current face position and size before any seek or display-control redraw",
+        "Face tracking starts ON in the actual video UI",
+        "Disabling tracking redraws the same selected photo",
+        "Face-only mode redraws the chosen photo without changing geometry",
+        "Tracking, face-only and paired mirror controls preserve every selected ID and do not rerun search",
+        "Mobile and desktop retain the fullscreen two-mode UI, small PiP and working cover/contain controls",
+        "Playback, pause, 20fps frame stepping and seek beyond 20s work without changing the selected sequence",
+        "Both current modes remain accessible; camera capture was not started"
+      ]
+    },
+    "candidate": {
+      "identity": {
+        "version": "camera-arrival-v3",
+        "build": "87b57e8f16cd44dd",
+        "revision": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4"
+      },
+      "builds": {
+        "client": "87b57e8f16cd44dd",
+        "runtime": "87b57e8f16cd44dd",
+        "input": "87b57e8f16cd44dd",
+        "worker": "87b57e8f16cd44dd",
+        "version": "camera-arrival-v3"
+      },
+      "catalog": {
+        "root": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/app/public/seed-catalog",
+        "manifestHash": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+        "imageBytesHash": "54f800a5b82fe34886f97ed35a6c2f1d21402c9d3e407d641245ff5efaa3ea73",
+        "images": 70000,
+        "uniqueIds": 70000,
+        "physicalAddresses": 70000,
+        "bytes": 388681708,
+        "poseCells": 775
+      },
+      "passed": true,
+      "initialPresentationPassed": true,
+      "remainingChecksPassed": true,
+      "verificationStages": {
+        "completeVideo": true,
+        "presentation": true,
+        "layout": true,
+        "playback": true,
+        "freshPixels": true,
+        "modeSwitch": true,
+        "downloadedAssets": true,
+        "runtimeAndCatalogStable": true
+      },
+      "completeVideo": {
+        "sourceName": "reference-face-motion.mp4",
+        "plannedFrames": 466,
+        "faceFrames": 410,
+        "sequenceFrames": 410,
+        "selectedImages": 134,
+        "imageFailures": 0,
+        "outputChanges": 152,
+        "uniqueFaces": 134,
+        "processingMs": 103900.1000000001,
+        "phaseTimingsMs": {
+          "preparation": 0.1,
+          "faceMesh": 40314.1,
+          "candidateSearch": 60817,
+          "pathOptimization": 1695.3,
+          "imagePreload": 817.4
+        },
+        "sequenceFingerprint": "85c9b66e",
+        "canvasNonBlank": true,
+        "faceCoverage": 0.8798283261802575,
+        "passed": true,
+        "reasons": [],
+        "frameEvidence": {
+          "presentationCallbacks": 335,
+          "decodedPausedReadbacks": 131
+        },
+        "inputBuild": "camera-arrival-v3",
+        "build": "87b57e8f16cd44dd",
+        "searchTraffic": {
+          "bytes": 497852679,
+          "files": 722,
+          "decoded": 68163
+        },
+        "matching": {
+          "meanYawErrorDegrees": 3.5281040672904447,
+          "meanPitchErrorDegrees": 2.7197428237110257,
+          "meanMouthError": 0.12062601042557337,
+          "meanEyeError": 0.024453342246644826,
+          "meanProjectionError": 0.1427788639564288
+        }
+      },
+      "acquiredFrameCount": 410,
+      "acquiredFramesSha256": "e14e8727696fc54a4be92a380436722d6a60b5d2f07632235f1cb412c2dd4fc1",
+      "timelineSha256": "3db75403f6d628aee0558a40334969d356dc528eb6ef04d6ba6d7f146e97fd5f",
+      "choicesSha256": "9d0b2e741f8195fcb3f322f5f82d9e38c812fff12eec69a58e7077141093d0e8",
+      "downloadedShardCount": 722,
+      "downloadedCoreImages": 134,
+      "pageErrors": [],
+      "runtimeQualityOverlayEntries": 0,
+      "legacyQualityOverlayRequestCount": 0,
+      "boundWinkIndex": {
+        "items": 71,
+        "manifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+        "externalPhotos": 0,
+        "requestedFrames": 16
+      },
+      "freshPixels": {
+        "photosInspected": 134,
+        "photosDetected": 134,
+        "errors": [],
+        "undetected": [],
+        "storedContradictions": [],
+        "detectedFrames": 410,
+        "meanYawErrorDegrees": 3.5279326071980504,
+        "meanPitchErrorDegrees": 2.7193161798362606,
+        "reversedInputYawFrames": [],
+        "winks": {
+          "frames": 16,
+          "correctSide": 16
+        }
+      },
+      "initialDrawing": {
+        "beforeAnySeek": true,
+        "videoTime": 0,
+        "videoSize": [
+          512,
+          910
+        ],
+        "sourceAspectRatio": 0.5626373626373626,
+        "actualMatrix": [
+          0.7690766453742981,
+          0,
+          0,
+          0.7690766453742981,
+          348.4248962402344,
+          346.1968994140625
+        ],
+        "expectedCurrentMatrix": [
+          0.7690766166455458,
+          0,
+          0,
+          0.7690766166455458,
+          348.4248914521121,
+          346.1968952635176
+        ],
+        "maximumCurrentMatrixComponentError": 4.788122282661789e-06,
+        "pixelHash": "6f39266d9757215cb487d18410e6b9449458fee0af6e540a572a3b2cb9c9527b",
+        "passed": true
+      },
+      "knownInitialFailure": null,
+      "initialRecovery": null,
+      "presentation": {
+        "trackingStartsEnabled": true,
+        "motionSamples": 5,
+        "selectedIdAtToggle": "clean-v5-0db7ae25bc795e5b9972ec0ac94d",
+        "selectedTimeAtToggle": 7.7,
+        "normal": {
+          "matrix": [
+            0.5,
+            0,
+            0,
+            0.5,
+            293.75982666015625,
+            247.29515075683594
+          ],
+          "pixelHash": "94649be15e9f3e877599ec3b9916bf3a5269032b6eb31650de2ec37ec7476a24"
+        },
+        "untracked": {
+          "matrix": [
+            1,
+            0,
+            0,
+            1,
+            384,
+            384
+          ],
+          "pixelHash": "fcdeb2183ea9efc75162d88907198896f1611061011c96bff5dbc3c2cd75e115"
+        },
+        "tracked": {
+          "matrix": [
+            0.5,
+            0,
+            0,
+            0.5,
+            293.75982666015625,
+            247.29515075683594
+          ],
+          "pixelHash": "94649be15e9f3e877599ec3b9916bf3a5269032b6eb31650de2ec37ec7476a24"
+        },
+        "faceOnly": {
+          "matrix": [
+            0.5,
+            0,
+            0,
+            0.5,
+            293.75982666015625,
+            247.29515075683594
+          ],
+          "pixelHash": "f03ccb667caa1ab7e461692091bb84dc39580a276f0687f11106c4886ef8125f"
+        },
+        "mirrored": {
+          "input-video": "matrix(-1, 0, 0, 1, 0, 0)",
+          "output-canvas": "matrix(-1, 0, 0, 1, 0, 0)"
+        },
+        "unmirrored": {
+          "input-video": "none",
+          "output-canvas": "none"
+        },
+        "selectionPreservationEvidence": "Native trial assertions passed: every selected ID unchanged and search not rerun by tracking, face-only or paired mirror controls."
+      },
+      "layout": [
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "stage": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844
+          },
+          "canvas": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844
+          },
+          "pip": {
+            "x": 270.703125,
+            "y": 14,
+            "width": 105.296875,
+            "height": 140.390625
+          },
+          "scroll": 390,
+          "oldTabs": 0,
+          "modes": 2,
+          "objectFit": "cover"
+        },
+        {
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "stage": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 900
+          },
+          "canvas": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 900
+          },
+          "pip": {
+            "x": 1230,
+            "y": 20,
+            "width": 190,
+            "height": 253.328125
+          },
+          "scroll": 1440,
+          "oldTabs": 0,
+          "modes": 2,
+          "objectFit": "cover"
+        }
+      ],
+      "playback": {
+        "stepAnchorSeconds": 1,
+        "frameStepSeconds": 0.05,
+        "frameStepToleranceSeconds": 0.005,
+        "pauseAfterPlayback": {
+          "time": 0.303818,
+          "paused": true,
+          "seeking": false,
+          "reviewTime": 0.3,
+          "ui": {
+            "reviewTime": 0.3,
+            "slider": {
+              "value": "0.3",
+              "valueAttribute": "0.295799",
+              "min": "0",
+              "max": "23.3",
+              "step": "0.05",
+              "disabled": false
+            },
+            "playPause": {
+              "label": "再生",
+              "text": "再生",
+              "disabled": false
+            }
+          },
+          "canvas": {
+            "width": 768,
+            "height": 768,
+            "drawCount": 55,
+            "lastDraw": {
+              "matrix": [
+                0.7810227870941162,
+                0,
+                0,
+                0.7810227870941162,
+                354.562255859375,
+                350.889404296875
+              ],
+              "args": [
+                -384,
+                -384
+              ],
+              "at": 108490.70000000019,
+              "sourceWidth": 768,
+              "sourceHeight": 768,
+              "sourceImage": {
+                "url": "http://127.0.0.1:4183/api/catalog/image?pack=live_yaw_p003_pitch_p006.bin&offset=537824&length=10936&source=seed&catalog=many-faces-clean-core-v5-28e6092363ed981f-pose-local-v1",
+                "width": 256,
+                "height": 256,
+                "naturalWidth": 256,
+                "naturalHeight": 256,
+                "complete": true
+              }
+            },
+            "videoTime": 0.303818,
+            "videoWidth": 512,
+            "videoHeight": 910,
+            "paused": true,
+            "seeking": false,
+            "pixelHash": "aeff4987c419569d744d91ad6e0e6146fcb63ec933e3e612eaa939f337e6bd50"
+          }
+        },
+        "paused": {
+          "time": 1,
+          "paused": true,
+          "seeking": false,
+          "reviewTime": 1,
+          "ui": {
+            "reviewTime": 1,
+            "slider": {
+              "value": "1",
+              "valueAttribute": "1",
+              "min": "0",
+              "max": "23.3",
+              "step": "0.05",
+              "disabled": false
+            },
+            "playPause": {
+              "label": "再生",
+              "text": "再生",
+              "disabled": false
+            }
+          },
+          "canvas": {
+            "width": 768,
+            "height": 768,
+            "drawCount": 57,
+            "lastDraw": {
+              "matrix": [
+                0.8052436113357544,
+                0,
+                0,
+                0.8052436113357544,
+                393.9658508300781,
+                315.5229187011719
+              ],
+              "args": [
+                -384,
+                -384
+              ],
+              "at": 108530.5,
+              "sourceWidth": 768,
+              "sourceHeight": 768,
+              "sourceImage": {
+                "url": "http://127.0.0.1:4183/api/catalog/image?pack=live_yaw_p009_pitch_p000.bin&offset=1018528&length=4918&source=seed&catalog=many-faces-clean-core-v5-28e6092363ed981f-pose-local-v1",
+                "width": 256,
+                "height": 256,
+                "naturalWidth": 256,
+                "naturalHeight": 256,
+                "complete": true
+              }
+            },
+            "videoTime": 1,
+            "videoWidth": 512,
+            "videoHeight": 910,
+            "paused": true,
+            "seeking": false,
+            "pixelHash": "3c83d50cfe87dff46286a83be0df90ff9d5125d81e0915518c026d2b0cb0fb8f"
+          }
+        },
+        "stepped": {
+          "time": 1.05,
+          "paused": true,
+          "seeking": false,
+          "reviewTime": 1.05,
+          "ui": {
+            "reviewTime": 1.05,
+            "slider": {
+              "value": "1.05",
+              "valueAttribute": "1.05",
+              "min": "0",
+              "max": "23.3",
+              "step": "0.05",
+              "disabled": false
+            },
+            "playPause": {
+              "label": "再生",
+              "text": "再生",
+              "disabled": false
+            }
+          },
+          "canvas": {
+            "width": 768,
+            "height": 768,
+            "drawCount": 59,
+            "lastDraw": {
+              "matrix": [
+                0.8017331957817078,
+                0,
+                0,
+                0.8017331957817078,
+                428.7000427246094,
+                312.2842102050781
+              ],
+              "args": [
+                -384,
+                -384
+              ],
+              "at": 108622.5,
+              "sourceWidth": 768,
+              "sourceHeight": 768,
+              "sourceImage": {
+                "url": "http://127.0.0.1:4183/api/catalog/image?pack=live_yaw_p018_pitch_n003.bin&offset=913360&length=5706&source=seed&catalog=many-faces-clean-core-v5-28e6092363ed981f-pose-local-v1",
+                "width": 256,
+                "height": 256,
+                "naturalWidth": 256,
+                "naturalHeight": 256,
+                "complete": true
+              }
+            },
+            "videoTime": 1.05,
+            "videoWidth": 512,
+            "videoHeight": 910,
+            "paused": true,
+            "seeking": false,
+            "pixelHash": "729011ce08c01a55e575e47090eadac2bdf0467991f81ae74fc1d6d0bc7cfbb7"
+          }
+        },
+        "seekSeconds": 22
+      },
+      "nativeChecks": [
+        "Default face tracking is ON before analysis",
+        "Every downloaded candidate shard and core photo matches the inventoried physical catalog",
+        "Complete 23.3s/20fps input, every detected frame returned, nonblank output, zero image failures and aligned build IDs",
+        "The real fixture contains a nontrivial face-tracking stimulus",
+        "Initial completed canvas has the current face position and size before any seek or display-control redraw",
+        "Face tracking starts ON in the actual video UI",
+        "Disabling tracking redraws the same selected photo",
+        "Face-only mode redraws the chosen photo without changing geometry",
+        "Tracking, face-only and paired mirror controls preserve every selected ID and do not rerun search",
+        "Mobile and desktop retain the fullscreen two-mode UI, small PiP and working cover/contain controls",
+        "Playback, pause, 20fps frame stepping and seek beyond 20s work without changing the selected sequence",
+        "Both current modes remain accessible; camera capture was not started",
+        "Admitted candidate made zero legacy runtime exclusion requests during the entire trial"
+      ]
+    }
+  },
+  "storedDescriptorMetrics": {
+    "meanYawErrorDegrees": {
+      "baseline": 4.584621685231977,
+      "candidate": 3.5281040672904447,
+      "change": -1.0565176179415325,
+      "relativeChangePercent": -23.0448157008199
+    },
+    "meanPitchErrorDegrees": {
+      "baseline": 3.285485182437525,
+      "candidate": 2.7197428237110257,
+      "change": -0.5657423587264994,
+      "relativeChangePercent": -17.219446362158635
+    },
+    "meanMouthError": {
+      "baseline": 0.11857268669741274,
+      "candidate": 0.12062601042557337,
+      "change": 0.0020533237281606387,
+      "relativeChangePercent": 1.731700432326834
+    },
+    "meanEyeError": {
+      "baseline": 0.026455330723142823,
+      "candidate": 0.024453342246644826,
+      "change": -0.002001988476497997,
+      "relativeChangePercent": -7.567429405623269
+    },
+    "meanProjectionError": {
+      "baseline": 0.15068803938765102,
+      "candidate": 0.1427788639564288,
+      "change": -0.007909175431222215,
+      "relativeChangePercent": -5.248708167789976
+    }
+  },
+  "storedMetricArithmeticReconciliation": {
+    "rawChoiceErrorsReconciled": true,
+    "meanValues": {
+      "baseline": {
+        "meanYawErrorDegrees": 4.584621685231977,
+        "meanPitchErrorDegrees": 3.285485182437525,
+        "meanMouthError": 0.11857268669741274,
+        "meanEyeError": 0.026455330723142823,
+        "meanProjectionError": 0.15068803938765102
+      },
+      "candidate": {
+        "meanYawErrorDegrees": 3.5281040672904447,
+        "meanPitchErrorDegrees": 2.7197428237110257,
+        "meanMouthError": 0.12062601042557337,
+        "meanEyeError": 0.024453342246644826,
+        "meanProjectionError": 0.1427788639564288
+      }
+    },
+    "maximumMeanDifference": 0,
+    "sampleScope": "The same 410 detected input frames on both sides; mouth and eye values remain the existing saved matching metrics."
+  },
+  "freshPixelPoseCommonFrameMetrics": {
+    "comparableFrames": 408,
+    "totalFaceFrames": 410,
+    "metrics": {
+      "yawErrorDegrees": {
+        "baseline": 3.6077595034190675,
+        "candidate": 3.526220594641333,
+        "change": -0.08153890877773451,
+        "relativeChangePercent": -2.2600982327247765
+      },
+      "pitchErrorDegrees": {
+        "baseline": 3.612341109853401,
+        "candidate": 2.723574226521984,
+        "change": -0.8887668833314168,
+        "relativeChangePercent": -24.603625635107466
+      }
+    },
+    "excludedCommonComparisonFrames": [
+      282,
+      288
+    ],
+    "exclusionReason": "Two baseline selected photos did not produce a fresh face; candidate had fresh detections on all 134 unique selected photos and all 410 face frames. Means here use the same 408 frames on both sides."
+  },
+  "freshPoseArithmeticReconciliation": {
+    "rawInspectionFeaturesAndChoicesReconciled": true,
+    "maximumPerFrameErrorDifference": 0,
+    "recomputedCommonFrameMeans": {
+      "yawErrorDegrees": {
+        "baseline": 3.6077595034190675,
+        "candidate": 3.526220594641333,
+        "change": -0.08153890877773451
+      },
+      "pitchErrorDegrees": {
+        "baseline": 3.612341109853401,
+        "candidate": 2.723574226521984,
+        "change": -0.8887668833314168
+      }
+    }
+  },
+  "freshWinkInputSideCounts": {
+    "baseline": {
+      "left": 16
+    },
+    "candidate": {
+      "left": 16
+    }
+  },
+  "selectedIdChanges": 410,
+  "selectedIdChangeInterpretation": "All 410 ID strings changed under the new clean-v5 encoded-image namespace; this count alone does not imply 410 different photo pixels.",
+  "selectedUniqueImages": {
+    "baseline": 144,
+    "candidate": 134
+  },
+  "timing": {
+    "baselineWallMs": 96714,
+    "candidateWallMs": 103963,
+    "deltaMs": 7249,
+    "repeatedSpeedBenchmark": false,
+    "relativeWallTimeChangePercent": 7.495295407076535,
+    "phaseTimingsMs": {
+      "baseline": {
+        "preparation": 0.1,
+        "faceMesh": 41505.2,
+        "candidateSearch": 52163,
+        "pathOptimization": 1702.5,
+        "imagePreload": 885.3
+      },
+      "candidate": {
+        "preparation": 0.1,
+        "faceMesh": 40314.1,
+        "candidateSearch": 60817,
+        "pathOptimization": 1695.3,
+        "imagePreload": 817.4
+      }
+    },
+    "trialOrder": [
+      "baseline",
+      "candidate"
+    ],
+    "interpretation": "One baseline trial followed by one candidate trial on native CI. This is not a repeated ABBA speed benchmark or a prediction of hosted/device processing time."
+  },
+  "tradeoffsObserved": {
+    "storedMouthErrorIncreased": true,
+    "storedMouthErrorChange": 0.0020533237281606387,
+    "singleTrialWallTimeIncreasedMs": 7249,
+    "freshCommonFrameYawErrorChangeDegrees": -0.08153890877773451,
+    "freshCommonFramePitchErrorChangeDegrees": -0.8887668833314168,
+    "generalQualityImprovementEstablished": false
+  },
+  "cancellation": {
+    "commit": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+    "checks": [
+      "client hydration confirmed before file selection",
+      "real full-recording analysis reaches a pending catalog request",
+      "cancel releases the operation without a false successful result or late restart"
+    ],
+    "history": [
+      {
+        "elapsedMs": 17,
+        "runtime": {
+          "version": "camera-arrival-v3",
+          "build": "87b57e8f16cd44dd",
+          "revision": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+          "phase": "waiting",
+          "label": "解析エンジンを待っています",
+          "updatedAt": 1791316999307,
+          "stalled": false
+        },
+        "videoSource": true
+      },
+      {
+        "elapsedMs": 396,
+        "runtime": {
+          "version": "camera-arrival-v3",
+          "build": "87b57e8f16cd44dd",
+          "revision": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+          "phase": "analyzing",
+          "label": "解析エンジンを準備中 14.8 MB",
+          "updatedAt": 1791316999534,
+          "stalled": false
+        },
+        "videoSource": true
+      }
+    ],
+    "pageErrors": [],
+    "interceptedShards": 4,
+    "passed": true,
+    "cancelToIdleMs": 35
+  },
+  "fullscreenAndVirtualCamera": {
+    "checks": [
+      "mobile output covers the entire viewport",
+      "no mobile horizontal overflow",
+      "no old navigation or tabs",
+      "bundled real recorded video completes actual analysis with nonblank output",
+      "the full existing reference recording is retained, not truncated to five seconds",
+      "source is a small top-right picture-in-picture",
+      "source and result continue past five seconds through the analyzed recording",
+      "frame stepping pauses the original",
+      "video mirror setting is paired",
+      "desktop also uses the complete output surface",
+      "actual MediaPipe virtual-camera pipeline produces result images",
+      "all 70,000 source images remain available",
+      "edge-swipe back stops the camera",
+      "switching mode stops and releases every camera track",
+      "cancel returns cleanly without a false successful report",
+      "no uncaught page errors"
+    ],
+    "pageErrors": [],
+    "camera": {
+      "phase": "running",
+      "message": "動きに合わせて検索中。入力と結果は同じ向きで表示します。",
+      "delegate": "CPU",
+      "source": "camera",
+      "frames": 73,
+      "faceFrames": 57,
+      "outputChanges": 20,
+      "detectionFps": 20,
+      "outputFps": 3,
+      "latencyP95Ms": 56,
+      "inferenceMs": 18,
+      "searchMs": 1,
+      "candidates": 4536,
+      "shards": 48,
+      "readyImages": 51,
+      "pendingImages": 0,
+      "imageBytes": 13369344,
+      "imageFailures": 0,
+      "inFlight": 0,
+      "maxInFlight": 1,
+      "busyDrops": 10,
+      "staleResults": 0,
+      "catalogTotal": 70000,
+      "firstOutputMs": 326,
+      "face": true,
+      "currentName": "2005- Berg- Wozzeck",
+      "currentSource": "Open Images V7",
+      "catalogError": null,
+      "stage": "running",
+      "errorCode": null,
+      "frameClock": "video-callback",
+      "videoWidth": 480,
+      "videoHeight": 480,
+      "videoReadyState": 4,
+      "videoPaused": false,
+      "trackState": "live",
+      "trackMuted": false,
+      "environment": {
+        "secure": true,
+        "available": true,
+        "embedded": false,
+        "cameraAllowed": true
+      },
+      "mirrorPresentation": true,
+      "build": "87b57e8f16cd44dd",
+      "version": "camera-arrival-v3",
+      "receivedBytes": 47852445,
+      "workerStage": "catalog",
+      "workerBuild": "87b57e8f16cd44dd",
+      "imageRequests": 51
+    },
+    "physicalCameraVerified": false,
+    "hostedSiteVerified": false,
+    "reviewPositions": [
+      5.833333,
+      11.666666,
+      17.5,
+      21.916666
+    ],
+    "passed": true
+  },
+  "fullscreenSupplementaryVideo": {
+    "sourceName": "reference-face-motion.mp4",
+    "plannedFrames": 279,
+    "faceFrames": 244,
+    "sequenceFrames": 244,
+    "selectedImages": 102,
+    "imageFailures": 0,
+    "outputChanges": 110,
+    "uniqueFaces": 102,
+    "processingMs": 56208.19999999995,
+    "phaseTimingsMs": {
+      "preparation": 0.1,
+      "faceMesh": 24156.5,
+      "candidateSearch": 30368.3,
+      "pathOptimization": 1017.3,
+      "imagePreload": 516.2
+    },
+    "sequenceFingerprint": "e09e3ee9",
+    "canvasNonBlank": true,
+    "faceCoverage": 0.8745519713261649,
+    "passed": true,
+    "reasons": [],
+    "frameEvidence": {
+      "presentationCallbacks": 201,
+      "decodedPausedReadbacks": 78
+    },
+    "inputBuild": "camera-arrival-v3",
+    "build": "87b57e8f16cd44dd",
+    "searchTraffic": {
+      "bytes": 496786726,
+      "files": 720,
+      "decoded": 68017
+    },
+    "matching": {
+      "meanYawErrorDegrees": 3.364612514905986,
+      "meanPitchErrorDegrees": 3.023879028832444,
+      "meanMouthError": 0.1317193378048839,
+      "meanEyeError": 0.025025693740293196,
+      "meanProjectionError": 0.14978813455379889
+    }
+  },
+  "launcher": {
+    "passed": true,
+    "mode": "admitted",
+    "virtualCameraVerified": true,
+    "sourceIdentity": {
+      "baseline": {
+        "build": "1974b9a72d971acf",
+        "revision": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e"
+      },
+      "candidate": {
+        "build": "87b57e8f16cd44dd",
+        "revision": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4"
+      }
+    },
+    "runtimeIdentity": {
+      "baseline": {
+        "version": "camera-arrival-v3",
+        "build": "1974b9a72d971acf",
+        "revision": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e"
+      },
+      "candidate": {
+        "version": "camera-arrival-v3",
+        "build": "87b57e8f16cd44dd",
+        "revision": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4"
+      }
+    },
+    "fixtureSha256": "d470cf5a8aeb847f9c127ed8f0d567fcadd99e83c185ef60b7a8c9c6236a005b",
+    "virtualCameraFixture": {
+      "path": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/reports/browser/fixtures/moving.y4m",
+      "sourceSha256": "d470cf5a8aeb847f9c127ed8f0d567fcadd99e83c185ef60b7a8c9c6236a005b",
+      "durationSeconds": 8,
+      "usedFor": "supplementary virtual-camera regression; comparison trials use the full unchanged MP4"
+    },
+    "steps": [
+      {
+        "name": "prepare-virtual-camera",
+        "command": "ffmpeg",
+        "args": [
+          "-hide_banner",
+          "-loglevel",
+          "error",
+          "-y",
+          "-i",
+          "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/app/public/test-fixtures/reference-face-motion.mp4",
+          "-t",
+          "8",
+          "-vf",
+          "scale=480:480:force_original_aspect_ratio=decrease,pad=480:480:(ow-iw)/2:(oh-ih)/2,fps=30",
+          "-pix_fmt",
+          "yuv420p",
+          "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/reports/browser/fixtures/moving.y4m"
+        ],
+        "cwd": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/app",
+        "log": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/reports/browser/prepare-virtual-camera.log",
+        "startedAt": "2026-10-06T19:59:16.900Z",
+        "pid": 5273,
+        "exitCode": 0,
+        "signal": null,
+        "finishedAt": "2026-10-06T19:59:17.640Z"
+      },
+      {
+        "name": "baseline-server",
+        "command": "npm",
+        "args": [
+          "start"
+        ],
+        "cwd": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/baseline",
+        "log": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/reports/browser/baseline-server.log",
+        "startedAt": "2026-10-06T19:59:17.644Z",
+        "pid": 5302,
+        "exitCode": null,
+        "signal": "SIGTERM",
+        "finishedAt": "2026-10-06T20:05:13.175Z"
+      },
+      {
+        "name": "candidate-server",
+        "command": "npm",
+        "args": [
+          "start"
+        ],
+        "cwd": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/app",
+        "log": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/reports/browser/candidate-server.log",
+        "startedAt": "2026-10-06T19:59:17.646Z",
+        "pid": 5303,
+        "exitCode": null,
+        "signal": "SIGTERM",
+        "finishedAt": "2026-10-06T20:05:13.175Z"
+      },
+      {
+        "name": "admitted-catalog-comparison",
+        "command": "/opt/hostedtoolcache/node/22.16.0/x64/bin/node",
+        "args": [
+          "scripts/verify-clean-catalog.mjs"
+        ],
+        "cwd": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/app",
+        "log": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/reports/browser/admitted-catalog-comparison.log",
+        "startedAt": "2026-10-06T19:59:18.702Z",
+        "pid": 5354,
+        "exitCode": 0,
+        "signal": null,
+        "finishedAt": "2026-10-06T20:03:18.421Z"
+      },
+      {
+        "name": "pending-network-cancellation",
+        "command": "/opt/hostedtoolcache/node/22.16.0/x64/bin/node",
+        "args": [
+          "scripts/verify-video-cancellation.mjs"
+        ],
+        "cwd": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/app",
+        "log": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/reports/browser/pending-network-cancellation.log",
+        "startedAt": "2026-10-06T20:03:18.428Z",
+        "pid": 5855,
+        "exitCode": 0,
+        "signal": null,
+        "finishedAt": "2026-10-06T20:03:59.636Z"
+      },
+      {
+        "name": "fullscreen-and-virtual-camera",
+        "command": "/opt/hostedtoolcache/node/22.16.0/x64/bin/node",
+        "args": [
+          "scripts/verify-fullscreen-ui.mjs"
+        ],
+        "cwd": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/app",
+        "log": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/reports/browser/fullscreen-and-virtual-camera.log",
+        "startedAt": "2026-10-06T20:03:59.639Z",
+        "pid": 6069,
+        "exitCode": 0,
+        "signal": null,
+        "finishedAt": "2026-10-06T20:05:12.976Z"
+      }
+    ],
+    "failures": []
+  },
+  "originalFailedHoldout": {
+    "status": "failed",
+    "reviewer": "assistant visual inspection",
+    "humanVerified": false,
+    "checkedPhotos": 360,
+    "preparedPhotos": 360,
+    "counts": {
+      "pass": 301,
+      "deny": 27,
+      "uncertain": 32
+    },
+    "previouslyInspectedSha256": "2b9586e1d788539c7ce3d078dc6158bbba4183634c81077fe82505b68828a623",
+    "previouslyInspectedImageCount": 1617,
+    "sampleIndexSha256": "f543ad152cb192f559452144d2ad9a5887593cbd058efae21a89372ca76e7221",
+    "visualReviewSha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c"
+  },
+  "visualReviewPreparation": {
+    "mode": "remediation",
+    "independentFinalHoldout": false,
+    "indexPath": "reports/remediation-index.json",
+    "indexSha256": "f13aff1392da62804f5096f17608baf4570ef58a9a4db60e6bf5a0fd8206d01c",
+    "addedPhotos": 59,
+    "evaluatedCandidateRunId": 37491677036,
+    "evaluatedManifestSha256": "d8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785",
+    "finalManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "failedHoldoutSha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c"
+  },
+  "sourceEvidence": {
+    "reports/qa-receipt.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/qa-receipt.json",
+      "bytes": 21457,
+      "sha256": "b60c64edd7c5b714219d44758928ed5f2c1ce9bc6dd51eec00021de2f39bc5ba"
+    },
+    "reports/physical-admission.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/physical-admission.json",
+      "bytes": 12970,
+      "sha256": "5cab924b4bc0deca7b1559426df8aeb108f0fe80cac0541b8c2165ef8e94af53"
+    },
+    "reports/remediation-index.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/remediation-index.json",
+      "bytes": 389486,
+      "sha256": "f13aff1392da62804f5096f17608baf4570ef58a9a4db60e6bf5a0fd8206d01c"
+    },
+    "reports/browser/admitted-catalog/report.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/browser/admitted-catalog/report.json",
+      "bytes": 153949,
+      "sha256": "b8ddcbff696d5581c6fdc703b89a58c94c586e844a294b801ba5f2f798658959"
+    },
+    "reports/browser/launcher-report.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/browser/launcher-report.json",
+      "bytes": 7955,
+      "sha256": "fcdf36a6b8a9c7c0a000d8c60c4a9143895b1354e9f94d2d65ce1e68f7be74e0"
+    },
+    "reports/browser/cancellation/cancellation.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/browser/cancellation/cancellation.json",
+      "bytes": 1158,
+      "sha256": "995127bd72e3184ba3a56b3daf1960b63238e6d7f810224da4de5144d3cabdb6"
+    },
+    "reports/browser/fullscreen/report.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/browser/fullscreen/report.json",
+      "bytes": 3574,
+      "sha256": "51f429db7b26f0f67e0ac90ca7b14479d5b89fe41139968e5e1e3f40cbfb3f2f"
+    },
+    "reports/presentation-source-guard.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/presentation-source-guard.json",
+      "bytes": 613,
+      "sha256": "90449721bf0ac3832e949b65ecb9e6aa7e2f083d965b7e919f41df49cab5ea03"
+    },
+    "scripts/clean-catalog-comparison-contract.mjs": {
+      "path": "scripts/clean-catalog-comparison-contract.mjs",
+      "bytes": 21730,
+      "sha256": "0be85e001af56568153f85119c84acbaca7cd660d5057bafd8a3fcbf342a6d7b"
+    },
+    "reports/browser/admitted-catalog/baseline-input-frames.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/browser/admitted-catalog/baseline-input-frames.json",
+      "bytes": 15842510,
+      "sha256": "175af5180f5172706880556e762e034a0fb7a9d9dd03798d53296a1113c111a2"
+    },
+    "reports/browser/admitted-catalog/baseline-choices.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/browser/admitted-catalog/baseline-choices.json",
+      "bytes": 1767087,
+      "sha256": "2099bb4d207349f850569d830b96acb9ac06c4f6eb2b7ce89f49ff2970d7baff"
+    },
+    "reports/browser/admitted-catalog/baseline-fresh-output-pixels.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/browser/admitted-catalog/baseline-fresh-output-pixels.json",
+      "bytes": 429998,
+      "sha256": "62c87696774469994d9fcccde9661830e26bbf3b4cc4e0deaa82f8d6c4457a1f"
+    },
+    "reports/browser/admitted-catalog/baseline-playback.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/browser/admitted-catalog/baseline-playback.json",
+      "bytes": 4431,
+      "sha256": "be320330d99108fc50b4952a0e6bdd35a373aca086ea69f419ed67ae520ca209"
+    },
+    "reports/browser/admitted-catalog/candidate-input-frames.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/browser/admitted-catalog/candidate-input-frames.json",
+      "bytes": 15842510,
+      "sha256": "175af5180f5172706880556e762e034a0fb7a9d9dd03798d53296a1113c111a2"
+    },
+    "reports/browser/admitted-catalog/candidate-choices.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/browser/admitted-catalog/candidate-choices.json",
+      "bytes": 2063981,
+      "sha256": "b2f96e4592903165e0ca1b20a253f322b16ce3533f7360cf862360ab7b47278f"
+    },
+    "reports/browser/admitted-catalog/candidate-fresh-output-pixels.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/browser/admitted-catalog/candidate-fresh-output-pixels.json",
+      "bytes": 397692,
+      "sha256": "e6bca1d959bd381e4b5cf123da039cf0e164cfb9ce5b313684f0ea318d859b17"
+    },
+    "reports/browser/admitted-catalog/candidate-playback.json": {
+      "path": "work/clean-v5-qa-37521402519/reports/browser/admitted-catalog/candidate-playback.json",
+      "bytes": 4459,
+      "sha256": "b3eb92ea5a51aad44b38c7b96419d4fbfa3bea5a2099fa572a3b8799a0ab360a"
+    }
+  },
+  "transportEvidence": {
+    "downloadIntegrity": {
+      "path": "work/clean-v5-qa-37521402519/download-integrity.json",
+      "bytes": 17653,
+      "sha256": "3786716bfd2ab8fdac248205fb5898ce78f77b38ffd4849a299ff710474781d1"
+    },
+    "originals": 59,
+    "pages": 2,
+    "reportFiles": 96
+  },
+  "rawEvidenceModified": false,
+  "visualReviewPerformedByThisAggregation": false,
+  "allAddedOriginalsApprovedByThisAggregation": false,
+  "datasetPromoted": false,
+  "sitePublished": false,
+  "hostedSiteVerified": false,
+  "physicalCameraVerified": false,
+  "independentHumanLabels": false,
+  "limitations": [
+    "Browser baseline is the frozen 7b application/old catalog; full-pose census baseline is the different fixed c92 admitted candidate.",
+    "Both baseline and candidate initial presentation passed in this actual run. The known baseline initial-failure exception was not used; prior runs are not substituted for this result.",
+    "Fresh pose comparison excludes the same two undetected baseline frames on both sides; stored descriptor metrics use all 410 common input frames.",
+    "This fixed video exercises 16 left-wink input frames and no right-wink input frames. Both returned 16 correct left sides; right-wink behavior is not established by this clip.",
+    "The virtual camera is an 8-second software fixture on native CI. Telemetry is a bounded automated observation, not a physical camera, user-device, or deployed Site measurement.",
+    "The historical independent 360-photo holdout remains failed. Separate exact original-image review and its native-index binding are not performed or changed by this aggregation."
+  ]
+}

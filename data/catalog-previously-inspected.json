@@ -102,9 +102,30 @@
       },
       "reusedOldPassesNotCountedAsNewObservations": 49,
       "newObservationsDoNotImplyVisualPass": true
+    },
+    {
+      "name": "new-replenishment-original-review-37521402519",
+      "recordCount": 1,
+      "newUniqueImages": 1,
+      "previouslySeenImages": 0,
+      "recordFilePath": "data/catalog-quality/remediation-originals-37521402519-new1.json",
+      "recordFileSha256": "73b78f48ae6b1c0947d4b55c71f7d7363ffe449a22db122aaaff854165d67b31",
+      "sourceRunId": 37521402519,
+      "candidateRunId": 37519882295,
+      "manifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+      "reviewScope": "full-original-image-quality",
+      "reviewDesign": "single-new-member-of-complete-added-image-census-not-independent-sample",
+      "reviewStatus": "complete",
+      "counts": {
+        "pass": 1,
+        "deny": 0,
+        "uncertain": 0
+      },
+      "reusedOldPassesNotCountedAsNewObservations": 58,
+      "newObservationsDoNotImplyCatalogWideManualReview": true
     }
   ],
-  "uniqueImages": 2045,
+  "uniqueImages": 2046,
   "images": [
     {
       "encodedSha256": "0025c36aa051478895f22598aca526dd65be2a91347a47aac40a5e2337015972",
@@ -149,6 +170,15 @@
       ],
       "evidence": [
         "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "0075ff7b95529b42bca9151e8b8ed06b2a7a375a258b1abc49413741d0fe2c97",
+      "samples": [
+        "H001"
+      ],
+      "evidence": [
+        "new-replenishment-original-review-37521402519"
       ]
     },
     {

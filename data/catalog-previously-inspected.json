@@ -50,9 +50,17 @@
       "name": "completed-all-automatic-winks-37477676654",
       "recordCount": 769,
       "recordFileSha256": "a7fe171276293cae84ca322c20bdafa4dfe5c19563bb0057cb369bfad7d13563"
+    },
+    {
+      "name": "failed-independent-holdout-37484611339",
+      "recordCount": 360,
+      "recordFileSha256": "51f90974b37ee82475ccad9766938a95e7e0876ee3e3b4f50b077854aebcdae4",
+      "recordFilePath": "data/catalog-quality/holdout-visual-review-37484611339.json",
+      "sourceRunId": 37484611339,
+      "manifestSha256": "9287e4d84dfa58f8651430ff94297571b4d60c5e6869da9e1806d1f43df7f31d"
     }
   ],
-  "uniqueImages": 1257,
+  "uniqueImages": 1617,
   "images": [
     {
       "encodedSha256": "0025c36aa051478895f22598aca526dd65be2a91347a47aac40a5e2337015972",
@@ -61,6 +69,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "002e98afdcefa2a814d6f1e13ac8f81f8cde6ab8e2318ec8c8b113d3d9a1483b",
+      "samples": [
+        "H222"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -79,6 +96,15 @@
       ],
       "evidence": [
         "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "0088527f9255833c0e38a5e2562f3d738dba092434e4b4d93fdb519b8e806a55",
+      "samples": [
+        "H028"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -210,6 +236,33 @@
       ]
     },
     {
+      "encodedSha256": "02638b1cc43e99c05ffdea4febfe8142ba73303a5c3e7c4dc687d9d98e512100",
+      "samples": [
+        "H340"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "0278d3f97225911b3ddc753a8948000e9883328006f039e096138795c5a660d8",
+      "samples": [
+        "H134"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "027ffbd11bb5e5977413266b23a5063ba4d43b3ee6efa64c4c26ef2de5b07544",
+      "samples": [
+        "H312"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "02852975962507fe23c553873d68eefeaa1c5e173717cf8039394641df465db7",
       "samples": [
         "WRA002"
@@ -228,12 +281,30 @@
       ]
     },
     {
+      "encodedSha256": "028eccd04b2086d1bccb93fee7f0f08704eefe9e586235a6eac7e66f4d3c007c",
+      "samples": [
+        "H093"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "02d6b29d6f82236f8f772a158923ea1c4099aa5f6bbbf726f406484659ebbf45",
       "samples": [
         "WLA011"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "03026352578121f04a09319075c90ed6ac316d1c493fb9702b8f839019a452af",
+      "samples": [
+        "H287"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -363,6 +434,15 @@
       ]
     },
     {
+      "encodedSha256": "05497f1303382628335762163b867ba66a3b7f278aae9a92397c20ad51b05503",
+      "samples": [
+        "H350"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "05a3f5c850fd0f016b02e8a6160b3d99431c5c666363aa095ad4a245908592cd",
       "samples": [
         "WLA021"
@@ -399,6 +479,15 @@
       ]
     },
     {
+      "encodedSha256": "064cc6a4b8f8a7c294cdf81c6aa2649e5a10d4b08b050a1e3d00a1826179263c",
+      "samples": [
+        "H269"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "077fe86fa3af16088a9dd62a24e85c003b59c78c0531ccb254de125e6ecd9a33",
       "samples": [
         "Q113"
@@ -423,6 +512,24 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "080e1a676b55b4d5d66bf78661b46e8c70040b9d641d16ccf5860451dc41caba",
+      "samples": [
+        "H098"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "081c8a310ebb0af3e9344e81fab581d6dd8154c0d1cbad0084c4d9aa9f9ca70a",
+      "samples": [
+        "H257"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -502,6 +609,15 @@
       ]
     },
     {
+      "encodedSha256": "09aad4ac3b8786bf62b24b5269f81b642ca7eec8f74a99a1faac68cfb245cc27",
+      "samples": [
+        "H293"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "09f90ad063a4d72503f1626de35c141a6809f9661258621120df944c4747c6cb",
       "samples": [
         "MF029",
@@ -531,6 +647,15 @@
       ]
     },
     {
+      "encodedSha256": "0a42a63cc9c2e5032a584cf1c572e81881a93c24e15070948ea43ed114923c1c",
+      "samples": [
+        "H255"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "0a79e9fd5bd4eebf7f40b2cd6bb7c601f92e90d2108a7791415f3132ea0b5768",
       "samples": [
         "mouthWide-057"
@@ -549,6 +674,15 @@
       ]
     },
     {
+      "encodedSha256": "0aa41f6370c2e4a630da5e8051240116a90a094ca6bcbc6dae86fbdfa15726b1",
+      "samples": [
+        "H201"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "0adeee6bbe77ec5a4e3bf0419e2b82216009425bb4d729fc141570bd0d5c20c4",
       "samples": [
         "WRA010"
@@ -564,6 +698,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "0b0f475c77b2590ea01f48eea1ab80f45fd84daf0b1d85073094dec3fa6374c6",
+      "samples": [
+        "H191"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -612,6 +755,15 @@
       ]
     },
     {
+      "encodedSha256": "0c9d9472109c2e7e810b9f63eb6f32c9bad59076d9cf314f22b4203ac7184b22",
+      "samples": [
+        "H299"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "0cb51dacf36561541bea5a7f6c1b3f72ce64756bf2e28aa82207bc6d77253b53",
       "samples": [
         "Q167"
@@ -621,12 +773,39 @@
       ]
     },
     {
+      "encodedSha256": "0cb65770277aa9d631e75afe868945b6d33a8c9fdb770e9975ebd603c549f325",
+      "samples": [
+        "H151"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "0ce3e2cd31d3552a26016e5bf20a047d34972e5791ba0140283860bcaec5221b",
       "samples": [
         "mouthFrown-043"
       ],
       "evidence": [
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "0d05006bd543bb5c76df7db83add1d9132e563c2a2597b277fbfedfda9e0d471",
+      "samples": [
+        "H259"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "0d54b6cefad283ba5fef5a4487f8c9dcafbf0e5a5c749dd106d7f91f20a16987",
+      "samples": [
+        "H156"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -648,12 +827,30 @@
       ]
     },
     {
+      "encodedSha256": "0ea4681523c59194696d9457b0f4eb38d553681aaf8bc6d335a5098eba23e5d3",
+      "samples": [
+        "H319"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "0f13b991dc9e410475e23ddc35aa7fcb49f1b233bd031636a3c25b166b013fff",
       "samples": [
         "mouthFrown-026"
       ],
       "evidence": [
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "0f1ffe2cd59c30106ad09fa2a2ebd3c34a7587ff74d9ab99934ee0ad2a1fa51a",
+      "samples": [
+        "H148"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -717,6 +914,33 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "111f127fbef4c061e9580b636db9cf0c6f7b8bdf082776f63d482cebe1cf1708",
+      "samples": [
+        "H181"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "112a659cc71290774a8dd4685f39babd73419cced13db5fcabcb46e288656d5b",
+      "samples": [
+        "H243"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "1136386ec1e96d20e0d235dbf3714bb0028817682e9ef2fad1af61c58c03df47",
+      "samples": [
+        "H232"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -815,6 +1039,15 @@
       ]
     },
     {
+      "encodedSha256": "12d9262b81dc17d4e2cfd0e284aa9cc5cc18808ba70172fb52a10768d111d50b",
+      "samples": [
+        "H209"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "130d831b4f8e0dfeb6aac7a12d7736b48b5da6303953cb150bdd6d942d15a1f9",
       "samples": [
         "mouthFrown-024"
@@ -893,6 +1126,24 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "142dfdb1c9ce3ec734a42df8e1d7666c80d946ff96f5e5675ba2b6eab54582aa",
+      "samples": [
+        "H124"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "1461987b7e8767179b6aa24f23ca5c79f9e483e0dcbddbddcfcb7890005d390f",
+      "samples": [
+        "H359"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -1013,6 +1264,15 @@
       ]
     },
     {
+      "encodedSha256": "171aa280dc949d758b11b1b1abeedfc448daeb5e40b700ea7bf3f3a411e9f504",
+      "samples": [
+        "H281"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "17312f9a1d580e4c6d915b52df74184ee4d71305328582d0378ec9e8d532b249",
       "samples": [
         "WLA045"
@@ -1067,12 +1327,30 @@
       ]
     },
     {
+      "encodedSha256": "17f4c7f23b6d327af14f43a6c57f672daf67bf12806a99b62a472d823d7c7209",
+      "samples": [
+        "H205"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "182db52349debd22ef1dfae40105b52220907d28f830f129a0a2031dab92e173",
       "samples": [
         "WLA047"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "1866dabc3715462e813737b3ebf92f38ef1325f4275306f2697ed62469be3c75",
+      "samples": [
+        "H075"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -1139,6 +1417,15 @@
       ]
     },
     {
+      "encodedSha256": "18e48833c026792c98d5117bdc1bfd3af162b7cd31aebc7d4f6508d0d0ad6635",
+      "samples": [
+        "H264"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "1939c5a99d35e6ea80f07a312150fc59420858cc93a6f21c72ca7ccc3297f58c",
       "samples": [
         "WLA052"
@@ -1163,6 +1450,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "19dac2c69806052e882ec0d16edf90656799c580a018f101dac3e28bb0d978e0",
+      "samples": [
+        "H302"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -1195,12 +1491,48 @@
       ]
     },
     {
+      "encodedSha256": "1a3c138cd6563bc0d08d126715fdccdd78c95c2f51873b56b5a9b4a6e95d48bd",
+      "samples": [
+        "H011"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "1a3e02410274d6a64052893b30ee98184108a0332238e2c24e3b49c0f0db812f",
       "samples": [
         "mouthWide-012"
       ],
       "evidence": [
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "1a771c1a06119c96db67cd1db673098e3c09e0c89537b8201054ae94d6085a92",
+      "samples": [
+        "H276"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "1a780e11c8a545b0207acbd9382d0c20fc45b687f5c5f458d9279b46617514db",
+      "samples": [
+        "H240"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "1a90fdbcf3a3e325a8a32fa7250a0dd4bec52cd0049722e2fee04b8477c35433",
+      "samples": [
+        "H282"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -1219,6 +1551,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "1b219ac6378fa17bff36f20413d75b3aef9cc0565ceffe20f787d3d05c197c09",
+      "samples": [
+        "H242"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -1366,6 +1707,15 @@
       ]
     },
     {
+      "encodedSha256": "1d6d3aa21afb3663b972bc81895fcb44a7a1c830f14b6a57aeea679275684ca6",
+      "samples": [
+        "H063"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "1d7fc07b5a0f10b4ad78a2d0e16e9cc146594d75b0ed8b69d1842765eff1ea13",
       "samples": [
         "Q111"
@@ -1390,6 +1740,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "1df25294a7517c0ab461d911540572e53220dad7710be35ade622d75bcf87196",
+      "samples": [
+        "H137"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -1456,12 +1815,30 @@
       ]
     },
     {
+      "encodedSha256": "1f07bcddb4847cc755c3105842e7a277d227a447c511461f3befc31ee2999b0c",
+      "samples": [
+        "H041"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "1f0a715fbcf48f87a8aa9ec1dbc9e348ed857250ee9e4909ea2f6fa0f02f5157",
       "samples": [
         "WRA040"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "1f46ab07d24f67449662cb7381ce373a935a88913d9655fe427a6a2c8ee8b306",
+      "samples": [
+        "H055"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -1510,6 +1887,24 @@
       ]
     },
     {
+      "encodedSha256": "2023d287ee843d174eca1cc0ece771ef726d19ea2e4add8a7a65771abf7d4d7a",
+      "samples": [
+        "H352"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "20283dddf18a6fa0e05ceed6abf8c6284ee00b33d3cf5635fbca0536d803db5a",
+      "samples": [
+        "H132"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "206bb0e4c3c7ec2ad697b65772905911167600e06e977faa764b91c45d3f03c2",
       "samples": [
         "WRA043"
@@ -1525,6 +1920,15 @@
       ],
       "evidence": [
         "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "20977ec857e862af1f6bfb3549b4846266b7768e6005b78fa65791fcb5989277",
+      "samples": [
+        "H218"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -1573,12 +1977,39 @@
       ]
     },
     {
+      "encodedSha256": "221a622525acc2c43df18a5ab5449877ed6b460e18312ec4725f00885e8c7fe3",
+      "samples": [
+        "H339"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "222227904fd7d74c24ff0408015908c2cb0f1c39c8b6255495db3e3d81ead8bd",
+      "samples": [
+        "H189"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "2286fceb178f8d70d72c5efbd43c6efcbfb58ff2aa867123d88c433214f74307",
       "samples": [
         "WRA046"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "228e0f3eca20d9fb52e84687daddecfa9b9559849305b9137433b2d0e18173c6",
+      "samples": [
+        "H022"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -1636,6 +2067,15 @@
       ]
     },
     {
+      "encodedSha256": "23647c41a3e801941b0a8aa3d15c630b9d4d30d88da858c5fd74c1b8245d3e30",
+      "samples": [
+        "H084"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "23b5127c3b1069db15c8c4c0ea0d460f65be6b26c7566fdabc4bafd601e65365",
       "samples": [
         "Q132"
@@ -1690,6 +2130,24 @@
       ]
     },
     {
+      "encodedSha256": "24ae88ecc3d725cf1ea47c1c0aa0f890d6e4aa747600016a0e3f0a6229731ee5",
+      "samples": [
+        "H019"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "24c4daedcd1b8599cdb662ce72c9ffd678508c5bc9dc390fd0329e1d7da02829",
+      "samples": [
+        "H144"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "24cd5fc7f8882c5f428425f1dac24ca1ec802a85805c9f3d0b0c482ef6076dc9",
       "samples": [
         "mouthWide-039"
@@ -1714,6 +2172,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "256bdca76b12392edcbd38618890fd9f0edfce64b496bc5fb8fbcb791b378c99",
+      "samples": [
+        "H076"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -1753,6 +2220,15 @@
       ]
     },
     {
+      "encodedSha256": "26105abf4174e859949d67efa040a8e9e207287c752dd65cd91e4cb2f12eceaa",
+      "samples": [
+        "H249"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "26350a0037f28260c5633121401ef0973c52e4c5cfa927c4d3b948721871cc75",
       "samples": [
         "WRA048"
@@ -1768,6 +2244,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "26a28f92208e57d3a8583699c171f2d5764f5d0048200e2c67003e3a2cad9c07",
+      "samples": [
+        "H196"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -1813,6 +2298,15 @@
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "27f45a6c0b62aa3db42322bc822676903fe9bb169d2d53b7ffdae2aebfdb0151",
+      "samples": [
+        "H273"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -1865,6 +2359,15 @@
       ]
     },
     {
+      "encodedSha256": "28f25fc474efe9a32ee5a82b2309c9f44cf3de8abedac2bcaf00d2ff2a67e2a5",
+      "samples": [
+        "H162"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "2904a8499112cd054b0695bac4582a6a79c57bee26d30b436fd014aa650bcc8f",
       "samples": [
         "mouthFrown-019"
@@ -1910,12 +2413,30 @@
       ]
     },
     {
+      "encodedSha256": "29c0497916a9f8472d7b3a512f388ef9fac93ec1fcf851f1282d4141e71dfa60",
+      "samples": [
+        "H275"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "2a15c58d91bf8609396846390e31c3c67788d9200b9cbf96c9d65e1cee2226cb",
       "samples": [
         "WRA053"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "2a279664e46ec2917a1184016eb5cf80164735813fe031aefdac7b8bc419cf33",
+      "samples": [
+        "H345"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -1934,6 +2455,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "2b3a06c5d747eda207fb03bc153488492c27ebb1e2e35107bf6a02696e73d9f2",
+      "samples": [
+        "H080"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -1979,6 +2509,15 @@
       ],
       "evidence": [
         "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "2c2b7c2debf81d660b608344bdd70f13702f6b37fcdb0d4bc64d31a85c81e28a",
+      "samples": [
+        "H341"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -2054,12 +2593,30 @@
       ]
     },
     {
+      "encodedSha256": "2d16c843c4d3b2174e7f4fd98f39b539b0ea8cc399ae9909c3168a15fff98ddb",
+      "samples": [
+        "H001"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "2d19ba8bd5c3357345f6d2f72e46869c8ae0c471354d857a8240387508057728",
       "samples": [
         "WRA058"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "2d34596dd44828eac66715a88e434dd376e6322d1623c48d1309a790c93f09ac",
+      "samples": [
+        "H058"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -2096,6 +2653,24 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "2e1a4c1a4453fdd6703f4e4ce714de1e48bb56b8fcebf5d0c706d0893b425558",
+      "samples": [
+        "H118"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "2e5e1819825a18117021149ebabb046ecb9f0baf7b99332ecd50425ae6fc86e7",
+      "samples": [
+        "H099"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -2162,12 +2737,30 @@
       ]
     },
     {
+      "encodedSha256": "2fa4f0758c90ffb334f82b7c3ad4c57e8f6afb6f01ad593aa659c4f65737ff36",
+      "samples": [
+        "H285"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "2fd785afafe9c052fde9a7918648a47d71cb81b5eb0aa02173df99ef4d36afde",
       "samples": [
         "mouthFrown-020"
       ],
       "evidence": [
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "2ffc7da260cf1e02f6e24d946ec3fe59c50eead47a487bd0fc1f6bbbf7b218f9",
+      "samples": [
+        "H279"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -2234,12 +2827,57 @@
       ]
     },
     {
+      "encodedSha256": "3085b739f5675424aa395507841a2508678c48db95068b8d919403f3dc91addc",
+      "samples": [
+        "H289"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "30d6a4890701444484a9515aa3ff923fbf03b1d68453030c9c0ec8e5455801d5",
+      "samples": [
+        "H202"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "30d81c5b7356f4fbbecaec27a85f3c0122a5d4a134820dabdc437c5a3052c5d0",
+      "samples": [
+        "H235"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "30f709d8a4ce611f2059cbfe6100d5b8dad5978cb219a7f453bc365847ad0c00",
+      "samples": [
+        "H320"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "310ec36fefaa0c37e6accc7351d2baac8f0a98195020280752eebe374cc7427d",
       "samples": [
         "Q147"
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "31365585194ed832c2cd782ad79e41ffc3fc4066f81fc1f173be41dfa227abe8",
+      "samples": [
+        "H267"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -2326,6 +2964,24 @@
       ]
     },
     {
+      "encodedSha256": "3243277f93db18659d626615148e680770f12ba57e32e1731f27ef18fd83def3",
+      "samples": [
+        "H014"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "325d179b0110b6ef7de6aaa1b36ba4ad654d3c64e1eccd50dd987c4761ba7d46",
+      "samples": [
+        "H103"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "325df2eaff78813f8468100312b3810b0931e4618e9167e6af33a034a803ca34",
       "samples": [
         "WLA091"
@@ -2371,12 +3027,39 @@
       ]
     },
     {
+      "encodedSha256": "32a7606368839bf2eac2c47606da9f405d371f9916edba82bed33d7b3f4e6666",
+      "samples": [
+        "H177"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "32b278ea5d51887dd13e947335e10b7a12b2990ec5c149c817f59aa13b9d3bf5",
+      "samples": [
+        "H295"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "32b2d903a30922fb81ab7cd91948f23417f81d4f23ea3e5318c2de45f2fe65b5",
       "samples": [
         "WRA064"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "32dc74e55a52b19799768363278e59eb621783cddd36bdf20464e95cd0e3993c",
+      "samples": [
+        "H305"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -2389,12 +3072,39 @@
       ]
     },
     {
+      "encodedSha256": "338202d8d370cf64d65061e292d2c4431a7fc3c06de3ca2b3886f4313d2bb895",
+      "samples": [
+        "H233"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "33d2d01eac25178859f7a85d3b9033a4f11211745ca55b9f5a0b78e4ef591492",
+      "samples": [
+        "H326"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "346f3143ddd21e75b1ecf4ed2e5f8b19be78513e34c2415207ccfd34e2c5445c",
       "samples": [
         "Q160"
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "34c55f22b4e33d403062486f4221aebfe9ea55872f61744aaec7d4087185432a",
+      "samples": [
+        "H199"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -2461,12 +3171,66 @@
       ]
     },
     {
+      "encodedSha256": "36881c67c975b874364111554aadfb76b720ec626c1ab92e676bb0b1fb6ebbab",
+      "samples": [
+        "H353"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "368c16fe36e51cf1b2ade12e941a50004e1ed1db7f71e49c99db3c2ef0c190f6",
+      "samples": [
+        "H096"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "369b6f321a95bc8c4ec0726a889d0c7f702b046b3c496b9444aea37eae53f640",
       "samples": [
         "WRA067"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "36a9d66e290ad5bfb53a4c4862d0a0a312973c3cc1e156f04d6ee038c38e7055",
+      "samples": [
+        "H091"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "36b0c5921e235424b3db5ef38f0e2c53552200ada133da75b5fd22d663c6b5c6",
+      "samples": [
+        "H115"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "36b1aeb2502be0aa8468d9e115575f46d7ae833236ac9ad420d7d0d4bf358cb7",
+      "samples": [
+        "H325"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "36b5b9a7e030a1553196f7bb55f9958d6cf0aadaec46bf31e7a8d5f9830a92b3",
+      "samples": [
+        "H015"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -2478,6 +3242,24 @@
       "evidence": [
         "completed-audit-mouth-frown",
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "370e0c3b811b0da41a915f8880c287b1026d47aa08a25ac16b291759c472e1cf",
+      "samples": [
+        "H280"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "37362ac6d0ee863e65cf17cb9931937ad0101e929af3b7d99dc51f66f301b705",
+      "samples": [
+        "H047"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -2505,6 +3287,15 @@
       ],
       "evidence": [
         "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "37adbc394b24cf44205f8ea36ed85e50ceff5357285d6ac3397e197117d169ca",
+      "samples": [
+        "H077"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -2569,6 +3360,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "390d4dcb7bf88d32eb9d85313d0849adb2ac8f578defa4b59b57bb6bbadbd8a4",
+      "samples": [
+        "H035"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -2689,6 +3489,15 @@
       ]
     },
     {
+      "encodedSha256": "3b60d68482b4e421e57786412def60e9fb2e1e03bf5bd585c93ffbb8633884da",
+      "samples": [
+        "H105"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "3b8bf5f74e5fdafce4efa2a4c0ecdce05fdcfa893dd1b0f10c20e59b683a9bc2",
       "samples": [
         "mouthWide-066"
@@ -2801,6 +3610,15 @@
       ]
     },
     {
+      "encodedSha256": "3dea381832126ce2b1c3f1e25ad751ca4a034ed3934f25e3de2d2723519e38b4",
+      "samples": [
+        "H090"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "3deca69209126d6acf2d0e46f6f4425509b762d31e68e38133b1bcf6e72c623b",
       "samples": [
         "Q112"
@@ -2882,6 +3700,24 @@
       ]
     },
     {
+      "encodedSha256": "3f28752667020f361c41792c3f243d08f3a8c4a12cb0258ae23a0d978b83c59e",
+      "samples": [
+        "H005"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "3f469d914fef4db50033187c8d832f73d1cf052738e2272bfa89a65122e09359",
+      "samples": [
+        "H009"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "3f543a6efbcc7ab0e30bac76205d82dd2bfdbe535d270dc2480979656906c0b6",
       "samples": [
         "mouthWide-060"
@@ -2897,6 +3733,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "3fd2c7a00142dca389a262234874c1fb116df9feba2d69d0410c4486d330d770",
+      "samples": [
+        "H163"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -2918,6 +3763,33 @@
       ]
     },
     {
+      "encodedSha256": "4069b15c3a97a71c4e0e59f611d41a00d04d3eff2928027f5db59697b0ad1ae6",
+      "samples": [
+        "H127"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "408b4b0a5fdc5abd1c3e6b8a1faf859a1f451e673e2ac1c7e2dc13b84477b383",
+      "samples": [
+        "H095"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "40c08d4963800d8010821f3337e257a4aa495b282e447ac45e1740852b4d51dd",
+      "samples": [
+        "H152"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "4110ba08737c1502f030eecbeaf37ad4ae4cf974ba42c9508069749c7be19b0c",
       "samples": [
         "WLA112"
@@ -2933,6 +3805,24 @@
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "41c3290413155a8603208598b11df88a197d99df6d74b193576c9bad55600a8d",
+      "samples": [
+        "H176"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "41fb56fbcd2c5d6503b0a31c44bf16d246f753680d937174720f6dacd164159d",
+      "samples": [
+        "H088"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -3037,6 +3927,15 @@
       ]
     },
     {
+      "encodedSha256": "4394abbda9ac2677dc89fbd02720b275b83fdcae4e66fe80165350aab25904b4",
+      "samples": [
+        "H211"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "43f6d6c0422a54936769a4764e2ae156c0b22c69859c6c0ad39084b1693dbd74",
       "samples": [
         "WL001",
@@ -3110,6 +4009,24 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "4477aea1c363b3af0398242f95f30237f4430f0a6f13463cef0f7d0fcd3118df",
+      "samples": [
+        "H332"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "447dd5ad997f38026b195e113aad7164b802e11677bdfad0684295027707deba",
+      "samples": [
+        "H154"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -3194,6 +4111,15 @@
       ]
     },
     {
+      "encodedSha256": "453dcbfe74b8cb6a585fc3434d568a8b79ecaf8326f6782c3f222b3ea7442d94",
+      "samples": [
+        "H066"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "457165155d0e3af904b7ea1f5c819c2849d2e1cb8e17fd72c12d7c5e0fd87637",
       "samples": [
         "WRA094"
@@ -3248,6 +4174,15 @@
       ]
     },
     {
+      "encodedSha256": "4602a79a5846a53a7b4bcb0cf95379309b4074555b791d5058466426b90d5f90",
+      "samples": [
+        "H187"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "467c75d0cab75e8137bcb6540b7198aefd98f8a8eed583e3f646e30fe1d89101",
       "samples": [
         "WRA096"
@@ -3263,6 +4198,15 @@
       ],
       "evidence": [
         "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "46fc4d72b33c3211f4649550d03e3033afc0373ac7d30bed850391014e77df84",
+      "samples": [
+        "H195"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -3311,6 +4255,15 @@
       ]
     },
     {
+      "encodedSha256": "486999bedebe73f03c1ebf55e0977183cd43d2b0e59219ed7160d1d80b3caa19",
+      "samples": [
+        "H303"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "488520d42b3c0a3d25534b49c4dd705144c88828d01133a17684b87ba0bfef69",
       "samples": [
         "WLA124"
@@ -3356,6 +4309,15 @@
       ]
     },
     {
+      "encodedSha256": "4975bd00a7f1a5ab96282501e48b487b0bddc41ada5bb41bb90be92a0884cf8a",
+      "samples": [
+        "H117"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "497e2bfa1ce542bdf850bc67e6e8ee84a1b3fc379d128edff89d19d541c222c9",
       "samples": [
         "WR031"
@@ -3365,12 +4327,30 @@
       ]
     },
     {
+      "encodedSha256": "49e49f1f73cdef2d958bc5bac0d224ee41cffa04dd34a8f3c8ddeccd87026b30",
+      "samples": [
+        "H192"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "4a1636e2b302241c478f5cda7352da0f9978724867d9f4a2268125b2bab80be3",
       "samples": [
         "MF028"
       ],
       "evidence": [
         "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "4a3cf84abc49bfee9e714e39e724ce5f2fe781104105a0074e6d60023a5f776a",
+      "samples": [
+        "H112"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -3389,6 +4369,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "4a8630738a5a9995cd7a84c67775e12ea580e9906400a9fa5597ab0dcc99dc6a",
+      "samples": [
+        "H157"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -3464,6 +4453,15 @@
       ]
     },
     {
+      "encodedSha256": "4b405d583ff7f3578eec518e1e2a63fc1b1bb1f90df3b7657a703c30d1e6b236",
+      "samples": [
+        "H343"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "4b5a832981264e5192945286ade68484938f3ac236446c3e88ad7f342299139d",
       "samples": [
         "WLA130"
@@ -3529,6 +4527,15 @@
       ]
     },
     {
+      "encodedSha256": "4c43f167296092a21704e69ad337514b6a8b14ef5753187c90dcafe624f1613d",
+      "samples": [
+        "H277"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "4c6cbf783c0f1780eda42a1b0f9f106d1f9c251c3c50da7578b1d690a6cdd00b",
       "samples": [
         "mouthFrown-053"
@@ -3556,6 +4563,15 @@
       ]
     },
     {
+      "encodedSha256": "4cd793beb031cba49dc6fe7139def847cf1085fd429f0e95c9cffc3e2cd30401",
+      "samples": [
+        "H056"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "4d3081b7a2dbc799bbfa3280ca879dcbcd638d02fe8c15afdd578ce21f269490",
       "samples": [
         "WRA105"
@@ -3571,6 +4587,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "4da01a3c72b745e83b208027c0fac0cf895921e370545086c08ff59e868aa72d",
+      "samples": [
+        "H231"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -3619,12 +4644,30 @@
       ]
     },
     {
+      "encodedSha256": "4ef97b77a8defb1b4f9084ded97a29d546110d0a3001301ee78fb962c0172210",
+      "samples": [
+        "H327"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "4efc765da74937ef1ee5a66ba5f1075f9d3c8153161b27fe06d08f66ff4a5a04",
       "samples": [
         "WRA109"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "4f19eb2ef2416d03362b88b43f425acb62137c8b3d6efa903d755a6a10571e5a",
+      "samples": [
+        "H146"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -3714,6 +4757,15 @@
       ]
     },
     {
+      "encodedSha256": "5096583075f08d7b80aa9ad4a7efc4b90b3d5c2090d368961c86bf41367212ba",
+      "samples": [
+        "H263"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "50a7cbb03242d42433dba344212b0915aa9ebda59dda95a70f8e048e69f83eed",
       "samples": [
         "WLA135"
@@ -3732,6 +4784,15 @@
       ]
     },
     {
+      "encodedSha256": "50f270323023f2f9b193e976221b6215b5d0aeb7577b63e922d6e676d256e9e7",
+      "samples": [
+        "H173"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "511b9f8b086b6204b5737a1700e703ed1aa80af492739e74e50a7bc660bafb5a",
       "samples": [
         "MF030"
@@ -3747,6 +4808,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "51352ad20f3e5d6395a3fe0e74c77e668a5db9baba76d073a15abb2abd55ea6f",
+      "samples": [
+        "H234"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -3770,6 +4840,15 @@
       ]
     },
     {
+      "encodedSha256": "515621970941d9c8004b53f617dde0aea7eb0c84635777947ad9d193ce2e6ea3",
+      "samples": [
+        "H316"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "51aceecf442f3a81aa6827a59f7a31051b60d039f29080e8904644957539b7c2",
       "samples": [
         "WRA114"
@@ -3785,6 +4864,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "522fbf0b3130873dd840250b32ae90fa8299c44f3e802894e7d82d045995d132",
+      "samples": [
+        "H057"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -3826,12 +4914,30 @@
       ]
     },
     {
+      "encodedSha256": "5309dc00e3bc27843df03e9fc84ee68c8b7bb73b85f2c8b2577388782abb24c3",
+      "samples": [
+        "H313"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "53338e91e91f8ef93d60507d4bf001379bd1e3bad949cdccd33a07ca1cde1884",
       "samples": [
         "Q183"
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "53a8ea9272506601983c707632f1f8c9b93852a528dc1d11b425d4fb8852ca15",
+      "samples": [
+        "H033"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -3954,6 +5060,15 @@
       ]
     },
     {
+      "encodedSha256": "56752a92ed870f673cee4bdc58dc1504cb9efed623cce7e6b5933b3cd9648b94",
+      "samples": [
+        "H174"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "5677e32368e88f572d834fefdb3721514ade4d194a81ee1ca435e2b9f99fd35b",
       "samples": [
         "Q055"
@@ -3978,6 +5093,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "5728d5203794293ae05adc1b6ff3cd2bcd75b317f13dfba610e771f51794aaa6",
+      "samples": [
+        "H114"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -4059,6 +5183,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "592658efa362fdeebdde5478a9e97aa9eda711ddbb03c3dc719b23951d0a682f",
+      "samples": [
+        "H284"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -4161,6 +5294,24 @@
       ]
     },
     {
+      "encodedSha256": "5a38a5ee416ff23389092436d66b0097abbfb3aed73f2eb9559bd4cc25fc8d35",
+      "samples": [
+        "H166"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "5a724048c15eb68449fc90a7451dfc5848117509bf3155ec7ced26a8fa58438e",
+      "samples": [
+        "H165"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "5b1d8a761ece396342f3aa31ccd0b6a2ba1905cf65917cc54b8fc772a76f993c",
       "samples": [
         "WLA150"
@@ -4185,6 +5336,15 @@
       ],
       "evidence": [
         "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "5baa36a04b7cf6d3ec9f8a211a429c32fb0cf170c0c1b0700ccfb04a4b25a312",
+      "samples": [
+        "H139"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -4224,12 +5384,66 @@
       ]
     },
     {
+      "encodedSha256": "5c76970c7770bf963da2e422b2561716e3be6f6e1390bde7bbb3a93cd414369d",
+      "samples": [
+        "H323"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "5c96069e05a42fb2c7fa019a3bfe4352cf50c3a417ff9c488f875102fe3c7c89",
+      "samples": [
+        "H184"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "5cd935385d075c63ff20dd5da78a05f426eb114c3e406a2e6de11d7f508916e8",
+      "samples": [
+        "H133"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "5cdc2839e31b5abb8c3d4fb4b0bf6eb1a18cddc491bbc802d4d3930a840cd0a7",
+      "samples": [
+        "H246"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "5d31761c7b20035cf1be57f088af667a60dd7ce8df8bea7e01ebb04873ea6d48",
       "samples": [
         "WRA131"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "5d6912000ecb053df34e71b9292d29db59162f2f27a83fbe8b193faa19605eaa",
+      "samples": [
+        "H221"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "5d69ffce3c39fbf865239a829c8311e2213535c01766eaca67f7189f4e55b98f",
+      "samples": [
+        "H081"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -4379,6 +5593,15 @@
       ]
     },
     {
+      "encodedSha256": "60ebec3c1e65602ef146cfed25f5359cbf83c579bdd0f3b41c59aac704549037",
+      "samples": [
+        "H244"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "610224f405cc01e9e73bbe0924c4f0663ba3d11bcdb7834bbf4a370bb7dcb1cf",
       "samples": [
         "Q128"
@@ -4394,6 +5617,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "6142b765511bcc0243be04de72234554fea5e1b3fdf0dbc6f91206caed0efc61",
+      "samples": [
+        "H129"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -4421,6 +5653,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "6252c8c1709f05c49fbbff57e96e1180c3f69163893286af4af5d277745f4222",
+      "samples": [
+        "H004"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -4469,12 +5710,30 @@
       ]
     },
     {
+      "encodedSha256": "62f92e6423bc1157dd4b29cfc3d8b87f681a83f4b3a8f4ae75d8c7cf1967efd4",
+      "samples": [
+        "H307"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "630cb14610a6d413596453c253357b6855d1ea4a04251937b2acc35c46223517",
       "samples": [
         "WLA165"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "633420ecf01e5f1e13d95cfcc4c464203d790daa8fcd651945a3dec238e18a5f",
+      "samples": [
+        "H206"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -4514,12 +5773,30 @@
       ]
     },
     {
+      "encodedSha256": "64530e7475e67fac503faff8194c41d47d029a8077e8a6ad6a48d716a6a1fc1a",
+      "samples": [
+        "H040"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "6453ee389624f7c68f06a1df7d95ad96f5dbba315ef78b01d1f2fb26a1740606",
       "samples": [
         "Q146"
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "6521d607d35e3077683d9b269aa2c7a066064d1bfe83eda7f0f44fcb9a48abc2",
+      "samples": [
+        "H018"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -4574,6 +5851,15 @@
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "65c44016adfdd82db17ae0db72357b80ab77961d87bd459e98df9b7153402cc4",
+      "samples": [
+        "H213"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -4698,6 +5984,42 @@
       ]
     },
     {
+      "encodedSha256": "678a8d6ef9e6b7b0b40634c5877801343e273a9f2415274b3559d6257361e99d",
+      "samples": [
+        "H298"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "678eec0dbf35ed92796629cda652275fad224f857e6630a403af4ddaf55586d0",
+      "samples": [
+        "H044"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "67eea3f2768b5a28a4f8bfa090345c20eaaa441e1dc2042abbb2a4dd2b5742c8",
+      "samples": [
+        "H023"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "67f73c91c0a9880ca9cb7e6952db37d891543596fba747d860d639d5816f728e",
+      "samples": [
+        "H200"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "67f7e621fb5c7de8aead680d8641e46b706006dc3ccac6f466c408ad8738a3d9",
       "samples": [
         "Q016"
@@ -4713,6 +6035,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "685e7fb892225c31e8f44ba97f2dd8ac1d2b28408e9b415618e42cfca6b7aa5d",
+      "samples": [
+        "H042"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -4761,6 +6092,15 @@
       ]
     },
     {
+      "encodedSha256": "69a96cf7a0e3f5d004c8ce0aa84cf85ca0195791fc4323a51f316a6aca25779b",
+      "samples": [
+        "H108"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "69adc894a9b920b786ef56c15a0c2895c578aa21d730042d4022ef3abf328ba3",
       "samples": [
         "mouthWide-074"
@@ -4797,6 +6137,24 @@
       ]
     },
     {
+      "encodedSha256": "6a8c656972a698a06944136ba18888efabd344af26d365d3722c018b9b33c2e5",
+      "samples": [
+        "H060"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "6a9978d39976b7b6addeb604c6e3993ea9104e8a4257526e16d53c5a370dbd0a",
+      "samples": [
+        "H331"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "6ac245bde2e48e35389d47159c1e96ad4632220cd4183aa3dcc871ff8783dba8",
       "samples": [
         "WRA143"
@@ -4812,6 +6170,15 @@
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "6afcef4697604dfd2f5165c1f36b2182b28b504ffe383727da7131ab88fa7d59",
+      "samples": [
+        "H094"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -4842,6 +6209,24 @@
       ]
     },
     {
+      "encodedSha256": "6bbded01dac8a4222df18c32e8e7bda4267f84343fbe96eae509ac8c0cba7cb5",
+      "samples": [
+        "H318"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "6bec8bd0c41bab062e1712a84e0c2b7d321659b868f73008bf96a2c38c98ceb3",
+      "samples": [
+        "H238"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "6c526f927ba6ee31bf66d44a9ed67063ef7db8f49318f2227d58d9cff024b9e4",
       "samples": [
         "MF038"
@@ -4869,6 +6254,15 @@
       ],
       "evidence": [
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "6d5a6e7a275b07467b3cc4ebc74c76638d396675247e122365ebb23a0457e73b",
+      "samples": [
+        "H274"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -4935,6 +6329,15 @@
       ]
     },
     {
+      "encodedSha256": "6eaf923b1b400a3a327efa0018da91b2193ec1f8a8e1593371f9d5fdbe38079c",
+      "samples": [
+        "H214"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "6ebb9c8d45d08b591a99066d5a4a56673253750bfa811543af85b20bd5685bf4",
       "samples": [
         "WRA146"
@@ -4962,6 +6365,24 @@
       ]
     },
     {
+      "encodedSha256": "6ee91287d127ec263df82003eae7884fe3b4286a2f724bda02cb855c29b94dc1",
+      "samples": [
+        "H142"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "6f03afdbc21293f23130f2c2de36670d7cf20b98b6135a2ec16353d0605ee5c1",
+      "samples": [
+        "H324"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "6f35fb2843e3bde73c6b5e340a3eb2b196c96d0be55b43b0f508f237860468ee",
       "samples": [
         "WLA183"
@@ -4977,6 +6398,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "6f9571ea8a9bd151647989bd5fd05b06c77d339fcfe3e37c6605c2b8ee40ee5c",
+      "samples": [
+        "H220"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -5036,6 +6466,15 @@
       ]
     },
     {
+      "encodedSha256": "70c5a47c7f4469b6f8bb88aa99757434c8e57a51c4d6618366b4f04d03b0d746",
+      "samples": [
+        "H219"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "70e62a6b99e10965ded74c6b3e6d72fef831a3b2423861a0dd25d05781d9ba7e",
       "samples": [
         "WLA188"
@@ -5054,6 +6493,24 @@
       ]
     },
     {
+      "encodedSha256": "7189e99c34420dc94580f6912b0fcf27ba0fb9029563c794f87694583649a9d5",
+      "samples": [
+        "H087"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "71a2ac0878a1c6882b450254030c89a57f56c5ab8ca08085ee7172d0c63fc43d",
+      "samples": [
+        "H071"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "71bc1611702b69d73c0c58a1191d03ca92a272a2b5db764fa34c9bbf20936d73",
       "samples": [
         "Q120"
@@ -5069,6 +6526,15 @@
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "723084fc9d3ddd0fc6580384232f414005500586e314aaaefdc777da3b60c210",
+      "samples": [
+        "H020"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -5101,6 +6567,15 @@
       ]
     },
     {
+      "encodedSha256": "728d02588f31ac6017634439f1ab9ee45601b2b661d3f083323b8282f9e44273",
+      "samples": [
+        "H061"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "7293c71e7f199bd0e6abb334238808314601c19fec4fcca7d1b0b5d78237e50a",
       "samples": [
         "MF011",
@@ -5127,6 +6602,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "7317d3c7dade2168bbd820e89cff5856fb4e9a4802ad62c991058cd1949be8b3",
+      "samples": [
+        "H037"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -5184,6 +6668,15 @@
       ]
     },
     {
+      "encodedSha256": "74309461ddb7c8829014d2ee13a1cdecb4bec845e640b333977a4dbde46a0061",
+      "samples": [
+        "H290"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "743e0b55472d94478e17ac5f8f9fd0bb98c47047eac1c600b9224fdef527bdc4",
       "samples": [
         "WR019"
@@ -5217,6 +6710,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "752704c92a6c3d83ca715446ffa3c75170902059bdfc4f5cb44de4b8874014e7",
+      "samples": [
+        "H286"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -5285,6 +6787,24 @@
       ]
     },
     {
+      "encodedSha256": "76f4d6dc566447d226e840185690c970f33db82af7e07a3e5f9e0cfb2fb56767",
+      "samples": [
+        "H016"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "76fc76c5f80fd0d40dcc03f56dc0254fa68cf7230fe2abaac1e19acfccad7ca3",
+      "samples": [
+        "H224"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "78379756bae6f0961ba437aedcd2f9921f634de54d99bc30c625a9d92a2f22bf",
       "samples": [
         "Q109"
@@ -5330,6 +6850,15 @@
       ]
     },
     {
+      "encodedSha256": "79fbb206f0ae024e0c08e9fb6b0b654f0731b13a47917a92c2f925b6e10cb562",
+      "samples": [
+        "H217"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "7a07bd13bc185dde18bc13dc63f1a0ff4a0d107bf00da865bc0e8cee2810c24a",
       "samples": [
         "WLA200"
@@ -5348,12 +6877,30 @@
       ]
     },
     {
+      "encodedSha256": "7a56cf363976e7efc2a0955e6966344028b2aef005c6411fd9e7d20e89288ebf",
+      "samples": [
+        "H136"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "7a8dfd4feebe172d99c4cefde0a21091ed516db9945190d2c86584b78b8ca073",
       "samples": [
         "WLA201"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "7ab6e35f91e96505f059071c003556ec55562f2dd66f8a193b8cf402c392339a",
+      "samples": [
+        "H130"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -5404,6 +6951,15 @@
       ]
     },
     {
+      "encodedSha256": "7be434ea8a00ae72e9cd7ffbec7a02bee3b44ab9c351e693b5433758022de2b6",
+      "samples": [
+        "H106"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "7c144745f38054d8182d9541e4b0f720170e16d3358c3aba90aabefd7eb683f0",
       "samples": [
         "Q084"
@@ -5413,12 +6969,39 @@
       ]
     },
     {
+      "encodedSha256": "7c23bccfbd41248d37dce8f083649f211ec35d66aff630b222526217a4abe639",
+      "samples": [
+        "H082"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "7c54dc314a09988424ede4e15fa8be0b7da3e66291a9ce73b798fe22e5109fad",
+      "samples": [
+        "H102"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "7c8085f12c1ff9df3bfa9cd757f2d5c0f44e74d0498d0175d198705904ee3a80",
       "samples": [
         "WRA159"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "7ce059d18992e7ae4fd154040fa03158f95f439c19984b4b8dc9cbd9a4fe8e8f",
+      "samples": [
+        "H251"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -5467,12 +7050,39 @@
       ]
     },
     {
+      "encodedSha256": "7e20d06d98c02a6c3297e8da6a5717b9d4c9d7e2ab75faeb355ca765306b620a",
+      "samples": [
+        "H229"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "7e4230a1982d362a6f8fcd8c3a98f819c48eabeb903e10cb94099e66ebe37bea",
+      "samples": [
+        "H268"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "7e6d4aed9c2c5b54f0e13342422b1ad7e4fe679e6df76505b830448103439ad1",
       "samples": [
         "WLA205"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "7e7ad56c6b68c7055e376d3e721c06a0c87f8be5b07ae757b7531c2beeda4fd5",
+      "samples": [
+        "H271"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -5557,12 +7167,48 @@
       ]
     },
     {
+      "encodedSha256": "80579d0369e0271c142dbc2369f0303acd89eb8ee6bda37e85418a2f0583feab",
+      "samples": [
+        "H260"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "805e8307d69d024a5c9a3b7bf1f4c03edfc2c694c6cf9a94bc7d762e3037e972",
+      "samples": [
+        "H017"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "80704ce81c5838056caeeacc2c34619db035c3b4c7d5b918a2e56165542269c5",
       "samples": [
         "WRA165"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "80b1916978e7c22e1d13ceda8e1b0dad3ee4867beac9af65de0f9978d8d80b81",
+      "samples": [
+        "H111"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "80d851cc4ce4fce616676a54f8d20808973783cf1db645a256e2f0db5345606f",
+      "samples": [
+        "H335"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -5648,12 +7294,30 @@
       ]
     },
     {
+      "encodedSha256": "82859cd7f60cca763608f11a1a81f133e94e1e5561d0d35bb8b165afd7b35ca2",
+      "samples": [
+        "H067"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "82aeb4a1436d9ee4a83e6ff6676c172f50d20f71446e278841c9031d150c7ecb",
       "samples": [
         "WRA167"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "8304b4453f04ef1e557f2439d702b6880af883a6288fbba321929946ef5f1101",
+      "samples": [
+        "H168"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -5690,6 +7354,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "8451eb68cdab3c686e5758de20616ed893ab219749a0fd7e711fd3e6515a8585",
+      "samples": [
+        "H128"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -5756,6 +7429,15 @@
       ]
     },
     {
+      "encodedSha256": "85a053c2aa09e0d5e15228445b5c18b6a58b900f9fa7584514faef6032ba3f1c",
+      "samples": [
+        "H210"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "85b825df1f2a7d356e685b4283e25e0c0fc5de47963303c3f21ef5c4b4d434ab",
       "samples": [
         "mouthWide-006"
@@ -5765,12 +7447,39 @@
       ]
     },
     {
+      "encodedSha256": "860573c28f73576130fdd4a57a5e23bfff90fb7e0ce150b69b99cdb63bef04b7",
+      "samples": [
+        "H248"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "86376cb7ec60e428a23f99146510ee9015f863e820ab153323540dd6b840e47b",
       "samples": [
         "WRA171"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "8646d615e426730826f7f4f7188fff8c38b8d340f9ac419a5d5b6ce25220c24f",
+      "samples": [
+        "H171"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "865641734d17f8a6f358d8b141f007b7bef877733f9a2e0ba71f272685d2e0b1",
+      "samples": [
+        "H296"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -5846,6 +7555,15 @@
       ]
     },
     {
+      "encodedSha256": "8812b1a55e62fa3cc9abe52ce5c379a210cc5c529454b03da54b2e74e987f69d",
+      "samples": [
+        "H252"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "8820ddc36b640f34ffe968bfb9b55ffd7d5e1e8f465e766a12145ce20872fec0",
       "samples": [
         "WLA220"
@@ -5861,6 +7579,15 @@
       ],
       "evidence": [
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "885d4f79495994e95a5d68c0378de17fcf945ec73db7cf3bb415e7d7c86ab95f",
+      "samples": [
+        "H008"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -5945,12 +7672,30 @@
       ]
     },
     {
+      "encodedSha256": "8955333e007e8835f45c81cfb05024eee38756d29f02aa11c6c6cc96d2318e3f",
+      "samples": [
+        "H223"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "895c6f6fd75fdf06041d4616a37bc0ec2157eb2d652fb6f97a19780a6cb9b12c",
       "samples": [
         "WLA223"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "8965e457bfed91fb4a409c9657f76c38aa031a49697d6f290b4986a94b15a374",
+      "samples": [
+        "H036"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -5969,6 +7714,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "89a783d029c073c35e4065d63f7cffa2d5852e348c311ac6da19e845358edfc9",
+      "samples": [
+        "H085"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -6035,6 +7789,15 @@
       ]
     },
     {
+      "encodedSha256": "8a2cee9a6fb1ff5874e28d5a84dce761a3ca0b2d6481c8f4226988c578e8f837",
+      "samples": [
+        "H253"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "8a6ea05bb8a4105394742006f918348c80e7c7216f2c8347092636b7235baa21",
       "samples": [
         "Q105"
@@ -6089,6 +7852,15 @@
       ]
     },
     {
+      "encodedSha256": "8b0ffb79633747b01ba889d6a8ac73aa0345599952c4c3607fd91828943712bd",
+      "samples": [
+        "H294"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "8b8226d765117dd0c3aa61333a49505b593b42d30ee2256686f474d8479f70ae",
       "samples": [
         "WRA180"
@@ -6104,6 +7876,24 @@
       ],
       "evidence": [
         "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "8bc622a6789ef1bf6d4430094f0bbc243e2350b3fb14a57ec1f0e622796adf36",
+      "samples": [
+        "H317"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "8bfe84f58e7830158ae5f2f7e550391fb91dc86c10e04265d220e9e283a39585",
+      "samples": [
+        "H045"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -6131,6 +7921,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "8cd44a215b4f693bc30b18dacad6349c7d69705c0730d0f14622e12c1ff5adce",
+      "samples": [
+        "H311"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -6224,6 +8023,15 @@
       ]
     },
     {
+      "encodedSha256": "8e96e470d7588eed368ec43775e218cd25dc3b9a14769a976c00143f55417469",
+      "samples": [
+        "H141"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "8ea04400fce6e13c6e8a75ad65557a1565a2c1a6256109625a7db9f354fdc461",
       "samples": [
         "WRA186"
@@ -6242,12 +8050,57 @@
       ]
     },
     {
+      "encodedSha256": "8f11b441cdf168b6156210413cf1db93a8b94c24fd8768c8f84e66224a1aa697",
+      "samples": [
+        "H024"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "8f4077f29804aad2aaa10db3c49e64ddb79b727aad33853e099746fe57d239ad",
+      "samples": [
+        "H203"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "8f49dd3e90f249f2c5a98a9d565f379bee72dda154cbe85b55c7da452490653a",
+      "samples": [
+        "H230"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "8f78e20593b9ccdcb974be68f6dba13075dfbc0578dbfe7f4f33223ce7ec5e14",
       "samples": [
         "mouthWide-047"
       ],
       "evidence": [
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "8f7e577432352ea13d35e1f3630d1b1f88345458a88dab0806f58f50a8a40df3",
+      "samples": [
+        "H169"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "8fa0297312eb4ac6556ba8da267b07b01452b4d2231dcb5e2f0e8485daf65db8",
+      "samples": [
+        "H306"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -6287,12 +8140,48 @@
       ]
     },
     {
+      "encodedSha256": "902b8cf237e551f3bce6aeaa3a8a472f1f5f1de467ca07560698afa314f689ba",
+      "samples": [
+        "H330"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "906b5960094a3dedfc03b3dc9171c7955700023727ece1ac2179b5f1342f904f",
       "samples": [
         "WLA240"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "9085d0b8a21bcea90e70255197d74986068b70ca6a5665cbb414bc114e1e8eae",
+      "samples": [
+        "H314"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "9097fd2af3c409cc231644e1774e5b989ba6dc9b11ab03cfc5d2d7e9635e2a88",
+      "samples": [
+        "H178"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "90991a61a29f779e4090bcac25e81fd036d7663c2f8eddf6dbbb17bc7c3a2da7",
+      "samples": [
+        "H354"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -6311,6 +8200,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "90fbfc6575e28bb15fcf77abd7b10c994b2298b8526c971d3a333056771eba40",
+      "samples": [
+        "H179"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -6368,6 +8266,15 @@
       ]
     },
     {
+      "encodedSha256": "91848ebae9617aaa67ef74c3cff61720cb0710d525084026884afb04aaa274a5",
+      "samples": [
+        "H029"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "918e4a8a8a3f474a6fbeff4f84be3deb2676a1859b98e66b672c3ad54862da4f",
       "samples": [
         "Q037"
@@ -6383,6 +8290,15 @@
       ],
       "evidence": [
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "91fa56d5b792af192aac1a207e67652ad4e433bb58e6d358cdd74b3a0b3dd65e",
+      "samples": [
+        "H254"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -6494,6 +8410,15 @@
       ]
     },
     {
+      "encodedSha256": "942625284cecae1d52180941ef83c559b0cc3ff440adf0a021a8151b3367cb0b",
+      "samples": [
+        "H357"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "947bab2fba63c0f1f250a103f64a21be84117c6f52db5d7aa1fc3346bb83b2c4",
       "samples": [
         "WRA192"
@@ -6520,6 +8445,15 @@
       "evidence": [
         "completed-audit-mouth-wide",
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "952350d36d933a37a153010e775004ddda039311a500875a422ec720e92154c1",
+      "samples": [
+        "H241"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -6574,6 +8508,24 @@
       ],
       "evidence": [
         "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "96f90c350404b8286857f69da7aab869bc0a24a015dbcd7218355c6d4613009e",
+      "samples": [
+        "H131"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "97468c0537fc4478e61e3edb38e56e2e9f189673d41b5d653b3965b779309f52",
+      "samples": [
+        "H049"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -6658,6 +8610,15 @@
       ]
     },
     {
+      "encodedSha256": "989860300b1088582b2edb447272609fb9bcb343799ffbdfaed03d0e86ee967b",
+      "samples": [
+        "H301"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "98a0b1229b5993b399732854426099d07cc2fcefb7175e41fb98057aad513b90",
       "samples": [
         "WRA196"
@@ -6673,6 +8634,15 @@
       ],
       "evidence": [
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "98e0d10ef8dd25d9ce9a5bcb539d8079ab810ff54be1fa6b2defc0c94a34d08b",
+      "samples": [
+        "H149"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -6727,6 +8697,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "9a57058f56707f16e32c91bd2c94b35dba2e13ef7d85685b19ff50e039d05ed3",
+      "samples": [
+        "H270"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -6914,6 +8893,15 @@
       ]
     },
     {
+      "encodedSha256": "9ecc896dcb0804aa406382b2e7f822dac9e8ed725925d7dfeb5e1c2d8c529de6",
+      "samples": [
+        "H069"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "9edc39d8cf5d39e3ea12810781592963001ded2280508858bb79a088114efe58",
       "samples": [
         "MF044"
@@ -6938,6 +8926,15 @@
       ],
       "evidence": [
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "9f13446203a8257bff085686356b4f1df479323891333dcc654a38b9c2bce9ee",
+      "samples": [
+        "H250"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -6997,12 +8994,30 @@
       ]
     },
     {
+      "encodedSha256": "a03f6a171f951afa9c3935a4891e7187779e19f117bdd66d47aebd35da6cacbb",
+      "samples": [
+        "H360"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "a063ddb504384487809ecd000dbe0c0836c57d18e818fc67820e54d865e8b929",
       "samples": [
         "WRA207"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "a089b95b94085593bf2e667d9d8a4fdb310362ee6c3034c3e17850605f25e83a",
+      "samples": [
+        "H097"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -7024,12 +9039,39 @@
       ]
     },
     {
+      "encodedSha256": "a0c064aadd04fe7db3c9129b95dd0d271bf5beceda61997c4068a007e6e6a441",
+      "samples": [
+        "H109"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "a10e97b9b0d81a0724f54a21e2041d695e42ad92ea41fc41c8881e26a908bc0e",
+      "samples": [
+        "H228"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "a1339bd4c7093eeb54d2c33e0f780c9396ac6bf1af217b4bb95f9fb2781da181",
       "samples": [
         "WRA209"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "a13880734a6a087f897da9337266d78fac3d47fada100d3c1df2f04b0ffcfe67",
+      "samples": [
+        "H342"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -7050,6 +9092,15 @@
       "evidence": [
         "completed-all-automatic-winks-37477676654",
         "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "a17b37da2f2b0978bef5432a6f1b89b9d9b3cd0fcbdbbb00cb18d92b409afa5f",
+      "samples": [
+        "H207"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -7114,6 +9165,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "a2709a2c294c2844e3e044e41f90fefcfb5b46b6adafeeebbc190532196cb08b",
+      "samples": [
+        "H122"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -7234,6 +9294,15 @@
       ]
     },
     {
+      "encodedSha256": "a4dce8c96f8074716fdff4873ee035d47b07e8598e36d0a27afec271d6bb98a1",
+      "samples": [
+        "H212"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "a4e3a0873fa66e0ad6a8070cc38d5b56dd42f52e8548db1fc8781731bf12c2a0",
       "samples": [
         "Q149"
@@ -7297,6 +9366,33 @@
       ]
     },
     {
+      "encodedSha256": "a59c1c459501e36ba08aa7d9e1c37eb81b2aae096711b37ec76610be2d9e03bb",
+      "samples": [
+        "H272"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "a5c17df0469ccd4f1cab76276b94532848a8fc40494490f300a1c65abb41b579",
+      "samples": [
+        "H194"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "a62b3cb6ac0bc14f7a08ade4a0ec888f7b60fabd83e47ab4f5a30d7fd5f8d542",
+      "samples": [
+        "H225"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "a62c2cb37ba6592c5893e8c007253d48396eff4b3527d188f8c3dc51870df512",
       "samples": [
         "WLA275"
@@ -7330,6 +9426,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "a7ca238384a5d476f212fa6ecf93c992c61068b9e123a5fd18e7d2ef2545880c",
+      "samples": [
+        "H050"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -7389,12 +9494,30 @@
       ]
     },
     {
+      "encodedSha256": "a91d4eac587622190f6bd595dcf9cc8089dbebd8b6767a6c5c111fbbd9ad24aa",
+      "samples": [
+        "H155"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "a93adc804e5f7828e15e6f3d1c3941fefbd79f3f020876b6bd7dbc8404ebcc6a",
       "samples": [
         "WR046"
       ],
       "evidence": [
         "completed-audit-wink-right"
+      ]
+    },
+    {
+      "encodedSha256": "a9407ea40b346292a639dfa293c63ee543961e153d44dc1595965f5221ac9bc0",
+      "samples": [
+        "H288"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -7416,6 +9539,15 @@
       ]
     },
     {
+      "encodedSha256": "a9c8f8e70e97644755ad94466129b5a5f35f720b9c0f87b59659d6f298fa34bd",
+      "samples": [
+        "H197"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "a9f3fcd84d2525f8fa300c8f6768662efe14def04b31563968b6150749c864b7",
       "samples": [
         "WRA224"
@@ -7434,6 +9566,15 @@
       ]
     },
     {
+      "encodedSha256": "aa121ee6238be884056519fdcb563425c2607f6692b8438867cbc6bb7fcd0cb2",
+      "samples": [
+        "H138"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "aa27f7025c9660ea59ed616f0c7a7072ed3ccd0ae6cf55b29b9c0197c9df0894",
       "samples": [
         "WLA282"
@@ -7443,12 +9584,30 @@
       ]
     },
     {
+      "encodedSha256": "aa344fe9cf9a6b6e002934e1756007eb0bf75e4ae9ff5c89bd4a0416cedc9003",
+      "samples": [
+        "H227"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "aa500563b9828fc53affc3c623965c3863f329f30f6fb2c76d94f3c1f8152d9b",
       "samples": [
         "WRA225"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "aa50cbe3a6daffca12bb98a665d9b200fc6f1d2293ed78541f7cb5b471982a2a",
+      "samples": [
+        "H337"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -7488,6 +9647,15 @@
       ]
     },
     {
+      "encodedSha256": "ab19e118973d4c453adbd6c5373dec6880ec2f17101cfafb11427f8161ac9b4c",
+      "samples": [
+        "H329"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "ab43adbf095a66d0d21a8643a96af71d242b0dc1312bf712e04909e4c716ac04",
       "samples": [
         "WLA283"
@@ -7506,6 +9674,15 @@
       ]
     },
     {
+      "encodedSha256": "ab9ef09edaec3fc0c7ebbb3b4386a31e378fb7b2005cbfbe3ed58b3c2458303c",
+      "samples": [
+        "H002"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "aba3ccbd0653cd151123b9b4a964a92e07768b220805452ddbfeddb6511a0ce2",
       "samples": [
         "Q031"
@@ -7521,6 +9698,24 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "abe0f7740121d86515ff5ab5433e1f4b32caad3bed9ef31df3d83fb722e18d33",
+      "samples": [
+        "H079"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "ac1d8ce8898a8be9e90a5e6997bb4204a4b4974734e53fa07cbab358fc550015",
+      "samples": [
+        "H145"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -7551,12 +9746,30 @@
       ]
     },
     {
+      "encodedSha256": "acaabb16cb1d746b510ef541b3e8bf417da08f26bfc98167bf1ea487bc77cf6b",
+      "samples": [
+        "H147"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "acd2ba1e558c47859ac6276d7df4cd94bcc97eef8f4eac82d66f5fbcebe4bbd3",
       "samples": [
         "WRA230"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "acd41a8685b123bfc09cd8c1b6ee0b83c22930e471aa869f4872b0cabeffa903",
+      "samples": [
+        "H358"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -7713,12 +9926,30 @@
       ]
     },
     {
+      "encodedSha256": "b053febdae16474475023c1bfa692f7cea71b0aa89cd31871be20e8007659944",
+      "samples": [
+        "H007"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "b056d8f3fc6418cfb479962bef4547f349968e763016074144d6e91519760331",
       "samples": [
         "MF009"
       ],
       "evidence": [
         "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "b06a4bde939ba1fd11e40ecf1dfd796e320a77d1d2e155b7302443db0cdcdedf",
+      "samples": [
+        "H064"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -7740,12 +9971,30 @@
       ]
     },
     {
+      "encodedSha256": "b0ec7e857538fdc9d403a52314e99b516221d93d56268fb513d8be706aa23dde",
+      "samples": [
+        "H226"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "b12ca65449666da48f5b569f4e4afd92fd8afcfd51e1e27d5aee212df4da0ade",
       "samples": [
         "Q025"
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "b1528d6118f05d7bdd5716fba0d680226433c20e4ed8bc90ae1061b3e2b4bc71",
+      "samples": [
+        "H300"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -7782,6 +10031,15 @@
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "b1f9a9935e6ad99257c94ed43e5c6e11fa7ab10e579089922f861ff0bb42a446",
+      "samples": [
+        "H135"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -7839,6 +10097,15 @@
       ]
     },
     {
+      "encodedSha256": "b3587559f4ab80abd577517d9e7ab93a2b1c1867198feeb6f3aef9ae9b5227a2",
+      "samples": [
+        "H053"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "b36c4da263cb3c14e473b41d6e9884ea46af4429c6e01884f3c143c77b765259",
       "samples": [
         "Q164"
@@ -7863,6 +10130,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "b4930565dbe02d5fd1014a8c544cb0f6f9f91978954f9e60384d8fe75a9f34c0",
+      "samples": [
+        "H310"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -7911,6 +10187,15 @@
       ]
     },
     {
+      "encodedSha256": "b5583d0f2d7d9ef4a19cc2970fa8ad912a63741c4676392ac61108e27ac96ddf",
+      "samples": [
+        "H003"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "b55d7f297b3d46204f8cf90f35157b0b42ef9806ab090d4e8caef3f876e55e75",
       "samples": [
         "WLA299"
@@ -7938,6 +10223,15 @@
       ]
     },
     {
+      "encodedSha256": "b592f2d4dc2740507eeb4bfa3fc5e8a3c951483890f5eb175ac98b3cc0e8aae2",
+      "samples": [
+        "H074"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "b595a166cf7923a29fe48e840e0a9ed91c3c1c97c77afb37145bb5e9bad918d2",
       "samples": [
         "WRA243"
@@ -7953,6 +10247,24 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "b5e37f80c8df98426328999a03b7fb2ac0663a9a2d5769e66448cee1ee4c35a2",
+      "samples": [
+        "H030"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "b606264fd79c8c1b508d9c1674e2852c0b90963abad67307044269eca8391ee7",
+      "samples": [
+        "H198"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -7983,6 +10295,15 @@
       ]
     },
     {
+      "encodedSha256": "b6b575f5341021f6c82c0901af1518b0b8086ff7e91abeaabff0ef756af2717e",
+      "samples": [
+        "H321"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "b6b68b401ab4af6589556144479deb6fc050a1c8d24ca6d4b38430e3de0a578d",
       "samples": [
         "WL036",
@@ -7991,6 +10312,15 @@
       "evidence": [
         "completed-all-automatic-winks-37477676654",
         "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "b6c9ead25a44d01663d8903f560de60730a0b9f79e4a471893b779790ddaaa44",
+      "samples": [
+        "H120"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -8084,6 +10414,15 @@
       ]
     },
     {
+      "encodedSha256": "b86c59c4386c92c11979f0153559655497baee4d237ba4e9f1d63831ae5823ad",
+      "samples": [
+        "H180"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "b877220e5c13e9dc159aa8b1774e3c1393f7e88f2f7410de4c038f4ff307e5e1",
       "samples": [
         "mouthWide-062",
@@ -8127,6 +10466,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "b8b9fc53730798960f255828492b78dd039eb378654acda85534adb366a76f80",
+      "samples": [
+        "H158"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -8193,6 +10541,15 @@
       ]
     },
     {
+      "encodedSha256": "b9e14bb886f9f0689224c54cf905d4bf43943f03c5256f80ec141ef30eb5eeb1",
+      "samples": [
+        "H046"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "ba5a31ec850175a0b5bfabb99687ab2d5f70980aecf6b9b88f9b99fb6d41df70",
       "samples": [
         "Q140"
@@ -8211,12 +10568,30 @@
       ]
     },
     {
+      "encodedSha256": "ba69b5749381f2dda030c8fb1e7006706e737dcb388ed25940ecade9fc83df5e",
+      "samples": [
+        "H101"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "ba7516e5357ff71a5a6d98ad0fc56da39c5b943e2197632055ffc1399f3b97d5",
       "samples": [
         "Q071"
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "ba85995e758dbdfca4c58ce0079825faf5672db454b3b980bae08c0e1c43eccc",
+      "samples": [
+        "H092"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -8274,6 +10649,15 @@
       ]
     },
     {
+      "encodedSha256": "bb5413abc9f7cac4fddfd7bb23019dc56b219a50238bf3cc611c5ddaa75622f8",
+      "samples": [
+        "H256"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "bb9d1bf2a6573254acaa69e8489830dd2374b991573240fbc93bbe651b0ebacf",
       "samples": [
         "MW035"
@@ -8292,6 +10676,15 @@
       ]
     },
     {
+      "encodedSha256": "bbbfd4b9535679d188db0431faf71c998092845602b4212affa4a8c26b7481c0",
+      "samples": [
+        "H261"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "bbefb7eb9f7ab0a0e2fe67c34ed5b50ac187372540c70758e8f6c83c96ab57a2",
       "samples": [
         "WLA310"
@@ -8301,12 +10694,39 @@
       ]
     },
     {
+      "encodedSha256": "bc0d46aa4be2aed7cf8c6f905d75f3538db457ec5dd7333209b3c1f1140dbc84",
+      "samples": [
+        "H349"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "bc1d60ed2dae78810bde9a88e0894ab5ccb97a6307aca9818a7c077f1f0c3c11",
+      "samples": [
+        "H355"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "bc94273afcba67d89039ba864d774558b319c56631f6c1b5bd0002006961f47d",
       "samples": [
         "Q110"
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "bcb963c2662f7587e69e15daed68442872fec3df25294a4f285d1d627b1af1dc",
+      "samples": [
+        "H315"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -8366,6 +10786,15 @@
       ]
     },
     {
+      "encodedSha256": "bda3e0a324ed4e758a60457999f45f98b40b0432da54d47ff13d988facf079e5",
+      "samples": [
+        "H121"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "bde8bbdf80f8a1143c6730e7d1fc56023e42f72a45cbe7e9f33fb097470789e2",
       "samples": [
         "mouthFrown-073"
@@ -8390,6 +10819,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "be30b826e501a279c40f0b22a31699a2729d6b46d9f0c8e714b28c61133515f2",
+      "samples": [
+        "H291"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -8438,12 +10876,30 @@
       ]
     },
     {
+      "encodedSha256": "beac3f7cfb38d1a228d4efdbbad23ace3c7a79a3b9a66f550334e2b196a1a802",
+      "samples": [
+        "H010"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "bed874c272c6510dfbaa342cb93226eb52879e80f88e8d03deba47d89e9d1c25",
       "samples": [
         "WRA256"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "bf63868b0dfc63dc2d8a9c0908970f1728457abe6289a3abdd30db0d6be9639b",
+      "samples": [
+        "H073"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -8512,6 +10968,24 @@
       ]
     },
     {
+      "encodedSha256": "c1402cb15e566ffb88d5c83868b7d37f72ac6ec60bb642c8220c75fc0b82b17e",
+      "samples": [
+        "H278"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "c192ed8a31f542f37db7f131747dccf551c02a5e98a0a6aa458a2f789773242b",
+      "samples": [
+        "H113"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "c1cb720e9ae54b610ba657dc3102e1d4792ef746c32e20eed8549e35e14d3e60",
       "samples": [
         "WR010"
@@ -8545,6 +11019,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "c28ab53af8554f0177e3a5fa634e8f0341e3fe5afac578e6cda4e38d3a13a302",
+      "samples": [
+        "H308"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -8629,12 +11112,39 @@
       ]
     },
     {
+      "encodedSha256": "c3e20f0c43edd4ac2ce9e418d617a5ebf91189526f7d2b88d97aa25031adb676",
+      "samples": [
+        "H167"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "c3e901a3657af80b3c8eae5f01bbfe1b3f01b0d09dcdbf0859fc4f5450c03dbe",
+      "samples": [
+        "H107"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "c3eae61abd80078faed04e992dafa6f07d49eee947d092183da4c5f469a01ba0",
       "samples": [
         "WRA262"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "c3f7adb19b0abb77d4a9fe83ef90b799b7f4f716d05f439934a4f0fa12a9a6e7",
+      "samples": [
+        "H068"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -8662,6 +11172,15 @@
       ],
       "evidence": [
         "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "c42a7f5dd3e11c9a5bee98c8c25dd8c4614275e73863d21afe563c5295ec8aae",
+      "samples": [
+        "H347"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -8716,6 +11235,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "c51ef4532e38250563cc8077b40bcc7b475c0fb803a42953820628312e6ad5e6",
+      "samples": [
+        "H038"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -8935,12 +11463,30 @@
       ]
     },
     {
+      "encodedSha256": "c9bb13c870c3db532bfd27d84c199bcfae74b9205584078ff3cda0ee842b3c5f",
+      "samples": [
+        "H083"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "ca0a9564bd03e37ec1eac17e9e3a668d6571d69e0d76798f2d41aa315110d170",
       "samples": [
         "WLA330"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "ca85b21d920a667c13ae8d48eb309e916bcde9847ceeecaf86082ebaca34c06e",
+      "samples": [
+        "H336"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -8982,6 +11528,15 @@
       ]
     },
     {
+      "encodedSha256": "cb01cfb1af0a1fd61564794797e3dfdfefea5712da10900486e8ac4df52db180",
+      "samples": [
+        "H052"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "cb02fa56d507f6b1deb904b6b91f2d9814da588bd1f2c8b18dbaff29e5a69529",
       "samples": [
         "WLA332"
@@ -8991,12 +11546,30 @@
       ]
     },
     {
+      "encodedSha256": "cb1fc36ef8d970449de81041c7d6995210b462737148a6972fc1521442974afd",
+      "samples": [
+        "H161"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "cb3f8de0fca37c3425cd2fe0119a0798f08efe4f14bc8eef7be61557fd7a3f90",
       "samples": [
         "Q137"
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "cb60f4aa2d55438f3946108ab394d116f20d034cba191bbeefbab3da591b8747",
+      "samples": [
+        "H140"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -9069,6 +11642,24 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "cd7ed153b4eea7166769a47f8ed969f13916a54caa699f2c73f222dc255c72eb",
+      "samples": [
+        "H356"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "cdb4af1b79be5600a36d00e2b23b14e4b35cf15a4d49465ddc51232fb350ff50",
+      "samples": [
+        "H239"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -9150,6 +11741,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "ce70cc1a041f196bbd2ca47f7d492295808aa58c5b8270e38e81fbf601c7a33e",
+      "samples": [
+        "H039"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -9261,6 +11861,15 @@
       ]
     },
     {
+      "encodedSha256": "d02e55468012f8cacdc2bb13ea1225e2e33554651a384650691054f34927b62d",
+      "samples": [
+        "H031"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "d037cb3e23e5af2d8739d40e27933602d896fd13db333e7b3b62f6fec90c72df",
       "samples": [
         "WLA343"
@@ -9297,12 +11906,30 @@
       ]
     },
     {
+      "encodedSha256": "d08da51a31fa283f2eb83716f550823301e7ac7cb43816ea3a9cf7173a091b22",
+      "samples": [
+        "H086"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "d0a96a81c8a74434af13b2ee1b5c93af02f9952ed66a0379b19560abfd04d828",
       "samples": [
         "Q156"
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "d0c5b109906e5ff5002ccc058d769a7a08a953687c393bf9d4d477ef0147d9e2",
+      "samples": [
+        "H070"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -9324,6 +11951,15 @@
       ]
     },
     {
+      "encodedSha256": "d13f46d6357dc4c8f0cb4cd0b57ed17d96f852bee91e39740f6c4bfb03e3c97c",
+      "samples": [
+        "H208"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "d1419b62cf6ce3d3902b0732584df97fd498585a9bd6ac35da8be366299814e9",
       "samples": [
         "WLA345"
@@ -9342,6 +11978,15 @@
       ]
     },
     {
+      "encodedSha256": "d18ed6685a366f4dcf1ea9f2a34c6bfd9f467a4eca220b61cd8ef1906031b4a7",
+      "samples": [
+        "H186"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "d1a452829b93dd35096cd16e8abf48b4e36a22afa82da353979d2a8045bfc7c8",
       "samples": [
         "WLA347"
@@ -9357,6 +12002,15 @@
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "d1c44a539efccb3549685a161656b1c7d11ec5666f1060674583ed17a588b61a",
+      "samples": [
+        "H237"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -9414,6 +12068,15 @@
       ]
     },
     {
+      "encodedSha256": "d313d62df983070c4a45642dbc06f515ba36541f45f00f11476e45b1c7f58383",
+      "samples": [
+        "H100"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "d3404061e17751c8b9fb2b81ea94d15d04b1846a7ab1da3e2bb9a4ab70c1780a",
       "samples": [
         "mouthWide-059"
@@ -9438,6 +12101,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "d47e60b02c87948e4fac71a2d9eefeb33b06189a2ddaca7f05be69bcf7fa0bc1",
+      "samples": [
+        "H143"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -9504,6 +12176,15 @@
       ]
     },
     {
+      "encodedSha256": "d577b13ec8e05cee21d18ae77763591e72c345bb2cd74e4d302fdc3c8c6217f3",
+      "samples": [
+        "H328"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "d57d196aeb88f5ce0af03f7c3313aae3ea46a64f8b1b61f1b1fedea4884dfab5",
       "samples": [
         "WR008",
@@ -9541,6 +12222,24 @@
       ],
       "evidence": [
         "completed-audit-mouth-frown"
+      ]
+    },
+    {
+      "encodedSha256": "d5ed8e6ac1fc92772267014966f620e5c9a00ba9c611ff8ace9eaf36decf71d4",
+      "samples": [
+        "H048"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "d64807a508d4c47779781d7de18e737112bfe109a2dab8d6f00b4acce9f48b97",
+      "samples": [
+        "H262"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -9598,6 +12297,15 @@
       ]
     },
     {
+      "encodedSha256": "d73bdc7c98bed72da8b323dcec09ea9c5ae418cbad451a99fc974852f4453090",
+      "samples": [
+        "H116"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "d7466ce2aac7eaf8f3acaae622b59fb807fb0e87b1a8f0d6b105ed1fc21517f3",
       "samples": [
         "Q047"
@@ -9652,6 +12360,15 @@
       ]
     },
     {
+      "encodedSha256": "d83a94a0e30c9ecdd723d985c81406bd9b5404e0eb939df9a305243bf1f6f4d8",
+      "samples": [
+        "H309"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "d83ea3dd27b05e22b4cda45c06f67a70bf4dd8acb2a801003a576604610d096a",
       "samples": [
         "Q026"
@@ -9670,6 +12387,15 @@
       ]
     },
     {
+      "encodedSha256": "d85a29b285833a03af87e30547b7bc0d39e6134666b5dc8c4eb2d96086b731a4",
+      "samples": [
+        "H126"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "d8c95f1b8d34bfb58e43c7bed6859073874808cc161542e0503acca5c7ec5e02",
       "samples": [
         "WRA293"
@@ -9685,6 +12411,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "d8e3763c7b9e460fc70b7d2a6f02c1fcd773c101c4420cfc0a07af84d483daca",
+      "samples": [
+        "H344"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -9712,6 +12447,15 @@
       ],
       "evidence": [
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "d9b5067957fa338c10f9576a5b446eb0ed138434a345a24e55caa685a450c633",
+      "samples": [
+        "H348"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -9748,6 +12492,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "da60b7bb2adbbf00c353a17617a24c3e45d02d78dba94a82921ae90f1b2b5d86",
+      "samples": [
+        "H183"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -9820,6 +12573,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "db261da4b41f2d02895ca63b1957ec1a16bcf6a2649ed2de85ea6fba1eff203f",
+      "samples": [
+        "H104"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -9935,12 +12697,39 @@
       ]
     },
     {
+      "encodedSha256": "dc653d8e1e2fce8f0530e522f9950a84f3372bb51d779b387e3df9723766273b",
+      "samples": [
+        "H051"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "dc80af639e1400ed13fa5cb0653a17d3007c7c674bb5d3494c491080d31b9275",
       "samples": [
         "WRA302"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "dc82af688091a09525ef7f0c0397bdbffc3000923d8c56648a3c7bc57548a8df",
+      "samples": [
+        "H346"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "dcb0539546983e46f224dc578021b3cef991d3fc91393d85e78f53dce30ad15f",
+      "samples": [
+        "H089"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -10043,6 +12832,15 @@
       ]
     },
     {
+      "encodedSha256": "de18fb78c2a97cd8ecf19451169a80f4a7b73562320d87f576f22b3c8e889efd",
+      "samples": [
+        "H025"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "decfd997fa64a3cc45d35139f0464559447e56bf65b3d40977ff1edf04112dda",
       "samples": [
         "MW033"
@@ -10103,6 +12901,15 @@
       ],
       "evidence": [
         "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "dfb35914b6c5fc4fbc1d581bc247cd62cd8c7b446260e4ef6109d32df8496c48",
+      "samples": [
+        "H351"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -10232,6 +13039,15 @@
       ]
     },
     {
+      "encodedSha256": "e22195941b9dd7159b248cf76ba196c8bb170c1d9854162d55848a16462266f2",
+      "samples": [
+        "H043"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "e236eeb5662a0f1c500c4c07eef669180c4b2f5bca6965344937e124268884b6",
       "samples": [
         "WRA310"
@@ -10340,6 +13156,15 @@
       ]
     },
     {
+      "encodedSha256": "e50985ad4c30e1ecbb2718e37d4c068516dd1fd06c15094e888b77715bd3d6ca",
+      "samples": [
+        "H333"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "e513e499a901841017565d4c7e344cbbadbe34119d26f00db98648d345e1c3f3",
       "samples": [
         "MW040"
@@ -10403,6 +13228,15 @@
       ]
     },
     {
+      "encodedSha256": "e5b0e3ed26bf41a68cfc77e383de3d798ec218d465d511f175a36bf1616e3afd",
+      "samples": [
+        "H188"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "e5cbf36a206ccadec2744edbe96476413c6b19bb7ae056c8f6a8929d383c3f37",
       "samples": [
         "WL022",
@@ -10411,6 +13245,24 @@
       "evidence": [
         "completed-all-automatic-winks-37477676654",
         "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "e5df5e250e86cf5ca3f5964a222988f2b7ee86200fb2d1e94270c85ad9e669e5",
+      "samples": [
+        "H125"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "e64196fe486f624de0d75e8cf7d835a5e83ba210aa041880922fe7a9a299748b",
+      "samples": [
+        "H334"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -10448,6 +13300,24 @@
       ],
       "evidence": [
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "e6e72f582805f0884b422c1ddad19099954170492490aaafb8707277160600d1",
+      "samples": [
+        "H054"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "e704a55a99ebe02f21a40c450ec8ac3c2839c3fd0e48814c1cf1d3d05f627eca",
+      "samples": [
+        "H193"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -10532,6 +13402,15 @@
       ]
     },
     {
+      "encodedSha256": "e89004447fe57f6463cc8010c087fa4fc4bce1e895df13bf51810fbcdd17000a",
+      "samples": [
+        "H027"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "e8cd63a58c2a9ac27be54f63360a9a3163e7d99880f43ce2461ef708bf024242",
       "samples": [
         "WRA315"
@@ -10565,6 +13444,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "e98a714cdb3a1b3be057b1fd474b1e3d55e0cd003b7b31fb4980cfddbce0e5fd",
+      "samples": [
+        "H216"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -10613,6 +13501,15 @@
       ]
     },
     {
+      "encodedSha256": "ea7d1cc0e08ccb17d832d87aeaba533ae4853e15ca7de98ada4e69f75b77e230",
+      "samples": [
+        "H185"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "eaebeff5d29f987f252714dbe6654137aae06e5cddf273b74ce57543457c6f77",
       "samples": [
         "MF001"
@@ -10637,6 +13534,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "eba561996e3dbfa727c893f7dd39618e338ea0dbeee2a3e734a449821585e66a",
+      "samples": [
+        "H164"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -10676,12 +13582,57 @@
       ]
     },
     {
+      "encodedSha256": "eca581807527143f81f1c589b35d77b245947d34ad8cc48ead7aff038b7fe092",
+      "samples": [
+        "H072"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "eca5ef9ab9d7651f7b7813734e605151204564dead1a794b0b176d0dfd38a703",
+      "samples": [
+        "H150"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "ecded5caab8b33e5e9a99bd091295253dba64a40362c38ea67b6fa375c311f3d",
+      "samples": [
+        "H245"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "ece3d542da6c5d66a928f735e14f2274f6d233d9177d142228529c5054281540",
+      "samples": [
+        "H265"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "ed2f7756026e83e229c1ffcfb90aeab3bffa743c6f0332bbd40d8f14247021bf",
       "samples": [
         "WLA398"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "ed3d6b03541c68752a1d76443adbd0ad3ec3f3ebff16df4097e8fb7f6621c6d9",
+      "samples": [
+        "H062"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -10730,6 +13681,15 @@
       ]
     },
     {
+      "encodedSha256": "ee46d28e6735c2a9eaf59e75888de0b9842f1dca666ecad21eec6e7def6fbcd6",
+      "samples": [
+        "H078"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "eea92f234079cc657627896f7f9e27c7f3e4fe663533a87ff197d3e34272cd28",
       "samples": [
         "WRA323"
@@ -10757,12 +13717,30 @@
       ]
     },
     {
+      "encodedSha256": "ef84df5b46e6d3ce693c2da9d0fef15435505d4609bf22d5473def3004327efd",
+      "samples": [
+        "H153"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "ef8ca5cf32787f54475b13b78c0a60a83852b14bf2a39a9ac5b2f5674ab8a6ae",
       "samples": [
         "Q052"
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "ef982648ddbcee84b95dfad2c7028ca6be03c09c9584a54539132c300e6a3fe8",
+      "samples": [
+        "H059"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -10784,6 +13762,15 @@
       ]
     },
     {
+      "encodedSha256": "f0504c1e58ba92c8eff53ed95deea401eff05503cc07bb32713d4d1b7fa5b7a8",
+      "samples": [
+        "H283"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "f0616957f479d9964b65b1291054490e0de1feb45a83c04a8c4600e8a5624025",
       "samples": [
         "WLA401"
@@ -10802,12 +13789,48 @@
       ]
     },
     {
+      "encodedSha256": "f07bd8244c817d9014b6bd0ffbbf15469c24f7ab64df639d8f8d3f82b66d4ad1",
+      "samples": [
+        "H258"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "f07d84d10f3b35a77604c2c13c67cb1a4043abcaa72f08a2bea7950c3038c1cb",
+      "samples": [
+        "H013"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "f0a5893b0ce217e6cbbae484fb1ebf8624171c75996fbc9cb89b78ac937cdafe",
       "samples": [
         "WLA403"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "f0bb080ccc5a1c4ae59f65391ae0f2d75751abb259b2fb32b91fd586f2a3514e",
+      "samples": [
+        "H026"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "f10e068c9420140fcec9fcb0aa2fede2a387c9e26487b1b440c63aa730f42949",
+      "samples": [
+        "H292"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -10892,6 +13915,24 @@
       ]
     },
     {
+      "encodedSha256": "f1c80ec7c2cb9fe33115744b4026da795713c5a44fcd71cf80e38637a59171f0",
+      "samples": [
+        "H215"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "f1ee8ea4f2a95862afa8ab5c2ae9fd0cac80ede968779227b7c56700dfe1cf49",
+      "samples": [
+        "H123"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "f2350364cf0956d1bb94bce3ba0f5397edb992057ff8a7e4881520cd944effa7",
       "samples": [
         "WLA406"
@@ -10910,12 +13951,48 @@
       ]
     },
     {
+      "encodedSha256": "f32a1daa74e932748e9ccb9872da69395ddd972adcb6e8ffc296070d2d0c0766",
+      "samples": [
+        "H338"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "f34e2c0669901b6904f98ee74771ac4e0b4de2e17852a7f3a735043709bb38e9",
+      "samples": [
+        "H204"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "f3567445d25686cb6888ce790a0fce8476e9464d8db2be698c7bfb90d25eabb0",
       "samples": [
         "WLA407"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "f35f44520a07c84cd5b3a736a69445f7ec83daf1df63f57341ac7d0765025d08",
+      "samples": [
+        "H182"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "f36ee980ddcf18a0a92a44bf1e0796bd92e06ea855fcc8b91e72310422d1372f",
+      "samples": [
+        "H065"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -10943,6 +14020,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "f4df35247864957e6b0650de5e29941cee49c23251c7f1bf9d10dce71d253390",
+      "samples": [
+        "H159"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -10982,6 +14068,15 @@
       ]
     },
     {
+      "encodedSha256": "f5a2b67b3c4a95cd2ff92f76e0ea4844c52affb3b88bc435d9bdf8840b19dec7",
+      "samples": [
+        "H160"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "f5e8c4ce023a25feb834534f5436d8f84d16b1f9cff97c47d0b7567db92a7be9",
       "samples": [
         "WLA411"
@@ -10997,6 +14092,24 @@
       ],
       "evidence": [
         "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "f61f2bf2d758650ae54de37bad78b3cc2c7d0ff34a1a51ed52bf94ead48fb8e3",
+      "samples": [
+        "H119"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "f6f21707b124aedb2bcc5b413932855ab5bb3c032c54aa67c1e7130cfcda513a",
+      "samples": [
+        "H322"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -11054,12 +14167,30 @@
       ]
     },
     {
+      "encodedSha256": "f7cb5f2a319437b2b8e9ea009fda7074de6e35478f24e8c6783a515d831f56fd",
+      "samples": [
+        "H012"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "f7e09e4557316179bf395a0452b0c68cb9fee4435a53377fe0ef6712f2b0ec32",
       "samples": [
         "WLA415"
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "f7fdf8095ad5f94d28f60eca97bf07f29e77a61530c5fe3e63e99c98a9adc541",
+      "samples": [
+        "H110"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -11081,12 +14212,39 @@
       ]
     },
     {
+      "encodedSha256": "f82072df6651d4c2e32902ba00272b6ba5c72582f934f46d7c3cf8c34445e524",
+      "samples": [
+        "H006"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "f832dfdc40800d7404ea42e050d172167e90b4a2d7ae8db63419bf74e7590c17",
+      "samples": [
+        "H297"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "f8399078302cf7a3c505cdbc77f79f1ad76d7f48bda41ab50f9c3cdde0d21ac3",
       "samples": [
         "MW013"
       ],
       "evidence": [
         "completed-audit-mouth-wide"
+      ]
+    },
+    {
+      "encodedSha256": "f88ebdb3f3f644585db5f9c921973e2279e2a19686360333b045f44985d35d52",
+      "samples": [
+        "H032"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -11117,6 +14275,15 @@
       ]
     },
     {
+      "encodedSha256": "f8c211cce9457bb27ca41ae3ad4e3dae753a56d0aea4acac7b936b2e2ee67073",
+      "samples": [
+        "H170"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "f907d936d404990981be7e704b51c86180455558b4eea56e04d740ccf8357f5c",
       "samples": [
         "WL008",
@@ -11125,6 +14292,15 @@
       "evidence": [
         "completed-all-automatic-winks-37477676654",
         "completed-audit-wink-left"
+      ]
+    },
+    {
+      "encodedSha256": "f911d0f7c640aadf4ce51143b6543e158a9b5714046bec2b7c8442a49a5b565c",
+      "samples": [
+        "H247"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -11143,6 +14319,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "f944fb3b32a0b6b14fea62586c69b88a5388df520bfe19d7d94a6008ac3dd57c",
+      "samples": [
+        "H175"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -11184,6 +14369,15 @@
       ]
     },
     {
+      "encodedSha256": "fa5aa743be0c299da5eed23f301882f5c5c6c4a2b94d1f2b34aef0f11ffaf279",
+      "samples": [
+        "H034"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "faa69655cfb882406aed9df55001850327f9b78bb3d1dd8c48c6492e7f2db41f",
       "samples": [
         "mouthFrown-048"
@@ -11211,6 +14405,15 @@
       ]
     },
     {
+      "encodedSha256": "fb152d35c611224abf135f2c1a89556e740b03b0723ebb5a90db82665f752e9b",
+      "samples": [
+        "H236"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "fb1b4deecc33b0bb6f58532e9ef47c6022dd13648340f7f2b551b9f50a35084f",
       "samples": [
         "WRA335"
@@ -11226,6 +14429,15 @@
       ],
       "evidence": [
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "fb4c3c367678f572b82bf87f56d7a9797fe54d930de723c1643a68f736203ab9",
+      "samples": [
+        "H266"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -11262,6 +14474,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "fba79b3df89ba218079086d09561631b9e16b6f926a8e6b99a487f719266f726",
+      "samples": [
+        "H172"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {
@@ -11383,6 +14604,15 @@
       ]
     },
     {
+      "encodedSha256": "fdf415f330d82f28b0e5a18d6012e58924266a4db3b68fbb76e1997eca80614a",
+      "samples": [
+        "H021"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "fe07521bcbd3b7193fe34b01f18ff1ff8c8308f00642bc65de34010f40c1efe2",
       "samples": [
         "WLA426"
@@ -11419,12 +14649,30 @@
       ]
     },
     {
+      "encodedSha256": "feb1420cf72e9652acb892fdccc58c4eaa00b3be7b9bda10111c8c559a345505",
+      "samples": [
+        "H304"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
       "encodedSha256": "fefd78deaf5af5caad561fa2dc4ec6a1433ad99f40877c04523fe95ac4c87afb",
       "samples": [
         "Q021"
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "ff25e80ea4f277988f9a09637372d82b7771fbe4a676d287d1d1b29a54b61c74",
+      "samples": [
+        "H190"
+      ],
+      "evidence": [
+        "failed-independent-holdout-37484611339"
       ]
     },
     {

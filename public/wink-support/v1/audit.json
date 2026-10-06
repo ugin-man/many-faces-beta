@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "catalogRoot": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-candidate/catalog",
+  "baseCatalogId": "many-faces-clean-core-v5-28e6092363ed981f-pose-local-v1",
+  "baseCatalogManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+  "policySha256": "2f820a6dff8f4d0fcd595623042d3397abfbd6efa8ca57c45aac9f68c3462481",
+  "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+  "confirmedReviewSides": {
+    "left": 31,
+    "right": 40
+  },
+  "allIndexedWinksHaveReviewedEvidence": true,
+  "physicalCoreCount": 70000,
+  "eligibleCoreWinks": 71,
+  "indexedCoreWinks": 71,
+  "omittedFromSpecialistIndex": 0,
+  "left": 31,
+  "right": 40,
+  "outputIndexBytes": 550495,
+  "separatePhotoAssets": 0,
+  "coreImagesRemoved": 0,
+  "independentHumanLabels": false,
+  "indexSha256": "7282c665512ff514877e78247e1d0647835a333497201cab79fb21c3fe57fa76"
+}

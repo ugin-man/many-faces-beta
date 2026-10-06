@@ -81,9 +81,30 @@
       "reviewDesign": "complete-added-image-census-not-independent-sample",
       "reviewStatus": "failed-requires-preselection-remediation",
       "newObservationsDoNotImplyVisualPass": true
+    },
+    {
+      "name": "new-replenishment-original-review-37515456441",
+      "recordCount": 10,
+      "newUniqueImages": 10,
+      "previouslySeenImages": 0,
+      "recordFilePath": "data/catalog-quality/remediation-originals-37515456441-new10.json",
+      "recordFileSha256": "a75f3e0ee88747724732dd6887e2e77722819eb775cfcf10b17b7512489b2d86",
+      "sourceRunId": 37515456441,
+      "candidateRunId": 37513093051,
+      "manifestSha256": "635a0a8053d16e5581fa6eda8cdf7f024e20e65444babbec3b983a9e528dc992",
+      "reviewScope": "full-original-image-quality",
+      "reviewDesign": "new-members-of-complete-added-image-census-not-independent-sample",
+      "reviewStatus": "review-complete-with-uncertain",
+      "counts": {
+        "pass": 9,
+        "deny": 0,
+        "uncertain": 1
+      },
+      "reusedOldPassesNotCountedAsNewObservations": 49,
+      "newObservationsDoNotImplyVisualPass": true
     }
   ],
-  "uniqueImages": 2035,
+  "uniqueImages": 2045,
   "images": [
     {
       "encodedSha256": "0025c36aa051478895f22598aca526dd65be2a91347a47aac40a5e2337015972",
@@ -4049,6 +4070,15 @@
       ]
     },
     {
+      "encodedSha256": "362a107682857031493c684fac68d5b588a60340ce941998cfe0189d75035360",
+      "samples": [
+        "H009"
+      ],
+      "evidence": [
+        "new-replenishment-original-review-37515456441"
+      ]
+    },
+    {
       "encodedSha256": "36881c67c975b874364111554aadfb76b720ec626c1ab92e676bb0b1fb6ebbab",
       "samples": [
         "H353"
@@ -6242,6 +6272,15 @@
       ]
     },
     {
+      "encodedSha256": "544505b0ea79258bae70246551a234b1be92b84f369d8219e04d3e5e6690958d",
+      "samples": [
+        "H016"
+      ],
+      "evidence": [
+        "new-replenishment-original-review-37515456441"
+      ]
+    },
+    {
       "encodedSha256": "544cce8a92238d2f55903c1d975fe3a81d799df5fc5d06bceceb13d28524a6d2",
       "samples": [
         "WRA116"
@@ -6781,6 +6820,15 @@
       ],
       "evidence": [
         "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "5ced9798c017ee3fa2e63c37dc67390f11b14d38bbcadacf7c64d1a325e6327d",
+      "samples": [
+        "H018"
+      ],
+      "evidence": [
+        "new-replenishment-original-review-37515456441"
       ]
     },
     {
@@ -8371,6 +8419,15 @@
       ],
       "evidence": [
         "failed-independent-holdout-37494402324"
+      ]
+    },
+    {
+      "encodedSha256": "7524316e6a63a6ba0805c2bc847c05952a9d8d9ae08fd3b2a3afb1ac8294f298",
+      "samples": [
+        "H022"
+      ],
+      "evidence": [
+        "new-replenishment-original-review-37515456441"
       ]
     },
     {
@@ -10026,6 +10083,15 @@
       ]
     },
     {
+      "encodedSha256": "8c53357d7a6481b1b03d9c326eb985b194e0f69db687715a1357059fdc9fa3b3",
+      "samples": [
+        "H027"
+      ],
+      "evidence": [
+        "new-replenishment-original-review-37515456441"
+      ]
+    },
+    {
       "encodedSha256": "8c63ec5f757072c43d34f13d4a2acd8e38020d6dd9288a4e0b46bfbffdd957d6",
       "samples": [
         "WLA230"
@@ -10248,6 +10314,15 @@
       ],
       "evidence": [
         "failed-independent-holdout-37484611339"
+      ]
+    },
+    {
+      "encodedSha256": "8f982630e619e1723c3a4859c07ae5a58d1f52d332b17716643dfedf188ea8b1",
+      "samples": [
+        "H028"
+      ],
+      "evidence": [
+        "new-replenishment-original-review-37515456441"
       ]
     },
     {
@@ -10727,6 +10802,15 @@
       ],
       "evidence": [
         "initial-visibility-calibration"
+      ]
+    },
+    {
+      "encodedSha256": "9669597f068b158682695318259c1cbc7de819afc079a61f70b04b326d7b6b59",
+      "samples": [
+        "H030"
+      ],
+      "evidence": [
+        "new-replenishment-original-review-37515456441"
       ]
     },
     {
@@ -13871,6 +13955,15 @@
       ]
     },
     {
+      "encodedSha256": "c26e522dd3755acb16fe73e2dc270dd84982b11b4c2b8485b5cffcb57c18d965",
+      "samples": [
+        "H036"
+      ],
+      "evidence": [
+        "new-replenishment-original-review-37515456441"
+      ]
+    },
+    {
       "encodedSha256": "c27f0aab533ddd6120275a2cf772fc838672a88f83c4db08702d30eaae2bde41",
       "samples": [
         "WRA259"
@@ -15240,6 +15333,15 @@
       ],
       "evidence": [
         "exploratory-local-mouth-review"
+      ]
+    },
+    {
+      "encodedSha256": "d4b72eb665cd98604d785ba93f900ad06d7369ebe76731879af0db932b23cf25",
+      "samples": [
+        "H041"
+      ],
+      "evidence": [
+        "new-replenishment-original-review-37515456441"
       ]
     },
     {
@@ -17222,6 +17324,15 @@
       ],
       "evidence": [
         "completed-all-automatic-winks-37477676654"
+      ]
+    },
+    {
+      "encodedSha256": "ee15a7805e492ead28884e87feb2b2444cfde05ff4fd5a4b5f3b9a1499e25157",
+      "samples": [
+        "H055"
+      ],
+      "evidence": [
+        "new-replenishment-original-review-37515456441"
       ]
     },
     {

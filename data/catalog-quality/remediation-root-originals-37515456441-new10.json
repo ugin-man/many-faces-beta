@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-remediation-image-review",
+  "scope": "full-original-image-quality",
+  "remediationIndexSha256": "43c3e9aa4ed2079c7aa3b96a41e0fb250ba2ab0bf527ce3a46d9ac685a38c637",
+  "finalManifestSha256": "635a0a8053d16e5581fa6eda8cdf7f024e20e65444babbec3b983a9e528dc992",
+  "reviewer": "assistant-visual-review",
+  "reviewerTask": "/root",
+  "humanVerified": false,
+  "reviews": [
+    {
+      "sample": "H009",
+      "encodedSha256": "362a107682857031493c684fac68d5b588a60340ce941998cfe0189d75035360",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-36670",
+      "recordSha256": "17f24807a07ab0f7be4ee07b3ff8701a5db4fb1377ecd39253fd0dcfed59203b",
+      "decision": "uncertain",
+      "reason": "Both eyes, eyelids, nose and the smiling mouth are clear. The foreground person mainly overlaps the outer cheek. Several fringe strands overlap the brows; particularly the image-right brow contour cannot be followed confidently. Fine brow-expression readability remains unresolved; hairstyle itself and foreground presence are not exclusion grounds.",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H016",
+      "encodedSha256": "544505b0ea79258bae70246551a234b1be92b84f369d8219e04d3e5e6690958d",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-14494",
+      "recordSha256": "c7c48b4a90471bfc3e7c089502be1d17759d0db97d938c30aabccb4d5477a614",
+      "decision": "pass",
+      "reason": "Both brow and eyelid outlines and the open smiling mouth/teeth are readable. Uneven lighting preserves eye detail. Water is below the chin and does not cover expression regions.",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H018",
+      "encodedSha256": "5ced9798c017ee3fa2e63c37dc67390f11b14d38bbcadacf7c64d1a325e6327d",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-62533",
+      "recordSha256": "2a75952d486ecd58b05a5148cba24f5f30d4f47e5c6552e8e9247dd7edec1f99",
+      "decision": "pass",
+      "reason": "The white vertical edge touches the outer image-left face but both eyelids and eye apertures, visible brow shapes, nose and both mouth corners remain readable. The central expression regions are unobstructed.",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H022",
+      "encodedSha256": "7524316e6a63a6ba0805c2bc847c05952a9d8d9ae08fd3b2a3afb1ac8294f298",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-52817",
+      "recordSha256": "358f79561c16d6718987634179be2b88816c758c2eac06679fb1c104e47e72c1",
+      "decision": "pass",
+      "reason": "Hard uneven illumination and natural eye narrowing are present, but brow positions, eyelid outlines, nose and the mouth opening/lip boundary remain readable. The eye narrowing is not treated as an occluder.",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H027",
+      "encodedSha256": "8c53357d7a6481b1b03d9c326eb985b194e0f69db687715a1357059fdc9fa3b3",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-15557",
+      "recordSha256": "0a2fa5583cc4e66d9bc970d8a75adb450fe9a202128dd090c47bc9ffc43bf6c4",
+      "decision": "pass",
+      "reason": "The dark foreground lies at the outer forehead/cheek and the other face is at the far edge. Both brows, eyelids, nose and the wide smiling mouth with teeth remain clear.",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H028",
+      "encodedSha256": "8f982630e619e1723c3a4859c07ae5a58d1f52d332b17716643dfedf188ea8b1",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-47482",
+      "recordSha256": "33c41af49b7443ff5c83c6650eb451e87880680eedabaf9fa513122acff267b6",
+      "decision": "pass",
+      "reason": "Brow curves, eyes, nose, lips and teeth are clear. Hair stays above or outside the expression-essential regions; no forbidden eyewear or mask is visible.",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H030",
+      "encodedSha256": "9669597f068b158682695318259c1cbc7de819afc079a61f70b04b326d7b6b59",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-12411",
+      "recordSha256": "676acb7ecc1ba5464a1ad32bce795bd3d0f44f86e13ec736feb6b0de1b5ca46b",
+      "decision": "pass",
+      "reason": "The light fringe ends above the main visible brow lines. Both eyelids, brow contours, nose and closed mouth remain readable. The wig and ear decoration are not themselves exclusion reasons.",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H036",
+      "encodedSha256": "c26e522dd3755acb16fe73e2dc270dd84982b11b4c2b8485b5cffcb57c18d965",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-66431",
+      "recordSha256": "221b2d559ee41a629dea49104dadf7e168dc722742c20f831e34bf786b2fcaec",
+      "decision": "pass",
+      "reason": "Brows, narrowed eyelids and the open mouth are readable. Orthodontic brackets are on visible teeth and do not cover the lips, mouth corners or mouth opening; they are not treated as a face mask or mouth-covering prop.",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H041",
+      "encodedSha256": "d4b72eb665cd98604d785ba93f900ad06d7369ebe76731879af0db932b23cf25",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-9117",
+      "recordSha256": "04eb5379fd1085d1257fa7b934ddc964e24fee4825979effd357043b412f31ba",
+      "decision": "pass",
+      "reason": "Moderate softness leaves both eyes, brow contours, the nose and smiling lip boundary readable. No expression-covering object is visible.",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H055",
+      "encodedSha256": "ee15a7805e492ead28884e87feb2b2444cfde05ff4fd5a4b5f3b9a1499e25157",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-17669",
+      "recordSha256": "238217a658261827487067f15911954f0d567864c530aa068628bec1218c3f74",
+      "decision": "pass",
+      "reason": "Strong highlights reduce skin gradation, but eye/eyelid and brow shapes, the lips and visible teeth remain distinguishable. The expression regions remain readable and no forbidden covering is visible.",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    }
+  ],
+  "counts": {
+    "pass": 9,
+    "deny": 0,
+    "uncertain": 1
+  },
+  "passed": false
+}

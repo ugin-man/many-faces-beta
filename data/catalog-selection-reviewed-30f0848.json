@@ -7,7 +7,7 @@
   "humanVerified": false,
   "reviewedOn": "2026-10-06",
   "mode": "deny-only",
-  "previousReviewSha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff",
+  "previousReviewSha256": "fe6444a7e54bae14eb3a82fa16b87823f63687ff0d37f45957262e3cdc065416",
   "scope": "Exact delivered image bytes reviewed before selection. These decisions may reject candidates but may not admit, rewrite, or override any failed or unresolved inference record. Ordinary transparent glasses and face paint remain permitted. Sunglasses, actual expression obstructions, non-photographic fixed faces, and unusable face detail are excluded. Rejected slots must be replenished before generating the final 70000-image catalog.",
   "reviews": [
     {
@@ -5782,117 +5782,20 @@
         "confirmedForbiddenObject": false,
         "visualUncertaintyPreserved": true
       }
-    },
-    {
-      "encodedSha256": "362a107682857031493c684fac68d5b588a60340ce941998cfe0189d75035360",
-      "decision": "deny",
-      "reason": "Conservative pre-selection quarantine for unresolved fine-brow readability. The eyes and mouth are readable, and an independent reviewer recommended pass for broad readability; that dissent is preserved. This is not a confirmed forbidden-object or hairstyle classification. 両眼と口は明瞭だが、前髪が眉の複数部分に重なり、とくに画面右の眉の輪郭を十分に追えない。髪型自体を不良とはせず、細かい眉表情の可読性を確定できないため保留する。画面左の別人物は主に頬に接しており、眼・口を隠す主因とは判断しない。",
-      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
-      "sourceId": "seed-ffhq-36670",
-      "evidence": {
-        "sampleId": "H009",
-        "imageSha256": "362a107682857031493c684fac68d5b588a60340ce941998cfe0189d75035360",
-        "imageByteLength": 5358,
-        "recordSha256": "17f24807a07ab0f7be4ee07b3ff8701a5db4fb1377ecd39253fd0dcfed59203b",
-        "sourceFeatureSha256": "4f7bcf123998ea3bf1d92e3ece099b1781ae86c49c44f4906b118a846ff2d165",
-        "sourceRunId": 37515456441,
-        "sourceCommit": "5640df9ba2136de39b2c4f179a56f127278aee9c",
-        "candidateRunId": 37513093051,
-        "candidateManifestSha256": "635a0a8053d16e5581fa6eda8cdf7f024e20e65444babbec3b983a9e528dc992",
-        "remediationIndex": {
-          "path": "data/catalog-quality/remediation-index-37515456441.json",
-          "sha256": "43c3e9aa4ed2079c7aa3b96a41e0fb250ba2ab0bf527ce3a46d9ac685a38c637"
-        },
-        "remediationIndexSha256": "43c3e9aa4ed2079c7aa3b96a41e0fb250ba2ab0bf527ce3a46d9ac685a38c637",
-        "rawReview": {
-          "path": "data/catalog-quality/remediation-originals-37515456441-new10.json",
-          "sha256": "a75f3e0ee88747724732dd6887e2e77722819eb775cfcf10b17b7512489b2d86"
-        },
-        "rawReviewDecision": "uncertain",
-        "rootOriginalReview": {
-          "path": "data/catalog-quality/remediation-root-originals-37515456441-new10.json",
-          "sha256": "5f348716b298614d2c10b974ee253648d3439811e67c934e420ee83e81838c8c"
-        },
-        "visualReview": {
-          "path": "data/catalog-quality/remediation-original-review-37515456441.json",
-          "sha256": "05215ddee6108b5d004f8755af4b1b97db908aaea997e6b0e680c880cf3813a5"
-        },
-        "visualReviewSha256": "05215ddee6108b5d004f8755af4b1b97db908aaea997e6b0e680c880cf3813a5",
-        "visualDecision": "uncertain",
-        "selectionExclusionBasis": "fine-brow-readability-not-established-conservative-quarantine",
-        "reviewMethod": "exact-original-image-full-quality-review",
-        "viewedOriginal": true,
-        "rootOriginalRecheck": true,
-        "pixelChangesApplied": false,
-        "humanVerified": false,
-        "cleanProfileAtReviewedCandidate": "backgroundMouth",
-        "poseCellAtReviewedCandidate": "9:-12",
-        "conservativeQuarantine": true,
-        "confirmedForbiddenObject": false,
-        "visualUncertaintyPreserved": true,
-        "adjudicationReference": {
-          "path": "data/catalog-quality/remediation-H009-adjudication-37515456441.json",
-          "sha256": "cae766ef82058ed788d12e54556b7ae3447e68c3bc5d4634c51098a5fa1e0a89"
-        },
-        "adjudication": {
-          "schemaVersion": 1,
-          "documentKind": "clean-core-visual-review-adjudication",
-          "qaRunId": 37515456441,
-          "sample": "H009",
-          "encodedSha256": "362a107682857031493c684fac68d5b588a60340ce941998cfe0189d75035360",
-          "sourceCatalogId": "seed-ffhq-70224-actions-v4",
-          "sourceId": "seed-ffhq-36670",
-          "reviewer": "assistant-visual-review",
-          "humanVerified": false,
-          "exactOriginalViewedByAllReviewers": true,
-          "pixelChangesApplied": false,
-          "opinions": [
-            {
-              "task": "/root",
-              "decision": "uncertain",
-              "reason": "Both eyes, eyelids, nose and the smiling mouth are clear. The foreground person mainly overlaps the outer cheek. Several fringe strands overlap the brows; particularly the image-right brow contour cannot be followed confidently. Fine brow-expression readability remains unresolved; hairstyle itself and foreground presence are not exclusion grounds."
-            },
-            {
-              "task": "/root/quality_review",
-              "decision": "uncertain",
-              "reason": "Both eyes and mouth are clear, but fringe overlaps multiple brow sections, especially the image-right brow, limiting fine-brow readability."
-            },
-            {
-              "task": "/root/ci_inventory",
-              "recommendation": "pass",
-              "reason": "Both eyes and mouth remain readable; the reviewer regarded the partial fringe and outer-cheek overlap as normal partial coverage rather than sufficient expression obstruction."
-            }
-          ],
-          "finalDecision": "uncertain",
-          "selectionAction": "quarantine-before-selection-and-refill",
-          "confirmedForbiddenObject": false,
-          "reason": "Two direct original reviews could not confidently trace fine brow contours. The broader-expression pass recommendation is preserved, but unresolved fine-brow visibility is conservatively quarantined. This is not a claim of sunglasses or mask detection."
-        }
-      }
     }
   ],
   "latestVisualReview": {
-    "path": "data/catalog-quality/remediation-original-review-37515456441.json",
-    "sha256": "05215ddee6108b5d004f8755af4b1b97db908aaea997e6b0e680c880cf3813a5"
+    "path": "data/catalog-quality/remediation-original-review-37508460953.json",
+    "sha256": "9ebc3c2286a64caacdf65c8c7b6a9d2afc6e317b632bf91d2b535f8253a33936"
   },
   "latestReviewSummary": {
-    "sourceQaRunId": 37515456441,
-    "candidateRunId": 37513093051,
-    "reviewMode": "complete-added-original-census-with-direct-pass-reuse",
+    "sourceQaRunId": 37508460953,
+    "candidateRunId": 37504332182,
+    "reviewMode": "complete-replenishment-original-census",
     "checkedOriginalPhotos": 59,
-    "reusedDirectOriginalPasses": 49,
-    "newOriginalPhotosActuallyViewed": 10,
-    "counts": {
-      "pass": 58,
-      "deny": 0,
-      "uncertain": 1
-    },
-    "confirmedDenials": 0,
-    "unresolvedVisibilityOrReadabilityQuarantined": 1,
-    "newExactExclusions": 1,
-    "nativeAutomatedChecksPassed": true,
-    "manualReviewPassed": false,
-    "independentDissentPreserved": true,
+    "confirmedDenials": 5,
+    "unresolvedVisibilityOrReadabilityQuarantined": 5,
+    "newExactExclusions": 10,
     "uncertainJudgmentsNotReclassifiedAsConfirmedForbiddenObjects": true,
     "originalFailedIndependentHoldoutUnchanged": true,
     "fixedEvaluatedCandidateRunId": 37491677036

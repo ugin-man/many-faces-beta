@@ -14,9 +14,9 @@
   "sitePublication": false,
   "postSelectionVisualReview": "pending",
   "fixedVideoVerification": "pending",
-  "attempt": 9,
-  "previousRun": 37504332182,
-  "previousRunStatus": "Generated and physically validated exactly 70000 images. Native QA prepared the complete fixed-c92-to-6ab difference: 59 added, 59 removed, 69941 retained. All 59 added originals were reviewed; the merged result is 49 pass, 5 definite defects and 5 uncertain cases after the explicit H011 adjudication. QA run 37508460953 failed the baseline step-forward presentation check in its browser stage; the full fixed-video and candidate browser comparison is not claimed complete.",
+  "attempt": 10,
+  "previousRun": 37513093051,
+  "previousRunStatus": "Generation 37513093051 produced and physically validated exactly 70000 images. Native QA 37515456441 completed with SUCCESS and all nine automated outcomes succeeded, including browser comparison. Its raw receipt remains automated-checks-passed-visual-review-pending and passed=false. The fixed-c92 difference contains 59 additions: 49 exact prior direct original PASS reviews were reused, ten originals were newly inspected, yielding nine pass and one uncertain. Combined manual review is 58 pass / 0 deny / 1 uncertain; it is not complete or promotion-ready.",
   "nativeRuntimeDependency": [
     "libgles2",
     "libegl1"
@@ -38,14 +38,14 @@
   },
   "selectionReview": {
     "path": "data/catalog-selection-reviewed.json",
-    "sha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff",
+    "sha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
     "previous": {
-      "path": "data/catalog-selection-reviewed-6ab3c0d.json",
-      "sha256": "fe6444a7e54bae14eb3a82fa16b87823f63687ff0d37f45957262e3cdc065416"
+      "path": "data/catalog-selection-reviewed-30f0848.json",
+      "sha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff"
     }
   },
   "previousDiagnosticRun": 37477676654,
-  "reason": "Preserve the original complete admission audit, source pool, models, visibility threshold, expression/pose classification and all 71 corroborated wink confirmations. Preserve all previous 246 exclusion rows exactly and append 10 exact-image pre-selection exclusions from the complete 59-image refill-original census: 5 confirmed defects and 5 conservatively quarantined uncertain cases. Keep the original failed 360-image evaluation and the failed 59-image remediation review unchanged; H011 remains uncertain in the adjudicated result, with its source review preserved. Replenish every withheld slot to exactly 70000 photographs. Continue comparing every final encoded image against the fixed c92 candidate, require full original-image quality approval for every resulting addition, and reuse earlier original passes only through exact image/source/review bindings. Do not resample to obtain a passing result or claim a new independent holdout. Same-input fixed-video and strict candidate face-position/size tracking checks remain mandatory before promotion.",
+  "reason": "Preserve the original completed 140105-candidate admission audit, source images, models, visibility threshold, selection/classification code, profile/cell minimums, and 71 corroborated wink confirmations. Preserve all 256 previous exclusion rows and append only H009 encoded SHA 362a107682857031493c684fac68d5b588a60340ce941998cfe0189d75035360 as a conservative pre-selection quarantine for unresolved fine-brow readability. Preserve the independent broad-readability pass recommendation; do not claim confirmed sunglasses, mask or obstruction. Replenish this withheld slot to exactly 70000. Keep c92/run37491677036 and the original failed 360-image review fixed. The completed native automated QA success remains distinct from the manual 58/0/1 result. Recompute the complete fixed-c92-to-final image difference; each added exact image needs direct full-original quality evidence. Future reuse must point directly to the old 49-pass source or the new raw nine-pass source, with no reuse chains. Do not introduce a threshold, move the evaluation reference, resample a random 360, or call remediation a new independent holdout. Final physical, same-input fixed-video and face-position/size tracking verification remain mandatory.",
   "winkReview": {
     "path": "data/catalog-wink-expression-reviewed.json",
     "sha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f"
@@ -118,44 +118,60 @@
     "independentFinalHoldoutClaim": false,
     "status": "pending-refill-generation-and-complete-added-image-review",
     "latestFailedReplenishmentReview": {
-      "path": "data/catalog-quality/remediation-original-review-37508460953.json",
-      "sha256": "9ebc3c2286a64caacdf65c8c7b6a9d2afc6e317b632bf91d2b535f8253a33936",
-      "qaRunId": 37508460953,
-      "candidateRunId": 37504332182,
+      "path": "data/catalog-quality/remediation-original-review-37515456441.json",
+      "sha256": "05215ddee6108b5d004f8755af4b1b97db908aaea997e6b0e680c880cf3813a5",
+      "qaRunId": 37515456441,
+      "candidateRunId": 37513093051,
       "remediationIndex": {
-        "path": "data/catalog-quality/remediation-index-37508460953.json",
-        "sha256": "41fabd829cfe49bf07378f641a3d01ca151298b6ec92f2617565c7da0075afff"
+        "path": "data/catalog-quality/remediation-index-37515456441.json",
+        "sha256": "43c3e9aa4ed2079c7aa3b96a41e0fb250ba2ab0bf527ce3a46d9ac685a38c637"
       },
       "checkedOriginalPhotos": 59,
       "counts": {
-        "pass": 49,
-        "deny": 5,
-        "uncertain": 5
+        "pass": 58,
+        "deny": 0,
+        "uncertain": 1
       },
-      "confirmedDefects": 5,
-      "uncertainVisibilityOrReadability": 5,
+      "reusedDirectOriginalPasses": 49,
+      "newOriginalPhotosActuallyViewed": 10,
+      "confirmedDefects": 0,
+      "uncertainVisibilityOrReadability": 1,
       "status": "failed-requires-preselection-remediation",
-      "independentHoldoutPassed": false
+      "independentHoldoutPassed": false,
+      "nativeAutomatedChecksPassed": true,
+      "nativeQaReceiptSha256": "30ae7accf81c5ce1e5c240bd5de92e9b4b9dba6b86b74b8008eee648edfab376",
+      "adjudication": {
+        "path": "data/catalog-quality/remediation-H009-adjudication-37515456441.json",
+        "sha256": "cae766ef82058ed788d12e54556b7ae3447e68c3bc5d4634c51098a5fa1e0a89"
+      }
     }
   },
   "failedReplenishmentOriginalReview": {
-    "path": "data/catalog-quality/remediation-original-review-37508460953.json",
-    "sha256": "9ebc3c2286a64caacdf65c8c7b6a9d2afc6e317b632bf91d2b535f8253a33936",
-    "qaRunId": 37508460953,
-    "candidateRunId": 37504332182,
+    "path": "data/catalog-quality/remediation-original-review-37515456441.json",
+    "sha256": "05215ddee6108b5d004f8755af4b1b97db908aaea997e6b0e680c880cf3813a5",
+    "qaRunId": 37515456441,
+    "candidateRunId": 37513093051,
     "remediationIndex": {
-      "path": "data/catalog-quality/remediation-index-37508460953.json",
-      "sha256": "41fabd829cfe49bf07378f641a3d01ca151298b6ec92f2617565c7da0075afff"
+      "path": "data/catalog-quality/remediation-index-37515456441.json",
+      "sha256": "43c3e9aa4ed2079c7aa3b96a41e0fb250ba2ab0bf527ce3a46d9ac685a38c637"
     },
     "checkedOriginalPhotos": 59,
     "counts": {
-      "pass": 49,
-      "deny": 5,
-      "uncertain": 5
+      "pass": 58,
+      "deny": 0,
+      "uncertain": 1
     },
-    "confirmedDefects": 5,
-    "uncertainVisibilityOrReadability": 5,
+    "reusedDirectOriginalPasses": 49,
+    "newOriginalPhotosActuallyViewed": 10,
+    "confirmedDefects": 0,
+    "uncertainVisibilityOrReadability": 1,
     "status": "failed-requires-preselection-remediation",
-    "independentHoldoutPassed": false
+    "independentHoldoutPassed": false,
+    "nativeAutomatedChecksPassed": true,
+    "nativeQaReceiptSha256": "30ae7accf81c5ce1e5c240bd5de92e9b4b9dba6b86b74b8008eee648edfab376",
+    "adjudication": {
+      "path": "data/catalog-quality/remediation-H009-adjudication-37515456441.json",
+      "sha256": "cae766ef82058ed788d12e54556b7ae3447e68c3bc5d4634c51098a5fa1e0a89"
+    }
   }
 }

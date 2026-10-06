@@ -684,6 +684,7 @@ jobs:
           import json
           import os
           import shutil
+          import subprocess
           import tarfile
           from pathlib import Path, PurePosixPath
 
@@ -725,13 +726,42 @@ jobs:
           context = read(work / 'verified-request.json') or {}
           pins = read(work / 'candidate-pins.json')
           launcher = read(reports / 'browser/launcher-report.json') or {}
-          comparison = read(reports / 'browser/admitted-catalog/report.json') or {}
+          comparison_path = reports / 'browser/admitted-catalog/report.json'
+          comparison = read(comparison_path) or {}
+          comparison_contract = None
+          comparison_contract_error = None
+          if comparison:
+              try:
+                  comparison_contract = json.loads(subprocess.check_output(
+                      ['node', 'scripts/clean-catalog-comparison-contract.mjs', str(comparison_path)],
+                      text=True, stderr=subprocess.PIPE, timeout=30))
+              except (OSError, ValueError, subprocess.SubprocessError) as error:
+                  comparison_contract_error = (getattr(error, 'stderr', '') or str(error))[:4000]
           physical = read(reports / 'physical-admission.json') or {}
           cancellation = read(reports / 'browser/cancellation/cancellation.json') or {}
           fullscreen = read(reports / 'browser/fullscreen/report.json') or {}
           holdout = read(work / 'holdout/sample-index.json') or {}
           candidate_trial = next((row for row in comparison.get('trials', []) if row.get('name') == 'candidate'), {})
-          fixed_passed = comparison.get('passed') is True and candidate_trial.get('passed') is True
+          baseline_trial = next((row for row in comparison.get('trials', []) if row.get('name') == 'baseline'), {})
+          fixed_passed = (comparison.get('passed') is True and candidate_trial.get('passed') is True
+              and candidate_trial.get('initialPresentationPassed') is True
+              and isinstance(comparison_contract, dict) and comparison_contract.get('status') == 'complete'
+              and comparison_contract == comparison.get('comparisonContract')
+              and comparison_contract.get('candidatePassed') is True
+              and comparison_contract.get('baselineRemainingChecksPassed') is True
+              and comparison_contract.get('sameAcquiredFrames') is True
+              and comparison_contract.get('sameTimeline') is True)
+          baseline_verification = {
+              'status': 'passed' if fixed_passed and comparison_contract.get('baselinePassed') is True else
+                  'known-initial-drawing-failure' if fixed_passed and
+                      comparison_contract.get('baselineKnownInitialFailureAccepted') is True else 'not-passed',
+              'baselinePassed': baseline_trial.get('passed') is True,
+              'initialPresentationPassed': baseline_trial.get('initialPresentationPassed'),
+              'remainingChecksPassed': baseline_trial.get('remainingChecksPassed'),
+              'knownInitialFailure': baseline_trial.get('knownInitialFailure'),
+              'initialRecovery': baseline_trial.get('initialRecovery'),
+              'source': comparison.get('baselineSource'),
+          }
           automated_passed = all(value == 'success' for value in outcomes.values()) and (
               launcher.get('passed') is True and launcher.get('mode') == 'admitted'
               and fixed_passed and physical.get('status') == 'passed'
@@ -754,6 +784,13 @@ jobs:
               'passed': False, 'automatedChecksPassed': automated_passed,
               'executionOrigin': origin, 'candidate': pins, 'baselineCommit': os.environ['BASELINE_COMMIT'],
               'requestSha256': context.get('requestSha256'), 'outcomes': outcomes,
+              'comparisonContract': comparison_contract,
+              'comparisonContractValidation': {'status': 'passed' if fixed_passed else 'not-passed',
+                  'error': comparison_contract_error},
+              'comparisonReportSha256': sha256(comparison_path) if comparison_path.is_file() else None,
+              'comparisonEvidence': {'path': 'reports/browser/admitted-catalog/report.json',
+                  'sha256': sha256(comparison_path)} if comparison_path.is_file() else None,
+              'baselineVerification': baseline_verification,
               'fixedVideo': {'status': 'passed' if fixed_passed else 'not-passed',
                   'fixtureSha256': comparison.get('fixtureSha256'),
                   'densityFps': 20 if fixed_passed else None,
@@ -762,6 +799,7 @@ jobs:
                   'sameTimeline': (comparison.get('comparison') or {}).get('sameTimeline') is True,
                   'comparison': comparison.get('comparison')},
               'facePositionSizeTracking': {'status': 'passed' if fixed_passed else 'not-passed',
+                  'initialPresentationPassed': candidate_trial.get('initialPresentationPassed'),
                   'defaultEnabled': True if fixed_passed else None,
                   'presentationControlsPreserveSelection': True if fixed_passed else None,
                   'evidence': 'reports/browser/admitted-catalog/report.json'},

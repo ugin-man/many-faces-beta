@@ -22,6 +22,7 @@ import fs from 'node:fs/promises';
 import net from 'node:net';
 import path from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
+import {assertComparisonContract} from './clean-catalog-comparison-contract.mjs';
 
 export const ACCEPTED_BASELINE = '7b6f7f0d42c18e770379bd56577e9608ba2e9f9e';
 const FIXTURE_SHA256 = 'd470cf5a8aeb847f9c127ed8f0d567fcadd99e83c185ef60b7a8c9c6236a005b';
@@ -236,8 +237,11 @@ export async function runVideoValidation() {
       await checkReport('pendingNetworkCancellation', path.join(speedOut, 'cancellation.json'));
     } else {
       const cleanOut = path.join(out, 'admitted-catalog');
-      await run('admitted-catalog-comparison', process.execPath, ['scripts/verify-clean-catalog.mjs'], roots.candidate, {...env, CLEAN_BASELINE_CATALOG_ROOT: path.join(roots.baseline, 'public/seed-catalog'), CLEAN_CANDIDATE_CATALOG_ROOT: path.join(roots.candidate, 'public/seed-catalog'), CLEAN_BASELINE_URL: 'http://127.0.0.1:4185', CLEAN_CANDIDATE_URL: 'http://127.0.0.1:4183', CLEAN_REPORT_DIR: cleanOut});
-      await checkReport('admittedCatalog', path.join(cleanOut, 'report.json'));
+      await run('admitted-catalog-comparison', process.execPath, ['scripts/verify-clean-catalog.mjs'], roots.candidate, {...env, CLEAN_BASELINE_APP_ROOT: roots.baseline, CLEAN_BASELINE_CATALOG_ROOT: path.join(roots.baseline, 'public/seed-catalog'), CLEAN_CANDIDATE_CATALOG_ROOT: path.join(roots.candidate, 'public/seed-catalog'), CLEAN_BASELINE_URL: 'http://127.0.0.1:4185', CLEAN_CANDIDATE_URL: 'http://127.0.0.1:4183', CLEAN_REPORT_DIR: cleanOut});
+      const comparison = await checkReport('admittedCatalog', path.join(cleanOut, 'report.json'));
+      report.comparisonContract = assertComparisonContract(comparison);
+      for (const trial of comparison.trials) assert.deepEqual(trial.identity, report.runtimeIdentity[trial.name], 'Comparison report belongs to another running application');
+      report.reports.admittedCatalog.comparisonContract = report.comparisonContract;
       const cancellationOut = path.join(out, 'cancellation');
       await run('pending-network-cancellation', process.execPath, ['scripts/verify-video-cancellation.mjs'], roots.candidate, {...env, VIDEO_SPEED_REPORT_DIR: cancellationOut});
       await checkReport('pendingNetworkCancellation', path.join(cancellationOut, 'cancellation.json'));

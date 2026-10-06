@@ -165,14 +165,68 @@ jobs:
               require(qa.get('candidate', {}).get(key) == candidate[key], 'QA candidate binding differs: ' + key)
           qa_code = qa.get('candidate', {}).get('codeCommit')
           require(valid_sha(qa_code, 40), 'QA must name the exact tested application commit')
+          native_qa = json.loads(subprocess.check_output(
+              ['python', str(root / 'tools/verify_clean_core_native_qa.py'),
+               '--qa', str(root / qa_reference['path']), '--repository', repository,
+               '--evidence-dir', str(evidence / 'native-qa')],
+              text=True, stderr=subprocess.PIPE, timeout=240),
+              object_pairs_hook=unique_object, parse_constant=bad_constant)
+          require(native_qa.get('schemaVersion') == 1
+                  and native_qa.get('documentKind') == 'clean-core-v5-native-qa-verification'
+                  and native_qa.get('status') == 'verified'
+                  and native_qa.get('repository') == repository
+                  and native_qa.get('workflowPath') == '.github/workflows/clean-core-v5-qa.yml'
+                  and native_qa.get('branch') == branch
+                  and native_qa.get('codeCommit') == qa_code
+                  and native_qa.get('wrapperSha256') == qa_reference['sha256']
+                  and native_qa.get('comparisonReportSha256') == qa.get('comparisonReportSha256'),
+                  'QA wrapper does not match the successful native run and its exact artifact receipt')
           fixed = qa.get('fixedVideo', {})
           require(fixed.get('status') == 'passed'
                   and fixed.get('fixtureSha256') == 'd470cf5a8aeb847f9c127ed8f0d567fcadd99e83c185ef60b7a8c9c6236a005b'
                   and fixed.get('densityFps') == 20 and fixed.get('plannedFrames') == 466
                   and fixed.get('sameAcquiredFrames') is True and fixed.get('sameTimeline') is True,
                   'The complete same-input fixed-video QA has not passed')
+          comparison_reference = verify_reference(qa.get('comparisonEvidence'))
+          require(PurePosixPath(comparison_reference['path']).parts[0] == 'data'
+                  and comparison_reference['path'].endswith('.json'),
+                  'Native comparison report must be committed as a data JSON file')
+          require(comparison_reference['sha256'] == qa.get('comparisonReportSha256'),
+                  'Native comparison report differs from the QA receipt')
+          comparison_path = root / comparison_reference['path']
+          comparison_report = read_json(comparison_path)
+          comparison_contract = json.loads(subprocess.check_output(
+              ['node', str(root / 'scripts/clean-catalog-comparison-contract.mjs'), str(comparison_path)],
+              text=True, stderr=subprocess.PIPE, timeout=30))
+          require(comparison_contract == qa.get('comparisonContract')
+                  and comparison_contract == comparison_report.get('comparisonContract'),
+                  'QA wrapper changed the independently verified comparison contract')
+          require((qa.get('comparisonContractValidation') or {}).get('status') == 'passed',
+                  'QA wrapper lacks the successful native comparison-contract validation')
+          comparison_candidate = next((row for row in comparison_report.get('trials', [])
+                                       if row.get('name') == 'candidate'), {})
+          comparison_baseline = next((row for row in comparison_report.get('trials', [])
+                                      if row.get('name') == 'baseline'), {})
+          require(comparison_candidate.get('identity', {}).get('revision') == qa_code
+                  and comparison_candidate.get('catalog', {}).get('manifestHash') == candidate['manifestSha256'],
+                  'Native browser comparison used different candidate code or catalog bytes')
+          require(fixed.get('comparison') == comparison_report.get('comparison'),
+                  'QA wrapper changed the native same-input comparison metrics')
+          baseline_verification = {
+              'status': 'passed' if comparison_contract.get('baselinePassed') is True else
+                  'known-initial-drawing-failure',
+              'baselinePassed': comparison_baseline.get('passed') is True,
+              'initialPresentationPassed': comparison_baseline.get('initialPresentationPassed'),
+              'remainingChecksPassed': comparison_baseline.get('remainingChecksPassed'),
+              'knownInitialFailure': comparison_baseline.get('knownInitialFailure'),
+              'initialRecovery': comparison_baseline.get('initialRecovery'),
+              'source': comparison_report.get('baselineSource'),
+          }
+          require(qa.get('baselineVerification') == baseline_verification,
+                  'Frozen-baseline initial failure or recovery evidence was changed or omitted')
           tracking = qa.get('facePositionSizeTracking', {})
           require(tracking.get('status') == 'passed' and tracking.get('defaultEnabled') is True
+                  and tracking.get('initialPresentationPassed') is True
                   and tracking.get('presentationControlsPreserveSelection') is True,
                   'Face position/size tracking QA has not passed')
           physical = qa.get('physicalAdmission', {})
@@ -192,7 +246,8 @@ jobs:
           require(holdout.get('status') == 'passed'
                   and holdout.get('reviewer') == 'assistant visual inspection'
                   and holdout.get('humanVerified') is False
-                  and type(holdout.get('checkedPhotos')) is int and 0 < holdout['checkedPhotos'] <= 70000,
+                  and type(holdout.get('checkedPhotos')) is int
+                  and holdout['checkedPhotos'] == holdout.get('preparedPhotos') == 360,
                   'Selected-photo visual holdout receipt is missing')
           require(qa.get('physicalCameraVerified', False) is False, 'This QA must not claim physical-camera verification')
           references = qa.get('evidence', [])
@@ -200,6 +255,8 @@ jobs:
           verified_references = [verify_reference(reference) for reference in references]
           require(len({reference['path'] for reference in verified_references}) == len(verified_references),
                   'Repeated optional QA evidence path')
+          require(comparison_reference in verified_references,
+                  'The native browser comparison is missing from the bound QA evidence')
           run = api(f"actions/runs/{candidate['runId']}/attempts/{candidate['runAttempt']}")
           require(run.get('id') == candidate['runId'] and run.get('run_attempt') == candidate['runAttempt'],
                   'GitHub returned a different candidate run attempt')
@@ -231,6 +288,7 @@ jobs:
           verified = {
               'schemaVersion': 1, 'request': request, 'requestSha256': sha256(request_path),
               'requestCommit': request_commit, 'qa': qa, 'qaReference': qa_reference,
+              'nativeQaVerification': native_qa,
               'verifiedEvidence': verified_references, 'generationCodeCommit': generation_code,
               'qaCodeCommit': qa_code, 'artifact': {
                   key: artifact.get(key) for key in ('id', 'name', 'digest', 'size_in_bytes', 'created_at')
@@ -713,9 +771,21 @@ jobs:
               'candidate': context['request']['candidate'], 'artifactId': context['artifact']['id'],
               'candidateQa': context['qaReference'], 'candidateQaStatus': 'passed',
               'qaExecutionOrigin': context['qa'].get('executionOrigin'),
+              'nativeQaExecution': {
+                  key: context['nativeQaVerification'][key]
+                  for key in ('runId', 'runAttempt', 'codeCommit', 'artifactId', 'artifactName',
+                              'archiveSha256', 'qaReceiptSha256', 'comparisonReportSha256')
+              },
               'selectionReviewSha256': context['qa']['physicalAdmission']['selectionReviewSha256'],
               'winkExpressionReviewSha256': context['qa']['physicalAdmission']['winkExpressionReviewSha256'],
               'selectedPhotoHoldout': context['qa']['selectedPhotoHoldout'],
+              'comparisonContract': context['qa']['comparisonContract'],
+              'baselineVerification': {
+                  'status': context['qa']['baselineVerification']['status'],
+                  'baselinePassed': context['qa']['baselineVerification']['baselinePassed'],
+                  'initialPresentationPassed': context['qa']['baselineVerification']['initialPresentationPassed'],
+                  'remainingChecksPassed': context['qa']['baselineVerification']['remainingChecksPassed'],
+              },
               'workflowRunId': int(os.environ['GITHUB_RUN_ID']),
               'workflowRunAttempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
               'ciEvidenceArtifact': 'clean-core-v5-promotion-checks-' + os.environ['GITHUB_RUN_ID'] + '-' + os.environ['GITHUB_RUN_ATTEMPT'],

@@ -2,7 +2,8 @@
 /**
  * Compare already-built local servers; never builds the application or publishes.
  *
- * Required: CLEAN_BASELINE_CATALOG_ROOT=/absolute/path/to/old/public/seed-catalog
+ * Required: CLEAN_BASELINE_APP_ROOT=/absolute/path/to/accepted-baseline,
+ * CLEAN_BASELINE_CATALOG_ROOT=/absolute/path/to/old/public/seed-catalog
  * Optional: CLEAN_CANDIDATE_CATALOG_ROOT (defaults to public/seed-catalog),
  * CLEAN_BASELINE_URL (http://127.0.0.1:4185), CLEAN_CANDIDATE_URL (:4183),
  * CLEAN_REPORT_DIR, CLEAN_TRIAL_TIMEOUT_MS, CLEAN_TOTAL_TIMEOUT_MS, CHROME_PATH.
@@ -10,11 +11,13 @@
  * Catalogs and production servers must remain immutable throughout the run.
  */
 import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {ACCEPTED_BASELINE, BASELINE_CLIENT_SHA256, assertBaselineInitialRecovery, assertComparisonContract, assertKnownBaselineInitialFailure} from './clean-catalog-comparison-contract.mjs';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
@@ -35,7 +38,19 @@ const report = {
     'Camera capture, camera tracking, physical devices and Site publication are not tested here.',
   ],
 };
-let browser, page, totalTimer, probeCode, chromium;
+let browser, page, totalTimer, probeCode, chromium, baselineAppRoot;
+
+async function baselineSourceIdentity(root) {
+  const git = (...args) => execFileSync('git', ['-C', root, ...args], {encoding: 'utf8', timeout: 30000, maxBuffer: 16 * 1024 * 1024}).trimEnd();
+  const commit = git('rev-parse', 'HEAD');
+  assert.equal(commit, ACCEPTED_BASELINE, 'Baseline application must remain the original accepted commit');
+  git('diff', '--exit-code', ACCEPTED_BASELINE, '--', 'app', 'worker', 'build', 'public', 'package.json', 'package-lock.json', 'vite.config.ts', '.openai');
+  const file = 'app/live/review-client-lite.tsx', sha256 = hash(await fs.readFile(path.join(root, file), {signal: signal.signal}));
+  assert.equal(sha256, BASELINE_CLIENT_SHA256, 'Complete baseline client source differs from the known original');
+  const source = JSON.parse(execFileSync(process.execPath, ['--experimental-strip-types', '--input-type=module', '-e', 'import {buildIdentity} from "./build/runtime-identity.ts"; console.log(JSON.stringify(buildIdentity()));'], {cwd: root, encoding: 'utf8', timeout: 15000, maxBuffer: 1024 * 1024}));
+  assert.equal(source.revision, commit);
+  return {commit, path: file, sha256, sourceIdentity: {version: 'camera-arrival-v3', ...source}, verifiedUnchanged: true};
+}
 
 function duration(name, fallback, maximum) {
   const value = Number(process.env[name] || fallback);
@@ -281,6 +296,27 @@ async function mirrorState() {
 async function closeSettings() {await page.getByRole('button', {name: '閉じる', exact: true}).click(); await settle();}
 async function screenshot(name) {await page.screenshot({path: path.join(out, name)});}
 
+async function recoverBaselineInitialPresentation(trial, choices, aspect, signature) {
+  // A synthetic seek to the already-selected zero value may not notify React.
+  // Actually leave zero, observe that draw, then return and validate the redraw.
+  const awayChoice = choices.find(choice => choice.time >= 0.05 && choice.time < 23.3);
+  assert(awayChoice, 'No later acquired frame is available for a real baseline seek');
+  const first = choices[0], observation = (choice, state) => ({id: choice.id, time: choice.time, url: choice.url,
+    candidateLayout: choice.candidateLayout, inputLayout: choice.inputLayout, expected: expectedTransform(choice, aspect), ...state});
+  trial.initialRecovery = {method: 'seek-away-and-back', passed: false, sequenceUnchanged: false,
+    seekAwayTime: awayChoice.time, returnedTime: 0, awayChoice};
+  await seek(awayChoice.time);
+  trial.initialRecovery.away = observation(awayChoice, await canvasState());
+  assertDrawing(trial.initialRecovery.away, expectedTransform(awayChoice, aspect), awayChoice);
+  await seek(0);
+  trial.initialRecovery.canvas = observation(first, await canvasState());
+  await screenshot('baseline-initial-recovered.png');
+  assertDrawing(trial.initialRecovery.canvas, expectedTransform(first, aspect), first);
+  assert.deepEqual(await selectionSignature(), signature, 'Baseline recovery changed the selected sequence');
+  trial.initialRecovery.sequenceUnchanged = true; trial.initialRecovery.passed = true;
+  assertBaselineInitialRecovery(trial);
+}
+
 async function verifyPresentation(trial, choices) {
   const signature = await selectionSignature();
   const aspect = await page.getByTestId('input-video').evaluate(video => video.videoWidth / video.videoHeight);
@@ -294,8 +330,20 @@ async function verifyPresentation(trial, choices) {
   trial.presentation.initial = {beforeAnySeek: true, id: first.id, time: first.time, url: first.url,
     candidateLayout: first.candidateLayout, inputLayout: first.inputLayout, expected: initialExpected, ...initial};
   await screenshot(`${trial.name}-initial.png`);
-  assertDrawing(initial, initialExpected, first);
-  check(true, 'Initial completed canvas has the current face position and size before any seek or display-control redraw', trial);
+  trial.initialPresentationPassed = false;
+  try {
+    assertDrawing(initial, initialExpected, first);
+    trial.initialPresentationPassed = true;
+    check(true, 'Initial completed canvas has the current face position and size before any seek or display-control redraw', trial);
+  } catch (error) {
+    if (trial.name !== 'baseline') throw error;
+    const originalError = {name: error.name, code: error.code, message: error.message, stack: error.stack};
+    try {trial.knownInitialFailure = assertKnownBaselineInitialFailure(report, trial, originalError);}
+    catch {throw error;} // Unrecognized baseline errors retain their original failure.
+    await save('baseline-known-initial-failure.json', {baselineSource: report.baselineSource, initial: trial.presentation.initial, evidence: trial.knownInitialFailure});
+    progress('known-baseline-initial-failure', {kind: trial.knownInitialFailure.kind, baselinePassed: false});
+    await recoverBaselineInitialPresentation(trial, choices, aspect, signature);
+  }
   // Multiple real frame geometries ensure the rendering reads the current input geometry.
   for (const fraction of [0, 0.25, 0.5, 0.75, 0.94]) {
     const choice = choices[Math.min(choices.length - 1, Math.floor((choices.length - 1) * fraction))];
@@ -341,7 +389,7 @@ async function verifyPresentation(trial, choices) {
   assert.equal(unmirrored['input-video'], 'none'); assert.equal(unmirrored['output-canvas'], 'none');
   assert.deepEqual(await selectionSignature(), signature);
   await closeSettings();
-  trial.presentation.toggles = {normal, untracked, tracked, face, mirrored, unmirrored, selectedTime: stimulus.choice.time, selectedId: stimulus.choice.id};
+  trial.presentation.toggles = {normal, untracked, tracked, face, mirrored, unmirrored, selectedTime: stimulus.choice.time, selectedId: stimulus.choice.id, selectedChoice: stimulus.choice};
   check(true, 'Tracking, face-only and paired mirror controls preserve every selected ID and do not rerun search', trial);
 }
 
@@ -386,7 +434,8 @@ function freshMetrics(choices, inspection) {
 }
 
 async function trial(name, base, catalog, trialTimeout) {
-  const row = {name, base, checks: [], pageErrors: [], runtimeIdentityAndManifestStable: false, passed: false};
+  const row = {name, base, checks: [], pageErrors: [], verificationStages: {}, initialPresentationPassed: false,
+    remainingChecksPassed: false, knownInitialFailure: null, initialRecovery: null, runtimeIdentityAndManifestStable: false, passed: false};
   report.trials.push(row); progress('trial-start', {name});
   browser = await chromium.launch({executablePath: process.env.CHROME_PATH || '/root/.cache/ms-playwright/chromium-1194/chrome-linux/chrome', headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage', '--enable-unsafe-swiftshader']});
   const context = await browser.newContext({viewport: {width: 390, height: 844}, locale: 'ja-JP'});
@@ -427,6 +476,7 @@ async function trial(name, base, catalog, trialTimeout) {
   row.identity = await readJson(base + '/api/runtime');
   assert.equal(row.identity.version, 'camera-arrival-v3');
   assert(typeof row.identity.build === 'string' && row.identity.build !== 'unbundled-source' && row.identity.build.length > 0, 'Server build identity is missing');
+  if (name === 'baseline') assert.deepEqual(row.identity, report.baselineSource.sourceIdentity, 'The baseline server does not run the checked original source');
   const servedManifest = await readJson(base + '/api/catalog/manifest?source=seed', catalog.manifestHash);
   assert.deepEqual(servedManifest, catalog.manifest, 'Production server manifest does not match the inventoried local catalog');
   row.catalog = {...catalog, manifest: undefined, shardHashes: undefined, coreReferences: undefined, imageHashes: undefined};
@@ -476,6 +526,9 @@ async function trial(name, base, catalog, trialTimeout) {
   assert.deepEqual(observed.search.choices.map(choice => choice.id), observed.report.sequenceIds);
   if (name === 'candidate') verifyAdmittedChoices(observed.search.choices, catalog, base);
   row.framesHash = hash(observed.frames); row.choicesHash = hash(observed.search.choices); row.performance = observed.search.metrics;
+  row.acquiredFrameCount = observed.frameCount; row.timeline = observed.search.choices.map(choice => choice.time); row.timelineHash = hash(row.timeline);
+  row.firstChoice = observed.search.choices[0];
+  row.builds = {client: observed.report.build, runtime: observed.runtime.build, input: observed.inputBuild, worker: observed.search.build, version: observed.report.inputBuild};
   if (name === 'candidate') {
     const wink = observed.search.metrics?.wink;
     assert(wink && Number.isSafeInteger(wink.requestedFrames), 'Candidate wink-index metrics are missing');
@@ -492,8 +545,11 @@ async function trial(name, base, catalog, trialTimeout) {
   await fs.writeFile(path.join(out, name + '-input-frames.json'), observed.frames + '\n');
   await save(name + '-choices.json', observed.search.choices);
   check(true, 'Complete 23.3s/20fps input, every detected frame returned, nonblank output, zero image failures and aligned build IDs', row);
+  row.verificationStages.completeVideo = true;
   await verifyPresentation(row, observed.search.choices);
+  row.verificationStages.presentation = true;
   await verifyLayout(row);
+  row.verificationStages.layout = true;
   const selectionBeforePlayback = await selectionSignature();
   await seek(0); await page.getByTestId('play-pause').click();
   await page.waitForFunction(() => {const video = document.querySelector('[data-testid="input-video"]'); return !video.paused && video.currentTime > 0.25;}, null, {timeout: 8000});
@@ -506,6 +562,7 @@ async function trial(name, base, catalog, trialTimeout) {
   await seek(22); assert.deepEqual(await selectionSignature(), selectionBeforePlayback);
   row.playback = {paused, stepped, seekSeconds: 22};
   check(true, 'Playback, pause, 20fps frame stepping and seek beyond 20s work without changing the selected sequence', row);
+  row.verificationStages.playback = true;
   progress('fresh-pixels', {name, photos: observed.report.selectedImages});
   const inspection = await page.evaluate(async () => {
     const {inspect} = await import('/__clean_catalog_pixel_probe.js');
@@ -522,6 +579,7 @@ async function trial(name, base, catalog, trialTimeout) {
     assert.equal(fresh.storedContradictions.length, 0, 'Candidate selected photos still contradict their stored yaw');
     assert.equal(fresh.reversedInputYawFrames.length, 0, 'Candidate selected photos clearly reverse the input yaw');
   }
+  row.verificationStages.freshPixels = true;
   // This worker metric counts entries in a loaded overlay, not actual discarded
   // catalog candidates. A nonzero value alone cannot establish runtime reliance.
   row.runtimeQualityOverlayEntries = Number(observed.search.metrics?.qualityExcluded ?? 0);
@@ -529,13 +587,16 @@ async function trial(name, base, catalog, trialTimeout) {
   assert.equal(await page.getByTestId('call-stage').getAttribute('data-mode'), 'camera');
   await page.getByTestId('mode-video').click(); await page.getByTestId('sample-video').waitFor();
   check(true, 'Both current modes remain accessible; camera capture was not started', row);
+  row.verificationStages.modeSwitch = true;
   assert.deepEqual(await readJson(base + '/api/runtime'), row.identity, 'Production build changed during the trial');
   assert.deepEqual(await readJson(base + '/api/catalog/manifest?source=seed', catalog.manifestHash), catalog.manifest, 'Served catalog changed during the trial');
   await Promise.all(shardChecks); assert.equal(shardFailures.length, 0, shardFailures.join('\n'));
   row.downloadedCoreImages = checkedImages.size;
+  row.verificationStages.downloadedAssets = true;
   if (name === 'candidate') check(row.legacyQualityOverlayRequests.length === 0, 'Admitted candidate made zero legacy runtime exclusion requests during the entire trial', row);
   assert.equal(row.pageErrors.length, 0, row.pageErrors.join('\n'));
-  row.runtimeIdentityAndManifestStable = true; row.passed = true;
+  row.runtimeIdentityAndManifestStable = true; row.verificationStages.runtimeAndCatalogStable = true;
+  row.remainingChecksPassed = true; row.passed = row.initialPresentationPassed;
   await save(name + '-report.json', row);
   await browser.close(); browser = null; page = null;
   progress('trial-complete', {name, frames: observed.frameCount, selectedImages: observed.report.selectedImages, wallMs: row.wallMs});
@@ -549,7 +610,11 @@ try {
   report.timeouts = {trialMs: trialTimeout, totalMs: totalTimeout};
   totalTimer = setTimeout(() => {signal.abort(new Error('Clean catalog verification exceeded its total deadline')); void browser?.close().catch(() => undefined);}, totalTimeout);
   assert(process.env.CLEAN_BASELINE_CATALOG_ROOT, 'Set CLEAN_BASELINE_CATALOG_ROOT to the exact baseline server catalog; the harness will not guess');
+  assert(process.env.CLEAN_BASELINE_APP_ROOT, 'Set CLEAN_BASELINE_APP_ROOT to the unmodified accepted baseline checkout');
+  baselineAppRoot = await fs.realpath(path.resolve(process.env.CLEAN_BASELINE_APP_ROOT));
   const roots = {baseline: path.resolve(process.env.CLEAN_BASELINE_CATALOG_ROOT), candidate: path.resolve(process.env.CLEAN_CANDIDATE_CATALOG_ROOT || path.join(repo, 'public/seed-catalog'))};
+  assert.equal(await fs.realpath(path.join(baselineAppRoot, 'public/seed-catalog')), await fs.realpath(roots.baseline), 'Baseline source and physical catalog come from different checkouts');
+  report.baselineSource = await baselineSourceIdentity(baselineAppRoot);
   assert.notEqual(await fs.realpath(roots.baseline), await fs.realpath(roots.candidate), 'Baseline and candidate physical catalogs must be isolated');
   const urls = {baseline: localUrl(process.env.CLEAN_BASELINE_URL || 'http://127.0.0.1:4185'), candidate: localUrl(process.env.CLEAN_CANDIDATE_URL || 'http://127.0.0.1:4183')};
   assert.notEqual(urls.baseline, urls.candidate, 'Baseline and candidate servers must be distinct');
@@ -583,8 +648,18 @@ try {
   }));
   report.comparison = {sameAcquiredFrames: true, sameTimeline: true, selectedIdChanges: before.choices.reduce((sum, choice, index) => sum + Number(choice.id !== after.choices[index].id), 0), selectedImages: {baseline: before.row.video.selectedImages, candidate: after.row.video.selectedImages}, storedDescriptorMetrics: matching, freshPixelPose: {comparableFrames: comparable.length, totalFrames: before.choices.length, metrics: freshComparison}, timing: {baselineWallMs: before.row.wallMs, candidateWallMs: after.row.wallMs, deltaMs: after.row.wallMs - before.row.wallMs, repeatedSpeedBenchmark: false}};
   assert.equal(hash(await fs.readFile(fixture, {signal: signal.signal})), fixtureHash, 'The original fixture changed during verification');
+  assert.deepEqual(await baselineSourceIdentity(baselineAppRoot), report.baselineSource, 'Baseline source changed during comparison');
+  report.comparisonContract = {
+    schemaVersion: 1, status: 'complete', candidatePassed: after.row.passed, candidateInitialPresentationPassed: after.row.initialPresentationPassed,
+    baselinePassed: before.row.passed, baselineInitialPresentationPassed: before.row.initialPresentationPassed,
+    baselineRemainingChecksPassed: before.row.remainingChecksPassed, baselineKnownInitialFailureAccepted: before.row.knownInitialFailure !== null,
+    sameAcquiredFrames: true, sameTimeline: true, acquiredFramesSha256: before.row.framesHash,
+    timelineSha256: before.row.timelineHash, comparedFaceFrames: before.row.video.faceFrames,
+  };
   report.passed = true;
+  assertComparisonContract(report);
 } catch (error) {
+  report.passed = false;
   report.failures.push(error.stack || String(error));
   if (page && !page.isClosed()) {
     report.failureState = await page.evaluate(() => ({runtime: window.__MANY_FACES_RUNTIME__, video: window.__MANY_FACES_VERIFY__, realtime: window.__MANY_FACES_REALTIME__, text: document.body.innerText.slice(0, 4000)})).catch(() => null);

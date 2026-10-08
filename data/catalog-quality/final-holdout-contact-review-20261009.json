@@ -11,118 +11,121 @@
   "all360OriginalImagesIndividuallyOpened": false,
   "reviewOutcome": "failed-needs-remediation",
   "counts": {
-    "deny": 11,
-    "uncertain": 10,
-    "unflagged": 339
+    "deny": 7,
+    "uncertain": 3,
+    "contactSheetOnlyUnflagged": 339,
+    "originalReviewedPass": 11
   },
   "unflaggedMeaning": "No obvious defect seen at contact-sheet resolution, not independently approved",
   "decisions": [
     {
       "sample": "H035",
-      "decision": "deny",
-      "reason": "顔全体が極端に暗く、眼・口の形状が判別困難"
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
     },
     {
       "sample": "H038",
-      "decision": "deny",
-      "reason": "濃色レンズで眼が見えにくい。サングラス疑い"
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
     },
     {
       "sample": "H039",
       "decision": "deny",
-      "reason": "暗所で眼・口がほぼ判別不能"
+      "reason": "原画像を拡大確認しても眼部が強い影で読みにくい"
     },
     {
       "sample": "H078",
       "decision": "deny",
-      "reason": "強いぼけで眼・口の細部が不明瞭"
+      "reason": "原画像でも強いぼけがあり眼と口の形状が不明瞭"
     },
     {
       "sample": "H085",
-      "decision": "deny",
-      "reason": "飲み物の容器が口元に重なり表情を隠す"
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
     },
     {
       "sample": "H158",
       "decision": "deny",
-      "reason": "強いぼけで眼・口の形状が不明瞭"
+      "reason": "原画像でも強いぼけで眼・口の形状が不明瞭"
     },
     {
       "sample": "H161",
       "decision": "deny",
-      "reason": "食べ物が口を覆い、口形状の参照に不適切"
+      "reason": "食べ物が口を覆っており口の形状を再現できない"
     },
     {
       "sample": "H221",
       "decision": "deny",
-      "reason": "カメラ機材が顔の中心・目元に重なる"
+      "reason": "カメラ機材が片目を隠している"
     },
     {
       "sample": "H235",
-      "decision": "deny",
-      "reason": "袖または布で口元が隠れている"
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
     },
     {
       "sample": "H249",
-      "decision": "deny",
-      "reason": "前景の人物で顔の一部が大きく隠れる"
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
     },
     {
       "sample": "H302",
       "decision": "deny",
-      "reason": "強いぼけで表情が判別困難"
+      "reason": "原画像でも強いぼけで眼・口の細部が不明瞭"
     },
     {
       "sample": "H024",
-      "decision": "uncertain",
-      "reason": "顔の中央に線状の遮蔽物。原画像で視認性要確認"
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
     },
     {
       "sample": "H033",
-      "decision": "uncertain",
-      "reason": "非常に暗く、原画像で眼・口が読めるか要確認"
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
     },
     {
       "sample": "H061",
-      "decision": "uncertain",
-      "reason": "眼鏡レンズと強い影で目元の視認性が不明"
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
     },
     {
       "sample": "H115",
-      "decision": "uncertain",
-      "reason": "白い遮蔽物が顎付近を覆う。口元を原画像で確認"
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
     },
     {
       "sample": "H143",
-      "decision": "uncertain",
-      "reason": "動きぼけの程度を原画像で確認"
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
     },
     {
       "sample": "H150",
-      "decision": "uncertain",
-      "reason": "動きぼけの程度を原画像で確認"
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
     },
     {
       "sample": "H182",
       "decision": "uncertain",
-      "reason": "顔の解像感が低く原画像で確認"
+      "reason": "原画像でも低解像度で表情の詳細が十分読めるか判定保留"
     },
     {
       "sample": "H232",
       "decision": "uncertain",
-      "reason": "ぼけ・低解像度の程度を原画像で確認"
+      "reason": "原画像でも顔がぼけており目と口の細部の判定保留"
     },
     {
       "sample": "H240",
-      "decision": "uncertain",
-      "reason": "白い遮蔽物とぼけの影響を原画像で確認"
+      "decision": "deny",
+      "reason": "原画像で顔の大部分が強くぼけている"
     },
     {
       "sample": "H247",
       "decision": "uncertain",
-      "reason": "強いぼけの影響を原画像で確認"
+      "reason": "原画像に動きぼけがあり、採用可能な視認性か判定保留"
     }
   ],
   "allowancePolicy": "Clear ordinary glasses and readable face paint are not excluded by category",
-  "rebuildRequirement": "Exclude denied and unresolved uncertain original image SHA256 before candidate selection; refill to exactly 70,000, then repeat independent final holdout. Never use runtime-only overlay as completion."
+  "rebuildRequirement": "Exclude denied and unresolved uncertain original image SHA256 before candidate selection; refill to exactly 70,000, then repeat independent final holdout. Never use runtime-only overlay as completion.",
+  "originalReviewCorrection": "Original WebP bytes were displayed in enlarged 21-image contact sheets; prior thumbnail-only denials were re-evaluated. Several false positives were reversed, including clear glasses, visible mouths and normal closed eyes.",
+  "enlargedOriginalReviewCount": 21
 }

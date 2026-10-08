@@ -1,0 +1,78 @@
+name: Bind and inspect failed final holdout
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths: ['.github/workflows/bind-final-holdout-review.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: final-clean70k-holdout-37755367013
+          run-id: 37755367013
+          github-token: ${{ github.token }}
+          path: /tmp/holdout
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip -q install Pillow==11.1.0
+      - name: Bind reviewed sample labels to exact original photo hashes
+        run: |
+          python - <<'PY'
+          import base64,hashlib,io,json
+          from pathlib import Path
+          from PIL import Image,ImageDraw,ImageFont
+          source=Path('/tmp/holdout')
+          sample=json.loads((source/'report.json').read_text())
+          review=json.loads(Path('data/catalog-quality/final-holdout-contact-review-20261009.json').read_text())
+          assert sample['manifestSha256']==review['sourceManifestSha256']
+          assert len(sample['samples'])==360
+          ids={r['sample']:r for r in sample['samples']}
+          seen=set()
+          enriched=[]
+          for d in review['decisions']:
+              key=d['sample']
+              assert key not in seen and key in ids,key
+              seen.add(key)
+              entry=ids[key]
+              raw=(source/entry['image']).read_bytes()
+              digest=hashlib.sha256(raw).hexdigest()
+              assert digest==entry['sha256'],key
+              enriched.append({**d,'catalogId':entry['id'],'encodedSha256':digest,'group':entry['group'],'yaw':entry['yaw'],'sourceImage':entry['image']})
+          assert len(enriched)==review['counts']['deny']+review['counts']['uncertain']
+          out=Path('work/final-holdout-binding')
+          out.mkdir(parents=True,exist_ok=True)
+          (out/'review.json').write_text(json.dumps({'schemaVersion':1,'status':'failed','humanVerified':False,'originalsIndividuallyReviewed':False,'manifestSha256':sample['manifestSha256'],'review':enriched},indent=2,ensure_ascii=False))
+          print('BOUND_REVIEW '+json.dumps({'count':len(enriched),'deny':review['counts']['deny'],'uncertain':review['counts']['uncertain'],'manifestSha256':sample['manifestSha256']}))
+          print('BOUND_EXCLUSIONS '+json.dumps([{'id':e['catalogId'],'sha256':e['encodedSha256'],'decision':e['decision'],'sample':e['sample']} for e in enriched]))
+          for page in range(0,len(enriched),8):
+              canvas=Image.new('RGB',(1200,940),'#1b1b1b')
+              draw=ImageDraw.Draw(canvas)
+              for j,e in enumerate(enriched[page:page+8]):
+                  with Image.open(source/e['sourceImage']) as im:
+                      pic=im.convert('RGB')
+                      pic.thumbnail((270,375))
+                  x=(j%4)*300+15;y=(j//4)*470+5
+                  canvas.paste(pic,(x+(270-pic.width)//2,y))
+                  draw.text((x,y+390),e['sample']+' '+e['decision']+' '+str(round(e['yaw'],1)),fill='white')
+              b=io.BytesIO();canvas.save(b,format='JPEG',quality=78,optimize=True)
+              number=page//8+1
+              print('ORIGINAL_REVIEW_BEGIN '+str(number)+' '+base64.b64encode(b.getvalue()).decode())
+              print('ORIGINAL_REVIEW_END '+str(number))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-clean70k-bound-review-${{ github.run_id }}
+          path: work/final-holdout-binding/review.json
+          retention-days: 30

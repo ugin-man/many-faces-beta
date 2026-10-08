@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT=Path("public/seed-catalog")
 OUT=Path("work/final-holdout")
 SEED="many-faces-independent-final-holdout-2026-10-08-v1"
-TARGET={"center":120,"left":100,"right":100,"wink":40}
+TARGET={"center":120,"left":100,"right":100,"expression":40}
 manifest_bytes=(ROOT/"manifest.json").read_bytes()
 manifest=json.loads(manifest_bytes)
 assert manifest["totalFaces"]==manifest["searchableFaces"]==70000
@@ -28,14 +28,14 @@ for cell in manifest["cells"].values():
    entries.append((entry,group))
 assert len(entries)==70000
 # Wink metadata are used only as an extra challenge stratum, not as visual truth.
-def is_wink(e):
+def is_expression(e):
  p=str(e.get("cleanProfile","")).lower()
- return "wink" in p or "wink" in str(e.get("name","")).lower()
+ return any(k in p for k in ("mouth","brow","smile","eye","wink","jaw","cheek"))
 groups={k:[] for k in TARGET}
 for entry,pose in entries:
  h=entry.get("admissionSha256")
  if h in seen:continue
- group="wink" if is_wink(entry) else pose
+ group="expression" if is_expression(entry) else pose
  if group not in groups:group=pose
  score=hashlib.sha256((SEED+"|"+entry["id"]).encode()).hexdigest()
  groups[group].append((score,entry))

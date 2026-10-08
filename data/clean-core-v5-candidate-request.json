@@ -14,9 +14,9 @@
   "sitePublication": false,
   "postSelectionVisualReview": "pending",
   "fixedVideoVerification": "pending",
-  "attempt": 10,
-  "previousRun": 37513093051,
-  "previousRunStatus": "Generation 37513093051 produced and physically validated exactly 70000 images. Native QA 37515456441 completed with SUCCESS and all nine automated outcomes succeeded, including browser comparison. Its raw receipt remains automated-checks-passed-visual-review-pending and passed=false. The fixed-c92 difference contains 59 additions: 49 exact prior direct original PASS reviews were reused, ten originals were newly inspected, yielding nine pass and one uncertain. Combined manual review is 58 pass / 0 deny / 1 uncertain; it is not complete or promotion-ready.",
+  "attempt": 11,
+  "previousRun": 37519882295,
+  "previousRunStatus": "Published Site v55 with 70000 clean-v5 photos passed functional QA, but new independent post-publication 360-photo holdout failed with 7 confirmed and 3 quarantined photos; rebuild with all 10 exact image hashes excluded preselection.",
   "nativeRuntimeDependency": [
     "libgles2",
     "libegl1"
@@ -38,14 +38,14 @@
   },
   "selectionReview": {
     "path": "data/catalog-selection-reviewed.json",
-    "sha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+    "sha256": "9ba0766d47d70ea9d1fa08a204a7e91e56d57b2e88befabb4347eb5b065c554e",
     "previous": {
-      "path": "data/catalog-selection-reviewed-30f0848.json",
-      "sha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff"
+      "path": "data/catalog-selection-reviewed-20261009-before-holdout.json",
+      "sha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed"
     }
   },
   "previousDiagnosticRun": 37477676654,
-  "reason": "Preserve the original completed 140105-candidate admission audit, source images, models, visibility threshold, selection/classification code, profile/cell minimums, and 71 corroborated wink confirmations. Preserve all 256 previous exclusion rows and append only H009 encoded SHA 362a107682857031493c684fac68d5b588a60340ce941998cfe0189d75035360 as a conservative pre-selection quarantine for unresolved fine-brow readability. Preserve the independent broad-readability pass recommendation; do not claim confirmed sunglasses, mask or obstruction. Replenish this withheld slot to exactly 70000. Keep c92/run37491677036 and the original failed 360-image review fixed. The completed native automated QA success remains distinct from the manual 58/0/1 result. Recompute the complete fixed-c92-to-final image difference; each added exact image needs direct full-original quality evidence. Future reuse must point directly to the old 49-pass source or the new raw nine-pass source, with no reuse chains. Do not introduce a threshold, move the evaluation reference, resample a random 360, or call remediation a new independent holdout. Final physical, same-input fixed-video and face-position/size tracking verification remain mandatory.",
+  "reason": "Exclude the ten SHA-bound independent final-holdout failures before catalog selection, replenish to exactly 70000 using original audited candidates and unchanged admission/pose/wink policy. Preserve Site v55 until candidate original-review census, native QA and new independent holdout pass. Never treat existing failed sample as a passing holdout.",
   "winkReview": {
     "path": "data/catalog-wink-expression-reviewed.json",
     "sha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f"

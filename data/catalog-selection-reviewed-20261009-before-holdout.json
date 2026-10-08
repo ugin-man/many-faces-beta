@@ -5,9 +5,9 @@
   "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
   "reviewer": "assistant-visual-review",
   "humanVerified": false,
-  "reviewedOn": "2026-10-09",
+  "reviewedOn": "2026-10-06",
   "mode": "deny-only",
-  "previousReviewSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+  "previousReviewSha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff",
   "scope": "Exact delivered image bytes reviewed before selection. These decisions may reject candidates but may not admit, rewrite, or override any failed or unresolved inference record. Ordinary transparent glasses and face paint remain permitted. Sunglasses, actual expression obstructions, non-photographic fixed faces, and unusable face detail are excluded. Rejected slots must be replenished before generating the final 70000-image catalog.",
   "reviews": [
     {
@@ -5869,186 +5869,32 @@
           "reason": "Two direct original reviews could not confidently trace fine brow contours. The broader-expression pass recommendation is preserved, but unresolved fine-brow visibility is conservatively quarantined. This is not a claim of sunglasses or mask detection."
         }
       }
-    },
-    {
-      "encodedSha256": "c27ecb81711a712f8c01474cb87b7e5bb39598d7dde4b5b32d025eedd672205f",
-      "decision": "deny",
-      "reason": "2026-10-09 independent post-publication original-photo holdout H039: rejected for facial-expression readability. 原画像を拡大確認しても眼部が強い影で読みにくい",
-      "evidence": {
-        "category": "final-independent-holdout-defect",
-        "sampleId": "H039",
-        "reviewMethod": "Assistant visual inspection of enlarged original encoded photograph",
-        "imageSha256": "c27ecb81711a712f8c01474cb87b7e5bb39598d7dde4b5b32d025eedd672205f",
-        "pixelChangesApplied": false,
-        "sourceHoldoutRunId": 37755367013,
-        "sourceReviewPath": "data/catalog-quality/final-holdout-contact-review-20261009.json",
-        "sourceRemediationPath": "data/catalog-quality/final-holdout-remediation-20261009.json",
-        "humanVerified": false
-      }
-    },
-    {
-      "encodedSha256": "b583cf4bb8001e084f5331d3e6668a0b390e01a362444b7a2201bc7a72a4811c",
-      "decision": "deny",
-      "reason": "2026-10-09 independent post-publication original-photo holdout H078: rejected for facial-expression readability. 原画像でも強いぼけがあり眼と口の形状が不明瞭",
-      "evidence": {
-        "category": "final-independent-holdout-defect",
-        "sampleId": "H078",
-        "reviewMethod": "Assistant visual inspection of enlarged original encoded photograph",
-        "imageSha256": "b583cf4bb8001e084f5331d3e6668a0b390e01a362444b7a2201bc7a72a4811c",
-        "pixelChangesApplied": false,
-        "sourceHoldoutRunId": 37755367013,
-        "sourceReviewPath": "data/catalog-quality/final-holdout-contact-review-20261009.json",
-        "sourceRemediationPath": "data/catalog-quality/final-holdout-remediation-20261009.json",
-        "humanVerified": false
-      }
-    },
-    {
-      "encodedSha256": "d717cacdf5a8cb72958216371ba602dbf4b2bac11d9467d2ebb1e0367a5570d7",
-      "decision": "deny",
-      "reason": "2026-10-09 independent post-publication original-photo holdout H158: rejected for facial-expression readability. 原画像でも強いぼけで眼・口の形状が不明瞭",
-      "evidence": {
-        "category": "final-independent-holdout-defect",
-        "sampleId": "H158",
-        "reviewMethod": "Assistant visual inspection of enlarged original encoded photograph",
-        "imageSha256": "d717cacdf5a8cb72958216371ba602dbf4b2bac11d9467d2ebb1e0367a5570d7",
-        "pixelChangesApplied": false,
-        "sourceHoldoutRunId": 37755367013,
-        "sourceReviewPath": "data/catalog-quality/final-holdout-contact-review-20261009.json",
-        "sourceRemediationPath": "data/catalog-quality/final-holdout-remediation-20261009.json",
-        "humanVerified": false
-      }
-    },
-    {
-      "encodedSha256": "601a4d8130675bfba24653fc7ac033307b5ce523a61eac7f15111a4174016e72",
-      "decision": "deny",
-      "reason": "2026-10-09 independent post-publication original-photo holdout H161: rejected for facial-expression readability. 食べ物が口を覆っており口の形状を再現できない",
-      "evidence": {
-        "category": "final-independent-holdout-defect",
-        "sampleId": "H161",
-        "reviewMethod": "Assistant visual inspection of enlarged original encoded photograph",
-        "imageSha256": "601a4d8130675bfba24653fc7ac033307b5ce523a61eac7f15111a4174016e72",
-        "pixelChangesApplied": false,
-        "sourceHoldoutRunId": 37755367013,
-        "sourceReviewPath": "data/catalog-quality/final-holdout-contact-review-20261009.json",
-        "sourceRemediationPath": "data/catalog-quality/final-holdout-remediation-20261009.json",
-        "humanVerified": false
-      }
-    },
-    {
-      "encodedSha256": "89269a1cb0d73856658db1518b94b7b73e0532f733fdc8eaa3c9c3791a70f693",
-      "decision": "deny",
-      "reason": "2026-10-09 independent post-publication original-photo holdout H221: rejected for facial-expression readability. カメラ機材が片目を隠している",
-      "evidence": {
-        "category": "final-independent-holdout-defect",
-        "sampleId": "H221",
-        "reviewMethod": "Assistant visual inspection of enlarged original encoded photograph",
-        "imageSha256": "89269a1cb0d73856658db1518b94b7b73e0532f733fdc8eaa3c9c3791a70f693",
-        "pixelChangesApplied": false,
-        "sourceHoldoutRunId": 37755367013,
-        "sourceReviewPath": "data/catalog-quality/final-holdout-contact-review-20261009.json",
-        "sourceRemediationPath": "data/catalog-quality/final-holdout-remediation-20261009.json",
-        "humanVerified": false
-      }
-    },
-    {
-      "encodedSha256": "cbb0610a366ecda17c0f70db438a148137387f796e686bc7778fdf28b1bdc397",
-      "decision": "deny",
-      "reason": "2026-10-09 independent post-publication original-photo holdout H302: rejected for facial-expression readability. 原画像でも強いぼけで眼・口の細部が不明瞭",
-      "evidence": {
-        "category": "final-independent-holdout-defect",
-        "sampleId": "H302",
-        "reviewMethod": "Assistant visual inspection of enlarged original encoded photograph",
-        "imageSha256": "cbb0610a366ecda17c0f70db438a148137387f796e686bc7778fdf28b1bdc397",
-        "pixelChangesApplied": false,
-        "sourceHoldoutRunId": 37755367013,
-        "sourceReviewPath": "data/catalog-quality/final-holdout-contact-review-20261009.json",
-        "sourceRemediationPath": "data/catalog-quality/final-holdout-remediation-20261009.json",
-        "humanVerified": false
-      }
-    },
-    {
-      "encodedSha256": "58e14d0afbe7a6233136e2e06db932232c1a794ad0e52c89812e8e61707bbe9c",
-      "decision": "deny",
-      "reason": "2026-10-09 independent post-publication original-photo holdout H182: unresolved and conservatively quarantined for facial-expression readability. 原画像でも低解像度で表情の詳細が十分読めるか判定保留",
-      "evidence": {
-        "category": "final-independent-holdout-defect",
-        "sampleId": "H182",
-        "reviewMethod": "Assistant visual inspection of enlarged original encoded photograph",
-        "imageSha256": "58e14d0afbe7a6233136e2e06db932232c1a794ad0e52c89812e8e61707bbe9c",
-        "pixelChangesApplied": false,
-        "sourceHoldoutRunId": 37755367013,
-        "sourceReviewPath": "data/catalog-quality/final-holdout-contact-review-20261009.json",
-        "sourceRemediationPath": "data/catalog-quality/final-holdout-remediation-20261009.json",
-        "humanVerified": false
-      }
-    },
-    {
-      "encodedSha256": "e2d37fc5b50f63f37fe042adc29a5af3fa24caf933f0ecd0afde35386ca9a174",
-      "decision": "deny",
-      "reason": "2026-10-09 independent post-publication original-photo holdout H232: unresolved and conservatively quarantined for facial-expression readability. 原画像でも顔がぼけており目と口の細部の判定保留",
-      "evidence": {
-        "category": "final-independent-holdout-defect",
-        "sampleId": "H232",
-        "reviewMethod": "Assistant visual inspection of enlarged original encoded photograph",
-        "imageSha256": "e2d37fc5b50f63f37fe042adc29a5af3fa24caf933f0ecd0afde35386ca9a174",
-        "pixelChangesApplied": false,
-        "sourceHoldoutRunId": 37755367013,
-        "sourceReviewPath": "data/catalog-quality/final-holdout-contact-review-20261009.json",
-        "sourceRemediationPath": "data/catalog-quality/final-holdout-remediation-20261009.json",
-        "humanVerified": false
-      }
-    },
-    {
-      "encodedSha256": "cec34d8403de96499f63ee0a220249ab6c1391ae108fe27bbd3e9606ee4f2470",
-      "decision": "deny",
-      "reason": "2026-10-09 independent post-publication original-photo holdout H240: rejected for facial-expression readability. 原画像で顔の大部分が強くぼけている",
-      "evidence": {
-        "category": "final-independent-holdout-defect",
-        "sampleId": "H240",
-        "reviewMethod": "Assistant visual inspection of enlarged original encoded photograph",
-        "imageSha256": "cec34d8403de96499f63ee0a220249ab6c1391ae108fe27bbd3e9606ee4f2470",
-        "pixelChangesApplied": false,
-        "sourceHoldoutRunId": 37755367013,
-        "sourceReviewPath": "data/catalog-quality/final-holdout-contact-review-20261009.json",
-        "sourceRemediationPath": "data/catalog-quality/final-holdout-remediation-20261009.json",
-        "humanVerified": false
-      }
-    },
-    {
-      "encodedSha256": "980718f6b7e0264ec2fcddea73623cba8d208bd0f40a665db8b95f4dc6e65d48",
-      "decision": "deny",
-      "reason": "2026-10-09 independent post-publication original-photo holdout H247: unresolved and conservatively quarantined for facial-expression readability. 原画像に動きぼけがあり、採用可能な視認性か判定保留",
-      "evidence": {
-        "category": "final-independent-holdout-defect",
-        "sampleId": "H247",
-        "reviewMethod": "Assistant visual inspection of enlarged original encoded photograph",
-        "imageSha256": "980718f6b7e0264ec2fcddea73623cba8d208bd0f40a665db8b95f4dc6e65d48",
-        "pixelChangesApplied": false,
-        "sourceHoldoutRunId": 37755367013,
-        "sourceReviewPath": "data/catalog-quality/final-holdout-contact-review-20261009.json",
-        "sourceRemediationPath": "data/catalog-quality/final-holdout-remediation-20261009.json",
-        "humanVerified": false
-      }
     }
   ],
   "latestVisualReview": {
-    "path": "data/catalog-quality/final-holdout-contact-review-20261009.json",
-    "sha256": null,
-    "sourceHoldoutRunId": 37755367013
+    "path": "data/catalog-quality/remediation-original-review-37515456441.json",
+    "sha256": "05215ddee6108b5d004f8755af4b1b97db908aaea997e6b0e680c880cf3813a5"
   },
   "latestReviewSummary": {
-    "sourceHoldoutRunId": 37755367013,
-    "mode": "post-publication-independent-holdout-remediation",
+    "sourceQaRunId": 37515456441,
+    "candidateRunId": 37513093051,
+    "reviewMode": "complete-added-original-census-with-direct-pass-reuse",
+    "checkedOriginalPhotos": 59,
+    "reusedDirectOriginalPasses": 49,
+    "newOriginalPhotosActuallyViewed": 10,
     "counts": {
-      "deny": 7,
-      "uncertainQuarantined": 3
+      "pass": 58,
+      "deny": 0,
+      "uncertain": 1
     },
-    "newExactExclusions": 10,
-    "previousExclusions": 257,
-    "totalExclusions": 267,
+    "confirmedDenials": 0,
+    "unresolvedVisibilityOrReadabilityQuarantined": 1,
+    "newExactExclusions": 1,
+    "nativeAutomatedChecksPassed": true,
     "manualReviewPassed": false,
-    "independentHoldoutPassed": false,
-    "requiresReplenishment": true,
-    "referencePublishedManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a"
+    "independentDissentPreserved": true,
+    "uncertainJudgmentsNotReclassifiedAsConfirmedForbiddenObjects": true,
+    "originalFailedIndependentHoldoutUnchanged": true,
+    "fixedEvaluatedCandidateRunId": 37491677036
   }
 }

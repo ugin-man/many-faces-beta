@@ -34,6 +34,14 @@ Do not confuse the current branch HEAD (which includes QA-only changes) with the
 5. A separate cloud-browser environment failed WebGL initialization before analysis; native Chromium succeeded. Real iPhone/Windows camera hardware and Safari are not verified by the published CI.
 6. Latest Site deployment has not been re-published by this QA-only change.
 
+## Post-publication independent visual review update (2026-10-09 JST)
+
+- The fresh 360-image contact-sheet sample from run 37755367013 was visually screened. **This holdout failed**; the Site must not be called fully quality-certified.
+- 21 suspect originals were then examined in enlarged contact sheets. The original thumbnail screen produced false positives: 11 were cleared after inspecting enlarged original pixels (including clear glasses and visible mouths), **7 were denied**, and **3 remain uncertain/quarantined**. The other 339 have contact-sheet screening only, not individual original-photo approval.
+- Exact selected image IDs and SHA-256 are pinned in `data/catalog-quality/final-holdout-remediation-20261009.json`; 10 distinct original photographs must be excluded **before** next candidate selection, then replaced by reviewed qualified originals to restore exactly 70,000 photos.
+- Review provenance: `data/catalog-quality/final-holdout-contact-review-20261009.json`; original enlarged-image binding workflow run [37802667173](https://github.com/ugin-man/many-faces-beta/actions/runs/37802667173).
+- **No replacement catalog has been built or published for these 10 new exclusions.** Site v55 remains the last verified functional deployment, but still contains the identified photographs. A further independent holdout is mandatory after any replacement.
+
 ## Release decision
 
 **Functional release candidate: yes. Fully quality-certified final release: no.**

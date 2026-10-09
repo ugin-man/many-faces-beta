@@ -153,7 +153,24 @@ try {
     const trial = optimizeHistoryAwareProjectionSequence(frames, beams, options);
     assert.deepEqual(decisions(optimizeHistoryAwareProjectionSequence(frames, beams, options)), decisions(trial), 'determinism');
     const comparison = compareReviewSequences(original, trial, options.windowSeconds);
-    const record = { options, ...summary(comparison), choicesSha256: sha(decisions(trial)) };
+    // Measure every predeclared option, including rejected options. The guarded
+    // path includes the baseline, history search and comparison even on fallback.
+    const runSelector = variant => variant === 'baseline'
+      ? optimizeDistinctProjectionSequence(frames, beams, REVIEW_SEQUENCE_OPTIONS)
+      : variant === 'raw' ? optimizeHistoryAwareProjectionSequence(frames, beams, options)
+        : selectHistoryAwareReviewSequence(frames, beams, options).choices;
+    for (const variant of ['baseline', 'raw', 'guarded']) runSelector(variant);
+    const screeningTiming = [];
+    for (const [index, variant] of ['baseline', 'raw', 'guarded', 'guarded', 'raw', 'baseline', 'baseline', 'guarded', 'raw'].entries()) {
+      const started = performance.now();
+      const result = runSelector(variant);
+      const elapsedMs = performance.now() - started;
+      const expected = variant === 'baseline' || (variant === 'guarded' && !comparison.accepted) ? original : trial;
+      assert.deepEqual(decisions(result), decisions(expected), 'timed selection and fallback must reproduce the expected path');
+      screeningTiming.push({ index, variant, elapsedMs });
+    }
+    const screeningMedianMs = Object.fromEntries(['baseline', 'raw', 'guarded'].map(name => [name, median(screeningTiming.filter(t => t.variant === name).map(t => t.elapsedMs))]));
+    const record = { options, ...summary(comparison), choicesSha256: sha(decisions(trial)), screeningTiming, screeningMedianMs };
     report.variants.push(record); outputs.set(options.weight, trial);
     await save('weight-' + options.weight + '.json', { ...record, choices: decisions(trial) });
     emit('HISTORY_VARIANT', record);

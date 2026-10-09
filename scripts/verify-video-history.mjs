@@ -181,19 +181,26 @@ try {
     a.after.recentReappearances - b.after.recentReappearances ||
     a.after.objectiveWithoutHistory.mean - b.after.objectiveWithoutHistory.mean || a.options.weight - b.options.weight);
   report.recommended = passing[0]?.options ?? null;
-  if (report.recommended) {
-    const chosen = outputs.get(report.recommended.weight);
-    const selected = selectHistoryAwareReviewSequence(frames, beams, report.recommended);
-    assert(selected.diagnostics.adopted); assert.deepEqual(decisions(selected.choices), decisions(chosen));
+  // Complete the full-video speed/control comparison even when quality rejects
+  // every option. In that case measure the declared default with exact fallback,
+  // and keep adoption false regardless of the timing or CI conclusion.
+  report.uiEvaluationOptions = report.recommended ?? REVIEW_HISTORY_OPTIONS;
+  report.uiEvaluationMode = report.recommended ? 'accepted-history-path' : 'baseline-fallback';
+  {
+    const evaluatedOptions = report.uiEvaluationOptions;
+    const chosen = report.recommended ? outputs.get(report.recommended.weight) : original;
+    const selected = selectHistoryAwareReviewSequence(frames, beams, evaluatedOptions);
+    assert.equal(selected.diagnostics.adopted, Boolean(report.recommended));
+    assert.deepEqual(decisions(selected.choices), decisions(chosen));
     // All operational work (original search path + history path + quality gate)
     // is included in the guarded measurement. Warmup is excluded equally.
     for (const variant of ['baseline', 'guarded']) {
       if (variant === 'baseline') optimizeDistinctProjectionSequence(frames, beams, REVIEW_SEQUENCE_OPTIONS);
-      else selectHistoryAwareReviewSequence(frames, beams, report.recommended);
+      else selectHistoryAwareReviewSequence(frames, beams, evaluatedOptions);
     }
     for (const [index, variant] of ['baseline', 'guarded', 'guarded', 'baseline', 'baseline', 'guarded'].entries()) {
       const started = performance.now();
-      const result = variant === 'baseline' ? optimizeDistinctProjectionSequence(frames, beams, REVIEW_SEQUENCE_OPTIONS) : selectHistoryAwareReviewSequence(frames, beams, report.recommended).choices;
+      const result = variant === 'baseline' ? optimizeDistinctProjectionSequence(frames, beams, REVIEW_SEQUENCE_OPTIONS) : selectHistoryAwareReviewSequence(frames, beams, evaluatedOptions).choices;
       const elapsedMs = performance.now() - started;
       assert.deepEqual(decisions(result), decisions(variant === 'baseline' ? original : chosen));
       report.selectorTiming.push({ index, variant, elapsedMs });
@@ -203,7 +210,7 @@ try {
     const nativeConnected = (await fs.readFile('app/live/review-search.worker.ts', 'utf8')).includes('selectHistoryAwareReviewSequence');
     report.nativeConnected = nativeConnected;
     for (const [index, variant] of ['baseline', 'candidate', 'candidate', 'baseline'].entries()) {
-      const run = await uiTrial(variant, index, { history: variant === 'candidate' ? report.recommended : null, native: nativeConnected });
+      const run = await uiTrial(variant, index, { history: variant === 'candidate' ? evaluatedOptions : null, native: nativeConnected });
       assert.equal(run.trial.framesSha256, captured.trial.framesSha256, 'Acquired input changed between variants');
       assert.deepEqual(run.choices, decisions(variant === 'baseline' ? original : chosen));
       assert.deepEqual(run.trial.searchTraffic, captured.trial.searchTraffic, 'candidate data coverage changed');
@@ -211,7 +218,7 @@ try {
     }
     report.endToEndMedianMs = Object.fromEntries(['baseline', 'candidate'].map(name => [name, median(report.trials.filter(t => t.variant === name).map(t => t.wallMs))]));
     report.endToEndSpeedPassed = report.endToEndMedianMs.candidate <= report.endToEndMedianMs.baseline * speedBudget.endToEndRatio;
-    report.adoptionAccepted = report.selectorSpeedPassed && report.endToEndSpeedPassed;
+    report.adoptionAccepted = Boolean(report.recommended) && report.selectorSpeedPassed && report.endToEndSpeedPassed;
     report.checks.push('full 23.3-second ABBA with fresh browser profiles, identical detected frames and candidate traffic; playback, pause, frame step and seek');
   }
   report.experimentCompleted = true;

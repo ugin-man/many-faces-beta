@@ -27,7 +27,15 @@ jobs:
           mkdir -p work/video-history
           git fetch --depth=1 origin 04a41b80469980454758feba9a31ac48b92c11fd
           test "$(git rev-parse HEAD:public/seed-catalog)" = "afcb8f68a8db87424fe5169896be0fd0a57dbf65"
-          git diff --exit-code 04a41b80469980454758feba9a31ac48b92c11fd HEAD -- public app/live/astra app/live/media-input.ts app/live/frame-arrival.ts app/live/stable-landmarker.ts app/live/review-client-lite.tsx app/live/video-frame.ts app/live/review-strict-ranker.ts app/face-presentation.ts app/call-stage.tsx app/studio.module.css worker package.json package-lock.json
+          git diff --exit-code 04a41b80469980454758feba9a31ac48b92c11fd HEAD -- public app worker package.json package-lock.json ':!app/projection-matching.ts' ':!app/live/review-history-selection.ts' ':!app/live/review-search.worker.ts'
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs';
+          import {execFileSync} from 'node:child_process';
+          let expected = execFileSync('git', ['show', '04a41b80469980454758feba9a31ac48b92c11fd:app/projection-matching.ts'], {encoding: 'utf8'});
+          for (const declaration of ['const COARSE_INDEXES', 'function residualMotionAtIndexes', 'function expressionResidualMotion', 'function sourceExpressionActivity', 'function rareActionPenalty']) expected = expected.replace(declaration, 'export ' + declaration);
+          assert.equal(fs.readFileSync('app/projection-matching.ts', 'utf8'), expected, 'Original optimizer and all other projection math must remain unchanged');
+          NODE
           npm ci
           npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1
           echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
@@ -54,6 +62,8 @@ jobs:
           done
       - name: Same full video, fixed quality gates and complete selection cost
         run: node --experimental-strip-types scripts/verify-video-history.mjs
+      - name: Exploratory feasibility under unchanged per-frame quality limits
+        run: node --experimental-strip-types scripts/analyze-history-feasibility.mjs work/video-history/same-video-ranking-snapshot.json.gz work/video-history/feasibility.json
       - name: Existing pending-network cancellation
         env:
           VIDEO_SPEED_REPORT_DIR: work/video-history

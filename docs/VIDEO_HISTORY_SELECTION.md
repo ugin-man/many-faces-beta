@@ -1,6 +1,8 @@
 # Video image reappearance experiment
 
-Status: experimental; not connected to the video Worker or adopted yet.
+Status: experimental and not connected to the video Worker. Initial quality
+screening rejected all four declared weights; full-video fallback timing is
+being completed before recording the final decision.
 
 ## Fixed source and scope
 
@@ -93,9 +95,13 @@ same-input replay; Node's original optimizer must exactly reproduce all UI
 decisions, and zero-weight history must match it exactly.
 
 All four fixed weights use those identical detected frames and ranked beams.
+Every option records warmed baseline, raw history and full guarded selection
+times (three samples each), including options rejected by the quality gates.
 Passing configurations are ordered by recent reappearance count, then original
 unpenalized loss, then weight. A winner is timed including the fallback guard.
-It also runs full-video before/after/after/before trials with fresh Chromium
+If none passes, the declared default is timed with its exact baseline fallback;
+passing timings cannot turn a rejected quality result into adoption.
+The harness also runs full-video before/after/after/before trials with fresh Chromium
 processes/profiles. During an unadopted experiment only the test worker's
 selection call is substituted; normal application code is not rewritten in CI.
 Once integrated, the harness uses the actual native Worker bundles instead.
@@ -110,5 +116,15 @@ Chromium runner is used for actual video inference and comparison.
 
 ## Results
 
-Pending. Do not treat the existence of this implementation or passing synthetic
-tests as adoption, performance improvement or a completed video comparison.
+Initial screening: [run 37880499744](https://github.com/ugin-man/many-faces-beta/actions/runs/37880499744),
+commit `c9aa5b5f1c30f8d71e107cbe7c3ecb7cf625b6fa`. The actual current baseline
+contains 410 face frames, 134 unique images, 152 switches, 19 total
+reappearances and 14 recent reappearances. None of the four declared weights
+improved recent reappearance counts while passing the unchanged quality gates.
+
+The follow-up `scripts/analyze-history-feasibility.mjs` is explicitly exploratory:
+it filters each captured beam using the original per-frame error/local/pose
+budgets, retains the baseline, and tests 14 combinations of weights and history
+counts. It does not change the catalog, ranker or acceptance thresholds. Its
+conclusions concern the captured ranked beams, not an exhaustive search of all
+70,000 photos. Final timings and the adoption decision will be recorded below.

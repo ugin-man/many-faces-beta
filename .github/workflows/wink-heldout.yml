@@ -1,0 +1,52 @@
+name: Wink held-out photo evaluation
+on:
+  push:
+    branches: [astra/wink-coverage]
+    paths: ['app/**', 'scripts/evaluate-wink-*', 'scripts/verify-wink-heldout.mjs', 'scripts/wink-heldout-probe.ts', 'tests/wink-*', '.github/workflows/wink-heldout.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: wink-heldout-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: Hold out each query photograph and retain all 70k originals
+        run: |
+          mkdir -p work/wink-heldout
+          test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
+          node --experimental-strip-types scripts/evaluate-wink-pilot.mjs
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1 esbuild@0.25.12
+          echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          npm run lint > work/wink-heldout/lint.log 2>&1
+          node scripts/verify-wink-heldout.mjs --prepare
+          npm run build > work/wink-heldout/build.log 2>&1
+          node --experimental-strip-types --test tests/*.test.mjs > work/wink-heldout/tests.log 2>&1
+      - name: Reanalyze the actual source and winning output pixels
+        run: |
+          PORT=4183 HOST=127.0.0.1 nohup npm start > work/wink-heldout/server.log 2>&1 &
+          for attempt in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:4183/__wink_eval/index.html > /dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/verify-wink-heldout.mjs
+      - name: No source or original-asset rewriting
+        if: always()
+        run: git diff --exit-code -- app scripts tests data public/seed-catalog public/test-fixtures
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wink-heldout-${{ github.run_id }}
+          path: work/wink-heldout
+          retention-days: 14

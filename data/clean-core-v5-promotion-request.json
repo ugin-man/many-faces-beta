@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-v5-promotion-request",
+  "repository": "ugin-man/many-faces-beta",
+  "targetBranch": "astra/realtime-hardening",
+  "candidate": {
+    "runId": 37519882295,
+    "runAttempt": 1,
+    "artifactName": "clean-core-v5-candidate-37519882295-1",
+    "manifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "generationReceiptSha256": "d10bc862b779bdda7bd606d40408f5fda41eb7c43059fce61a63f9361d2441eb"
+  },
+  "qa": {
+    "path": "data/catalog-quality/candidate-qa-37521402519.json",
+    "sha256": "d73da9af3c316da38595b1421b85d4167379303640a9e594a52bc4ab5b7ff775"
+  },
+  "createdOn": "2026-10-06",
+  "request": "Promote the exact 70000 admitted real photographs after successful native fixed-video and presentation QA and complete original review of every fixed-c92 addition. Preserve tracking, two modes, ordinary glasses, readable face paint, and the failed independent sample history."
+}

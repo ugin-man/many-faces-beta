@@ -1,6 +1,7 @@
 import vinext from "vinext";
 import { defineConfig } from "vite";
 import hostingConfig from "./.openai/hosting.json";
+import { buildIdentity } from "./build/runtime-identity";
 import { sites } from "./build/sites-vite-plugin";
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
@@ -43,7 +44,9 @@ export default defineConfig(async () => {
   // Wrangler snapshots its log path while the Cloudflare plugin is imported.
   const { cloudflare } = await import("@cloudflare/vite-plugin");
 
+  const identity = buildIdentity();
   return {
+    define: { __MF_BUILD_ID__: JSON.stringify(identity.build), __MF_REVISION__: JSON.stringify(identity.revision) },
     server: {
       host: "0.0.0.0",
       allowedHosts: ["terminal.local"],

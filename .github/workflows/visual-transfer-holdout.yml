@@ -1,0 +1,47 @@
+name: Visual transfer of final Clean70k holdout
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths: ['.github/workflows/visual-transfer-holdout.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  sheets:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [0, 1, 2, 3]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: final-clean70k-holdout-37755367013
+          run-id: 37755367013
+          github-token: ${{ github.token }}
+          path: /tmp/holdout
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip -q install Pillow==11.1.0
+      - name: Emit contact sheets for direct visual inspection, not automated judgment
+        env:
+          GROUP: ${{ matrix.group }}
+        run: |
+          python - <<'PY'
+          import base64, io, os
+          from pathlib import Path
+          from PIL import Image
+          group=int(os.environ['GROUP'])
+          for index in range(group*3+1,group*3+4):
+              p=Path('/tmp/holdout')/f'sheet-{index:02d}.png'
+              if not p.exists():raise FileNotFoundError(p)
+              with Image.open(p) as im:
+                  image=im.convert('RGB')
+                  b=io.BytesIO()
+                  image.save(b,format='JPEG',quality=65,optimize=True)
+              print('VISUAL_SHEET_BEGIN '+str(index)+' '+base64.b64encode(b.getvalue()).decode())
+              print('VISUAL_SHEET_END '+str(index))
+          PY

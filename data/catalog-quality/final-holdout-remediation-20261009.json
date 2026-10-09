@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean70k-post-publication-preselection-remediation",
+  "status": "pending-refill",
+  "manifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+  "sourceHoldoutRunId": 37755367013,
+  "sourceReviewPath": "data/catalog-quality/final-holdout-contact-review-20261009.json",
+  "verifiedOriginalHashes": true,
+  "excluded": [
+    {
+      "id": "clean-v5-c27ecb81711a712f8c01474cb87b",
+      "sha256": "c27ecb81711a712f8c01474cb87b7e5bb39598d7dde4b5b32d025eedd672205f",
+      "decision": "deny",
+      "sample": "H039",
+      "reason": "原画像を拡大確認しても眼部が強い影で読みにくい"
+    },
+    {
+      "id": "clean-v5-b583cf4bb8001e084f5331d3e666",
+      "sha256": "b583cf4bb8001e084f5331d3e6668a0b390e01a362444b7a2201bc7a72a4811c",
+      "decision": "deny",
+      "sample": "H078",
+      "reason": "原画像でも強いぼけがあり眼と口の形状が不明瞭"
+    },
+    {
+      "id": "clean-v5-d717cacdf5a8cb72958216371ba6",
+      "sha256": "d717cacdf5a8cb72958216371ba602dbf4b2bac11d9467d2ebb1e0367a5570d7",
+      "decision": "deny",
+      "sample": "H158",
+      "reason": "原画像でも強いぼけで眼・口の形状が不明瞭"
+    },
+    {
+      "id": "clean-v5-601a4d8130675bfba24653fc7ac0",
+      "sha256": "601a4d8130675bfba24653fc7ac033307b5ce523a61eac7f15111a4174016e72",
+      "decision": "deny",
+      "sample": "H161",
+      "reason": "食べ物が口を覆っており口の形状を再現できない"
+    },
+    {
+      "id": "clean-v5-89269a1cb0d73856658db1518b94",
+      "sha256": "89269a1cb0d73856658db1518b94b7b73e0532f733fdc8eaa3c9c3791a70f693",
+      "decision": "deny",
+      "sample": "H221",
+      "reason": "カメラ機材が片目を隠している"
+    },
+    {
+      "id": "clean-v5-cbb0610a366ecda17c0f70db438a",
+      "sha256": "cbb0610a366ecda17c0f70db438a148137387f796e686bc7778fdf28b1bdc397",
+      "decision": "deny",
+      "sample": "H302",
+      "reason": "原画像でも強いぼけで眼・口の細部が不明瞭"
+    },
+    {
+      "id": "clean-v5-58e14d0afbe7a6233136e2e06db9",
+      "sha256": "58e14d0afbe7a6233136e2e06db932232c1a794ad0e52c89812e8e61707bbe9c",
+      "decision": "uncertain",
+      "sample": "H182",
+      "reason": "原画像でも低解像度で表情の詳細が十分読めるか判定保留"
+    },
+    {
+      "id": "clean-v5-e2d37fc5b50f63f37fe042adc29a",
+      "sha256": "e2d37fc5b50f63f37fe042adc29a5af3fa24caf933f0ecd0afde35386ca9a174",
+      "decision": "uncertain",
+      "sample": "H232",
+      "reason": "原画像でも顔がぼけており目と口の細部の判定保留"
+    },
+    {
+      "id": "clean-v5-cec34d8403de96499f63ee0a2202",
+      "sha256": "cec34d8403de96499f63ee0a220249ab6c1391ae108fe27bbd3e9606ee4f2470",
+      "decision": "deny",
+      "sample": "H240",
+      "reason": "原画像で顔の大部分が強くぼけている"
+    },
+    {
+      "id": "clean-v5-980718f6b7e0264ec2fcddea7362",
+      "sha256": "980718f6b7e0264ec2fcddea73623cba8d208bd0f40a665db8b95f4dc6e65d48",
+      "decision": "uncertain",
+      "sample": "H247",
+      "reason": "原画像に動きぼけがあり、採用可能な視認性か判定保留"
+    }
+  ],
+  "counts": {
+    "deny": 7,
+    "quarantine": 3
+  },
+  "targetFinalPhotos": 70000,
+  "admissionPolicy": "Exclude all 10 exact SHA256 from any new 70k candidate before selection; refill with qualified original photos and rerun independent holdout.",
+  "publishedCatalogUntouched": true
+}

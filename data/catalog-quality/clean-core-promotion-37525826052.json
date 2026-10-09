@@ -1,0 +1,641 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-repository-promotion-evidence",
+  "reportStatus": "native-repository-promotion-verified",
+  "recordedAtUtc": "2026-10-06T20:35:27.050527+00:00",
+  "repository": "ugin-man/many-faces-beta",
+  "branch": "astra/realtime-hardening",
+  "sourceRunId": 37525826052,
+  "sourceRunAttempt": 1,
+  "sourceCommit": "18107088c40850212f3dc0d4f4d5a6c3f892ebab",
+  "sourceJobId": 112482454080,
+  "sourceWorkflow": {
+    "name": "Promote reviewed Clean Core v5 artifact",
+    "path": ".github/workflows/clean-core-v5-promote.yml",
+    "id": 376800304,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "startedAt": "2026-10-06T20:21:31Z",
+    "completedAt": "2026-10-06T20:30:21Z",
+    "url": "https://github.com/ugin-man/many-faces-beta/actions/runs/37525826052"
+  },
+  "request": {
+    "path": "data/clean-core-v5-promotion-request.json",
+    "sha256": "f0d5e71f931151ae7b9c1ff847b6789cf357cd0140835867e81137e0d6f29ef6",
+    "commit": "18107088c40850212f3dc0d4f4d5a6c3f892ebab"
+  },
+  "candidate": {
+    "runId": 37519882295,
+    "runAttempt": 1,
+    "artifactName": "clean-core-v5-candidate-37519882295-1",
+    "artifactId": 11440656084,
+    "archiveSha256": "a1f13922732172bd0c602e83b79bdc7c8191934971f821e38a78be974c606caf",
+    "manifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "generationReceiptSha256": "d10bc862b779bdda7bd606d40408f5fda41eb7c43059fce61a63f9361d2441eb",
+    "selectionReviewSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+    "previousSelectionReviewSha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff",
+    "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+    "selectionIdentitySha256": "28e6092363ed981f622773c00356fd42790c75bdc894d756abceb95d99b33029",
+    "codeCommit": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+    "generationCodeCommit": "8dd3e24aeb81ec4eec29edcf9b3b18987bdbc912",
+    "qaCodeCommit": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+    "codeCommitInterpretation": "candidate.codeCommit is the tested QA code commit; generationCodeCommit identifies the producing generation source.",
+    "generationReceipt": {
+      "path": "work/clean-v5-promotion-37525826052/checks/generation-receipt.json",
+      "bytes": 5300,
+      "sha256": "d10bc862b779bdda7bd606d40408f5fda41eb7c43059fce61a63f9361d2441eb"
+    }
+  },
+  "qa": {
+    "wrapper": {
+      "path": "data/catalog-quality/candidate-qa-37521402519.json",
+      "sha256": "d73da9af3c316da38595b1421b85d4167379303640a9e594a52bc4ab5b7ff775"
+    },
+    "nativeExecution": {
+      "runId": 37521402519,
+      "runAttempt": 1,
+      "artifactId": 11441775160,
+      "artifactName": "clean-core-v5-qa-summary-37521402519-1",
+      "archiveSha256": "02e523a198b226968f78f7dd93759b2266166a743c6ccf3bc13d0d35a1412952",
+      "qaReceiptSha256": "b60c64edd7c5b714219d44758928ed5f2c1ce9bc6dd51eec00021de2f39bc5ba"
+    },
+    "nativeVerification": {
+      "status": "verified",
+      "matchedFields": [
+        "candidate",
+        "baselineCommit",
+        "fixedVideo",
+        "facePositionSizeTracking",
+        "physicalAdmission",
+        "baselineVerification",
+        "comparisonContract",
+        "comparisonContractValidation",
+        "comparisonReportSha256",
+        "pendingNetworkCancellation",
+        "virtualCamera",
+        "outcomes",
+        "requestSha256",
+        "executionOrigin"
+      ],
+      "matchedRemediationFields": [
+        "visualReviewPreparation",
+        "selectedPhotoHoldout"
+      ],
+      "comparisonReportSha256": "b8ddcbff696d5581c6fdc703b89a58c94c586e844a294b801ba5f2f798658959",
+      "manualReviewVerified": false,
+      "manualReviewScope": "The native-origin validator leaves this false; the separate remediation verifier below establishes original-image review completeness."
+    },
+    "comparisonContract": {
+      "schemaVersion": 1,
+      "status": "complete",
+      "candidatePassed": true,
+      "candidateInitialPresentationPassed": true,
+      "baselinePassed": true,
+      "baselineInitialPresentationPassed": true,
+      "baselineRemainingChecksPassed": true,
+      "baselineKnownInitialFailureAccepted": false,
+      "sameAcquiredFrames": true,
+      "sameTimeline": true,
+      "acquiredFramesSha256": "e14e8727696fc54a4be92a380436722d6a60b5d2f07632235f1cb412c2dd4fc1",
+      "timelineSha256": "3db75403f6d628aee0558a40334969d356dc528eb6ef04d6ba6d7f146e97fd5f",
+      "comparedFaceFrames": 410
+    },
+    "facePositionSizeTracking": {
+      "status": "passed",
+      "initialPresentationPassed": true,
+      "defaultEnabled": true,
+      "presentationControlsPreserveSelection": true,
+      "evidence": "reports/browser/admitted-catalog/report.json"
+    },
+    "pendingNetworkCancellation": {
+      "status": "passed",
+      "cancelToIdleMs": 35
+    },
+    "virtualCamera": {
+      "status": "passed",
+      "cameraPhase": "running",
+      "catalogTotal": 70000,
+      "physicalCameraVerified": false
+    }
+  },
+  "fullOriginalImageReview": {
+    "mode": "remediation",
+    "reviewer": "assistant-visual-review",
+    "humanVerified": false,
+    "status": "complete",
+    "review": {
+      "path": "data/catalog-quality/remediation-original-review-37521402519.json",
+      "sha256": "da658c7e44d36fc1237c4c926be2f69e8f35369ea5a5dbbc17a8e27561457390"
+    },
+    "verification": {
+      "path": "data/catalog-quality/remediation-verification-37521402519.json",
+      "bytes": 14386,
+      "sha256": "fcaa5be18305d632e2dbd2fad93eb9ce5bcb36d44df1fcc6614cbbadadb51b9c"
+    },
+    "indexSha256": "f13aff1392da62804f5096f17608baf4570ef58a9a4db60e6bf5a0fd8206d01c",
+    "finalManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "priorManifestSha256": "d8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785",
+    "fixedEvaluatedCandidateRunId": 37491677036,
+    "addedPhotos": 59,
+    "reviewedPhotos": 59,
+    "counts": {
+      "pass": 59,
+      "deny": 0,
+      "uncertain": 0
+    },
+    "allAddedOriginalsReviewed": true,
+    "allAddedPhotosPassed": true,
+    "reusedOriginalReviews": 58,
+    "newOriginalReviews": 1,
+    "directReviewSources": [
+      {
+        "path": "data/catalog-quality/remediation-original-review-37508460953.json",
+        "bytes": 157904,
+        "sha256": "9ebc3c2286a64caacdf65c8c7b6a9d2afc6e317b632bf91d2b535f8253a33936",
+        "directPassImagesReused": 49,
+        "reuseChain": false
+      },
+      {
+        "path": "data/catalog-quality/remediation-originals-37515456441-new10.json",
+        "bytes": 10561,
+        "sha256": "a75f3e0ee88747724732dd6887e2e77722819eb775cfcf10b17b7512489b2d86",
+        "directPassImagesReused": 9,
+        "reuseChain": false
+      }
+    ],
+    "allPriorDenyAndUncertainAbsent": true,
+    "allKnownExcludedAbsent": true,
+    "nativeIndexAuthentication": "required-external-caller-precondition",
+    "fullCatalogDifferenceRevalidatedByManualIndexVerifier": false,
+    "separateNativeFullCatalogValidationPassed": true,
+    "independentHoldoutPassed": false
+  },
+  "originalFailedHoldout": {
+    "status": "failed",
+    "reviewer": "assistant visual inspection",
+    "humanVerified": false,
+    "checkedPhotos": 360,
+    "preparedPhotos": 360,
+    "counts": {
+      "pass": 301,
+      "deny": 27,
+      "uncertain": 32
+    },
+    "previouslyInspectedSha256": "2b9586e1d788539c7ce3d078dc6158bbba4183634c81077fe82505b68828a623",
+    "previouslyInspectedImageCount": 1617,
+    "sampleIndexSha256": "f543ad152cb192f559452144d2ad9a5887593cbd058efae21a89372ca76e7221",
+    "visualReviewSha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c"
+  },
+  "visualReviewPreparation": {
+    "mode": "remediation",
+    "independentFinalHoldout": false,
+    "indexPath": "reports/remediation-index.json",
+    "indexSha256": "f13aff1392da62804f5096f17608baf4570ef58a9a4db60e6bf5a0fd8206d01c",
+    "addedPhotos": 59,
+    "evaluatedCandidateRunId": 37491677036,
+    "evaluatedManifestSha256": "d8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785",
+    "finalManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "failedHoldoutSha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c"
+  },
+  "catalog": {
+    "physicalFaces": 70000,
+    "uniqueEncodedImages": 70000,
+    "poseCells": 775,
+    "catalogId": "many-faces-clean-core-v5-28e6092363ed981f-pose-local-v1",
+    "manifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "selectionReviewSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+    "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+    "selectionIdentitySha256": "28e6092363ed981f622773c00356fd42790c75bdc894d756abceb95d99b33029",
+    "allSelectedPhotosHavePassingAdmission": true,
+    "allFreshMeasurementsMatch": true,
+    "allSelectedPhotosAbsentFromSelectionExclusions": true,
+    "allSelectedWinkProfilesHaveReviewedEvidence": true,
+    "allSelectedProfilesHaveDeclaredEvidence": true,
+    "runtimeExclusionOverlayRequired": false
+  },
+  "catalogStructure": {
+    "catalogId": "many-faces-clean-core-v5-28e6092363ed981f-pose-local-v1",
+    "sourceFaces": 70000,
+    "searchableFaces": 70000,
+    "failedDetections": 0,
+    "poseCells": 775,
+    "shards": 775,
+    "packs": 775,
+    "largestShardBytes": 2245959,
+    "largestPackBytes": 1817608,
+    "coverage": null,
+    "orphanedFinalShards": 0
+  },
+  "winkIndex": {
+    "schemaVersion": 1,
+    "baseCatalogId": "many-faces-clean-core-v5-28e6092363ed981f-pose-local-v1",
+    "baseCatalogManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "policySha256": "2f820a6dff8f4d0fcd595623042d3397abfbd6efa8ca57c45aac9f68c3462481",
+    "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+    "confirmedReviewSides": {
+      "left": 31,
+      "right": 40
+    },
+    "allIndexedWinksHaveReviewedEvidence": true,
+    "physicalCoreCount": 70000,
+    "eligibleCoreWinks": 71,
+    "indexedCoreWinks": 71,
+    "omittedFromSpecialistIndex": 0,
+    "left": 31,
+    "right": 40,
+    "outputIndexBytes": 550495,
+    "separatePhotoAssets": 0,
+    "coreImagesRemoved": 0,
+    "independentHumanLabels": false,
+    "indexSha256": "7282c665512ff514877e78247e1d0647835a333497201cab79fb21c3fe57fa76"
+  },
+  "nativeChecks": {
+    "path": "data/catalog-quality/native-promotion-checks-37525826052.json",
+    "bytes": 843,
+    "sha256": "d0694249b5251c684fca12e959d0fc147742d869db8c2c8304787650e65294ae",
+    "rawNativeBytesPreserved": true,
+    "outcomes": {
+      "request": "success",
+      "validation_dependencies": "success",
+      "verify": "success",
+      "install": "success",
+      "test": "success",
+      "lint": "success",
+      "build": "success",
+      "python": "success",
+      "structure": "success",
+      "wink": "success",
+      "commit": "success"
+    },
+    "recordedWorkflowOutcomeCount": 11,
+    "allRecordedOutcomesSuccessful": true,
+    "interpretation": "Eleven recorded workflow outcome groups; request, dependency installation and commit are not individual unit tests."
+  },
+  "testsAgainstExactStagedCatalog": {
+    "node": {
+      "command": "npm test",
+      "tests": 304,
+      "pass": 304,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "log": {
+        "path": "work/clean-v5-promotion-37525826052/checks/npm-test.log",
+        "bytes": 71720,
+        "sha256": "98cb752ccbdb6488daa03609353f5bc058b3ed2f2c15cd04b25344fdcf3932ee"
+      }
+    },
+    "python": {
+      "compileall": "passed",
+      "unittestTests": 238,
+      "unittestSeconds": 5.565,
+      "unittestStatus": "passed",
+      "log": {
+        "path": "work/clean-v5-promotion-37525826052/checks/python-tests.log",
+        "bytes": 707,
+        "sha256": "3345dfd364ed6c77ec468bf325cc998a133cfb105c4d62538d06f3dea17bbf63"
+      }
+    },
+    "lint": {
+      "status": "passed",
+      "errors": 0,
+      "warnings": 15,
+      "log": {
+        "path": "work/clean-v5-promotion-37525826052/checks/npm-lint.log",
+        "bytes": 2790,
+        "sha256": "2f1d00374469cbd7be80e9717a0a2c55053859f3106f5bbc43fca4ed13417b9c"
+      }
+    },
+    "build": {
+      "status": "passed",
+      "deployableArtifactStructureValidated": true,
+      "log": {
+        "path": "work/clean-v5-promotion-37525826052/checks/npm-build.log",
+        "bytes": 1846,
+        "sha256": "729f2a88256b3360c277756264232c4591e1aa9ca9ae8c32184ee306242b24e2"
+      }
+    },
+    "finalStructure": "passed",
+    "boundWinkIndexRebuildByteComparison": "passed",
+    "newTestsExecutedByThisReport": false
+  },
+  "promotion": {
+    "requestCommit": "18107088c40850212f3dc0d4f4d5a6c3f892ebab",
+    "testedCodeCommit": "18107088c40850212f3dc0d4f4d5a6c3f892ebab",
+    "testedTreeSha": "d01867637fe96c9fd2d533bf6458022a980f6cef",
+    "promotedCommit": "ba8c746246879221db41fe3ee1270c811d6b29cb",
+    "pushedCommit": "ba8c746246879221db41fe3ee1270c811d6b29cb",
+    "pushed": true,
+    "passed": true,
+    "testsRanBeforeCommitOnExactStagedTree": true,
+    "soleParentCommit": "18107088c40850212f3dc0d4f4d5a6c3f892ebab",
+    "nativeGitTreeMatchesTestedTree": true,
+    "nativeBranchHeadMatchedAtObservation": true,
+    "changedFiles": 1568,
+    "changedDirectoryCounts": {
+      "public/seed-catalog": 1559,
+      "public/wink-support/v1": 9
+    },
+    "allowedChangedDirectories": [
+      "public/seed-catalog",
+      "public/wink-support/v1"
+    ],
+    "testedTreeEvidence": {
+      "path": "work/clean-v5-promotion-37525826052/checks/tested-tree.json",
+      "bytes": 105152,
+      "sha256": "636c051e81b175f8d22049c333487fdd69b9465b2f256c8ade017c8fb159eb3c"
+    },
+    "commitUrl": "https://github.com/ugin-man/many-faces-beta/commit/ba8c746246879221db41fe3ee1270c811d6b29cb"
+  },
+  "normalCi": {
+    "promotionRequestCommit": {
+      "runId": 37525828575,
+      "commit": "18107088c40850212f3dc0d4f4d5a6c3f892ebab",
+      "conclusion": "success",
+      "checks": {
+        "build": "passed",
+        "nodeTests": {
+          "total": 304,
+          "passed": 303,
+          "failed": 0,
+          "skipped": 1
+        },
+        "lint": {
+          "errors": 0,
+          "warnings": 15
+        },
+        "pythonCompileall": "passed",
+        "pythonUnittest": {
+          "tests": 238,
+          "status": "passed"
+        },
+        "pytestExecuted": false
+      },
+      "scope": "normal CI at promotion request commit; separate from checks against the staged promoted catalog",
+      "evidence": {
+        "path": "work/clean-v5-promotion-37525826052/native/ci-summary.json",
+        "bytes": 1054,
+        "sha256": "102ef8c85bc98fd2f69d0d13f15caa0ba0d41f12bec1fdc9cf774ae1cecebb62"
+      }
+    },
+    "normalPushCiAutomaticallyTriggered": false,
+    "postPromotionDataEvidenceCommitCi": "not yet executed at this record creation",
+    "futureCiResultNotInferred": true
+  },
+  "sourceEvidence": {
+    "checksArtifact": {
+      "id": 11443025720,
+      "name": "clean-core-v5-promotion-checks-37525826052-1",
+      "bytes": 64743,
+      "archiveSha256": "8f23665f71eff408730f066635879a0ce1baed10fdeee26e61d301393d1eead6",
+      "apiUrl": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/11443025720",
+      "archiveDownloadUrl": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/11443025720/zip",
+      "workflowRun": {
+        "id": 37525826052,
+        "repository_id": 1340833640,
+        "head_repository_id": 1340833640,
+        "head_branch": "astra/realtime-hardening",
+        "head_sha": "18107088c40850212f3dc0d4f4d5a6c3f892ebab"
+      },
+      "fileCount": 20,
+      "expandedBytes": 374260,
+      "files": [
+        {
+          "path": "candidate-qa.json",
+          "bytes": 42411,
+          "sha256": "d73da9af3c316da38595b1421b85d4167379303640a9e594a52bc4ab5b7ff775",
+          "crc32": "6592e7a1"
+        },
+        {
+          "path": "checks.json",
+          "bytes": 843,
+          "sha256": "d0694249b5251c684fca12e959d0fc147742d869db8c2c8304787650e65294ae",
+          "crc32": "1c121411"
+        },
+        {
+          "path": "catalog-validation.json",
+          "bytes": 318,
+          "sha256": "50cc7e60156a29a3389838857373f05ef1290eb781fe9191ed326d2081f9e9c5",
+          "crc32": "17ed21df"
+        },
+        {
+          "path": "download-validation.json",
+          "bytes": 9726,
+          "sha256": "e79609116114b12d4e404792c16364e26ac6edddc242907fda90f1b097d0ac6e",
+          "crc32": "e757258d"
+        },
+        {
+          "path": "generation-receipt.json",
+          "bytes": 5300,
+          "sha256": "d10bc862b779bdda7bd606d40408f5fda41eb7c43059fce61a63f9361d2441eb",
+          "crc32": "a07fe894"
+        },
+        {
+          "path": "native-qa/native-qa-receipt.json",
+          "bytes": 21457,
+          "sha256": "b60c64edd7c5b714219d44758928ed5f2c1ce9bc6dd51eec00021de2f39bc5ba",
+          "crc32": "97fb367c"
+        },
+        {
+          "path": "native-qa/native-qa-source-metadata.json",
+          "bytes": 1801,
+          "sha256": "a543a055e60eabed4c11ad7b563ff58bdcc08e6d309611cdbd65c7da5d34a29e",
+          "crc32": "6b4aaacd"
+        },
+        {
+          "path": "native-qa/native-qa-verification.json",
+          "bytes": 3393,
+          "sha256": "a25d636ffb8dd908f21f76ba6e1d2c5ee8583c91790b7e1975ab8953a2d1f943",
+          "crc32": "dacd3e16"
+        },
+        {
+          "path": "npm-build.log",
+          "bytes": 1846,
+          "sha256": "729f2a88256b3360c277756264232c4591e1aa9ca9ae8c32184ee306242b24e2",
+          "crc32": "99fe0e97"
+        },
+        {
+          "path": "npm-ci.log",
+          "bytes": 193,
+          "sha256": "63b4eabcb01b7525360b9ffcce53a143b47e4de44ed27ccae477bddb0599526a",
+          "crc32": "31fa68fa"
+        },
+        {
+          "path": "npm-lint.log",
+          "bytes": 2790,
+          "sha256": "2f1d00374469cbd7be80e9717a0a2c55053859f3106f5bbc43fca4ed13417b9c",
+          "crc32": "98364e83"
+        },
+        {
+          "path": "npm-test.log",
+          "bytes": 71720,
+          "sha256": "98cb752ccbdb6488daa03609353f5bc058b3ed2f2c15cd04b25344fdcf3932ee",
+          "crc32": "a0479281"
+        },
+        {
+          "path": "physical-admission-receipt.json",
+          "bytes": 12970,
+          "sha256": "5cab924b4bc0deca7b1559426df8aeb108f0fe80cac0541b8c2165ef8e94af53",
+          "crc32": "53f4d1d0"
+        },
+        {
+          "path": "python-install.log",
+          "bytes": 7441,
+          "sha256": "91d9c05527475105dabc66ee8b405d2c23ff33fd5fd7a6413ee1989cba169226",
+          "crc32": "b5af8b36"
+        },
+        {
+          "path": "python-tests.log",
+          "bytes": 707,
+          "sha256": "3345dfd364ed6c77ec468bf325cc998a133cfb105c4d62538d06f3dea17bbf63",
+          "crc32": "c194db71"
+        },
+        {
+          "path": "remediation/remediation-verification.json",
+          "bytes": 14386,
+          "sha256": "fcaa5be18305d632e2dbd2fad93eb9ce5bcb36d44df1fcc6614cbbadadb51b9c",
+          "crc32": "4cc04dc1"
+        },
+        {
+          "path": "request.json",
+          "bytes": 969,
+          "sha256": "f0d5e71f931151ae7b9c1ff847b6789cf357cd0140835867e81137e0d6f29ef6",
+          "crc32": "1f19bee8"
+        },
+        {
+          "path": "tested-tree.json",
+          "bytes": 105152,
+          "sha256": "636c051e81b175f8d22049c333487fdd69b9465b2f256c8ade017c8fb159eb3c",
+          "crc32": "0829653c"
+        },
+        {
+          "path": "verified-inputs.json",
+          "bytes": 69896,
+          "sha256": "9aa57544a69dd4204ecc6fcd28f2a43aa0f4c81e3add084c0aa32d512be313c3",
+          "crc32": "e869d543"
+        },
+        {
+          "path": "wink-validation.json",
+          "bytes": 941,
+          "sha256": "65d60d603292bbab4af7f86c6fd80ed155916d9fe160f288a5d88744b4db0405",
+          "crc32": "73875118"
+        }
+      ]
+    },
+    "checksArchiveIntegrity": {
+      "path": "work/clean-v5-promotion-37525826052/checks-download-integrity.json",
+      "bytes": 4739,
+      "sha256": "3022465a14a433356aac6ace3527112833e4d8e267c42cc90640ba1fd61dd756"
+    },
+    "nativeMetadata": {
+      "promotion-run.json": {
+        "path": "work/clean-v5-promotion-37525826052/native/promotion-run.json",
+        "bytes": 14611,
+        "sha256": "511a3a9968be0cd1a18ec516f708f3b5d681b15f7c6dfee926d69de9e7f66f7d"
+      },
+      "promotion-jobs.json": {
+        "path": "work/clean-v5-promotion-37525826052/native/promotion-jobs.json",
+        "bytes": 4658,
+        "sha256": "803b848e3c72ce51b24ecc9d00f535fffeb8cdc557f05abeefaca9626539d629"
+      },
+      "promotion-artifacts.json": {
+        "path": "work/clean-v5-promotion-37525826052/native/promotion-artifacts.json",
+        "bytes": 1726,
+        "sha256": "6777e02a9ce9f8d54e210d18f5be3cfd36d5edd31f0964b3b47ab55a91c7081d"
+      },
+      "promoted-commit.json": {
+        "path": "work/clean-v5-promotion-37525826052/native/promoted-commit.json",
+        "bytes": 1412,
+        "sha256": "b94ca207c613047977592d6e9302185ab27a202d6436e028f4fa3eb9e6450daa"
+      },
+      "branch-ref.json": {
+        "path": "work/clean-v5-promotion-37525826052/native/branch-ref.json",
+        "bytes": 454,
+        "sha256": "f7a8e4ef1f66e3074c41a651895b1ddfd31c8b6e57ded9aea74de06f58f2e55e"
+      }
+    },
+    "fullNativeJobLog": {
+      "path": "work/clean-v5-promotion-37525826052/native/promotion-job-112482454080.log",
+      "bytes": 301917,
+      "sha256": "c01ebd12838b2e79590a006d17d29a5b96e0a48091d276b3d00ee0913f689a84"
+    },
+    "committedReferences": [
+      {
+        "path": "data/clean-core-v5-promotion-request.json",
+        "bytes": 969,
+        "sha256": "f0d5e71f931151ae7b9c1ff847b6789cf357cd0140835867e81137e0d6f29ef6"
+      },
+      {
+        "path": "data/catalog-quality/clean-core-generation-37519882295.json",
+        "bytes": 49615,
+        "sha256": "a542754ced659526c3c4c87a02f8d57bfc102c23b2a98662fcafe1faea243f34"
+      },
+      {
+        "path": "data/catalog-quality/candidate-qa-37521402519.json",
+        "bytes": 42411,
+        "sha256": "d73da9af3c316da38595b1421b85d4167379303640a9e594a52bc4ab5b7ff775"
+      },
+      {
+        "path": "data/catalog-quality/native-qa-receipt-37521402519.json",
+        "bytes": 21457,
+        "sha256": "b60c64edd7c5b714219d44758928ed5f2c1ce9bc6dd51eec00021de2f39bc5ba"
+      },
+      {
+        "path": "data/catalog-quality/native-comparison-37521402519.json",
+        "bytes": 153949,
+        "sha256": "b8ddcbff696d5581c6fdc703b89a58c94c586e844a294b801ba5f2f798658959"
+      },
+      {
+        "path": "data/catalog-quality/remediation-index-37521402519.json",
+        "bytes": 389486,
+        "sha256": "f13aff1392da62804f5096f17608baf4570ef58a9a4db60e6bf5a0fd8206d01c"
+      },
+      {
+        "path": "data/catalog-quality/remediation-original-review-37521402519.json",
+        "bytes": 124318,
+        "sha256": "da658c7e44d36fc1237c4c926be2f69e8f35369ea5a5dbbc17a8e27561457390"
+      },
+      {
+        "path": "data/catalog-quality/remediation-verification-37521402519.json",
+        "bytes": 14386,
+        "sha256": "fcaa5be18305d632e2dbd2fad93eb9ce5bcb36d44df1fcc6614cbbadadb51b9c"
+      },
+      {
+        "path": "data/catalog-quality/remediation-original-review-37508460953.json",
+        "bytes": 157904,
+        "sha256": "9ebc3c2286a64caacdf65c8c7b6a9d2afc6e317b632bf91d2b535f8253a33936"
+      },
+      {
+        "path": "data/catalog-quality/remediation-originals-37515456441-new10.json",
+        "bytes": 10561,
+        "sha256": "a75f3e0ee88747724732dd6887e2e77722819eb775cfcf10b17b7512489b2d86"
+      },
+      {
+        "path": "data/catalog-quality/remediation-originals-37521402519-new1.json",
+        "bytes": 1834,
+        "sha256": "73b78f48ae6b1c0947d4b55c71f7d7363ffe449a22db122aaaff854165d67b31"
+      },
+      {
+        "path": "data/catalog-quality/remediation-root-originals-37521402519-new1.json",
+        "bytes": 1392,
+        "sha256": "880cfb4c15286afa04d9abd3176b7d5a46b66bbf87a745f2999bb0a5cba9a4d4"
+      },
+      {
+        "path": "data/catalog-quality/holdout-visual-review-37494402324.json",
+        "bytes": 1004155,
+        "sha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c"
+      }
+    ]
+  },
+  "repositoryPromotionCompleted": true,
+  "sitePublished": false,
+  "hostedSiteVerified": false,
+  "physicalCameraVerified": false,
+  "independentFinalHoldout": false,
+  "independentHoldoutPassed": false,
+  "generalVisualQualityImprovementEstablished": false,
+  "humanVerified": false,
+  "verificationScope": "Authenticated native promotion artifacts and saved native Git run/commit/ref metadata, plus unchanged committed candidate/QA/review references. The 59-image supplemental review is preserved with direct reuse attribution. This report runs no application/browser/inference tests and performs no additional image review or publication."
+}

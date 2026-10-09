@@ -1,0 +1,1498 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-native-qa-source-evidence",
+  "source": "Native GitHub run/job/artifact metadata and exact downloaded artifact bytes, independently authenticated by root",
+  "repository": "ugin-man/many-faces-beta",
+  "qaRun": {
+    "id": 37521402519,
+    "name": "Review a pinned Clean Core v5 candidate",
+    "node_id": "WFR_kwLOT-t_aM8AAAAIvHMqlw",
+    "head_branch": "astra/realtime-hardening",
+    "head_sha": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+    "path": ".github/workflows/clean-core-v5-qa.yml",
+    "display_title": "test(dataset): verify final one-photo refill against fixed baseline",
+    "run_number": 5,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "workflow_id": 376532640,
+    "check_suite_id": 101640479964,
+    "check_suite_node_id": "CS_kwDOT-t_aM8AAAAXqj6k3A",
+    "url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/runs/37521402519",
+    "html_url": "https://github.com/ugin-man/many-faces-beta/actions/runs/37521402519",
+    "pull_requests": [
+      {
+        "url": "https://api.github.com/repos/ugin-man/many-faces-beta/pulls/3",
+        "id": 4452206941,
+        "number": 3,
+        "head": {
+          "ref": "astra/realtime-hardening",
+          "sha": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+          "repo": {
+            "id": 1340833640,
+            "url": "https://api.github.com/repos/ugin-man/many-faces-beta",
+            "name": "many-faces-beta"
+          }
+        },
+        "base": {
+          "ref": "work/coverage-driven-200k",
+          "sha": "0ddb7a72a794f410424793a290a221d456739478",
+          "repo": {
+            "id": 1340833640,
+            "url": "https://api.github.com/repos/ugin-man/many-faces-beta",
+            "name": "many-faces-beta"
+          }
+        }
+      }
+    ],
+    "created_at": "2026-10-06T19:46:03Z",
+    "updated_at": "2026-10-06T20:05:42Z",
+    "actor": {
+      "login": "ugin-man",
+      "id": 157204743,
+      "node_id": "U_kgDOCV7BBw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/157204743?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ugin-man",
+      "html_url": "https://github.com/ugin-man",
+      "followers_url": "https://api.github.com/users/ugin-man/followers",
+      "following_url": "https://api.github.com/users/ugin-man/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ugin-man/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ugin-man/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ugin-man/subscriptions",
+      "organizations_url": "https://api.github.com/users/ugin-man/orgs",
+      "repos_url": "https://api.github.com/users/ugin-man/repos",
+      "events_url": "https://api.github.com/users/ugin-man/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ugin-man/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "run_attempt": 1,
+    "referenced_workflows": [],
+    "run_started_at": "2026-10-06T19:46:03Z",
+    "triggering_actor": {
+      "login": "ugin-man",
+      "id": 157204743,
+      "node_id": "U_kgDOCV7BBw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/157204743?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ugin-man",
+      "html_url": "https://github.com/ugin-man",
+      "followers_url": "https://api.github.com/users/ugin-man/followers",
+      "following_url": "https://api.github.com/users/ugin-man/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ugin-man/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ugin-man/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ugin-man/subscriptions",
+      "organizations_url": "https://api.github.com/users/ugin-man/orgs",
+      "repos_url": "https://api.github.com/users/ugin-man/repos",
+      "events_url": "https://api.github.com/users/ugin-man/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ugin-man/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "jobs_url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/runs/37521402519/jobs",
+    "logs_url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/runs/37521402519/logs",
+    "check_suite_url": "https://api.github.com/repos/ugin-man/many-faces-beta/check-suites/101640479964",
+    "artifacts_url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/runs/37521402519/artifacts",
+    "cancel_url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/runs/37521402519/cancel",
+    "rerun_url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/runs/37521402519/rerun",
+    "previous_attempt_url": null,
+    "workflow_url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/workflows/376532640",
+    "head_commit": {
+      "id": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+      "tree_id": "6d3dec31791b8e3e3d94e4ef46c9b49db2154762",
+      "message": "test(dataset): verify final one-photo refill against fixed baseline",
+      "timestamp": "2026-10-06T19:45:58Z",
+      "author": {
+        "name": "ugin",
+        "email": "157204743+ugin-man@users.noreply.github.com"
+      },
+      "committer": {
+        "name": "ugin",
+        "email": "157204743+ugin-man@users.noreply.github.com"
+      }
+    },
+    "repository": {
+      "id": 1340833640,
+      "node_id": "R_kgDOT-t_aA",
+      "name": "many-faces-beta",
+      "full_name": "ugin-man/many-faces-beta",
+      "private": false,
+      "owner": {
+        "login": "ugin-man",
+        "id": 157204743,
+        "node_id": "U_kgDOCV7BBw",
+        "avatar_url": "https://avatars.githubusercontent.com/u/157204743?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/ugin-man",
+        "html_url": "https://github.com/ugin-man",
+        "followers_url": "https://api.github.com/users/ugin-man/followers",
+        "following_url": "https://api.github.com/users/ugin-man/following{/other_user}",
+        "gists_url": "https://api.github.com/users/ugin-man/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/ugin-man/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/ugin-man/subscriptions",
+        "organizations_url": "https://api.github.com/users/ugin-man/orgs",
+        "repos_url": "https://api.github.com/users/ugin-man/repos",
+        "events_url": "https://api.github.com/users/ugin-man/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/ugin-man/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "html_url": "https://github.com/ugin-man/many-faces-beta",
+      "description": null,
+      "fork": false,
+      "url": "https://api.github.com/repos/ugin-man/many-faces-beta",
+      "forks_url": "https://api.github.com/repos/ugin-man/many-faces-beta/forks",
+      "keys_url": "https://api.github.com/repos/ugin-man/many-faces-beta/keys{/key_id}",
+      "collaborators_url": "https://api.github.com/repos/ugin-man/many-faces-beta/collaborators{/collaborator}",
+      "teams_url": "https://api.github.com/repos/ugin-man/many-faces-beta/teams",
+      "hooks_url": "https://api.github.com/repos/ugin-man/many-faces-beta/hooks",
+      "issue_events_url": "https://api.github.com/repos/ugin-man/many-faces-beta/issues/events{/number}",
+      "events_url": "https://api.github.com/repos/ugin-man/many-faces-beta/events",
+      "assignees_url": "https://api.github.com/repos/ugin-man/many-faces-beta/assignees{/user}",
+      "branches_url": "https://api.github.com/repos/ugin-man/many-faces-beta/branches{/branch}",
+      "tags_url": "https://api.github.com/repos/ugin-man/many-faces-beta/tags",
+      "blobs_url": "https://api.github.com/repos/ugin-man/many-faces-beta/git/blobs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/ugin-man/many-faces-beta/git/tags{/sha}",
+      "git_refs_url": "https://api.github.com/repos/ugin-man/many-faces-beta/git/refs{/sha}",
+      "trees_url": "https://api.github.com/repos/ugin-man/many-faces-beta/git/trees{/sha}",
+      "statuses_url": "https://api.github.com/repos/ugin-man/many-faces-beta/statuses/{sha}",
+      "languages_url": "https://api.github.com/repos/ugin-man/many-faces-beta/languages",
+      "stargazers_url": "https://api.github.com/repos/ugin-man/many-faces-beta/stargazers",
+      "contributors_url": "https://api.github.com/repos/ugin-man/many-faces-beta/contributors",
+      "subscribers_url": "https://api.github.com/repos/ugin-man/many-faces-beta/subscribers",
+      "subscription_url": "https://api.github.com/repos/ugin-man/many-faces-beta/subscription",
+      "commits_url": "https://api.github.com/repos/ugin-man/many-faces-beta/commits{/sha}",
+      "git_commits_url": "https://api.github.com/repos/ugin-man/many-faces-beta/git/commits{/sha}",
+      "comments_url": "https://api.github.com/repos/ugin-man/many-faces-beta/comments{/number}",
+      "issue_comment_url": "https://api.github.com/repos/ugin-man/many-faces-beta/issues/comments{/number}",
+      "contents_url": "https://api.github.com/repos/ugin-man/many-faces-beta/contents/{+path}",
+      "compare_url": "https://api.github.com/repos/ugin-man/many-faces-beta/compare/{base}...{head}",
+      "merges_url": "https://api.github.com/repos/ugin-man/many-faces-beta/merges",
+      "archive_url": "https://api.github.com/repos/ugin-man/many-faces-beta/{archive_format}{/ref}",
+      "downloads_url": "https://api.github.com/repos/ugin-man/many-faces-beta/downloads",
+      "issues_url": "https://api.github.com/repos/ugin-man/many-faces-beta/issues{/number}",
+      "pulls_url": "https://api.github.com/repos/ugin-man/many-faces-beta/pulls{/number}",
+      "milestones_url": "https://api.github.com/repos/ugin-man/many-faces-beta/milestones{/number}",
+      "notifications_url": "https://api.github.com/repos/ugin-man/many-faces-beta/notifications{?since,all,participating}",
+      "labels_url": "https://api.github.com/repos/ugin-man/many-faces-beta/labels{/name}",
+      "releases_url": "https://api.github.com/repos/ugin-man/many-faces-beta/releases{/id}",
+      "deployments_url": "https://api.github.com/repos/ugin-man/many-faces-beta/deployments"
+    },
+    "head_repository": {
+      "id": 1340833640,
+      "node_id": "R_kgDOT-t_aA",
+      "name": "many-faces-beta",
+      "full_name": "ugin-man/many-faces-beta",
+      "private": false,
+      "owner": {
+        "login": "ugin-man",
+        "id": 157204743,
+        "node_id": "U_kgDOCV7BBw",
+        "avatar_url": "https://avatars.githubusercontent.com/u/157204743?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/ugin-man",
+        "html_url": "https://github.com/ugin-man",
+        "followers_url": "https://api.github.com/users/ugin-man/followers",
+        "following_url": "https://api.github.com/users/ugin-man/following{/other_user}",
+        "gists_url": "https://api.github.com/users/ugin-man/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/ugin-man/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/ugin-man/subscriptions",
+        "organizations_url": "https://api.github.com/users/ugin-man/orgs",
+        "repos_url": "https://api.github.com/users/ugin-man/repos",
+        "events_url": "https://api.github.com/users/ugin-man/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/ugin-man/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "html_url": "https://github.com/ugin-man/many-faces-beta",
+      "description": null,
+      "fork": false,
+      "url": "https://api.github.com/repos/ugin-man/many-faces-beta",
+      "forks_url": "https://api.github.com/repos/ugin-man/many-faces-beta/forks",
+      "keys_url": "https://api.github.com/repos/ugin-man/many-faces-beta/keys{/key_id}",
+      "collaborators_url": "https://api.github.com/repos/ugin-man/many-faces-beta/collaborators{/collaborator}",
+      "teams_url": "https://api.github.com/repos/ugin-man/many-faces-beta/teams",
+      "hooks_url": "https://api.github.com/repos/ugin-man/many-faces-beta/hooks",
+      "issue_events_url": "https://api.github.com/repos/ugin-man/many-faces-beta/issues/events{/number}",
+      "events_url": "https://api.github.com/repos/ugin-man/many-faces-beta/events",
+      "assignees_url": "https://api.github.com/repos/ugin-man/many-faces-beta/assignees{/user}",
+      "branches_url": "https://api.github.com/repos/ugin-man/many-faces-beta/branches{/branch}",
+      "tags_url": "https://api.github.com/repos/ugin-man/many-faces-beta/tags",
+      "blobs_url": "https://api.github.com/repos/ugin-man/many-faces-beta/git/blobs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/ugin-man/many-faces-beta/git/tags{/sha}",
+      "git_refs_url": "https://api.github.com/repos/ugin-man/many-faces-beta/git/refs{/sha}",
+      "trees_url": "https://api.github.com/repos/ugin-man/many-faces-beta/git/trees{/sha}",
+      "statuses_url": "https://api.github.com/repos/ugin-man/many-faces-beta/statuses/{sha}",
+      "languages_url": "https://api.github.com/repos/ugin-man/many-faces-beta/languages",
+      "stargazers_url": "https://api.github.com/repos/ugin-man/many-faces-beta/stargazers",
+      "contributors_url": "https://api.github.com/repos/ugin-man/many-faces-beta/contributors",
+      "subscribers_url": "https://api.github.com/repos/ugin-man/many-faces-beta/subscribers",
+      "subscription_url": "https://api.github.com/repos/ugin-man/many-faces-beta/subscription",
+      "commits_url": "https://api.github.com/repos/ugin-man/many-faces-beta/commits{/sha}",
+      "git_commits_url": "https://api.github.com/repos/ugin-man/many-faces-beta/git/commits{/sha}",
+      "comments_url": "https://api.github.com/repos/ugin-man/many-faces-beta/comments{/number}",
+      "issue_comment_url": "https://api.github.com/repos/ugin-man/many-faces-beta/issues/comments{/number}",
+      "contents_url": "https://api.github.com/repos/ugin-man/many-faces-beta/contents/{+path}",
+      "compare_url": "https://api.github.com/repos/ugin-man/many-faces-beta/compare/{base}...{head}",
+      "merges_url": "https://api.github.com/repos/ugin-man/many-faces-beta/merges",
+      "archive_url": "https://api.github.com/repos/ugin-man/many-faces-beta/{archive_format}{/ref}",
+      "downloads_url": "https://api.github.com/repos/ugin-man/many-faces-beta/downloads",
+      "issues_url": "https://api.github.com/repos/ugin-man/many-faces-beta/issues{/number}",
+      "pulls_url": "https://api.github.com/repos/ugin-man/many-faces-beta/pulls{/number}",
+      "milestones_url": "https://api.github.com/repos/ugin-man/many-faces-beta/milestones{/number}",
+      "notifications_url": "https://api.github.com/repos/ugin-man/many-faces-beta/notifications{?since,all,participating}",
+      "labels_url": "https://api.github.com/repos/ugin-man/many-faces-beta/labels{/name}",
+      "releases_url": "https://api.github.com/repos/ugin-man/many-faces-beta/releases{/id}",
+      "deployments_url": "https://api.github.com/repos/ugin-man/many-faces-beta/deployments"
+    }
+  },
+  "qaJobs": {
+    "jobs": [
+      {
+        "id": 112467443941,
+        "name": "qa",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37521402519,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Check out the exact QA code and original catalog",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Verify the request and immutable successful artifact identity",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Download, hash and safely extract the exact candidate archive",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Check out the accepted baseline separately",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Check out the pinned FFHQ source separately",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Install locked Python, application and browser dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Prepare exact source catalogs and an isolated candidate application",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Revalidate every physical selected photo against exact original sources",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Prepare the requested original-image review without changing its scope",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Build both frozen applications and test the candidate code",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Run exact fixed-video, tracking, cancellation and virtual-camera checks",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Check original assets and tested candidate bytes remained unchanged",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Package factual reports and bounded review artifacts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Retain the small QA summary, actual candidate hashes and global sample index",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          },
+          {
+            "name": "Retain bounded holdout page 01",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Retain bounded holdout page 02",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          },
+          {
+            "name": "Retain bounded holdout page 03",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Retain bounded holdout page 04",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          },
+          {
+            "name": "Retain bounded holdout page 05",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Retain bounded holdout page 06",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          },
+          {
+            "name": "Retain bounded holdout page 07",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 24
+          },
+          {
+            "name": "Retain bounded holdout page 08",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 25
+          },
+          {
+            "name": "Retain bounded holdout page 09",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 26
+          },
+          {
+            "name": "Retain bounded holdout page 10",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 27
+          },
+          {
+            "name": "Retain bounded report archive part 01",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 28
+          },
+          {
+            "name": "Retain bounded report archive part 02",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 29
+          },
+          {
+            "name": "Retain bounded report archive part 03",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 30
+          },
+          {
+            "name": "Retain bounded report archive part 04",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 31
+          },
+          {
+            "name": "Retain bounded report archive part 05",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 32
+          },
+          {
+            "name": "Retain bounded report archive part 06",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 33
+          },
+          {
+            "name": "Retain bounded report archive part 07",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 34
+          },
+          {
+            "name": "Retain bounded report archive part 08",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 35
+          },
+          {
+            "name": "Post Check out the pinned FFHQ source separately",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 66
+          },
+          {
+            "name": "Post Check out the accepted baseline separately",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 67
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 68
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 69
+          },
+          {
+            "name": "Post Check out the exact QA code and original catalog",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 70
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 71
+          }
+        ]
+      }
+    ]
+  },
+  "artifacts": {
+    "artifacts": [
+      {
+        "id": 11441945020,
+        "name": "clean-core-v5-qa-reports-02-37521402519-1",
+        "size_in_bytes": 20971682,
+        "url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/11441945020",
+        "archive_download_url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/11441945020/zip",
+        "expired": false,
+        "created_at": "2026-10-06T20:05:33Z",
+        "expires_at": "2026-11-05T20:05:31Z",
+        "updated_at": "2026-10-06T20:05:33Z",
+        "digest": "sha256:2f07c17778db3d21dbc53d13ce5401a6ebf4b93411b660d8cf6ac482362d92c7",
+        "workflow_run": {
+          "id": 37521402519,
+          "repository_id": 1340833640,
+          "head_repository_id": 1340833640,
+          "head_branch": "astra/realtime-hardening",
+          "head_sha": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4"
+        }
+      },
+      {
+        "id": 11441795188,
+        "name": "clean-core-v5-qa-holdout-01-37521402519-1",
+        "size_in_bytes": 970169,
+        "url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/11441795188",
+        "archive_download_url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/11441795188/zip",
+        "expired": false,
+        "created_at": "2026-10-06T20:05:26Z",
+        "expires_at": "2026-11-05T20:05:25Z",
+        "updated_at": "2026-10-06T20:05:26Z",
+        "digest": "sha256:beb029717087c0cc6f4ea4c62694760604413fd9315728cb50434582ba79d151",
+        "workflow_run": {
+          "id": 37521402519,
+          "repository_id": 1340833640,
+          "head_repository_id": 1340833640,
+          "head_branch": "astra/realtime-hardening",
+          "head_sha": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4"
+        }
+      },
+      {
+        "id": 11441775160,
+        "name": "clean-core-v5-qa-summary-37521402519-1",
+        "size_in_bytes": 3864951,
+        "url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/11441775160",
+        "archive_download_url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/11441775160/zip",
+        "expired": false,
+        "created_at": "2026-10-06T20:05:25Z",
+        "expires_at": "2026-11-05T20:05:23Z",
+        "updated_at": "2026-10-06T20:05:25Z",
+        "digest": "sha256:02e523a198b226968f78f7dd93759b2266166a743c6ccf3bc13d0d35a1412952",
+        "workflow_run": {
+          "id": 37521402519,
+          "repository_id": 1340833640,
+          "head_repository_id": 1340833640,
+          "head_branch": "astra/realtime-hardening",
+          "head_sha": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4"
+        }
+      },
+      {
+        "id": 11440709616,
+        "name": "clean-core-v5-qa-reports-01-37521402519-1",
+        "size_in_bytes": 20971682,
+        "url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/11440709616",
+        "archive_download_url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/11440709616/zip",
+        "expired": false,
+        "created_at": "2026-10-06T20:05:31Z",
+        "expires_at": "2026-11-05T20:05:29Z",
+        "updated_at": "2026-10-06T20:05:31Z",
+        "digest": "sha256:e4f3d4abc35e3c8d984836c9adfb460034e5d97318101662afcae6c3f445a5eb",
+        "workflow_run": {
+          "id": 37521402519,
+          "repository_id": 1340833640,
+          "head_repository_id": 1340833640,
+          "head_branch": "astra/realtime-hardening",
+          "head_sha": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4"
+        }
+      },
+      {
+        "id": 11440704762,
+        "name": "clean-core-v5-qa-reports-03-37521402519-1",
+        "size_in_bytes": 13926083,
+        "url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/11440704762",
+        "archive_download_url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/11440704762/zip",
+        "expired": false,
+        "created_at": "2026-10-06T20:05:35Z",
+        "expires_at": "2026-11-05T20:05:33Z",
+        "updated_at": "2026-10-06T20:05:35Z",
+        "digest": "sha256:53cc482d8d991220d20c8ef635456f61ca80a282ab0f491b0b0c324cfc978394",
+        "workflow_run": {
+          "id": 37521402519,
+          "repository_id": 1340833640,
+          "head_repository_id": 1340833640,
+          "head_branch": "astra/realtime-hardening",
+          "head_sha": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4"
+        }
+      },
+      {
+        "id": 11440289841,
+        "name": "clean-core-v5-qa-holdout-02-37521402519-1",
+        "size_in_bytes": 628872,
+        "url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/11440289841",
+        "archive_download_url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/11440289841/zip",
+        "expired": false,
+        "created_at": "2026-10-06T20:05:28Z",
+        "expires_at": "2026-11-05T20:05:27Z",
+        "updated_at": "2026-10-06T20:05:28Z",
+        "digest": "sha256:51a316bd43153874674197f7db812a73fa9c7bc3e727726fa7b87afa8068bc25",
+        "workflow_run": {
+          "id": 37521402519,
+          "repository_id": 1340833640,
+          "head_repository_id": 1340833640,
+          "head_branch": "astra/realtime-hardening",
+          "head_sha": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4"
+        }
+      }
+    ]
+  },
+  "downloadIntegrity": {
+    "allArtifactZipHashesVerified": true,
+    "allFullInventoryRowsVerified": true,
+    "allOriginalImageHashesVerified": true,
+    "allOriginalSourceRecordBindingsVerified": true,
+    "allReportFileHashesVerified": true,
+    "bundleIndexSha256": "df41e9caf2279d6239434958aaa1840dc0d9029b4a8866a3d366b5cb523ee206",
+    "candidateManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "counts": {
+      "addedPhotos": 59,
+      "finalPhotos": 70000,
+      "priorPhotos": 70000,
+      "removedPhotos": 59,
+      "retainedPhotos": 69941
+    },
+    "documentKind": "clean-core-remediation-download-integrity",
+    "expectedPins": {
+      "candidate": {
+        "archiveBytes": 3428838574,
+        "archiveSha256": "a1f13922732172bd0c602e83b79bdc7c8191934971f821e38a78be974c606caf",
+        "artifactId": 11440656084,
+        "artifactName": "clean-core-v5-candidate-37519882295-1",
+        "generationCodeCommit": "8dd3e24aeb81ec4eec29edcf9b3b18987bdbc912",
+        "generationReceiptSha256": "d10bc862b779bdda7bd606d40408f5fda41eb7c43059fce61a63f9361d2441eb",
+        "manifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+        "previousSelectionReviewSha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff",
+        "runAttempt": 1,
+        "runId": 37519882295,
+        "selectionIdentitySha256": "28e6092363ed981f622773c00356fd42790c75bdc894d756abceb95d99b33029",
+        "selectionReviewSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+        "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f"
+      },
+      "qa": {
+        "codeCommit": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+        "runAttempt": 1,
+        "runId": 37521402519
+      },
+      "schemaVersion": 1
+    },
+    "frozenCandidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+    "frozenRecordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+    "generationReceiptSha256": "d10bc862b779bdda7bd606d40408f5fda41eb7c43059fce61a63f9361d2441eb",
+    "imageBytesModified": false,
+    "inputEvidence": {
+      "artifactsJsonSha256": "65d7124140707b3da6e41322fcb04795bd62e35c9b72bf66504a92fce4827237",
+      "downloadPathsJsonSha256": "fdee3d5d50fa6d52941d85ec37152fb5da8a005812983434c69a5611b08db548",
+      "expectedPinsSha256": "dd7306ac9e8964b66184509ec38b6af138f8af0e447d7c78dc1c13dee1652dbe",
+      "nativeRunJsonSha256": "67b9ef0e7f42023feb32627cca88897309dbd6b2c7c3b7b8da5bb4c9624aa9fe"
+    },
+    "inventories": [
+      {
+        "bytes": 17431786,
+        "expandedBytes": 63375344,
+        "path": "reports/remediation-inventories/prior-inventory.jsonl.gz",
+        "rows": 70000,
+        "sha256": "fd0cdb676ccc08f14fccf20f640ade383f360f09a754ba631a18ba575b2ed78b",
+        "uniqueEncodedImages": 70000,
+        "uniqueIds": 70000,
+        "uniqueSources": 70000
+      },
+      {
+        "bytes": 17431069,
+        "expandedBytes": 63368745,
+        "path": "reports/remediation-inventories/final-inventory.jsonl.gz",
+        "rows": 70000,
+        "sha256": "edad2ea9de9e02998ff67483ccc7522c685dd7d8346749fae20fe0c056bfa087",
+        "uniqueEncodedImages": 70000,
+        "uniqueIds": 70000,
+        "uniqueSources": 70000
+      }
+    ],
+    "inventoryDifferenceMatchesCompleteAddedRemovedCensus": true,
+    "mode": "remediation",
+    "nativeRun": {
+      "branch": "astra/realtime-hardening",
+      "codeCommit": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+      "conclusion": "success",
+      "conclusionInterpretation": "Raw native metadata only; no quality or browser success is inferred.",
+      "id": 37521402519,
+      "repository": "ugin-man/many-faces-beta",
+      "runAttempt": 1,
+      "status": "completed",
+      "workflowId": 376532640,
+      "workflowPath": ".github/workflows/clean-core-v5-qa.yml"
+    },
+    "pages": [
+      {
+        "contactSheetSha256": "53e0e12d35717da80bd33a8c3017c4b9f3bd06c568d2e2deb409a25fef23c7b2",
+        "directory": "holdout-01",
+        "firstSample": "H001",
+        "lastSample": "H036",
+        "originalImageBytes": 207758,
+        "originalPageIndexSha256": "71f18ddbb1f79c8b121e1e4ab8108f1c4a27d29745c44ea9a2f16e466b565151",
+        "page": 1,
+        "pageIndexSha256": "850502b049be6dec19024a9a039185177bc25d185c47c56024040aa611de2ac7",
+        "samples": 36
+      },
+      {
+        "contactSheetSha256": "6dd599e2ac2b17aaa6d898557f338859ce7a3c8ef3e90787fcb409a30fc9b24a",
+        "directory": "holdout-02",
+        "firstSample": "H037",
+        "lastSample": "H059",
+        "originalImageBytes": 130556,
+        "originalPageIndexSha256": "d1468b5a93f536e05680d4ff278b1dd024a1b37e6c9797ee36ad0a2b5e7db794",
+        "page": 2,
+        "pageIndexSha256": "c5a5462d5539030512dadcadbfc6c6a8712a6d5127d91e82f2ae06cb6f00f63e",
+        "samples": 23
+      }
+    ],
+    "priorManifestSha256": "d8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785",
+    "qaCodeCommit": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+    "qaReceiptSha256": "b60c64edd7c5b714219d44758928ed5f2c1ce9bc6dd51eec00021de2f39bc5ba",
+    "qaRunAttempt": 1,
+    "qaRunId": 37521402519,
+    "qualityOrBrowserResultsInterpreted": false,
+    "remediationIndexSha256": "f13aff1392da62804f5096f17608baf4570ef58a9a4db60e6bf5a0fd8206d01c",
+    "reportArchiveBytes": 55868961,
+    "reportArchiveSha256": "1bb2e7b4696740b8834c4b459844ef136a8cbac6ab225450e6537d314985183b",
+    "reportFileCount": 96,
+    "reportFilesJsonSha256": "f607b191ce899bb8e1aec42cbe9d4536657828bab0874eaa24c1cec0367aaad7",
+    "retainedInventoryRowsUnchanged": true,
+    "schemaVersion": 1,
+    "status": "integrity-verified",
+    "verificationScope": "Native metadata transport bytes, bounded archives, exact report/image/source bindings and complete old/new inventory difference only",
+    "verifiedArtifacts": [
+      {
+        "artifactId": 11441795188,
+        "directory": "holdout-01",
+        "files": [
+          {
+            "bytes": 635175,
+            "path": "contact-01.jpg",
+            "sha256": "53e0e12d35717da80bd33a8c3017c4b9f3bd06c568d2e2deb409a25fef23c7b2"
+          },
+          {
+            "bytes": 4340,
+            "path": "images/H002.webp",
+            "sha256": "01aac77d8faed956e0c345f5fcfd5c84777c535fbe8f171b64c5af6e49a5dcc7"
+          },
+          {
+            "bytes": 5588,
+            "path": "images/H001.webp",
+            "sha256": "0075ff7b95529b42bca9151e8b8ed06b2a7a375a258b1abc49413741d0fe2c97"
+          },
+          {
+            "bytes": 4684,
+            "path": "images/H003.webp",
+            "sha256": "099c9040fc7fd74ba2abf2ba4b817fc3293e03c890384bef869bc2c7bc3fc9b7"
+          },
+          {
+            "bytes": 6426,
+            "path": "images/H004.webp",
+            "sha256": "0adfc73bf8253d225938866e0af0618bf99dabb672544433f8f5b40e689de6af"
+          },
+          {
+            "bytes": 4840,
+            "path": "images/H006.webp",
+            "sha256": "169b46718360db7c5028e284099ee61521c0d16ba6fc119eeb41a6a8c23d15e1"
+          },
+          {
+            "bytes": 6066,
+            "path": "images/H005.webp",
+            "sha256": "0eda352ff4d96c6c29459360a3f4e2dea8e39a6c7d3a75e10864778f517b2dc9"
+          },
+          {
+            "bytes": 6710,
+            "path": "images/H007.webp",
+            "sha256": "18df9f380a96e48db5faa0d145f12d7bcc3337c93326c3eff2ecef58d778a940"
+          },
+          {
+            "bytes": 4920,
+            "path": "images/H008.webp",
+            "sha256": "2727aac827966dfe9b23b7998a5b43ab0310047d219b7aebf13e4ea7ffb473f7"
+          },
+          {
+            "bytes": 5550,
+            "path": "images/H009.webp",
+            "sha256": "32641ba537d5d1103317d40e4a5a37245f14c18ea24d8b2f0b714b47ea8434a3"
+          },
+          {
+            "bytes": 6680,
+            "path": "images/H010.webp",
+            "sha256": "371c45582e8e34f748400f64724ec7610eb89ae1a212f54a8eb86c26fe5948d4"
+          },
+          {
+            "bytes": 8994,
+            "path": "images/H011.webp",
+            "sha256": "39c0ac7659f7e01589240b86de87a71088df706bf9ebaa9f4b755c000b047b90"
+          },
+          {
+            "bytes": 4806,
+            "path": "images/H012.webp",
+            "sha256": "42cb51124a9495920a7a0b3c9159b2721febc34e96b5066d3f54dfc088b3c669"
+          },
+          {
+            "bytes": 5122,
+            "path": "images/H013.webp",
+            "sha256": "44d1f04b59ed3aef48472907b539a49bda84b7bbaf6fbd6fc2e97750c7e284d4"
+          },
+          {
+            "bytes": 4874,
+            "path": "images/H014.webp",
+            "sha256": "475830bffdafb827e94f1f4ce0712cf8678d8db862b35e5795dddfc5a59c4dcb"
+          },
+          {
+            "bytes": 5750,
+            "path": "images/H015.webp",
+            "sha256": "4bfa600da734d1fbf378ae41f88bac2e3f50a219a956efdf00f49469178faf5c"
+          },
+          {
+            "bytes": 4990,
+            "path": "images/H017.webp",
+            "sha256": "55ab16cd61b2250ccff5b0e8e8b281e7bde49248c2d2245960de1730bf2a7f00"
+          },
+          {
+            "bytes": 6640,
+            "path": "images/H016.webp",
+            "sha256": "544505b0ea79258bae70246551a234b1be92b84f369d8219e04d3e5e6690958d"
+          },
+          {
+            "bytes": 3208,
+            "path": "images/H018.webp",
+            "sha256": "5ced9798c017ee3fa2e63c37dc67390f11b14d38bbcadacf7c64d1a325e6327d"
+          },
+          {
+            "bytes": 7834,
+            "path": "images/H019.webp",
+            "sha256": "7016acbc9fb316c97d1f4a3cf5c706fab5cfe31b0ba47fd833ee6ba52fe1b3df"
+          },
+          {
+            "bytes": 5434,
+            "path": "images/H020.webp",
+            "sha256": "702ec4c897b252ac335b5ef08cab8bf6d5aa7ea62473396254f39b79ce418713"
+          },
+          {
+            "bytes": 7944,
+            "path": "images/H021.webp",
+            "sha256": "70810d35654fc6ba6b05b5b74543aafff1bd24124f7f0a7acaef22ed704651ba"
+          },
+          {
+            "bytes": 6736,
+            "path": "images/H022.webp",
+            "sha256": "7524316e6a63a6ba0805c2bc847c05952a9d8d9ae08fd3b2a3afb1ac8294f298"
+          },
+          {
+            "bytes": 4980,
+            "path": "images/H023.webp",
+            "sha256": "796b9e0d1cfa0014402b8333481108cc2f6a13e81478c66fb92cf1b771aa83e1"
+          },
+          {
+            "bytes": 6930,
+            "path": "images/H024.webp",
+            "sha256": "80aaeffd990b9f8584defbae232e9b77db90d7ddaf92248e6699d4a147f4c10e"
+          },
+          {
+            "bytes": 7260,
+            "path": "images/H025.webp",
+            "sha256": "835a00042daa3d0fdfbf3f02e42b1f8797def728c2b1bba9d73b45a166985991"
+          },
+          {
+            "bytes": 5924,
+            "path": "images/H026.webp",
+            "sha256": "844045941f3161ba8d2fb93df43780c956de4450d1f7c4dcd7ab8a16d503f829"
+          },
+          {
+            "bytes": 4778,
+            "path": "images/H027.webp",
+            "sha256": "8c53357d7a6481b1b03d9c326eb985b194e0f69db687715a1357059fdc9fa3b3"
+          },
+          {
+            "bytes": 4944,
+            "path": "images/H028.webp",
+            "sha256": "8f982630e619e1723c3a4859c07ae5a58d1f52d332b17716643dfedf188ea8b1"
+          },
+          {
+            "bytes": 3908,
+            "path": "images/H029.webp",
+            "sha256": "92f4f74027c7f658bcae7cf8cfbe39d6832f63976ad039dcfe218285c4a9deae"
+          },
+          {
+            "bytes": 4650,
+            "path": "images/H030.webp",
+            "sha256": "9669597f068b158682695318259c1cbc7de819afc079a61f70b04b326d7b6b59"
+          },
+          {
+            "bytes": 5866,
+            "path": "images/H031.webp",
+            "sha256": "9b7b8c70d3fad99fc9ec31b79a2aea5d692e6011ac79881dd12a18ce8fbfd6e9"
+          },
+          {
+            "bytes": 6194,
+            "path": "images/H032.webp",
+            "sha256": "b0c515167d6b527753df65e98007e4fde2cde8d59731b9ae5805c4af7425b360"
+          },
+          {
+            "bytes": 5800,
+            "path": "images/H033.webp",
+            "sha256": "b8d4281862fdac5d5c3fc03a5b8b416d21f3a4fc002e444d1024c98a2c214db8"
+          },
+          {
+            "bytes": 7766,
+            "path": "images/H034.webp",
+            "sha256": "b9c88361453e2d9dfb6cc51e0fe3830014a0ec71375c4de360e4047024a0c7bd"
+          },
+          {
+            "bytes": 5826,
+            "path": "images/H035.webp",
+            "sha256": "be6be6157c243a224ae0cc282d574cb5d3c110902b4c768f888a731a212bd4c3"
+          },
+          {
+            "bytes": 4796,
+            "path": "images/H036.webp",
+            "sha256": "c26e522dd3755acb16fe73e2dc270dd84982b11b4c2b8485b5cffcb57c18d965"
+          },
+          {
+            "bytes": 51007,
+            "path": "page-index-01.json",
+            "sha256": "71f18ddbb1f79c8b121e1e4ab8108f1c4a27d29745c44ea9a2f16e466b565151"
+          },
+          {
+            "bytes": 71373,
+            "path": "page-index.json",
+            "sha256": "850502b049be6dec19024a9a039185177bc25d185c47c56024040aa611de2ac7"
+          }
+        ],
+        "name": "clean-core-v5-qa-holdout-01-37521402519-1",
+        "originalZipPath": "/workspace/scratch/d3ea6516fdb8/attachments/1ce9147e-7962-444c-8ca2-c58799eff16c/clean-core-v5-qa-holdout-01-37521402519-1.zip",
+        "payloadBytes": 965313,
+        "zipBytes": 970169,
+        "zipSha256": "beb029717087c0cc6f4ea4c62694760604413fd9315728cb50434582ba79d151"
+      },
+      {
+        "artifactId": 11440289841,
+        "directory": "holdout-02",
+        "files": [
+          {
+            "bytes": 416600,
+            "path": "contact-02.jpg",
+            "sha256": "6dd599e2ac2b17aaa6d898557f338859ce7a3c8ef3e90787fcb409a30fc9b24a"
+          },
+          {
+            "bytes": 6918,
+            "path": "images/H037.webp",
+            "sha256": "c3a6f7abc3b9baa446f4cc56006642b33817372460f1f52718f871c2711f1445"
+          },
+          {
+            "bytes": 7116,
+            "path": "images/H038.webp",
+            "sha256": "cc6a13032f3c3cf7f28a0ed4c2211a8e0e0a8807de4d23ba2fe6aff46b2f5ad3"
+          },
+          {
+            "bytes": 6292,
+            "path": "images/H039.webp",
+            "sha256": "cde901e02a3aec49e554a756908e3958499d59b71ba631e81d3d520934bcb494"
+          },
+          {
+            "bytes": 6410,
+            "path": "images/H040.webp",
+            "sha256": "d3529c3b0aabbc641d5e7407a1e9c9d27b1bffe46025e2dcfbcf2cdae38fb591"
+          },
+          {
+            "bytes": 6652,
+            "path": "images/H041.webp",
+            "sha256": "d4b72eb665cd98604d785ba93f900ad06d7369ebe76731879af0db932b23cf25"
+          },
+          {
+            "bytes": 4688,
+            "path": "images/H042.webp",
+            "sha256": "d7b9553050689bce56552d5b32b8e23cb58a999130a71d2321ce8e714ca90e8c"
+          },
+          {
+            "bytes": 5044,
+            "path": "images/H043.webp",
+            "sha256": "d92da95539a422c96bd47b6040179a1e064c719ab9c17149b98c39590cd69923"
+          },
+          {
+            "bytes": 5294,
+            "path": "images/H044.webp",
+            "sha256": "d982dd2ba682c228f847d03787597f73d442a95a65bc30bcef12ad941534fb79"
+          },
+          {
+            "bytes": 4778,
+            "path": "images/H045.webp",
+            "sha256": "d9cec2d66f32160398a4c1412d2a896304343a23684590bc14aac39f2289521c"
+          },
+          {
+            "bytes": 5122,
+            "path": "images/H046.webp",
+            "sha256": "dd4bb3cd1ef7eb9cb0ab7d90a1e3fb1b9046171e0ddeddd87bfb90197cb326c4"
+          },
+          {
+            "bytes": 6200,
+            "path": "images/H047.webp",
+            "sha256": "dd90672ed00f04fcb54aa73b2e192b8c3833b5c74be628b66a0db73203419d89"
+          },
+          {
+            "bytes": 4780,
+            "path": "images/H048.webp",
+            "sha256": "deb1761b1d13e0da2f098ddc8cdfbf1dd3653d4c3a77461f819277eec958ea3a"
+          },
+          {
+            "bytes": 7368,
+            "path": "images/H049.webp",
+            "sha256": "dec08126ae923fa7039bae8fed1bbe7feef2a6f475689de4d10c0d0f4e7ee250"
+          },
+          {
+            "bytes": 4208,
+            "path": "images/H050.webp",
+            "sha256": "e190a4ec831b6fa839f1ed235b0385d825cc5aad94f711e41be86c255760c113"
+          },
+          {
+            "bytes": 5470,
+            "path": "images/H051.webp",
+            "sha256": "e1d2db0f2a7326d4b5fb0e7ec4a375036dc28f838620d2d9424908b80c093eda"
+          },
+          {
+            "bytes": 5354,
+            "path": "images/H052.webp",
+            "sha256": "e4fee5fe159739c78f099ef1422954fdc95778f8bafc81b629f060c7be00a575"
+          },
+          {
+            "bytes": 5030,
+            "path": "images/H053.webp",
+            "sha256": "e556d953eef3397a80c2b18c52d28a504e4a4b873af044912d59a7018fda9563"
+          },
+          {
+            "bytes": 7088,
+            "path": "images/H054.webp",
+            "sha256": "e73ea368c7c190d00ed0399f9dfaaf44a670ea23410b51044e80f9c4cd50b8e9"
+          },
+          {
+            "bytes": 5854,
+            "path": "images/H055.webp",
+            "sha256": "ee15a7805e492ead28884e87feb2b2444cfde05ff4fd5a4b5f3b9a1499e25157"
+          },
+          {
+            "bytes": 6614,
+            "path": "images/H056.webp",
+            "sha256": "eeb76437310676b26d8ea4ba4ac22e669332e5b509a094d5cb85320b67064ed2"
+          },
+          {
+            "bytes": 5474,
+            "path": "images/H057.webp",
+            "sha256": "efbe023287e1b88558d165833b79c788a90f59305da615100ee84fe5395d200e"
+          },
+          {
+            "bytes": 4310,
+            "path": "images/H058.webp",
+            "sha256": "f9e3f3f2c8273e2587adf3eb389d58612cadf540541c7c0ccad8faf63e5fc870"
+          },
+          {
+            "bytes": 4492,
+            "path": "images/H059.webp",
+            "sha256": "fd40e8ab30e682349277eff3897ddb2a478f513c6a5051cce8513322cf59a87e"
+          },
+          {
+            "bytes": 32615,
+            "path": "page-index-02.json",
+            "sha256": "d1468b5a93f536e05680d4ff278b1dd024a1b37e6c9797ee36ad0a2b5e7db794"
+          },
+          {
+            "bytes": 45857,
+            "path": "page-index.json",
+            "sha256": "c5a5462d5539030512dadcadbfc6c6a8712a6d5127d91e82f2ae06cb6f00f63e"
+          }
+        ],
+        "name": "clean-core-v5-qa-holdout-02-37521402519-1",
+        "originalZipPath": "/workspace/scratch/d3ea6516fdb8/attachments/e617952f-c2e3-433d-ac9f-4b25a658e806/clean-core-v5-qa-holdout-02-37521402519-1.zip",
+        "payloadBytes": 625628,
+        "zipBytes": 628872,
+        "zipSha256": "51a316bd43153874674197f7db812a73fa9c7bc3e727726fa7b87afa8068bc25"
+      },
+      {
+        "artifactId": 11440709616,
+        "directory": "parts/reports-01",
+        "files": [
+          {
+            "bytes": 20971520,
+            "path": "qa-reports.tar.gz.part01",
+            "sha256": "95cd24c95a61e0809837ddedd8e00f05fcda5c1a1ba684c5a3788aa5a366e07f"
+          }
+        ],
+        "name": "clean-core-v5-qa-reports-01-37521402519-1",
+        "originalZipPath": "/workspace/scratch/d3ea6516fdb8/attachments/35f95dcb-77db-4cb7-9c00-a5380d6d613d/clean-core-v5-qa-reports-01-37521402519-1.zip",
+        "payloadBytes": 20971520,
+        "zipBytes": 20971682,
+        "zipSha256": "e4f3d4abc35e3c8d984836c9adfb460034e5d97318101662afcae6c3f445a5eb"
+      },
+      {
+        "artifactId": 11441945020,
+        "directory": "parts/reports-02",
+        "files": [
+          {
+            "bytes": 20971520,
+            "path": "qa-reports.tar.gz.part02",
+            "sha256": "9a9e1c80e102679112088cc9af25a3123a1d36d774320f4d1c619bc8b407746d"
+          }
+        ],
+        "name": "clean-core-v5-qa-reports-02-37521402519-1",
+        "originalZipPath": "/workspace/scratch/d3ea6516fdb8/attachments/2da8c326-0288-42f6-a3f2-41f12a51ae07/clean-core-v5-qa-reports-02-37521402519-1.zip",
+        "payloadBytes": 20971520,
+        "zipBytes": 20971682,
+        "zipSha256": "2f07c17778db3d21dbc53d13ce5401a6ebf4b93411b660d8cf6ac482362d92c7"
+      },
+      {
+        "artifactId": 11440704762,
+        "directory": "parts/reports-03",
+        "files": [
+          {
+            "bytes": 13925921,
+            "path": "qa-reports.tar.gz.part03",
+            "sha256": "6c1e5a9557797c72ab94db6209cfca35197d06f2a5c3e1f6f7be183d58d25a43"
+          }
+        ],
+        "name": "clean-core-v5-qa-reports-03-37521402519-1",
+        "originalZipPath": "/workspace/scratch/d3ea6516fdb8/attachments/3cb10481-3e9c-44c6-b1b5-6877154f2f8f/clean-core-v5-qa-reports-03-37521402519-1.zip",
+        "payloadBytes": 13925921,
+        "zipBytes": 13926083,
+        "zipSha256": "53cc482d8d991220d20c8ef635456f61ca80a282ab0f491b0b0c324cfc978394"
+      },
+      {
+        "artifactId": 11441775160,
+        "directory": "summary",
+        "files": [
+          {
+            "bytes": 657,
+            "path": "archive-validation.json",
+            "sha256": "9d04e326db2003fc114c53273a9d87510c7338e6b8294aa5785500082b22230f"
+          },
+          {
+            "bytes": 861,
+            "path": "candidate-pins.json",
+            "sha256": "6c24d19a577afda360dd7e70db365380e8e3d665d5617d8c2860a27cc12aab2d"
+          },
+          {
+            "bytes": 319127,
+            "path": "evaluated-candidate-archive.json",
+            "sha256": "9546f6cbbc015f4a1284dec12fa3c49769d230edaaca226fb32a895822bce215"
+          },
+          {
+            "bytes": 15980,
+            "path": "bundle-index.json",
+            "sha256": "df41e9caf2279d6239434958aaa1840dc0d9029b4a8866a3d366b5cb523ee206"
+          },
+          {
+            "bytes": 12970,
+            "path": "generation-physical-admission.json",
+            "sha256": "5cab924b4bc0deca7b1559426df8aeb108f0fe80cac0541b8c2165ef8e94af53"
+          },
+          {
+            "bytes": 5300,
+            "path": "generation-receipt.json",
+            "sha256": "d10bc862b779bdda7bd606d40408f5fda41eb7c43059fce61a63f9361d2441eb"
+          },
+          {
+            "bytes": 340,
+            "path": "integrity.json",
+            "sha256": "f0ffb84720b0d23a610100f901fd1e30976a3a3156b7c9a85efc783259443907"
+          },
+          {
+            "bytes": 1004155,
+            "path": "original-failed-holdout.json",
+            "sha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c"
+          },
+          {
+            "bytes": 12970,
+            "path": "physical-admission.json",
+            "sha256": "5cab924b4bc0deca7b1559426df8aeb108f0fe80cac0541b8c2165ef8e94af53"
+          },
+          {
+            "bytes": 467318,
+            "path": "previously-inspected.json",
+            "sha256": "b0981f1c3b45eb7bb3c9502002aa64cff896afdfd1d933cdf6a69c8225672eed"
+          },
+          {
+            "bytes": 21457,
+            "path": "qa-receipt.json",
+            "sha256": "b60c64edd7c5b714219d44758928ed5f2c1ce9bc6dd51eec00021de2f39bc5ba"
+          },
+          {
+            "bytes": 389486,
+            "path": "remediation-index.json",
+            "sha256": "f13aff1392da62804f5096f17608baf4570ef58a9a4db60e6bf5a0fd8206d01c"
+          },
+          {
+            "bytes": 16331,
+            "path": "report-files.json",
+            "sha256": "f607b191ce899bb8e1aec42cbe9d4536657828bab0874eaa24c1cec0367aaad7"
+          },
+          {
+            "bytes": 2030,
+            "path": "request.json",
+            "sha256": "ce5f5e757322f26a3c6c1d69e6f58fd1b6e075fa9ad7a99df43effa4ecfea818"
+          },
+          {
+            "bytes": 337060,
+            "path": "selection-review-previous.json",
+            "sha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff"
+          },
+          {
+            "bytes": 342820,
+            "path": "selection-review.json",
+            "sha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed"
+          },
+          {
+            "bytes": 1000,
+            "path": "visual-review-preparation.json",
+            "sha256": "536ca1a5858d7e2c23d44adc089a309f17cd31e75412b728eaba1ec50f26ddcd"
+          },
+          {
+            "bytes": 912587,
+            "path": "wink-expression-review.json",
+            "sha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f"
+          }
+        ],
+        "name": "clean-core-v5-qa-summary-37521402519-1",
+        "originalZipPath": "/workspace/scratch/d3ea6516fdb8/attachments/c4d455d2-32b8-409e-a208-f3048a4ec3d1/clean-core-v5-qa-summary-37521402519-1.zip",
+        "payloadBytes": 3862449,
+        "zipBytes": 3864951,
+        "zipSha256": "02e523a198b226968f78f7dd93759b2266166a743c6ccf3bc13d0d35a1412952"
+      }
+    ],
+    "verifiedAtUtc": "2026-10-06T20:07:35.950960+00:00",
+    "verifierSha256": "fb0f7d96c2da958b0c9bf122077bb39e6cd7bebacce77fe834e387fb2f6df629",
+    "verifierVersion": 2,
+    "visualReviewPerformed": false
+  },
+  "downloadIntegrityFile": {
+    "path": "work/clean-v5-qa-37521402519/download-integrity.json",
+    "bytes": 17653,
+    "sha256": "3786716bfd2ab8fdac248205fb5898ce78f77b38ffd4849a299ff710474781d1"
+  },
+  "transportFiles": [
+    {
+      "path": "work/clean-v5-qa-37521402519/artifacts.json",
+      "bytes": 5116,
+      "sha256": "65d7124140707b3da6e41322fcb04795bd62e35c9b72bf66504a92fce4827237",
+      "bindingKey": "artifactsJsonSha256"
+    },
+    {
+      "path": "work/clean-v5-qa-37521402519/download-paths.json",
+      "bytes": 1249,
+      "sha256": "fdee3d5d50fa6d52941d85ec37152fb5da8a005812983434c69a5611b08db548",
+      "bindingKey": "downloadPathsJsonSha256"
+    },
+    {
+      "path": "work/clean-v5-qa-37521402519/expected-pins.json",
+      "bytes": 1093,
+      "sha256": "dd7306ac9e8964b66184509ec38b6af138f8af0e447d7c78dc1c13dee1652dbe",
+      "bindingKey": "expectedPinsSha256"
+    },
+    {
+      "path": "work/clean-v5-qa-37521402519/native-run.json",
+      "bytes": 14593,
+      "sha256": "67b9ef0e7f42023feb32627cca88897309dbd6b2c7c3b7b8da5bb4c9624aa9fe",
+      "bindingKey": "nativeRunJsonSha256"
+    }
+  ],
+  "rawEvidence": [
+    {
+      "path": "data/catalog-quality/native-comparison-37521402519.json",
+      "bytes": 153949,
+      "sha256": "b8ddcbff696d5581c6fdc703b89a58c94c586e844a294b801ba5f2f798658959",
+      "sourceLocalPath": "work/clean-v5-qa-37521402519/reports/browser/admitted-catalog/report.json"
+    },
+    {
+      "path": "data/catalog-quality/native-qa-receipt-37521402519.json",
+      "bytes": 21457,
+      "sha256": "b60c64edd7c5b714219d44758928ed5f2c1ce9bc6dd51eec00021de2f39bc5ba",
+      "sourceLocalPath": "work/clean-v5-qa-37521402519/summary/qa-receipt.json"
+    }
+  ],
+  "failure": null,
+  "nativeJobLog": {
+    "jobId": 112467443941,
+    "bytes": 409179,
+    "characters": 408451,
+    "sha256": "a25519547834efca127ff4ca3c6ddb52b74b794e4173ecdd66ef1b5162d51a3d",
+    "receivedNativeStructuredContentExactByteMatch": true,
+    "localPath": "work/clean-v5-qa-37521402519/native/job-112467443941.log"
+  },
+  "rootIndependentConfirmation": {
+    "source": "Parent root task messages for the completed current QA and current formal review",
+    "nativeRunAndArtifactMetadataAuthenticated": true,
+    "nativeRunAndArtifactFilesMatchIndependentMonitorBytes": true,
+    "wholeNativeLogMatchesSavedBytes": true,
+    "wholeNativeLogCharacters": 408451,
+    "wholeNativeLogBytes": 409179,
+    "wholeNativeLogSha256": "a25519547834efca127ff4ca3c6ddb52b74b794e4173ecdd66ef1b5162d51a3d",
+    "downloadIntegritySha256": "3786716bfd2ab8fdac248205fb5898ce78f77b38ffd4849a299ff710474781d1",
+    "rawQaReceiptSha256": "b60c64edd7c5b714219d44758928ed5f2c1ce9bc6dd51eec00021de2f39bc5ba",
+    "currentFormalReviewSha256": "da658c7e44d36fc1237c4c926be2f69e8f35369ea5a5dbbc17a8e27561457390",
+    "currentFormalVerificationSha256": "fcaa5be18305d632e2dbd2fad93eb9ce5bcb36d44df1fcc6614cbbadadb51b9c"
+  },
+  "automatedChecksPassed": true,
+  "comparisonContract": {
+    "schemaVersion": 1,
+    "status": "complete",
+    "candidatePassed": true,
+    "candidateInitialPresentationPassed": true,
+    "baselinePassed": true,
+    "baselineInitialPresentationPassed": true,
+    "baselineRemainingChecksPassed": true,
+    "baselineKnownInitialFailureAccepted": false,
+    "sameAcquiredFrames": true,
+    "sameTimeline": true,
+    "acquiredFramesSha256": "e14e8727696fc54a4be92a380436722d6a60b5d2f07632235f1cb412c2dd4fc1",
+    "timelineSha256": "3db75403f6d628aee0558a40334969d356dc528eb6ef04d6ba6d7f146e97fd5f",
+    "comparedFaceFrames": 410
+  },
+  "baselineVerification": {
+    "status": "passed",
+    "baselinePassed": true,
+    "initialPresentationPassed": true,
+    "remainingChecksPassed": true,
+    "knownInitialFailure": null,
+    "initialRecovery": null,
+    "source": {
+      "commit": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e",
+      "path": "app/live/review-client-lite.tsx",
+      "sha256": "2639a28d55083e77a2b97af3791183f4543ce0619efda5a820d1489557d71984",
+      "sourceIdentity": {
+        "version": "camera-arrival-v3",
+        "build": "1974b9a72d971acf",
+        "revision": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e"
+      },
+      "verifiedUnchanged": true
+    }
+  },
+  "fixedVideo": {
+    "status": "passed",
+    "fixtureSha256": "d470cf5a8aeb847f9c127ed8f0d567fcadd99e83c185ef60b7a8c9c6236a005b",
+    "densityFps": 20,
+    "plannedFrames": 466,
+    "sameAcquiredFrames": true,
+    "sameTimeline": true,
+    "comparison": {
+      "sameAcquiredFrames": true,
+      "sameTimeline": true,
+      "selectedIdChanges": 410,
+      "selectedImages": {
+        "baseline": 144,
+        "candidate": 134
+      },
+      "storedDescriptorMetrics": {
+        "meanYawErrorDegrees": {
+          "baseline": 4.584621685231977,
+          "candidate": 3.5281040672904447,
+          "change": -1.0565176179415325
+        },
+        "meanPitchErrorDegrees": {
+          "baseline": 3.285485182437525,
+          "candidate": 2.7197428237110257,
+          "change": -0.5657423587264994
+        },
+        "meanMouthError": {
+          "baseline": 0.11857268669741274,
+          "candidate": 0.12062601042557337,
+          "change": 0.0020533237281606387
+        },
+        "meanEyeError": {
+          "baseline": 0.026455330723142823,
+          "candidate": 0.024453342246644826,
+          "change": -0.002001988476497997
+        },
+        "meanProjectionError": {
+          "baseline": 0.15068803938765102,
+          "candidate": 0.1427788639564288,
+          "change": -0.007909175431222215
+        }
+      },
+      "freshPixelPose": {
+        "comparableFrames": 408,
+        "totalFrames": 410,
+        "metrics": {
+          "yawErrorDegrees": {
+            "baseline": 3.6077595034190675,
+            "candidate": 3.526220594641333,
+            "change": -0.08153890877773451
+          },
+          "pitchErrorDegrees": {
+            "baseline": 3.612341109853401,
+            "candidate": 2.723574226521984,
+            "change": -0.8887668833314168
+          }
+        }
+      },
+      "timing": {
+        "baselineWallMs": 96714,
+        "candidateWallMs": 103963,
+        "deltaMs": 7249,
+        "repeatedSpeedBenchmark": false
+      }
+    }
+  },
+  "facePositionSizeTracking": {
+    "status": "passed",
+    "initialPresentationPassed": true,
+    "defaultEnabled": true,
+    "presentationControlsPreserveSelection": true,
+    "evidence": "reports/browser/admitted-catalog/report.json"
+  },
+  "pendingNetworkCancellation": {
+    "status": "passed",
+    "cancelToIdleMs": 35
+  },
+  "virtualCamera": {
+    "status": "passed",
+    "cameraPhase": "running",
+    "catalogTotal": 70000,
+    "physicalCameraVerified": false
+  },
+  "rawNativeQaReceiptStatus": "automated-checks-passed-visual-review-pending",
+  "rawNativeQaReceiptPassed": false,
+  "rawNativeQaReceiptUnchanged": true,
+  "originalFailedIndependentHoldout": {
+    "status": "failed",
+    "reviewer": "assistant visual inspection",
+    "humanVerified": false,
+    "checkedPhotos": 360,
+    "preparedPhotos": 360,
+    "counts": {
+      "pass": 301,
+      "deny": 27,
+      "uncertain": 32
+    },
+    "previouslyInspectedSha256": "2b9586e1d788539c7ce3d078dc6158bbba4183634c81077fe82505b68828a623",
+    "previouslyInspectedImageCount": 1617,
+    "sampleIndexSha256": "f543ad152cb192f559452144d2ad9a5887593cbd058efae21a89372ca76e7221",
+    "visualReviewSha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c"
+  },
+  "allAddedOriginalReviewIsSeparate": true,
+  "manualReview": {
+    "status": "complete",
+    "reviewedPhotos": 59,
+    "directNewOriginals": 1,
+    "reusedDirectPriorPasses": 58,
+    "counts": {
+      "pass": 59,
+      "deny": 0,
+      "uncertain": 0
+    },
+    "unresolvedSample": null,
+    "reviewer": "assistant-visual-review",
+    "humanVerified": false,
+    "allAddedOriginalsReviewed": true,
+    "allAddedPhotosPassed": true,
+    "allAddedOriginalsNewlyViewed": false,
+    "independentHoldoutPassed": false,
+    "evidence": {
+      "path": "data/catalog-quality/remediation-original-review-37521402519.json",
+      "bytes": 124318,
+      "sha256": "da658c7e44d36fc1237c4c926be2f69e8f35369ea5a5dbbc17a8e27561457390",
+      "sourceLocalPath": "work/final-remediation-review-drafts/data/catalog-quality/remediation-original-review-37521402519.json"
+    },
+    "verification": {
+      "path": "work/final-remediation-review-drafts/verified/remediation-verification.json",
+      "bytes": 14386,
+      "sha256": "fcaa5be18305d632e2dbd2fad93eb9ce5bcb36d44df1fcc6614cbbadadb51b9c"
+    },
+    "nextAction": "Apply the separate promotion gate; no dataset promotion or Site publication is claimed by this evidence record."
+  },
+  "promotionReady": false,
+  "promotionGateVerificationIsSeparate": true,
+  "sitePublished": false,
+  "physicalCameraVerified": false
+}

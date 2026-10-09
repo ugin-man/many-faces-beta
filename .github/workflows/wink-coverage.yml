@@ -1,0 +1,45 @@
+name: Wink source screening (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: Reproduce original-asset audit and prospective source screening
+        run: |
+          test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
+          node --experimental-strip-types scripts/audit-wink-coverage.mjs
+          python scripts/prepare-wink-sources.py
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1 esbuild@0.25.12
+          echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          npm run lint > work/wink-coverage/lint.log 2>&1
+          node scripts/prepare-wink-supplement.mjs --prepare
+          npm run build > work/wink-coverage/build.log 2>&1
+      - name: Reanalyze actual candidate pixels without enabling or committing them
+        run: |
+          PORT=4183 HOST=127.0.0.1 nohup npm start > work/wink-coverage/server.log 2>&1 &
+          for attempt in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:4183/__wink_qa/index.html > /dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/prepare-wink-supplement.mjs
+      - name: Preserve checked-out code and all accepted assets
+        if: always()
+        run: git diff --exit-code -- app scripts tests data public
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wink-coverage-${{ github.run_id }}
+          path: work/wink-coverage
+          retention-days: 14

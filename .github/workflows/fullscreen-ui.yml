@@ -1,0 +1,106 @@
+name: Fullscreen UI verification
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths:
+      - '.github/workflows/fullscreen-ui.yml'
+      - 'app/**'
+      - 'tests/fullscreen-*'
+      - 'scripts/verify-fullscreen-*'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fullscreen-ui-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            /*
+            !/public/seed-catalog/*
+            /public/seed-catalog/manifest.json
+          sparse-checkout-cone-mode: false
+      - name: Export exact development source, not a reduced app
+        run: |
+          mkdir -p /tmp/fullscreen-source
+          python - <<'PY'
+          import hashlib, json, subprocess, zipfile
+          from pathlib import Path
+          files = subprocess.check_output(['git','ls-files','-z']).decode().split('\0')
+          inventory = []
+          with zipfile.ZipFile('/tmp/fullscreen-source/source.zip','w',zipfile.ZIP_DEFLATED) as z:
+              for name in filter(None, files):
+                  if name.startswith('public/seed-catalog/') and name != 'public/seed-catalog/manifest.json':
+                      continue
+                  p = Path(name)
+                  if p.suffix.lower() in {'.ttf','.otf','.woff','.woff2','.eot'}:
+                      continue
+                  data = p.read_bytes()
+                  z.writestr(name, data)
+                  inventory.append({'path':name,'sha256':hashlib.sha256(data).hexdigest()})
+              z.writestr('SOURCE_TRANSPORT.json',json.dumps({'commit':subprocess.check_output(['git','rev-parse','HEAD']).decode().strip(),'catalogTree':subprocess.check_output(['git','rev-parse','HEAD:public/seed-catalog']).decode().strip(),'purpose':'Development-only source synchronization. Reuse the exact unchanged full catalog; this is not a runnable reduced application.','files':inventory}))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fullscreen-development-source-${{ github.run_id }}
+          path: /tmp/fullscreen-source/source.zip
+          retention-days: 3
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - name: Prepare exact dependencies and full original assets
+        run: |
+          mkdir -p work/fullscreen-evidence work/fullscreen-fixtures public/mediapipe/wasm public/models
+          test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
+          git rev-parse HEAD > work/fullscreen-evidence/tested-commit.txt
+          sha256sum public/test-fixtures/reference-face-motion.mp4 > work/fullscreen-evidence/fixed-video.sha256
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-noto-cjk > work/fullscreen-evidence/system-dependencies.log 2>&1
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1
+          cp -a node_modules/@mediapipe/tasks-vision/wasm/. public/mediapipe/wasm/
+          curl --fail --location --retry 3 --max-time 90 -o public/models/face_landmarker.task https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
+          echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
+          ffmpeg -hide_banner -loglevel error -y -i public/test-fixtures/reference-face-motion.mp4 -t 8 -vf 'scale=480:480:force_original_aspect_ratio=decrease,pad=480:480:(ow-iw)/2:(oh-ih)/2,fps=30' -pix_fmt yuv420p work/fullscreen-fixtures/moving.y4m
+      - name: Build and test without rewriting application source
+        run: |
+          npm run build > work/fullscreen-evidence/build.log 2>&1
+          node --experimental-strip-types --test tests/*.test.mjs > work/fullscreen-evidence/unit.log 2>&1
+          npm run lint > work/fullscreen-evidence/lint.log 2>&1
+      - name: Start production runtime
+        run: |
+          PORT=4173 HOST=127.0.0.1 nohup npm start > work/fullscreen-evidence/server.log 2>&1 &
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:4173/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Exercise mobile and desktop fullscreen, real recorded video and native virtual camera
+        run: node scripts/verify-fullscreen-ui.mjs
+      - name: Confirm source and full catalog remained unchanged
+        if: always()
+        run: |
+          git diff --exit-code -- app scripts tests public/seed-catalog public/test-fixtures
+          sha256sum -c work/fullscreen-evidence/fixed-video.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fullscreen-ui-evidence-${{ github.run_id }}
+          path: work/fullscreen-evidence
+          retention-days: 14

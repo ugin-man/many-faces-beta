@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "many-faces-frame-step-verification-correction",
+  "qaRunId": 37508460953,
+  "qaRunAttempt": 1,
+  "qaCodeCommit": "fd75eff5240038fa0dd2b7727dc8701171d7f9fa",
+  "candidateGenerationRunId": 37504332182,
+  "status": "local-correction-verified-remote-qa-pending",
+  "evidence": {
+    "failedComparison": {
+      "original": {
+        "path": "work/clean-v5-qa-37508460953/reports/browser/admitted-catalog/report.json",
+        "bytes": 122867,
+        "sha256": "e3192a965abebbd24d425159e9e90f38398fa11c50a4eda93afb11ac8fbe1905"
+      },
+      "preservedCopy": {
+        "path": "work/frame-step-sync-37508460953/failedComparison.json",
+        "bytes": 122867,
+        "sha256": "e3192a965abebbd24d425159e9e90f38398fa11c50a4eda93afb11ac8fbe1905"
+      }
+    },
+    "comparisonLog": {
+      "original": {
+        "path": "work/clean-v5-qa-37508460953/reports/browser/admitted-catalog-comparison.log",
+        "bytes": 664,
+        "sha256": "80948de8412ab648243c2e9aa173e6169a3f38990353333aa50ce43a38ad7984"
+      },
+      "preservedCopy": {
+        "path": "work/frame-step-sync-37508460953/comparisonLog.log",
+        "bytes": 664,
+        "sha256": "80948de8412ab648243c2e9aa173e6169a3f38990353333aa50ce43a38ad7984"
+      }
+    },
+    "launcherReport": {
+      "original": {
+        "path": "work/clean-v5-qa-37508460953/reports/browser/launcher-report.json",
+        "bytes": 5582,
+        "sha256": "5e380a51cfe2af03c0f2e1ea1f82f86a4e6eefcd0183ef97e88221ed29c8be01"
+      },
+      "preservedCopy": {
+        "path": "work/frame-step-sync-37508460953/launcherReport.json",
+        "bytes": 5582,
+        "sha256": "5e380a51cfe2af03c0f2e1ea1f82f86a4e6eefcd0183ef97e88221ed29c8be01"
+      }
+    },
+    "priorPassingPlayback": {
+      "path": "work/clean-v5-qa-37484611339/reports/browser/admitted-catalog/report.json",
+      "bytes": 97752,
+      "sha256": "b9af028dee585c5403d26db595f2dad6807764bf1a504a43796342436361dfda"
+    }
+  },
+  "nativeLog": {
+    "path": "work/clean-v5-qa-37508460953/native/job-112423058038.log",
+    "bytes": 405445,
+    "sha256": "b0b2f41bc1a50afe77dfb81140bec79abcb2238a47b90a36a41dd6d197ed35ee"
+  },
+  "failure": {
+    "trial": "baseline",
+    "assertion": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(stepped.paused && stepped.time > paused.reviewTime && Math.abs(stepped.time - paused.reviewTime - 0.05) < 0.005)\n\n    at trial (file:///home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/app/scripts/verify-clean-catalog.mjs:561:3)\n    at async file:///home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/app/scripts/verify-clean-catalog.mjs:630:18",
+    "candidateTrialExecuted": false,
+    "baselineWallMs": 95980,
+    "plannedFrames": 466,
+    "faceFrames": 410,
+    "sequenceFrames": 410,
+    "imageFailures": 0,
+    "initialKnownFailure": "baseline-initial-square-aspect",
+    "initialRecoveryPassed": true,
+    "completedStages": {
+      "completeVideo": true,
+      "presentation": true,
+      "layout": true
+    },
+    "failureCanvas": {
+      "width": 768,
+      "height": 768,
+      "drawCount": 61,
+      "lastDraw": {
+        "matrix": [
+          0.7775263786315918,
+          0,
+          0,
+          0.7775263786315918,
+          354.60906982421875,
+          351.37835693359375
+        ],
+        "args": [
+          -384,
+          -384
+        ],
+        "at": 100916.90000000014,
+        "sourceWidth": 768,
+        "sourceHeight": 768,
+        "sourceImage": {
+          "url": "http://127.0.0.1:4185/api/catalog/image?pack=live_yaw_p003_pitch_p006.bin&offset=392804&length=10936&source=seed&catalog=many-faces-clean-core-v3-pose-local-v1",
+          "width": 256,
+          "height": 256,
+          "naturalWidth": 256,
+          "naturalHeight": 256,
+          "complete": true
+        }
+      },
+      "videoTime": 0.334206,
+      "videoWidth": 512,
+      "videoHeight": 910,
+      "paused": true,
+      "seeking": false,
+      "pixelHash": "231c6d4401b4ffe769462710056d7d5ef46c222f2e518b0770b87b6dfbf93383"
+    },
+    "pairedPausedSteppedValuesWereSaved": false
+  },
+  "diagnosis": {
+    "rangeValueIsQuantized": true,
+    "rangeStepSeconds": 0.05,
+    "rangeMinimumSeconds": 0,
+    "buttonTimeBase": "Continuous React playbackTime, last updated from requestAnimationFrame",
+    "incorrectPriorComparisonTimeBase": "DOM input[type=range].value, rounded to the nearest permitted step",
+    "standardSource": "https://html.spec.whatwg.org/multipage/input.html#range-state-(type=range)",
+    "observedFailureVideoTime": 0.334206,
+    "closestRangeGridTime": 0.35000000000000003,
+    "minimumGridErrorSeconds": 0.01579400000000003,
+    "unchangedToleranceSeconds": 0.005,
+    "inferredInternalStepBase": 0.284206,
+    "inferredInternalStepBaseIsDirectlyObserved": false,
+    "priorPassingPlayback": {
+      "paused": {
+        "time": 0.305948,
+        "paused": true,
+        "reviewTime": 0.3
+      },
+      "stepped": {
+        "time": 0.346484,
+        "paused": true
+      },
+      "seekSeconds": 22
+    },
+    "priorPassingDeltaFromRangeSeconds": 0.046484000000000025,
+    "priorPassingDeltaFromNativePausedClockSeconds": 0.040536000000000016
+  },
+  "correction": {
+    "trackedFilesChanged": [
+      "scripts/verify-clean-catalog.mjs"
+    ],
+    "independentPlaybackPauseCheckPreserved": true,
+    "stepAnchorSeconds": 1,
+    "expectedSteppedSeconds": 1.05,
+    "actualVideoDeltaSeconds": 0.05,
+    "toleranceSeconds": 0.005,
+    "strictLessThanTolerance": true,
+    "requiresPausedAndNonSeeking": true,
+    "uiAndCanvasCapturedInSameSynchronousTurn": true,
+    "evidenceSavedBeforeAssertions": "<trial>-playback.json: pauseAfterPlayback, paused, stepped",
+    "appChanged": false,
+    "baselineChanged": false,
+    "comparisonHelperChanged": false,
+    "baselineExceptionExpanded": false,
+    "datasetChanged": false
+  },
+  "verification": {
+    "syntaxCheck": "passed",
+    "focusedTests": {
+      "command": "node --experimental-strip-types --test tests/review-first-presentation.test.mjs tests/clean-catalog-comparison-contract.test.mjs tests/review-presentation-source-guard.test.mjs",
+      "passed": 76,
+      "failed": 0,
+      "skipped": 0
+    },
+    "targetedEslint": "passed",
+    "productionAstChecks": {
+      "passed": 11,
+      "failed": 0,
+      "cases": [
+        "baseline fractional raw pause then anchored50ms",
+        "candidate same strict anchored50ms",
+        "zero step rejected",
+        "100ms step rejected",
+        "below45ms rejected",
+        "above55ms rejected",
+        "nonfinite step rejected",
+        "playback must pause before anchor",
+        "incorrect anchor rejected",
+        "step must remain paused",
+        "canvas+UI snapshot immutable across async hash"
+      ]
+    },
+    "diffCheck": "passed",
+    "newBrowserQaRun": false
+  },
+  "originalScript": {
+    "commit": "fd75eff5240038fa0dd2b7727dc8701171d7f9fa",
+    "path": "scripts/verify-clean-catalog.mjs",
+    "bytes": 53692,
+    "sha256": "e300943fc33ef3cfc52c144c7ca9e1666e56d8d9b506c58c23603ba5c8aa63fd"
+  },
+  "modifiedScript": {
+    "path": "scripts/verify-clean-catalog.mjs",
+    "bytes": 56240,
+    "sha256": "3bf77ecc302a8ca274c6c489fb897592fd4b232d39cabe922e41fe482d5e9865"
+  },
+  "diff": {
+    "path": "work/frame-step-sync-37508460953/change.patch",
+    "bytes": 6301,
+    "sha256": "39b818b940c3b49c44d79d17c34cfdd7ebefe4f7a4109eac187511cee3842c86"
+  }
+}

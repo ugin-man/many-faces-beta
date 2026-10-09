@@ -1,0 +1,1064 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-v5-candidate-qa",
+  "status": "automated-checks-passed-visual-review-pending",
+  "passed": false,
+  "automatedChecksPassed": true,
+  "executionOrigin": {
+    "kind": "github-actions",
+    "repository": "ugin-man/many-faces-beta",
+    "workflowRunId": 37515456441,
+    "workflowRunAttempt": 1,
+    "codeCommit": "5640df9ba2136de39b2c4f179a56f127278aee9c",
+    "runnerOs": "Linux",
+    "browserRuntime": "Chromium on the GitHub Actions runner"
+  },
+  "candidate": {
+    "runId": 37513093051,
+    "runAttempt": 1,
+    "artifactName": "clean-core-v5-candidate-37513093051-1",
+    "artifactId": 11435937263,
+    "archiveSha256": "e71086c653a2546b07fa71e157c28ac8741257de486b6b337050e8b8e73419b0",
+    "manifestSha256": "635a0a8053d16e5581fa6eda8cdf7f024e20e65444babbec3b983a9e528dc992",
+    "generationReceiptSha256": "efc3fb6b962bf462738aabe9e9ae5d754aedcc24797c3f86918da9e21e18cad3",
+    "selectionReviewSha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff",
+    "previousSelectionReviewSha256": "fe6444a7e54bae14eb3a82fa16b87823f63687ff0d37f45957262e3cdc065416",
+    "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+    "selectionIdentitySha256": "f4348de2d50882718e300cded26b7f2cd7ae7f91079dd9c5f6eae9843ac3f29c",
+    "codeCommit": "5640df9ba2136de39b2c4f179a56f127278aee9c"
+  },
+  "baselineCommit": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e",
+  "requestSha256": "b1a77bb157a8783cf8901e4acf47dfbcee5cfea2901428e3555f600ac84f8dd4",
+  "outcomes": {
+    "request": "success",
+    "artifact": "success",
+    "dependencies": "success",
+    "sources": "success",
+    "physical": "success",
+    "holdout": "success",
+    "build": "success",
+    "browser": "success",
+    "integrity": "success"
+  },
+  "comparisonContract": {
+    "schemaVersion": 1,
+    "status": "complete",
+    "candidatePassed": true,
+    "candidateInitialPresentationPassed": true,
+    "baselinePassed": false,
+    "baselineInitialPresentationPassed": false,
+    "baselineRemainingChecksPassed": true,
+    "baselineKnownInitialFailureAccepted": true,
+    "sameAcquiredFrames": true,
+    "sameTimeline": true,
+    "acquiredFramesSha256": "e14e8727696fc54a4be92a380436722d6a60b5d2f07632235f1cb412c2dd4fc1",
+    "timelineSha256": "3db75403f6d628aee0558a40334969d356dc528eb6ef04d6ba6d7f146e97fd5f",
+    "comparedFaceFrames": 410
+  },
+  "comparisonContractValidation": {
+    "status": "passed",
+    "error": null
+  },
+  "comparisonReportSha256": "29df44b4181e233e451392741939452c11dc0e6948825af4102e98a0e23e9272",
+  "comparisonEvidence": {
+    "path": "reports/browser/admitted-catalog/report.json",
+    "sha256": "29df44b4181e233e451392741939452c11dc0e6948825af4102e98a0e23e9272"
+  },
+  "baselineVerification": {
+    "status": "known-initial-drawing-failure",
+    "baselinePassed": false,
+    "initialPresentationPassed": false,
+    "remainingChecksPassed": true,
+    "knownInitialFailure": {
+      "schemaVersion": 1,
+      "kind": "baseline-initial-square-aspect",
+      "originalError": {
+        "name": "AssertionError",
+        "code": "ERR_ASSERTION",
+        "message": "Actual face transform differs at matrix component 0: {\"actual\":[0.5170550346374512,0,0,0.5170550346374512,344.1419372558594,364.3818664550781],\"expected\":[0.7656278048187918,0,0,0.7656278048187918,348.4708697626502,346.67829726799016],\"width\":768,\"height\":768,\"videoTime\":0,\"videoWidth\":512,\"videoHeight\":910,\"drawCount\":2,\"sourceImage\":{\"url\":\"http://127.0.0.1:4185/api/catalog/image?pack=live_yaw_p003_pitch_p006.bin&offset=392804&length=10936&source=seed&catalog=many-faces-clean-core-v3-pose-local-v1\",\"width\":256,\"height\":256,\"naturalWidth\":256,\"naturalHeight\":256,\"complete\":true},\"candidateLayout\":[0.477324,0.479168,0.676041,0.696244],\"inputLayout\":[0.43637673556804657,0.4636842757463455,0.4445714056491852,0.31805619597435]}",
+        "stack": "AssertionError [ERR_ASSERTION]: Actual face transform differs at matrix component 0: {\"actual\":[0.5170550346374512,0,0,0.5170550346374512,344.1419372558594,364.3818664550781],\"expected\":[0.7656278048187918,0,0,0.7656278048187918,348.4708697626502,346.67829726799016],\"width\":768,\"height\":768,\"videoTime\":0,\"videoWidth\":512,\"videoHeight\":910,\"drawCount\":2,\"sourceImage\":{\"url\":\"http://127.0.0.1:4185/api/catalog/image?pack=live_yaw_p003_pitch_p006.bin&offset=392804&length=10936&source=seed&catalog=many-faces-clean-core-v3-pose-local-v1\",\"width\":256,\"height\":256,\"naturalWidth\":256,\"naturalHeight\":256,\"complete\":true},\"candidateLayout\":[0.477324,0.479168,0.676041,0.696244],\"inputLayout\":[0.43637673556804657,0.4636842757463455,0.4445714056491852,0.31805619597435]}\n    at file:///home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/app/scripts/verify-clean-catalog.mjs:292:34\n    at Array.forEach (<anonymous>)\n    at assertDrawing (file:///home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/app/scripts/verify-clean-catalog.mjs:292:12)\n    at verifyPresentation (file:///home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/app/scripts/verify-clean-catalog.mjs:344:5)\n    at async trial (file:///home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/app/scripts/verify-clean-catalog.mjs:558:3)\n    at async file:///home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-qa/app/scripts/verify-clean-catalog.mjs:666:18"
+      },
+      "baselineClientSha256": "2639a28d55083e77a2b97af3791183f4543ce0619efda5a820d1489557d71984",
+      "staleAspectRatio": 1,
+      "correctAspectRatio": 0.5626373626373626,
+      "matrixTolerance": 0.0001,
+      "actualMatrix": [
+        0.5170550346374512,
+        0,
+        0,
+        0.5170550346374512,
+        344.1419372558594,
+        364.3818664550781
+      ],
+      "staleMatrix": [
+        0.5170550382849255,
+        0,
+        0,
+        0.5170550382849255,
+        344.1419332732381,
+        364.381874921393
+      ],
+      "correctMatrix": [
+        0.7656278048187918,
+        0,
+        0,
+        0.7656278048187918,
+        348.4708697626502,
+        346.67829726799016
+      ],
+      "maximumStaleComponentError": 8.466314852739742e-06
+    },
+    "initialRecovery": {
+      "method": "seek-away-and-back",
+      "passed": true,
+      "sequenceUnchanged": true,
+      "seekAwayTime": 0.05,
+      "returnedTime": 0,
+      "awayChoice": {
+        "id": "clean-v3-clean-v3-source-train-000000-f7a1d5dcab4eb43ebb91830d",
+        "url": "http://127.0.0.1:4185/api/catalog/image?pack=live_yaw_p003_pitch_p006.bin&offset=392804&length=10936&source=seed&catalog=many-faces-clean-core-v3-pose-local-v1",
+        "feature": [
+          0.03333333333333333,
+          0.06666666666666667,
+          -0.03333333333333333,
+          0.01935,
+          0.00165,
+          0.02352,
+          0.98324,
+          0,
+          0,
+          2e-05,
+          2e-05,
+          2e-05,
+          1e-05,
+          0.12182,
+          0.0579,
+          0.21018,
+          0.1352,
+          0.47061,
+          0.00473,
+          0.00194,
+          0.05631,
+          0.07468,
+          1e-05,
+          0,
+          0,
+          0.06333,
+          0.06761,
+          0.23753,
+          0.05231,
+          0.01207,
+          0.13494,
+          0.15985,
+          0.14107,
+          0.00987,
+          0.02164,
+          4e-05,
+          0.02363,
+          7e-05,
+          0.00268,
+          0.00155,
+          0.03603,
+          0.00142,
+          0.00093,
+          0.00066,
+          0.0012,
+          0.00042,
+          0.07866,
+          0.19807,
+          0.00884,
+          0.00945,
+          2e-05,
+          2e-05,
+          0,
+          0,
+          0
+        ],
+        "candidateLayout": [
+          0.477324,
+          0.479168,
+          0.676041,
+          0.696244
+        ],
+        "supportKind": null,
+        "time": 0.05,
+        "inputFeature": [
+          0.028968639862373344,
+          0.05635065220078434,
+          0.024260948161079276,
+          0.03631152957677841,
+          0.013601730577647686,
+          0.004706957843154669,
+          0.9084818959236145,
+          1.6097469597298186e-06,
+          6.571226549567655e-07,
+          6.60045407130383e-05,
+          9.043160389410332e-05,
+          5.2002571464981884e-05,
+          9.515768761048093e-05,
+          0.11183304339647293,
+          0.03724624216556549,
+          0.4379575848579407,
+          0.20665819942951202,
+          0.5202792882919312,
+          0.0002760828356258571,
+          0.00010214660869678482,
+          0.715522825717926,
+          0.6931694746017456,
+          1.0437803211971186e-05,
+          6.509999366244301e-07,
+          2.564094927492988e-07,
+          0.10412239283323288,
+          0.11238399893045425,
+          0.07169806212186813,
+          0.0793503001332283,
+          0.062499016523361206,
+          0.05607204511761665,
+          0.07025312632322311,
+          0.0760018527507782,
+          0.00597968976944685,
+          0.015263738110661507,
+          1.4804770216869656e-05,
+          0.010126463137567043,
+          7.851077680243179e-05,
+          0.004426767583936453,
+          0.0010415615979582071,
+          0.011463907547295094,
+          0.00017400726210325956,
+          0.00023014788166619837,
+          0.0031952308490872383,
+          0.0016733927186578512,
+          0.0012390846386551857,
+          0.08461077511310577,
+          0.020810045301914215,
+          0.10228360444307327,
+          0.0240035280585289,
+          9.422529547009617e-05,
+          0.00011432715837145224,
+          1.7618277752262657e-06,
+          1.5894570992713852e-07,
+          1.1678631608447176e-06
+        ],
+        "inputLayout": [
+          0.4380194768309593,
+          0.4641365706920624,
+          0.4447720795869827,
+          0.32021111249923706
+        ],
+        "error": {
+          "contour": 0.15712422950424007,
+          "features": 0.03527779911523733,
+          "mouth": 0.04035583703753054,
+          "eyes": 0.014235758314572173,
+          "leftEye": 0.014235758314572173,
+          "rightEye": 0.01410661768715501,
+          "brows": 0.051969856642857276,
+          "expression": 0.06591090163421975,
+          "descriptor": 0.04528837264167709,
+          "blendshape": 0.13902714078959827,
+          "mouthDescriptor": 0.02511876351881366,
+          "mouthShape": 0.03270227272137696,
+          "mouthAction": 0.04352342113603359,
+          "eyeDescriptor": 0.017022625775209178,
+          "browDescriptor": 0.1158998496810305,
+          "shapeGate": 0.10972560279765847,
+          "worstLocal": 0.062363827971428726,
+          "poseDegrees": 2.075501487565701,
+          "yawDegrees": -0.39282241238639903,
+          "pitchDegrees": -0.9284413019294092,
+          "rollDegrees": 5.183485334497134,
+          "wink": 0.010666801230907436,
+          "blink": 0.02065375783443451,
+          "balancedTotal": 0.1018481163416274,
+          "expressionTotal": 0.062113803813565314,
+          "strictTotal": 0.0645824127854898,
+          "semanticTotal": 0.07942603792079962,
+          "eyeBrowTotal": 0.04913198008994139,
+          "mouthTotal": 0.0570702369593476,
+          "total": 0.0645824127854898
+        },
+        "emission": 0.0645824127854898,
+        "accepted": false,
+        "expressionMotion": 0.005534578373932619
+      },
+      "away": {
+        "id": "clean-v3-clean-v3-source-train-000000-f7a1d5dcab4eb43ebb91830d",
+        "time": 0.05,
+        "url": "http://127.0.0.1:4185/api/catalog/image?pack=live_yaw_p003_pitch_p006.bin&offset=392804&length=10936&source=seed&catalog=many-faces-clean-core-v3-pose-local-v1",
+        "candidateLayout": [
+          0.477324,
+          0.479168,
+          0.676041,
+          0.696244
+        ],
+        "inputLayout": [
+          0.4380194768309593,
+          0.4641365706920624,
+          0.4447720795869827,
+          0.32021111249923706
+        ],
+        "expected": {
+          "scale": 0.7695675450139092,
+          "x": -0.04452980951830529,
+          "y": -0.047710010836299985
+        },
+        "width": 768,
+        "height": 768,
+        "drawCount": 4,
+        "lastDraw": {
+          "matrix": [
+            0.7695675492286682,
+            0,
+            0,
+            0.7695675492286682,
+            349.8011169433594,
+            347.35870361328125
+          ],
+          "args": [
+            -384,
+            -384
+          ],
+          "at": 115791.79999999993,
+          "sourceWidth": 768,
+          "sourceHeight": 768,
+          "sourceImage": {
+            "url": "http://127.0.0.1:4185/api/catalog/image?pack=live_yaw_p003_pitch_p006.bin&offset=392804&length=10936&source=seed&catalog=many-faces-clean-core-v3-pose-local-v1",
+            "width": 256,
+            "height": 256,
+            "naturalWidth": 256,
+            "naturalHeight": 256,
+            "complete": true
+          }
+        },
+        "videoTime": 0.05,
+        "videoWidth": 512,
+        "videoHeight": 910,
+        "paused": true,
+        "seeking": false,
+        "pixelHash": "b50a98e47f22b25c91f9c69c6d206c993233240e777b794474c6d8c36cdbcf15"
+      },
+      "canvas": {
+        "id": "clean-v3-clean-v3-source-train-000000-f7a1d5dcab4eb43ebb91830d",
+        "time": 0,
+        "url": "http://127.0.0.1:4185/api/catalog/image?pack=live_yaw_p003_pitch_p006.bin&offset=392804&length=10936&source=seed&catalog=many-faces-clean-core-v3-pose-local-v1",
+        "candidateLayout": [
+          0.477324,
+          0.479168,
+          0.676041,
+          0.696244
+        ],
+        "inputLayout": [
+          0.43637673556804657,
+          0.4636842757463455,
+          0.4445714056491852,
+          0.31805619597435
+        ],
+        "expected": {
+          "scale": 0.7656278048187918,
+          "x": -0.046261888329882525,
+          "y": -0.04859596709897112
+        },
+        "width": 768,
+        "height": 768,
+        "drawCount": 6,
+        "lastDraw": {
+          "matrix": [
+            0.7656278014183044,
+            0,
+            0,
+            0.7656278014183044,
+            348.4708557128906,
+            346.67828369140625
+          ],
+          "args": [
+            -384,
+            -384
+          ],
+          "at": 115861.29999999993,
+          "sourceWidth": 768,
+          "sourceHeight": 768,
+          "sourceImage": {
+            "url": "http://127.0.0.1:4185/api/catalog/image?pack=live_yaw_p003_pitch_p006.bin&offset=392804&length=10936&source=seed&catalog=many-faces-clean-core-v3-pose-local-v1",
+            "width": 256,
+            "height": 256,
+            "naturalWidth": 256,
+            "naturalHeight": 256,
+            "complete": true
+          }
+        },
+        "videoTime": 0,
+        "videoWidth": 512,
+        "videoHeight": 910,
+        "paused": true,
+        "seeking": false,
+        "pixelHash": "d436286eaf913a7395ce3d8feb40dd1dfb59121de4ac397735fff25f02b741ee"
+      }
+    },
+    "source": {
+      "commit": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e",
+      "path": "app/live/review-client-lite.tsx",
+      "sha256": "2639a28d55083e77a2b97af3791183f4543ce0619efda5a820d1489557d71984",
+      "sourceIdentity": {
+        "version": "camera-arrival-v3",
+        "build": "1974b9a72d971acf",
+        "revision": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e"
+      },
+      "verifiedUnchanged": true
+    }
+  },
+  "fixedVideo": {
+    "status": "passed",
+    "fixtureSha256": "d470cf5a8aeb847f9c127ed8f0d567fcadd99e83c185ef60b7a8c9c6236a005b",
+    "densityFps": 20,
+    "plannedFrames": 466,
+    "sameAcquiredFrames": true,
+    "sameTimeline": true,
+    "comparison": {
+      "sameAcquiredFrames": true,
+      "sameTimeline": true,
+      "selectedIdChanges": 410,
+      "selectedImages": {
+        "baseline": 144,
+        "candidate": 134
+      },
+      "storedDescriptorMetrics": {
+        "meanYawErrorDegrees": {
+          "baseline": 4.584621685231977,
+          "candidate": 3.5281040672904447,
+          "change": -1.0565176179415325
+        },
+        "meanPitchErrorDegrees": {
+          "baseline": 3.285485182437525,
+          "candidate": 2.7197428237110257,
+          "change": -0.5657423587264994
+        },
+        "meanMouthError": {
+          "baseline": 0.11857268669741274,
+          "candidate": 0.12062601042557337,
+          "change": 0.0020533237281606387
+        },
+        "meanEyeError": {
+          "baseline": 0.026455330723142823,
+          "candidate": 0.024453342246644826,
+          "change": -0.002001988476497997
+        },
+        "meanProjectionError": {
+          "baseline": 0.15068803938765102,
+          "candidate": 0.1427788639564288,
+          "change": -0.007909175431222215
+        }
+      },
+      "freshPixelPose": {
+        "comparableFrames": 408,
+        "totalFrames": 410,
+        "metrics": {
+          "yawErrorDegrees": {
+            "baseline": 3.6077595034190675,
+            "candidate": 3.526220594641333,
+            "change": -0.08153890877773451
+          },
+          "pitchErrorDegrees": {
+            "baseline": 3.612341109853401,
+            "candidate": 2.723574226521984,
+            "change": -0.8887668833314168
+          }
+        }
+      },
+      "timing": {
+        "baselineWallMs": 113651,
+        "candidateWallMs": 121163,
+        "deltaMs": 7512,
+        "repeatedSpeedBenchmark": false
+      }
+    }
+  },
+  "facePositionSizeTracking": {
+    "status": "passed",
+    "initialPresentationPassed": true,
+    "defaultEnabled": true,
+    "presentationControlsPreserveSelection": true,
+    "evidence": "reports/browser/admitted-catalog/report.json"
+  },
+  "physicalAdmission": {
+    "schemaVersion": 1,
+    "status": "passed",
+    "physicalFaces": 70000,
+    "uniqueEncodedImages": 70000,
+    "allSelectedPhotosHavePassingAdmission": true,
+    "allFreshMeasurementsMatch": true,
+    "selectionReviewSha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff",
+    "selectionReview": {
+      "schemaVersion": 1,
+      "documentKind": "clean-core-selection-visibility-review",
+      "mode": "deny-only",
+      "reviewPath": "selection-review.json",
+      "reviewSha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff",
+      "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+      "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+      "excludedEncodedImages": 256,
+      "previousReviewSha256": "fe6444a7e54bae14eb3a82fa16b87823f63687ff0d37f45957262e3cdc065416",
+      "previousReviewPath": "selection-review-previous.json",
+      "reviewer": "assistant-visual-review",
+      "humanVerified": false,
+      "reviewedOn": "2026-10-06"
+    },
+    "allSelectedPhotosAbsentFromSelectionExclusions": true,
+    "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+    "winkExpressionReview": {
+      "schemaVersion": 1,
+      "documentKind": "clean-core-wink-expression-review",
+      "mode": "confirmed-side-only",
+      "reviewPath": "wink-expression-review.json",
+      "reviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+      "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+      "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+      "reviewedEncodedImages": 769,
+      "confirmedEncodedImages": 71,
+      "confirmedSides": {
+        "left": 31,
+        "right": 40
+      },
+      "reviewer": "assistant-visual-review",
+      "humanVerified": false,
+      "reviewedOn": "2026-10-06"
+    },
+    "allSelectedWinkProfilesHaveReviewedEvidence": true,
+    "allSelectedProfilesHaveDeclaredEvidence": true,
+    "profileEvidenceTiers": {
+      "winkLeft": [
+        "strict",
+        "observed"
+      ],
+      "winkRight": [
+        "strict",
+        "observed"
+      ],
+      "blink": [
+        "strict"
+      ],
+      "eyesWide": [
+        "strict"
+      ],
+      "gazeUp": [
+        "strict"
+      ],
+      "gazeDown": [
+        "strict"
+      ],
+      "gazeLeft": [
+        "strict"
+      ],
+      "gazeRight": [
+        "strict"
+      ],
+      "browsUp": [
+        "strict"
+      ],
+      "browsDown": [
+        "strict"
+      ],
+      "noseSneer": [
+        "strict"
+      ],
+      "mouthRound": [
+        "strict"
+      ],
+      "mouthPucker": [
+        "strict"
+      ],
+      "mouthSlightOpen": [
+        "strict"
+      ],
+      "mouthOpen": [
+        "strict"
+      ],
+      "smileClosed": [
+        "strict"
+      ],
+      "smileOpen": [
+        "strict"
+      ],
+      "mouthWide": [
+        "strict",
+        "observed"
+      ],
+      "mouthPress": [
+        "strict"
+      ],
+      "mouthRoll": [
+        "strict"
+      ],
+      "mouthLeft": [
+        "strict"
+      ],
+      "mouthRight": [
+        "strict"
+      ],
+      "mouthFrown": [
+        "strict",
+        "observed"
+      ],
+      "mouthShrug": [
+        "strict"
+      ],
+      "mouthUpperUp": [
+        "strict"
+      ],
+      "mouthLowerDown": [
+        "strict"
+      ],
+      "neutral": [
+        "strict"
+      ],
+      "backgroundNeutral": [
+        "background"
+      ],
+      "backgroundMouth": [
+        "background"
+      ],
+      "backgroundEyes": [
+        "background"
+      ],
+      "backgroundBrows": [
+        "background"
+      ],
+      "backgroundNose": [
+        "background"
+      ]
+    },
+    "strictProfiles": {
+      "winkLeft": 0,
+      "winkRight": 0,
+      "blink": 567,
+      "eyesWide": 10,
+      "gazeUp": 661,
+      "gazeDown": 689,
+      "gazeLeft": 2101,
+      "gazeRight": 1420,
+      "browsUp": 1033,
+      "browsDown": 230,
+      "noseSneer": 0,
+      "mouthRound": 2,
+      "mouthPucker": 268,
+      "mouthSlightOpen": 53,
+      "mouthOpen": 21,
+      "smileClosed": 916,
+      "smileOpen": 42,
+      "mouthWide": 13,
+      "mouthPress": 226,
+      "mouthRoll": 51,
+      "mouthLeft": 8,
+      "mouthRight": 2,
+      "mouthFrown": 5,
+      "mouthShrug": 138,
+      "mouthUpperUp": 20,
+      "mouthLowerDown": 51,
+      "neutral": 656
+    },
+    "strictProfilePoseCells": {
+      "winkLeft": 0,
+      "winkRight": 0,
+      "blink": 263,
+      "eyesWide": 10,
+      "gazeUp": 260,
+      "gazeDown": 267,
+      "gazeLeft": 481,
+      "gazeRight": 420,
+      "browsUp": 344,
+      "browsDown": 143,
+      "noseSneer": 0,
+      "mouthRound": 2,
+      "mouthPucker": 116,
+      "mouthSlightOpen": 43,
+      "mouthOpen": 18,
+      "smileClosed": 186,
+      "smileOpen": 31,
+      "mouthWide": 13,
+      "mouthPress": 127,
+      "mouthRoll": 36,
+      "mouthLeft": 8,
+      "mouthRight": 2,
+      "mouthFrown": 5,
+      "mouthShrug": 89,
+      "mouthUpperUp": 17,
+      "mouthLowerDown": 46,
+      "neutral": 242
+    },
+    "observedProfiles": {
+      "winkLeft": 31,
+      "winkRight": 40,
+      "mouthWide": 1288,
+      "mouthFrown": 546
+    },
+    "observedProfilePoseCells": {
+      "winkLeft": 30,
+      "winkRight": 35,
+      "mouthWide": 533,
+      "mouthFrown": 336
+    },
+    "selectionIdentity": {
+      "schemaVersion": 1,
+      "policyVersion": "clean-isolated-observed-mouth-reviewed-winks-v5",
+      "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+      "selectionCodeSha256": {
+        "clean_core_policy_v2.py": "b75bbefc0cc5de576d26d265d285458f06bb871dec925613fbad9dc3ff7dbe0d",
+        "clean_core_policy_v3.py": "0f24e9a769a421e2dec3ac43d1eac30b59096d9e18dbf5b611c1b8cd53d508ba",
+        "build_clean_core_v3.py": "145435b8f75d73d19b25654d56c5cfbbf85c6b7cb555bd9f4fd56c07893cbe49",
+        "run_build_clean_core_v3_real_only.py": "25e0b3d04d06fcea30412fb8beae95a6eea16e2b397b687d7f43d1dfb7ee7f9b",
+        "run_build_clean_core_v3_repair.py": "a96c1d947ee9740a74bcd5fb71fc4c6cc015e87f69704684a8712140045b66e2",
+        "clean_core_selection_review.py": "a503fff2a6b3227dc2b4a3c92fc2c3b0d6d82b7d5c7e37abd396713180fa7abd"
+      },
+      "targetTotal": 70000,
+      "preselectMultiplier": 6,
+      "profileEvidenceTiers": {
+        "winkLeft": [
+          "strict",
+          "observed"
+        ],
+        "winkRight": [
+          "strict",
+          "observed"
+        ],
+        "blink": [
+          "strict"
+        ],
+        "eyesWide": [
+          "strict"
+        ],
+        "gazeUp": [
+          "strict"
+        ],
+        "gazeDown": [
+          "strict"
+        ],
+        "gazeLeft": [
+          "strict"
+        ],
+        "gazeRight": [
+          "strict"
+        ],
+        "browsUp": [
+          "strict"
+        ],
+        "browsDown": [
+          "strict"
+        ],
+        "noseSneer": [
+          "strict"
+        ],
+        "mouthRound": [
+          "strict"
+        ],
+        "mouthPucker": [
+          "strict"
+        ],
+        "mouthSlightOpen": [
+          "strict"
+        ],
+        "mouthOpen": [
+          "strict"
+        ],
+        "smileClosed": [
+          "strict"
+        ],
+        "smileOpen": [
+          "strict"
+        ],
+        "mouthWide": [
+          "strict",
+          "observed"
+        ],
+        "mouthPress": [
+          "strict"
+        ],
+        "mouthRoll": [
+          "strict"
+        ],
+        "mouthLeft": [
+          "strict"
+        ],
+        "mouthRight": [
+          "strict"
+        ],
+        "mouthFrown": [
+          "strict",
+          "observed"
+        ],
+        "mouthShrug": [
+          "strict"
+        ],
+        "mouthUpperUp": [
+          "strict"
+        ],
+        "mouthLowerDown": [
+          "strict"
+        ],
+        "neutral": [
+          "strict"
+        ],
+        "backgroundNeutral": [
+          "background"
+        ],
+        "backgroundMouth": [
+          "background"
+        ],
+        "backgroundEyes": [
+          "background"
+        ],
+        "backgroundBrows": [
+          "background"
+        ],
+        "backgroundNose": [
+          "background"
+        ]
+      },
+      "profileMinimums": {
+        "neutral": 0,
+        "winkLeft": 4,
+        "winkRight": 4,
+        "blink": 200,
+        "eyesWide": 1,
+        "gazeUp": 100,
+        "gazeDown": 100,
+        "gazeLeft": 100,
+        "gazeRight": 100,
+        "browsUp": 100,
+        "browsDown": 100,
+        "noseSneer": 0,
+        "mouthSlightOpen": 5,
+        "mouthOpen": 20,
+        "smileClosed": 400,
+        "smileOpen": 20,
+        "mouthRound": 1,
+        "mouthPucker": 150,
+        "mouthWide": 20,
+        "mouthPress": 150,
+        "mouthRoll": 20,
+        "mouthLeft": 1,
+        "mouthRight": 1,
+        "mouthFrown": 8,
+        "mouthShrug": 80,
+        "mouthUpperUp": 20,
+        "mouthLowerDown": 20
+      },
+      "profilePoseCellMinimums": {
+        "neutral": 0,
+        "winkLeft": 2,
+        "winkRight": 2,
+        "blink": 20,
+        "eyesWide": 1,
+        "gazeUp": 25,
+        "gazeDown": 25,
+        "gazeLeft": 25,
+        "gazeRight": 25,
+        "browsUp": 18,
+        "browsDown": 18,
+        "noseSneer": 0,
+        "mouthSlightOpen": 3,
+        "mouthOpen": 15,
+        "smileClosed": 60,
+        "smileOpen": 18,
+        "mouthRound": 1,
+        "mouthPucker": 25,
+        "mouthWide": 10,
+        "mouthPress": 25,
+        "mouthRoll": 10,
+        "mouthLeft": 1,
+        "mouthRight": 1,
+        "mouthFrown": 4,
+        "mouthShrug": 12,
+        "mouthUpperUp": 8,
+        "mouthLowerDown": 8
+      },
+      "backgroundMinimums": {
+        "backgroundNeutral": 15000
+      },
+      "backgroundPoseCellMinimums": {
+        "backgroundNeutral": 650
+      },
+      "profileCellLimits": {
+        "neutral": 86,
+        "winkLeft": 14,
+        "winkRight": 14,
+        "blink": 18,
+        "eyesWide": 64,
+        "gazeUp": 18,
+        "gazeDown": 18,
+        "gazeLeft": 18,
+        "gazeRight": 18,
+        "browsUp": 20,
+        "browsDown": 20,
+        "noseSneer": 32,
+        "mouthSlightOpen": 64,
+        "mouthOpen": 26,
+        "smileClosed": 48,
+        "smileOpen": 30,
+        "mouthRound": 40,
+        "mouthPucker": 28,
+        "mouthWide": 48,
+        "mouthPress": 24,
+        "mouthRoll": 22,
+        "mouthLeft": 18,
+        "mouthRight": 18,
+        "mouthFrown": 40,
+        "mouthShrug": 20,
+        "mouthUpperUp": 18,
+        "mouthLowerDown": 18,
+        "backgroundNeutral": 120,
+        "backgroundEyes": 38,
+        "backgroundBrows": 30,
+        "backgroundNose": 24,
+        "backgroundMouth": 54
+      },
+      "additionalSelectionExclusionsSha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff",
+      "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f"
+    },
+    "selectionIdentitySha256": "f4348de2d50882718e300cded26b7f2cd7ae7f91079dd9c5f6eae9843ac3f29c",
+    "runtimeExclusionOverlayRequired": false,
+    "bytes": 388681478,
+    "packs": 775,
+    "poseCells": 775,
+    "catalogId": "many-faces-clean-core-v5-f4348de2d5088271-pose-local-v1",
+    "manifestSha256": "635a0a8053d16e5581fa6eda8cdf7f024e20e65444babbec3b983a9e528dc992",
+    "qualityAdmission": {
+      "schemaVersion": 2,
+      "status": "complete",
+      "policyId": "exact-pixel-clean-core-admission-v1",
+      "policySha256": "2f820a6dff8f4d0fcd595623042d3397abfbd6efa8ca57c45aac9f68c3462481",
+      "receiptSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+      "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+      "attributeModelSha256": "1bf7c6453bec2fb28e0830f3a76dceb9ffd020124f87b28da5355940a7bc6e48",
+      "faceModelSha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+      "selectedCount": 70000,
+      "runtimeExclusionOverlayRequired": false
+    },
+    "selectedProfiles": {
+      "backgroundBrows": 8586,
+      "backgroundEyes": 11843,
+      "backgroundMouth": 16049,
+      "backgroundNeutral": 22434,
+      "blink": 567,
+      "browsDown": 230,
+      "browsUp": 1033,
+      "eyesWide": 10,
+      "gazeDown": 689,
+      "gazeLeft": 2101,
+      "gazeRight": 1420,
+      "gazeUp": 661,
+      "mouthFrown": 551,
+      "mouthLeft": 8,
+      "mouthLowerDown": 51,
+      "mouthOpen": 21,
+      "mouthPress": 226,
+      "mouthPucker": 268,
+      "mouthRight": 2,
+      "mouthRoll": 51,
+      "mouthRound": 2,
+      "mouthShrug": 138,
+      "mouthSlightOpen": 53,
+      "mouthUpperUp": 20,
+      "mouthWide": 1301,
+      "neutral": 656,
+      "smileClosed": 916,
+      "smileOpen": 42,
+      "winkLeft": 31,
+      "winkRight": 40
+    },
+    "selectedProfilePoseCells": {
+      "backgroundBrows": 758,
+      "backgroundEyes": 764,
+      "backgroundMouth": 769,
+      "backgroundNeutral": 775,
+      "backgroundNose": 0,
+      "blink": 263,
+      "browsDown": 143,
+      "browsUp": 344,
+      "eyesWide": 10,
+      "gazeDown": 267,
+      "gazeLeft": 481,
+      "gazeRight": 420,
+      "gazeUp": 260,
+      "mouthFrown": 337,
+      "mouthLeft": 8,
+      "mouthLowerDown": 46,
+      "mouthOpen": 18,
+      "mouthPress": 127,
+      "mouthPucker": 116,
+      "mouthRight": 2,
+      "mouthRoll": 36,
+      "mouthRound": 2,
+      "mouthShrug": 89,
+      "mouthSlightOpen": 43,
+      "mouthUpperUp": 17,
+      "mouthWide": 536,
+      "neutral": 242,
+      "noseSneer": 0,
+      "smileClosed": 186,
+      "smileOpen": 31,
+      "winkLeft": 30,
+      "winkRight": 35
+    },
+    "selectedSources": {
+      "many-faces-clean-core-v3-pose-local-v1": 47234,
+      "seed-ffhq-70224-actions-v4": 22762,
+      "wink-exact-source-6906a3d3fe85088b": 4
+    },
+    "directionCounts": {
+      "pitch_middle": 35357,
+      "pitch_negative_12": 15744,
+      "pitch_positive_12": 18899,
+      "yaw_frontal": 29252,
+      "yaw_negative_12": 20679,
+      "yaw_positive_12": 20069
+    },
+    "browserVerified": false,
+    "physicalCameraVerified": false
+  },
+  "pendingNetworkCancellation": {
+    "status": "passed",
+    "cancelToIdleMs": 34
+  },
+  "virtualCamera": {
+    "status": "passed",
+    "cameraPhase": "running",
+    "catalogTotal": 70000,
+    "physicalCameraVerified": false
+  },
+  "selectedPhotoHoldout": {
+    "status": "failed",
+    "reviewer": "assistant visual inspection",
+    "humanVerified": false,
+    "checkedPhotos": 360,
+    "preparedPhotos": 360,
+    "counts": {
+      "pass": 301,
+      "deny": 27,
+      "uncertain": 32
+    },
+    "previouslyInspectedSha256": "2b9586e1d788539c7ce3d078dc6158bbba4183634c81077fe82505b68828a623",
+    "previouslyInspectedImageCount": 1617,
+    "sampleIndexSha256": "f543ad152cb192f559452144d2ad9a5887593cbd058efae21a89372ca76e7221",
+    "visualReviewSha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c"
+  },
+  "qualityImprovementEstablished": false,
+  "physicalCameraVerified": false,
+  "hostedSiteVerified": false,
+  "datasetPromoted": false,
+  "sitePublished": false,
+  "promotionReady": false,
+  "visualReviewPreparation": {
+    "mode": "remediation",
+    "independentFinalHoldout": false,
+    "indexPath": "reports/remediation-index.json",
+    "indexSha256": "43c3e9aa4ed2079c7aa3b96a41e0fb250ba2ab0bf527ce3a46d9ac685a38c637",
+    "addedPhotos": 59,
+    "evaluatedCandidateRunId": 37491677036,
+    "evaluatedManifestSha256": "d8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785",
+    "finalManifestSha256": "635a0a8053d16e5581fa6eda8cdf7f024e20e65444babbec3b983a9e528dc992",
+    "failedHoldoutSha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c"
+  },
+  "remediationEvidence": {
+    "path": "reports/remediation-index.json",
+    "sha256": "43c3e9aa4ed2079c7aa3b96a41e0fb250ba2ab0bf527ce3a46d9ac685a38c637"
+  }
+}

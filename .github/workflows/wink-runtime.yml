@@ -1,0 +1,69 @@
+name: Wink supplement video acceptance
+on:
+  push:
+    branches: [astra/wink-coverage]
+    paths: ['app/**', 'scripts/*wink-runtime*', 'tests/wink-*', '.github/workflows/wink-runtime.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: wink-runtime-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: Preserve camera, source media and original catalog
+        run: |
+          mkdir -p work/wink-runtime
+          git fetch --depth=1 origin 33670161de8affba26129c09de315f4803ad100f
+          test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
+          git diff --exit-code 33670161de8affba26129c09de315f4803ad100f HEAD -- app/live/astra app/live/media-input.ts app/live/frame-arrival.ts app/live/video-frame.ts app/live/stable-landmarker.ts app/projection-matching.ts app/live/review-client-lite.tsx app/studio.module.css public/seed-catalog public/test-fixtures
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1 esbuild@0.25.12
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg > work/wink-runtime/system.log 2>&1
+          echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          mkdir -p /tmp/mf-wink-baseline
+          git archive 33670161de8affba26129c09de315f4803ad100f | tar -x -C /tmp/mf-wink-baseline
+          ln -s "$PWD/node_modules" /tmp/mf-wink-baseline/node_modules
+      - name: Build and test exact checked-out source
+        run: |
+          npm run lint > work/wink-runtime/lint.log 2>&1 || { cat work/wink-runtime/lint.log; exit 1; }
+          node scripts/prepare-wink-runtime.mjs
+          npm run build > work/wink-runtime/build.log 2>&1 || { cat work/wink-runtime/build.log; exit 1; }
+          node --experimental-strip-types --test tests/*.test.mjs > work/wink-runtime/tests.log 2>&1 || { cat work/wink-runtime/tests.log; exit 1; }
+          tail -n 12 work/wink-runtime/tests.log
+          (cd /tmp/mf-wink-baseline && npm run build) > work/wink-runtime/baseline-build.log 2>&1
+      - name: Actual UI, source-photo holdout and missing-index recovery
+        run: |
+          PORT=4183 HOST=127.0.0.1 nohup npm start > work/wink-runtime/server.log 2>&1 &
+          PORT=4185 HOST=127.0.0.1 nohup bash -c 'cd /tmp/mf-wink-baseline && npm start' > work/wink-runtime/baseline-server.log 2>&1 &
+          for port in 4183 4185; do
+            for attempt in $(seq 1 90); do
+              if curl -fsS http://127.0.0.1:$port/api/runtime > work/wink-runtime/identity-$port.json; then break; fi
+              sleep 1
+            done
+          done
+          node scripts/verify-wink-runtime.mjs
+      - name: Actual pending-request cancellation remains working
+        env:
+          VIDEO_SPEED_REPORT_DIR: work/wink-runtime
+        run: node scripts/verify-video-cancellation.mjs
+      - name: No source or original-asset modification during CI
+        if: always()
+        run: git diff --exit-code -- app scripts tests data public
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wink-runtime-${{ github.run_id }}
+          path: work/wink-runtime
+          retention-days: 14

@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-v5-repository-promotion",
+  "repository": "ugin-man/many-faces-beta",
+  "targetBranch": "astra/realtime-hardening",
+  "requestCommit": "18107088c40850212f3dc0d4f4d5a6c3f892ebab",
+  "requestSha256": "f0d5e71f931151ae7b9c1ff847b6789cf357cd0140835867e81137e0d6f29ef6",
+  "generationCodeCommit": "8dd3e24aeb81ec4eec29edcf9b3b18987bdbc912",
+  "qaCodeCommit": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+  "candidate": {
+    "runId": 37519882295,
+    "runAttempt": 1,
+    "artifactName": "clean-core-v5-candidate-37519882295-1",
+    "manifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "generationReceiptSha256": "d10bc862b779bdda7bd606d40408f5fda41eb7c43059fce61a63f9361d2441eb"
+  },
+  "artifactId": 11440656084,
+  "candidateQa": {
+    "path": "data/catalog-quality/candidate-qa-37521402519.json",
+    "sha256": "d73da9af3c316da38595b1421b85d4167379303640a9e594a52bc4ab5b7ff775"
+  },
+  "candidateQaStatus": "passed",
+  "qaExecutionOrigin": {
+    "kind": "github-actions",
+    "repository": "ugin-man/many-faces-beta",
+    "workflowRunId": 37521402519,
+    "workflowRunAttempt": 1,
+    "codeCommit": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+    "runnerOs": "Linux",
+    "browserRuntime": "Chromium on the GitHub Actions runner"
+  },
+  "nativeQaExecution": {
+    "runId": 37521402519,
+    "runAttempt": 1,
+    "codeCommit": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+    "artifactId": 11441775160,
+    "artifactName": "clean-core-v5-qa-summary-37521402519-1",
+    "archiveSha256": "02e523a198b226968f78f7dd93759b2266166a743c6ccf3bc13d0d35a1412952",
+    "qaReceiptSha256": "b60c64edd7c5b714219d44758928ed5f2c1ce9bc6dd51eec00021de2f39bc5ba",
+    "comparisonReportSha256": "b8ddcbff696d5581c6fdc703b89a58c94c586e844a294b801ba5f2f798658959"
+  },
+  "selectionReviewSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+  "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+  "selectedPhotoHoldout": {
+    "status": "failed",
+    "reviewer": "assistant visual inspection",
+    "humanVerified": false,
+    "checkedPhotos": 360,
+    "preparedPhotos": 360,
+    "counts": {
+      "pass": 301,
+      "deny": 27,
+      "uncertain": 32
+    },
+    "previouslyInspectedSha256": "2b9586e1d788539c7ce3d078dc6158bbba4183634c81077fe82505b68828a623",
+    "previouslyInspectedImageCount": 1617,
+    "sampleIndexSha256": "f543ad152cb192f559452144d2ad9a5887593cbd058efae21a89372ca76e7221",
+    "visualReviewSha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c"
+  },
+  "comparisonContract": {
+    "schemaVersion": 1,
+    "status": "complete",
+    "candidatePassed": true,
+    "candidateInitialPresentationPassed": true,
+    "baselinePassed": true,
+    "baselineInitialPresentationPassed": true,
+    "baselineRemainingChecksPassed": true,
+    "baselineKnownInitialFailureAccepted": false,
+    "sameAcquiredFrames": true,
+    "sameTimeline": true,
+    "acquiredFramesSha256": "e14e8727696fc54a4be92a380436722d6a60b5d2f07632235f1cb412c2dd4fc1",
+    "timelineSha256": "3db75403f6d628aee0558a40334969d356dc528eb6ef04d6ba6d7f146e97fd5f",
+    "comparedFaceFrames": 410
+  },
+  "baselineVerification": {
+    "status": "passed",
+    "baselinePassed": true,
+    "initialPresentationPassed": true,
+    "remainingChecksPassed": true
+  },
+  "workflowRunId": 37525826052,
+  "workflowRunAttempt": 1,
+  "ciEvidenceArtifact": "clean-core-v5-promotion-checks-37525826052-1",
+  "physicalFaces": 70000,
+  "runtimeExclusionOverlayRequired": false,
+  "sitePublished": false,
+  "physicalCameraVerified": false,
+  "visualReviewMode": "remediation",
+  "independentFinalHoldout": false,
+  "visualReviewPreparation": {
+    "mode": "remediation",
+    "independentFinalHoldout": false,
+    "indexPath": "reports/remediation-index.json",
+    "indexSha256": "f13aff1392da62804f5096f17608baf4570ef58a9a4db60e6bf5a0fd8206d01c",
+    "addedPhotos": 59,
+    "evaluatedCandidateRunId": 37491677036,
+    "evaluatedManifestSha256": "d8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785",
+    "finalManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "failedHoldoutSha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c"
+  },
+  "remediationVerification": {
+    "status": "complete",
+    "indexSha256": "f13aff1392da62804f5096f17608baf4570ef58a9a4db60e6bf5a0fd8206d01c",
+    "finalManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "priorManifestSha256": "d8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785",
+    "failedHoldoutSha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c",
+    "selectionReviewSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+    "commonGateSha256": "43e658e7625b83aabd11567a2594272509e59d6cf633c18f94e5fab7d783a296",
+    "addedPhotos": 59,
+    "reviewedPhotos": 59,
+    "allAddedOriginalsReviewed": true,
+    "allAddedPhotosPassed": true,
+    "allKnownExcludedAbsent": true,
+    "allPriorDenyAndUncertainAbsent": true,
+    "independentHoldoutPassed": false,
+    "reviewer": "assistant-visual-review",
+    "humanVerified": false
+  },
+  "remediationReviewReferences": [
+    {
+      "path": "data/catalog-quality/remediation-original-review-37521402519.json",
+      "sha256": "da658c7e44d36fc1237c4c926be2f69e8f35369ea5a5dbbc17a8e27561457390"
+    }
+  ]
+}

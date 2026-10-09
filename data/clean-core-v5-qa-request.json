@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-v5-qa-request",
+  "repository": "ugin-man/many-faces-beta",
+  "targetBranch": "astra/realtime-hardening",
+  "baselineCommit": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e",
+  "visualReview": {
+    "mode": "remediation",
+    "evaluatedCandidate": {
+      "runId": 37491677036,
+      "runAttempt": 1,
+      "artifactId": 11426800117,
+      "artifactName": "clean-core-v5-candidate-37491677036-1",
+      "archiveSha256": "923b59d9b59ca4ba7ac54bb7660731d5fe89ac81495438f3ed098db705bd1f1c",
+      "manifestSha256": "d8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785",
+      "generationReceiptSha256": "79c8f68790b11414cdb8b88e9ec2aeb2665d6747e99a7dd51690bb5824ec505f"
+    },
+    "failedHoldout": {
+      "path": "data/catalog-quality/holdout-visual-review-37494402324.json",
+      "sha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c"
+    }
+  },
+  "candidate": {
+    "runId": 37519882295,
+    "runAttempt": 1,
+    "artifactName": "clean-core-v5-candidate-37519882295-1",
+    "artifactId": 11440656084,
+    "archiveSha256": "a1f13922732172bd0c602e83b79bdc7c8191934971f821e38a78be974c606caf",
+    "manifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "generationReceiptSha256": "d10bc862b779bdda7bd606d40408f5fda41eb7c43059fce61a63f9361d2441eb"
+  },
+  "previouslyInspected": {
+    "path": "data/catalog-previously-inspected.json",
+    "sha256": "b0981f1c3b45eb7bb3c9502002aa64cff896afdfd1d933cdf6a69c8225672eed"
+  },
+  "createdOn": "2026-10-06",
+  "request": "Compare every encoded photo with the fixed evaluated c92 candidate and extract all added originals for complete quality review. Preserve the failed 360-photo evaluation unchanged. Revalidate the full 70000-photo catalog, compare the complete same-input fixed video, and check initial presentation, face position/size tracking, cancellation and virtual camera behavior.",
+  "candidateOnly": true,
+  "promotionReady": false,
+  "sitePublication": false
+}

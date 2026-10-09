@@ -1,0 +1,531 @@
+{
+  "exploratory": true,
+  "baselineCommit": "04a41b80469980454758feba9a31ac48b92c11fd",
+  "snapshotSha256": "8f48df320c4360cd9f107a2ed8790878b4072af5c4ce292c081c9ed98c8c4ab9",
+  "budget": {
+    "meanRelative": 0.0025,
+    "p95Relative": 0.005,
+    "maximumFrameErrorIncrease": 0.003,
+    "maximumLocalErrorIncrease": 0.003,
+    "maximumPoseIncreaseDegrees": 0.5,
+    "motionMeanRelative": 0.005,
+    "motionP95Relative": 0.01
+  },
+  "frames": 410,
+  "candidates": 5025,
+  "admissibleCandidates": {
+    "minimum": 1,
+    "mean": 1.0341463414634147,
+    "framesWithAlternatives": 12
+  },
+  "variants": [
+    {
+      "options": {
+        "weight": 0.001,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 1
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "changedFrames": 0,
+      "uniqueImages": 134,
+      "reappearances": 19,
+      "recentReappearances": 14,
+      "switches": 152,
+      "error": {
+        "mean": 0.1427788639564288,
+        "p95": 0.4335826975840034,
+        "max": 1.1614797664967236
+      },
+      "continuity": {
+        "mean": 0.05874292704809147,
+        "p95": 0.2005480918828789,
+        "max": 0.7365885025676269
+      },
+      "expressionMotion": {
+        "mean": 0.029329654660999117,
+        "p95": 0.08942089571044229,
+        "max": 0.4711500980655823
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0
+    },
+    {
+      "options": {
+        "weight": 0.003,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 1
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "changedFrames": 0,
+      "uniqueImages": 134,
+      "reappearances": 19,
+      "recentReappearances": 14,
+      "switches": 152,
+      "error": {
+        "mean": 0.1427788639564288,
+        "p95": 0.4335826975840034,
+        "max": 1.1614797664967236
+      },
+      "continuity": {
+        "mean": 0.05874292704809147,
+        "p95": 0.2005480918828789,
+        "max": 0.7365885025676269
+      },
+      "expressionMotion": {
+        "mean": 0.029329654660999117,
+        "p95": 0.08942089571044229,
+        "max": 0.4711500980655823
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0
+    },
+    {
+      "options": {
+        "weight": 0.01,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 1
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "changedFrames": 0,
+      "uniqueImages": 134,
+      "reappearances": 19,
+      "recentReappearances": 14,
+      "switches": 152,
+      "error": {
+        "mean": 0.1427788639564288,
+        "p95": 0.4335826975840034,
+        "max": 1.1614797664967236
+      },
+      "continuity": {
+        "mean": 0.05874292704809147,
+        "p95": 0.2005480918828789,
+        "max": 0.7365885025676269
+      },
+      "expressionMotion": {
+        "mean": 0.029329654660999117,
+        "p95": 0.08942089571044229,
+        "max": 0.4711500980655823
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0
+    },
+    {
+      "options": {
+        "weight": 0.03,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 1
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "changedFrames": 0,
+      "uniqueImages": 134,
+      "reappearances": 19,
+      "recentReappearances": 14,
+      "switches": 152,
+      "error": {
+        "mean": 0.1427788639564288,
+        "p95": 0.4335826975840034,
+        "max": 1.1614797664967236
+      },
+      "continuity": {
+        "mean": 0.05874292704809147,
+        "p95": 0.2005480918828789,
+        "max": 0.7365885025676269
+      },
+      "expressionMotion": {
+        "mean": 0.029329654660999117,
+        "p95": 0.08942089571044229,
+        "max": 0.4711500980655823
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0
+    },
+    {
+      "options": {
+        "weight": 0.1,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 1
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "changedFrames": 0,
+      "uniqueImages": 134,
+      "reappearances": 19,
+      "recentReappearances": 14,
+      "switches": 152,
+      "error": {
+        "mean": 0.1427788639564288,
+        "p95": 0.4335826975840034,
+        "max": 1.1614797664967236
+      },
+      "continuity": {
+        "mean": 0.05874292704809147,
+        "p95": 0.2005480918828789,
+        "max": 0.7365885025676269
+      },
+      "expressionMotion": {
+        "mean": 0.029329654660999117,
+        "p95": 0.08942089571044229,
+        "max": 0.4711500980655823
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0
+    },
+    {
+      "options": {
+        "weight": 0.3,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 1
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "changedFrames": 0,
+      "uniqueImages": 134,
+      "reappearances": 19,
+      "recentReappearances": 14,
+      "switches": 152,
+      "error": {
+        "mean": 0.1427788639564288,
+        "p95": 0.4335826975840034,
+        "max": 1.1614797664967236
+      },
+      "continuity": {
+        "mean": 0.05874292704809147,
+        "p95": 0.2005480918828789,
+        "max": 0.7365885025676269
+      },
+      "expressionMotion": {
+        "mean": 0.029329654660999117,
+        "p95": 0.08942089571044229,
+        "max": 0.4711500980655823
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0
+    },
+    {
+      "options": {
+        "weight": 1,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 1
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "changedFrames": 0,
+      "uniqueImages": 134,
+      "reappearances": 19,
+      "recentReappearances": 14,
+      "switches": 152,
+      "error": {
+        "mean": 0.1427788639564288,
+        "p95": 0.4335826975840034,
+        "max": 1.1614797664967236
+      },
+      "continuity": {
+        "mean": 0.05874292704809147,
+        "p95": 0.2005480918828789,
+        "max": 0.7365885025676269
+      },
+      "expressionMotion": {
+        "mean": 0.029329654660999117,
+        "p95": 0.08942089571044229,
+        "max": 0.4711500980655823
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0
+    },
+    {
+      "options": {
+        "weight": 0.001,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 2
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "changedFrames": 0,
+      "uniqueImages": 134,
+      "reappearances": 19,
+      "recentReappearances": 14,
+      "switches": 152,
+      "error": {
+        "mean": 0.1427788639564288,
+        "p95": 0.4335826975840034,
+        "max": 1.1614797664967236
+      },
+      "continuity": {
+        "mean": 0.05874292704809147,
+        "p95": 0.2005480918828789,
+        "max": 0.7365885025676269
+      },
+      "expressionMotion": {
+        "mean": 0.029329654660999117,
+        "p95": 0.08942089571044229,
+        "max": 0.4711500980655823
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0
+    },
+    {
+      "options": {
+        "weight": 0.003,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 2
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "changedFrames": 0,
+      "uniqueImages": 134,
+      "reappearances": 19,
+      "recentReappearances": 14,
+      "switches": 152,
+      "error": {
+        "mean": 0.1427788639564288,
+        "p95": 0.4335826975840034,
+        "max": 1.1614797664967236
+      },
+      "continuity": {
+        "mean": 0.05874292704809147,
+        "p95": 0.2005480918828789,
+        "max": 0.7365885025676269
+      },
+      "expressionMotion": {
+        "mean": 0.029329654660999117,
+        "p95": 0.08942089571044229,
+        "max": 0.4711500980655823
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0
+    },
+    {
+      "options": {
+        "weight": 0.01,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 2
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "changedFrames": 0,
+      "uniqueImages": 134,
+      "reappearances": 19,
+      "recentReappearances": 14,
+      "switches": 152,
+      "error": {
+        "mean": 0.1427788639564288,
+        "p95": 0.4335826975840034,
+        "max": 1.1614797664967236
+      },
+      "continuity": {
+        "mean": 0.05874292704809147,
+        "p95": 0.2005480918828789,
+        "max": 0.7365885025676269
+      },
+      "expressionMotion": {
+        "mean": 0.029329654660999117,
+        "p95": 0.08942089571044229,
+        "max": 0.4711500980655823
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0
+    },
+    {
+      "options": {
+        "weight": 0.03,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 2
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "changedFrames": 0,
+      "uniqueImages": 134,
+      "reappearances": 19,
+      "recentReappearances": 14,
+      "switches": 152,
+      "error": {
+        "mean": 0.1427788639564288,
+        "p95": 0.4335826975840034,
+        "max": 1.1614797664967236
+      },
+      "continuity": {
+        "mean": 0.05874292704809147,
+        "p95": 0.2005480918828789,
+        "max": 0.7365885025676269
+      },
+      "expressionMotion": {
+        "mean": 0.029329654660999117,
+        "p95": 0.08942089571044229,
+        "max": 0.4711500980655823
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0
+    },
+    {
+      "options": {
+        "weight": 0.1,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 2
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "changedFrames": 0,
+      "uniqueImages": 134,
+      "reappearances": 19,
+      "recentReappearances": 14,
+      "switches": 152,
+      "error": {
+        "mean": 0.1427788639564288,
+        "p95": 0.4335826975840034,
+        "max": 1.1614797664967236
+      },
+      "continuity": {
+        "mean": 0.05874292704809147,
+        "p95": 0.2005480918828789,
+        "max": 0.7365885025676269
+      },
+      "expressionMotion": {
+        "mean": 0.029329654660999117,
+        "p95": 0.08942089571044229,
+        "max": 0.4711500980655823
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0
+    },
+    {
+      "options": {
+        "weight": 0.3,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 2
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "changedFrames": 0,
+      "uniqueImages": 134,
+      "reappearances": 19,
+      "recentReappearances": 14,
+      "switches": 152,
+      "error": {
+        "mean": 0.1427788639564288,
+        "p95": 0.4335826975840034,
+        "max": 1.1614797664967236
+      },
+      "continuity": {
+        "mean": 0.05874292704809147,
+        "p95": 0.2005480918828789,
+        "max": 0.7365885025676269
+      },
+      "expressionMotion": {
+        "mean": 0.029329654660999117,
+        "p95": 0.08942089571044229,
+        "max": 0.4711500980655823
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0
+    },
+    {
+      "options": {
+        "weight": 1,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 2
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "changedFrames": 0,
+      "uniqueImages": 134,
+      "reappearances": 19,
+      "recentReappearances": 14,
+      "switches": 152,
+      "error": {
+        "mean": 0.1427788639564288,
+        "p95": 0.4335826975840034,
+        "max": 1.1614797664967236
+      },
+      "continuity": {
+        "mean": 0.05874292704809147,
+        "p95": 0.2005480918828789,
+        "max": 0.7365885025676269
+      },
+      "expressionMotion": {
+        "mean": 0.029329654660999117,
+        "p95": 0.08942089571044229,
+        "max": 0.4711500980655823
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0
+    }
+  ],
+  "exhaustive": {
+    "combinations": 9216,
+    "performed": true,
+    "ignoresAggregateAndMotionGates": true,
+    "scope": "captured ranked beams under unchanged per-frame budgets",
+    "checked": 9216,
+    "minimumRecentReappearances": 14,
+    "minimumReappearances": 19,
+    "minimumSwitches": 152,
+    "recentHistogram": {
+      "14": 128,
+      "15": 896,
+      "16": 1408,
+      "17": 2944,
+      "18": 3072,
+      "19": 768
+    }
+  }
+}

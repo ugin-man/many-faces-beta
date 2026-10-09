@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-visual-review-adjudication",
+  "qaRunId": 37515456441,
+  "sample": "H009",
+  "encodedSha256": "362a107682857031493c684fac68d5b588a60340ce941998cfe0189d75035360",
+  "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+  "sourceId": "seed-ffhq-36670",
+  "reviewer": "assistant-visual-review",
+  "humanVerified": false,
+  "exactOriginalViewedByAllReviewers": true,
+  "pixelChangesApplied": false,
+  "opinions": [
+    {
+      "task": "/root",
+      "decision": "uncertain",
+      "reason": "Both eyes, eyelids, nose and the smiling mouth are clear. The foreground person mainly overlaps the outer cheek. Several fringe strands overlap the brows; particularly the image-right brow contour cannot be followed confidently. Fine brow-expression readability remains unresolved; hairstyle itself and foreground presence are not exclusion grounds."
+    },
+    {
+      "task": "/root/quality_review",
+      "decision": "uncertain",
+      "reason": "Both eyes and mouth are clear, but fringe overlaps multiple brow sections, especially the image-right brow, limiting fine-brow readability."
+    },
+    {
+      "task": "/root/ci_inventory",
+      "recommendation": "pass",
+      "reason": "Both eyes and mouth remain readable; the reviewer regarded the partial fringe and outer-cheek overlap as normal partial coverage rather than sufficient expression obstruction."
+    }
+  ],
+  "finalDecision": "uncertain",
+  "selectionAction": "quarantine-before-selection-and-refill",
+  "confirmedForbiddenObject": false,
+  "reason": "Two direct original reviews could not confidently trace fine brow contours. The broader-expression pass recommendation is preserved, but unresolved fine-brow visibility is conservatively quarantined. This is not a claim of sunglasses or mask detection."
+}

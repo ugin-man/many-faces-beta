@@ -1,0 +1,1146 @@
+name: Build audited Clean Core v5 candidate
+
+# Updating the request marker starts a candidate run after calibration.
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths:
+      - data/clean-core-v5-candidate-request.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: many-faces-clean-core-v5-candidate-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  FFHQ_SOURCE_COMMIT: 9d10fb37a825a5f90e5a3671a9564a1f1e9bef53
+  ATTRIBUTE_MODEL_PATH: work/models/face_attrib_net.onnx
+  ATTRIBUTE_MODEL_SHA256: 1bf7c6453bec2fb28e0830f3a76dceb9ffd020124f87b28da5355940a7bc6e48
+  FACE_MODEL_PATH: public/mediapipe/face_landmarker.task
+  AUDIT_PARTS: "16"
+  VISIBILITY_MAX_SCORE: "0.05"
+  PYTHONUNBUFFERED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  OMP_NUM_THREADS: "1"
+  OPENBLAS_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+
+jobs:
+  preflight:
+    if: github.ref == 'refs/heads/astra/realtime-hardening'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      audit_mode: ${{ steps.mode.outputs.audit_mode }}
+      diagnostic_only: ${{ steps.mode.outputs.diagnostic_only }}
+      diagnostic_focus: ${{ steps.mode.outputs.diagnostic_focus }}
+      previous_review_path: ${{ steps.mode.outputs.previous_review_path }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            /*
+            !/public/seed-catalog/*
+            /public/seed-catalog/manifest.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Select fresh inference or the explicitly pinned completed audit
+        id: mode
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          import subprocess
+          import sys
+          from pathlib import Path, PurePosixPath
+
+          def unique(pairs):
+              result = {}
+              for key, value in pairs:
+                  if key in result:
+                      raise ValueError('Duplicate request key: ' + key)
+                  result[key] = value
+              return result
+
+          def nonfinite(value):
+              raise ValueError('Non-finite request value: ' + value)
+
+          request = json.loads(Path('data/clean-core-v5-candidate-request.json').read_text(),
+                               object_pairs_hook=unique, parse_constant=nonfinite)
+          if not (type(request.get('schemaVersion')) is int and request.get('schemaVersion') == 1
+                  and type(request.get('targetTotal')) is int and request.get('targetTotal') == 70000
+                  and request.get('visibilityMaxScore') == .05
+                  and request.get('ffhqSourceCommit') == os.environ['FFHQ_SOURCE_COMMIT']
+                  and request.get('attributeModelSha256') == os.environ['ATTRIBUTE_MODEL_SHA256']):
+              raise ValueError('Candidate request differs from the frozen 70k source/model policy')
+          mode = 'fresh'
+          if 'reuseAudit' in request:
+              expected = {
+                  'runId': 37464000479, 'runAttempt': 1,
+                  'artifactId': 11415037663, 'artifactName': 'clean-core-v5-failure-37464000479-1',
+                  'archiveSizeBytes': 2519170981,
+                  'archiveSha256': '0b8023f1c9e81676b499feab0cea82279909e7a8347cf73185076d35560a643b',
+                  'candidateAuditSha256': '531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436',
+                  'recordsSha256': '3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852',
+                  'inferenceCodeCommit': '8f209747dbf5edfd627707734ad01a19be43e897',
+              }
+              if (request['reuseAudit'] != expected
+                      or any(type(request['reuseAudit'].get(key)) is not int
+                             for key in ('runId', 'runAttempt', 'artifactId', 'archiveSizeBytes'))):
+                  raise ValueError('Audit reuse must name the exact reviewed completed inference artifact')
+              mode = 'reuse'
+          diagnostic_only = request.get('diagnosticOnly', False)
+          if type(diagnostic_only) is not bool or (diagnostic_only and mode != 'reuse'):
+              raise ValueError('diagnosticOnly must be a boolean and requires the pinned completed audit')
+          diagnostic_focus = request.get('diagnosticFocus', 'profile-challenges')
+          if (not isinstance(diagnostic_focus, str)
+                  or diagnostic_focus not in ('profile-challenges', 'all-observed-winks')
+                  or diagnostic_focus == 'all-observed-winks' and not diagnostic_only):
+              raise ValueError('All-wink diagnostic focus requires diagnosticOnly and the pinned completed audit')
+          previous_review_path = ''
+          # Bind the deny-only review and its predecessor even for diagnostics;
+          # they are disclosed but not applied to the exhaustive audit export.
+          if not diagnostic_only or 'selectionReview' in request:
+              selection_review = Path('data/catalog-selection-reviewed.json')
+              review_pin = request.get('selectionReview')
+              if (not isinstance(review_pin, dict) or set(review_pin) != {'path', 'sha256', 'previous'}
+                      or review_pin['path'] != selection_review.as_posix()
+                      or not selection_review.is_file() or selection_review.is_symlink()
+                      or any(parent.is_symlink() for parent in selection_review.parents)
+                      or hashlib.sha256(selection_review.read_bytes()).hexdigest() != review_pin['sha256']):
+                  raise ValueError('Candidate selection requires the exact request-bound additional exclusion review')
+              previous = review_pin['previous']
+              if previous is not None:
+                  if not isinstance(previous, dict) or set(previous) != {'path', 'sha256'}:
+                      raise ValueError('The previous selection review requires one exact path and SHA256')
+                  name = previous['path']
+                  if not isinstance(name, str) or re.fullmatch(r'data/[A-Za-z0-9_./-]+\.json', name) is None:
+                      raise ValueError('Invalid previous selection review path')
+                  relative = PurePosixPath(name)
+                  path = Path(name)
+                  if ('..' in relative.parts or relative.as_posix() != name
+                          or not path.is_file() or path.is_symlink()
+                          or any(parent.is_symlink() for parent in path.parents)
+                          or hashlib.sha256(path.read_bytes()).hexdigest() != previous['sha256']):
+                      raise ValueError('Previous selection review bytes or safe path differ from the request')
+                  subprocess.run(['git', 'ls-files', '--error-unmatch', '--', ':(literal)' + name],
+                                 check=True, stdout=subprocess.DEVNULL)
+                  previous_review_path = name
+              sys.path.insert(0, str(Path('tools').resolve()))
+              from clean_core_selection_review import SelectionReview
+              review_document = json.loads(selection_review.read_text())
+              review_receipt = request['reuseAudit']['candidateAuditSha256'] if mode == 'reuse' else review_document.get('candidateAuditSha256')
+              review_records = request['reuseAudit']['recordsSha256'] if mode == 'reuse' else review_document.get('recordsSha256')
+              SelectionReview(selection_review, review_receipt, review_records,
+                              previous_path=Path(previous_review_path) if previous_review_path else None)
+          if not diagnostic_only:
+              wink_path = Path('data/catalog-wink-expression-reviewed.json')
+              wink_pin = request.get('winkReview')
+              if (not isinstance(wink_pin, dict) or set(wink_pin) != {'path', 'sha256'}
+                      or wink_pin['path'] != wink_path.as_posix()
+                      or not wink_path.is_file() or wink_path.is_symlink()
+                      or any(parent.is_symlink() for parent in wink_path.parents)
+                      or hashlib.sha256(wink_path.read_bytes()).hexdigest() != wink_pin['sha256']):
+                  raise ValueError('Candidate selection requires the exact request-bound wink expression review')
+              subprocess.run(['git', 'ls-files', '--error-unmatch', '--', ':(literal)' + wink_path.as_posix()],
+                             check=True, stdout=subprocess.DEVNULL)
+              from clean_core_selection_review import WinkExpressionReview
+              WinkExpressionReview(wink_path, review_receipt, review_records)
+          with Path(os.environ['GITHUB_OUTPUT']).open('a') as output:
+              output.write('audit_mode=' + mode + '\n')
+              output.write('diagnostic_only=' + str(diagnostic_only).lower() + '\n')
+              output.write('diagnostic_focus=' + diagnostic_focus + '\n')
+              output.write('previous_review_path=' + previous_review_path + '\n')
+          print(json.dumps({'auditMode': mode, 'targetTotal': 70000,
+                            'diagnosticOnly': diagnostic_only,
+                            'diagnosticFocus': diagnostic_focus,
+                            'newInferenceRequested': mode == 'fresh',
+                            'completedAuditBytesMustRemainUnchanged': mode == 'reuse'}))
+          PY
+      - name: Install and exercise the real native inference stack
+        if: steps.mode.outputs.audit_mode == 'fresh'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install --yes --no-install-recommends libgles2 libegl1
+          python -m pip install --disable-pip-version-check -r tools/requirements-clean-admission.txt
+          mkdir -p work/models
+          curl --fail --location --retry 3 --connect-timeout 30 --max-time 300 \
+            --output "$ATTRIBUTE_MODEL_PATH" \
+            https://github.com/yakhyo/face-attribute/releases/download/weights/face_attrib_net.onnx
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'tools')
+          from clean_core_admission import AdmissionEngine
+          model = Path(os.environ['ATTRIBUTE_MODEL_PATH'])
+          assert hashlib.sha256(model.read_bytes()).hexdigest() == os.environ['ATTRIBUTE_MODEL_SHA256']
+          source = Path('public/wink-support/v1')
+          entries = json.loads((source / 'catalog.json').read_text())['items']
+          entry = next(row for row in entries if row['id'] == 'wink-extra-4f24a6bfb7a11643dfea342c')
+          pixels = (source / 'images' / entry['image']).read_bytes()
+          with AdmissionEngine(model, os.environ['FACE_MODEL_PATH'], reviewed_path='data/catalog-visibility-reviewed.json') as engine:
+              record = engine.evaluate(pixels, entry, 'preflight-wink', 'wink-extras')
+              assert record['decision'] == 'pass', record['reasons']
+              print(json.dumps({'nativeInferencePreflight': 'passed', 'imageSha256': record['encodedSha256'], 'runtimeVersions': engine.runtime_versions}))
+          PY
+
+  audit:
+    needs: preflight
+    if: github.ref == 'refs/heads/astra/realtime-hardening' && needs.preflight.outputs.audit_mode == 'fresh'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    env:
+      AUDIT_PART: ${{ matrix.part }}
+    steps:
+      - name: Check out the exact candidate code and current catalog
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Check out the pinned FFHQ source catalog
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.FFHQ_SOURCE_COMMIT }}
+          path: work/pinned-ffhq
+          fetch-depth: 1
+          sparse-checkout: public/seed-catalog
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the MediaPipe native runtime dependency
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install --yes --no-install-recommends libgles2 libegl1
+      - name: Install and check the candidate admission tools
+        run: |
+          python -m pip install --disable-pip-version-check -r tools/requirements-clean-admission.txt
+          python -m compileall -q tools
+          python -m unittest discover -s tests -p 'test_*.py'
+      - name: Prepare exact source catalogs and prior audit evidence
+        run: |
+          test "$(git -C work/pinned-ffhq rev-parse HEAD)" = "$FFHQ_SOURCE_COMMIT"
+          mkdir -p work/source-catalogs work/catalog-quality work/models
+          mv work/pinned-ffhq/public/seed-catalog work/source-catalogs/ffhq-main
+          python tools/prepare_wink_candidates.py \
+            --source public/wink-support/v1 \
+            --out work/source-catalogs/wink-extras
+          gzip -dc data/catalog-quality/existing-audit-evidence.json.gz \
+            > work/catalog-quality/merged-evidence.json
+          test -s "$FACE_MODEL_PATH"
+      - name: Download and verify the pinned FaceAttribNet model
+        run: |
+          curl --fail --location --retry 3 --connect-timeout 30 --max-time 300 \
+            --output "$ATTRIBUTE_MODEL_PATH" \
+            https://github.com/yakhyo/face-attribute/releases/download/weights/face_attrib_net.onnx
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+
+          model = Path(os.environ['ATTRIBUTE_MODEL_PATH'])
+          actual = hashlib.sha256(model.read_bytes()).hexdigest()
+          if actual != os.environ['ATTRIBUTE_MODEL_SHA256']:
+              raise SystemExit('FaceAttribNet SHA256 mismatch: ' + actual)
+          print('Verified FaceAttribNet SHA256: ' + actual)
+          PY
+      - name: Audit one exact partition before candidate selection
+        run: |
+          python tools/audit_clean_core_candidates.py \
+            --catalog current=public/seed-catalog \
+            --catalog ffhq=work/source-catalogs/ffhq-main \
+            --catalog wink-extras=work/source-catalogs/wink-extras \
+            --out work/clean-v5-audit \
+            --face-attribute-model "$ATTRIBUTE_MODEL_PATH" \
+            --face-model "$FACE_MODEL_PATH" \
+            --reviewed-visibility data/catalog-visibility-reviewed.json \
+            --prior-yaw-evidence work/catalog-quality/merged-evidence.json \
+            --part "$AUDIT_PART" --parts "$AUDIT_PARTS" --workers 1 \
+            --visibility-max-score "$VISIBILITY_MAX_SCORE"
+      - name: Retain the partition evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-core-v5-audit-part-${{ matrix.part }}-${{ github.run_id }}
+          path: work/clean-v5-audit/
+          if-no-files-found: error
+          overwrite: true
+          compression-level: 0
+          retention-days: 14
+
+  assemble:
+    needs: [preflight, audit]
+    if: >-
+      always() && github.ref == 'refs/heads/astra/realtime-hardening' &&
+      needs.preflight.result == 'success' &&
+      ((needs.preflight.outputs.audit_mode == 'fresh' && needs.audit.result == 'success') ||
+       (needs.preflight.outputs.audit_mode == 'reuse' && needs.audit.result == 'skipped'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Check out the exact candidate code and current catalog
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Check out the pinned FFHQ source catalog
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.FFHQ_SOURCE_COMMIT }}
+          path: work/pinned-ffhq
+          fetch-depth: 1
+          sparse-checkout: public/seed-catalog
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+      - name: Install tools and check pose-local repacking
+        run: |
+          python -m pip install --disable-pip-version-check -r tools/requirements-clean-admission.txt
+          node --test tests/repack-live-pose-packs.test.mjs
+          mkdir -p work/clean-v5-provenance
+          python -m pip freeze > work/clean-v5-provenance/python-environment.txt
+      - name: Prepare the identical source catalogs and prior evidence
+        run: |
+          test "$(git -C work/pinned-ffhq rev-parse HEAD)" = "$FFHQ_SOURCE_COMMIT"
+          mkdir -p work/source-catalogs work/catalog-quality work/models
+          mv work/pinned-ffhq/public/seed-catalog work/source-catalogs/ffhq-main
+          python tools/prepare_wink_candidates.py \
+            --source public/wink-support/v1 \
+            --out work/source-catalogs/wink-extras
+          gzip -dc data/catalog-quality/existing-audit-evidence.json.gz \
+            > work/catalog-quality/merged-evidence.json
+          test -s "$FACE_MODEL_PATH"
+      - name: Download and verify the same FaceAttribNet model
+        run: |
+          curl --fail --location --retry 3 --connect-timeout 30 --max-time 300 \
+            --output "$ATTRIBUTE_MODEL_PATH" \
+            https://github.com/yakhyo/face-attribute/releases/download/weights/face_attrib_net.onnx
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+
+          model = Path(os.environ['ATTRIBUTE_MODEL_PATH'])
+          actual = hashlib.sha256(model.read_bytes()).hexdigest()
+          if actual != os.environ['ATTRIBUTE_MODEL_SHA256']:
+              raise SystemExit('FaceAttribNet SHA256 mismatch: ' + actual)
+          print('Verified FaceAttribNet SHA256: ' + actual)
+          PY
+      - name: Restore and verify the original completed audit without inference or remerging
+        if: needs.preflight.outputs.audit_mode == 'reuse'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import base64
+          import hashlib
+          import json
+          import os
+          import shutil
+          import stat
+          import sys
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+          import zipfile
+          from pathlib import Path, PurePosixPath
+
+          sys.path.insert(0, str(Path('tools').resolve()))
+          import clean_core_admission as admission
+
+          def require(value, message):
+              if not value:
+                  raise ValueError(message)
+
+          def sha256(path):
+              return admission.sha256_file(path)
+
+          request = json.loads(Path('data/clean-core-v5-candidate-request.json').read_text())
+          pin = request['reuseAudit']
+          repository = os.environ['GITHUB_REPOSITORY']
+          require(repository == 'ugin-man/many-faces-beta', 'Audit reuse must stay in the original repository')
+          headers = {'Accept': 'application/vnd.github+json',
+                     'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                     'X-GitHub-Api-Version': '2026-03-10', 'User-Agent': 'many-faces-audit-reuse'}
+          api_root = 'https://api.github.com/repos/' + repository + '/'
+
+          def api(path):
+              with urllib.request.urlopen(urllib.request.Request(api_root + path, headers=headers), timeout=60) as response:
+                  return json.load(response)
+
+          run = api(f"actions/runs/{pin['runId']}/attempts/{pin['runAttempt']}")
+          require(run.get('id') == pin['runId'] and run.get('run_attempt') == pin['runAttempt']
+                  and run.get('status') == 'completed' and run.get('conclusion') == 'failure',
+                  'Original inference run is not the expected completed selection failure')
+          require(run.get('repository', {}).get('full_name') == repository
+                  and run.get('head_repository', {}).get('full_name') == repository
+                  and run.get('head_branch') == 'astra/realtime-hardening'
+                  and run.get('head_sha') == pin['inferenceCodeCommit']
+                  and str(run.get('path', '')).split('@', 1)[0] == '.github/workflows/clean-core-v5-candidate.yml',
+                  'Original inference run identity changed')
+          if os.environ['GITHUB_SHA'] != pin['inferenceCodeCommit']:
+              comparison = api('compare/' + pin['inferenceCodeCommit'] + '...' + os.environ['GITHUB_SHA'])
+              require(comparison.get('merge_base_commit', {}).get('sha') == pin['inferenceCodeCommit']
+                      and comparison.get('status') in ('ahead', 'identical'), 'Selection code is not descended from original inference code')
+          jobs = api(f"actions/runs/{pin['runId']}/attempts/{pin['runAttempt']}/jobs?per_page=100")
+          require(jobs.get('total_count') == 18 and len(jobs.get('jobs', [])) == 18,
+                  'Original run does not contain the complete preflight, sixteen audits and assembly')
+          by_name = {job['name']: job for job in jobs['jobs']}
+          require(set(by_name) == {'preflight', 'assemble', *(f'audit ({part})' for part in range(16))},
+                  'Missing or repeated original inference job')
+          for name in ('preflight', *(f'audit ({part})' for part in range(16))):
+              job = by_name[name]
+              require(job.get('run_id') == pin['runId'] and job.get('head_sha') == pin['inferenceCodeCommit']
+                      and job.get('status') == 'completed' and job.get('conclusion') == 'success',
+                      'Original native inference job did not succeed: ' + name)
+              if name.startswith('audit ('):
+                  steps = {step['name']: step for step in job['steps']}
+                  require(all(steps.get(label, {}).get('conclusion') == 'success' for label in (
+                      'Audit one exact partition before candidate selection', 'Retain the partition evidence')),
+                      'Original partition inference/evidence step did not succeed')
+          assembly = by_name['assemble']
+          assembly_steps = {step['name']: step for step in assembly['steps']}
+          failed_steps = [step['name'] for step in assembly['steps'] if step.get('conclusion') == 'failure']
+          require(assembly.get('run_id') == pin['runId'] and assembly.get('head_sha') == pin['inferenceCodeCommit']
+                  and assembly.get('status') == 'completed' and assembly.get('conclusion') == 'failure'
+                  and failed_steps == ['Select exactly 70000 admitted real photographs']
+                  and all(assembly_steps.get(name, {}).get('conclusion') == 'success' for name in (
+                      'Validate complete partition coverage and merge admission evidence',
+                      'Retain diagnostics if candidate generation fails')),
+                  'Original assembly failure was not confined to the known selection gate')
+          artifact = api(f"actions/artifacts/{pin['artifactId']}")
+          origin = artifact.get('workflow_run', {})
+          require(artifact.get('id') == pin['artifactId'] and artifact.get('name') == pin['artifactName']
+                  and artifact.get('expired') is False and artifact.get('size_in_bytes') == pin['archiveSizeBytes']
+                  and artifact.get('digest') == 'sha256:' + pin['archiveSha256']
+                  and origin.get('id') == pin['runId'] and origin.get('head_sha') == pin['inferenceCodeCommit']
+                  and origin.get('head_branch') == 'astra/realtime-hardening'
+                  and origin.get('repository_id') == run['repository']['id']
+                  and origin.get('head_repository_id') == run['repository']['id'],
+                  'Original completed audit artifact identity differs')
+          archive_path = Path('work/reused-inference.zip')
+          extract_root = Path('work/reused-inference-source')
+          require(not archive_path.exists() and not extract_root.exists() and not Path('work/clean-v5-audit').exists(),
+                  'Audit reuse requires empty staging and audit destinations')
+
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, request, file, code, message, headers, newurl):
+                  return None
+
+          query = urllib.request.Request(api_root + f"actions/artifacts/{pin['artifactId']}/zip", headers=headers)
+          try:
+              response = urllib.request.build_opener(NoRedirect).open(query, timeout=90)
+          except urllib.error.HTTPError as error:
+              require(error.code in (301, 302, 303, 307, 308), 'Original artifact download failed')
+              location = error.headers.get('Location', '')
+              parsed = urllib.parse.urlsplit(location)
+              require(parsed.scheme == 'https' and bool(parsed.hostname) and parsed.username is None
+                      and parsed.password is None, 'Unsafe artifact storage redirect')
+              # Never forward the repository token to the signed storage URL.
+              response = urllib.request.urlopen(urllib.request.Request(
+                  location, headers={'User-Agent': 'many-faces-audit-reuse'}), timeout=120)
+          digest = hashlib.sha256()
+          size = 0
+          with response, archive_path.open('xb') as output:
+              while True:
+                  block = response.read(1024 * 1024)
+                  if not block:
+                      break
+                  size += len(block)
+                  require(size <= pin['archiveSizeBytes'], 'Original archive exceeded its pinned size')
+                  digest.update(block)
+                  output.write(block)
+          require(size == pin['archiveSizeBytes'] and digest.hexdigest() == pin['archiveSha256'],
+                  'Original archive byte count or SHA256 differs')
+          extract_root.mkdir()
+          with zipfile.ZipFile(archive_path) as archive:
+              members = archive.infolist()
+              require(0 < len(members) <= 100000 and sum(item.file_size for item in members) <= 8 * 1024 ** 3,
+                      'Original artifact extraction exceeds its bounded size')
+              seen = set()
+              for item in members:
+                  name = item.filename.rstrip('/')
+                  relative = PurePosixPath(name)
+                  require(name and '\0' not in name and '\\' not in name and not relative.is_absolute()
+                          and '..' not in relative.parts and relative.as_posix() == name and name not in seen,
+                          'Unsafe or repeated original artifact path')
+                  seen.add(name)
+                  require(stat.S_IFMT(item.external_attr >> 16) in (0, stat.S_IFREG, stat.S_IFDIR),
+                          'Original artifact contains a nonregular entry')
+                  target = extract_root.joinpath(*relative.parts)
+                  if item.is_dir():
+                      target.mkdir(parents=True, exist_ok=True)
+                  else:
+                      target.parent.mkdir(parents=True, exist_ok=True)
+                      with archive.open(item) as source, target.open('xb') as output:
+                          shutil.copyfileobj(source, output, 1024 * 1024)
+          archive_path.unlink()
+          audit_root = extract_root / 'clean-v5-audit'
+          receipt_path = audit_root / 'candidate-audit.json'
+          require(receipt_path.is_file() and sha256(receipt_path) == pin['candidateAuditSha256'],
+                  'Original completed audit receipt is missing or changed')
+          receipt = json.loads(receipt_path.read_text())
+          database_path = admission.safe_child(audit_root, receipt.get('recordsPath', ''))
+          require(sha256(database_path) == pin['recordsSha256'] == receipt.get('recordsSha256'),
+                  'Original admission database is missing or changed')
+          require(receipt.get('schemaVersion') == 2 and receipt.get('status') == 'complete'
+                  and receipt.get('allCandidateRowsAccounted') is True
+                  and receipt.get('partitionCount') == 16 and receipt.get('recordCount') == 140105
+                  and receipt.get('passCount') == 114296 and receipt.get('rejectCount') == 219
+                  and receipt.get('unresolvedCount') == 25590,
+                  'Original inference completion/counts differ')
+          require(receipt.get('analysisCodeSha256') == sha256(Path('tools/clean_core_admission.py'))
+                  and receipt.get('runnerCodeSha256') == sha256(Path('tools/audit_clean_core_candidates.py')),
+                  'Inference code changed; this audit cannot be reused')
+          require(receipt.get('models') == {'attributeSha256': sha256(Path(os.environ['ATTRIBUTE_MODEL_PATH'])),
+                  'faceSha256': sha256(Path(os.environ['FACE_MODEL_PATH']))}, 'Inference model changed')
+          require(receipt.get('policySha256') == '2f820a6dff8f4d0fcd595623042d3397abfbd6efa8ca57c45aac9f68c3462481',
+                  'Original admission policy changed')
+          policy = admission.AdmissionPolicy.from_document(receipt.get('policy', {}))
+          require(policy.visibility_max_score == .05 and policy.sha256 == receipt['policySha256'],
+                  'Original visibility policy is not the calibrated policy')
+          run_metadata = json.loads((audit_root / 'run-metadata.json').read_text())
+          require(run_metadata.get('parts') == 16 and run_metadata.get('runnerCodeSha256') == receipt['runnerCodeSha256'],
+                  'Original partition execution metadata differs')
+          for key in ('schemaVersion', 'policySha256', 'analysisCodeSha256', 'models', 'controlsSha256', 'sources', 'policy'):
+              require(run_metadata.get(key) == receipt.get(key), 'Original run metadata differs: ' + key)
+          partitions = receipt.get('partitions', [])
+          require(len(partitions) == 16 and {part.get('part') for part in partitions} == set(range(16)),
+                  'Original partition coverage is incomplete')
+          for part in partitions:
+              require(part.get('status') == 'complete' and part.get('parts') == 16
+                      and sha256(admission.safe_child(audit_root, part.get('path', ''))) == part.get('sha256')
+                      and json.loads((audit_root / f"partition-{part['part']:02d}.json").read_text()) == part,
+                      'Original partition bytes or receipt changed')
+          controls_path = admission.safe_child(audit_root, receipt.get('controlsPath', ''))
+          controls = json.loads(controls_path.read_text())
+          require(sha256(controls_path) == receipt.get('controlsSha256')
+                  and controls.get('reviewedFileSha256') == sha256(Path('data/catalog-visibility-reviewed.json'))
+                  and controls.get('priorYawEvidenceSha256') == sha256(Path('work/catalog-quality/merged-evidence.json'))
+                  and controls.get('reviews') == admission.load_visibility_reviews('data/catalog-visibility-reviewed.json'),
+                  'Original reviewed visibility or yaw controls changed')
+          expected_failures = [
+              'winkLeft: 0 < required 4', 'winkRight: 0 < required 4',
+              'mouthWide: 14 < required 20', 'mouthFrown: 6 < required 8',
+              'winkLeft pose cells: 0 < required 2', 'winkRight pose cells: 0 < required 2',
+          ]
+          failed_selection_path = extract_root / 'clean-v5-build/audit.json'
+          failed_selection = json.loads(failed_selection_path.read_text())
+          require(failed_selection.get('gatePassed') is False and failed_selection.get('gateFailures') == expected_failures
+                  and failed_selection.get('selectedFaces') == 70000
+                  and failed_selection.get('qualityAdmission', {}).get('receiptSha256') == pin['candidateAuditSha256']
+                  and failed_selection.get('qualityAdmission', {}).get('recordsSha256') == pin['recordsSha256'],
+                  'Original assembly did not fail the exact expected profile gates')
+          expected_profiles = {'winkLeft': 0, 'winkRight': 0, 'mouthWide': 14, 'mouthFrown': 6}
+          require(all(failed_selection.get('selectedProfiles', {}).get(key) == value for key, value in expected_profiles.items()),
+                  'Original failed profile counts differ')
+          frozen_files = [{'path': path.relative_to(audit_root).as_posix(), 'bytes': path.stat().st_size, 'sha256': sha256(path)}
+                          for path in sorted(audit_root.rglob('*')) if path.is_file()]
+          sources = ['current=public/seed-catalog', 'ffhq=work/source-catalogs/ffhq-main',
+                     'wink-extras=work/source-catalogs/wink-extras']
+          # This reader checks all source fingerprints/keys and metadata. It
+          # does not construct AdmissionEngine or rerun any model inference.
+          with admission.AdmissionAudit(receipt_path, os.environ['ATTRIBUTE_MODEL_PATH'], sources):
+              pass
+          original = Path('work/clean-v5-provenance/reused-inference')
+          original.mkdir(parents=True)
+          for name in ('.github/workflows/clean-core-v5-candidate.yml', 'tools/clean_core_admission.py',
+                       'tools/audit_clean_core_candidates.py', 'tools/requirements-clean-admission.txt'):
+              response = api('contents/' + name + '?ref=' + pin['inferenceCodeCommit'])
+              require(response.get('encoding') == 'base64' and isinstance(response.get('content'), str),
+                      'Original inference source file is unavailable')
+              raw = base64.b64decode(''.join(response['content'].split()), validate=True)
+              require(len(raw) == response.get('size'), 'Original inference source size differs')
+              if name.startswith('tools/'):
+                  require(hashlib.sha256(raw).hexdigest() == sha256(Path(name)),
+                          'Original inference source/dependencies differ: ' + name)
+              target = original / 'source' / name
+              target.parent.mkdir(parents=True, exist_ok=True)
+              target.write_bytes(raw)
+          shutil.copy2(failed_selection_path, original / 'original-selection-failure.json')
+          prior_provenance = extract_root / 'clean-v5-provenance'
+          if prior_provenance.is_dir():
+              shutil.copytree(prior_provenance, original / 'original-provenance')
+          (original / 'github-jobs.json').write_text(json.dumps(jobs, indent=2) + '\n')
+          audit_root.rename('work/clean-v5-audit')
+          restored = Path('work/clean-v5-audit')
+          after_files = [{'path': path.relative_to(restored).as_posix(), 'bytes': path.stat().st_size, 'sha256': sha256(path)}
+                         for path in sorted(restored.rglob('*')) if path.is_file()]
+          require(after_files == frozen_files, 'Original admission bytes changed during validation or restoration')
+          reuse = {
+              'schemaVersion': 1, 'status': 'complete', 'mode': 'reuse',
+              'repository': repository, 'originalInference': pin, 'currentCodeCommit': os.environ['GITHUB_SHA'],
+              'selectionCodeCommit': None if request.get('diagnosticOnly', False) else os.environ['GITHUB_SHA'],
+              'diagnosticOnly': request.get('diagnosticOnly', False),
+              'originalRunConclusion': 'failure', 'originalAssemblyFailedStep': failed_steps[0],
+              'originalExpectedSelectionFailures': expected_failures,
+              'originalAuditJobs': [{'id': by_name[f'audit ({part})']['id'], 'part': part, 'conclusion': 'success'}
+                                    for part in range(16)],
+              'candidateAuditSha256': pin['candidateAuditSha256'], 'recordsSha256': pin['recordsSha256'],
+              'analysisCodeSha256': receipt['analysisCodeSha256'], 'runnerCodeSha256': receipt['runnerCodeSha256'],
+              'models': receipt['models'], 'policySha256': receipt['policySha256'], 'controlsSha256': receipt['controlsSha256'],
+              'auditFiles': frozen_files, 'recordCount': receipt['recordCount'],
+              'sourceFingerprintValidation': 'passed', 'admissionBytesUnchanged': True,
+              'newInferencePerformed': False, 'auditRemerged': False, 'datasetPromoted': False, 'sitePublished': False,
+          }
+          Path('work/clean-v5-provenance/audit-reuse.json').write_text(json.dumps(reuse, indent=2) + '\n')
+          shutil.rmtree(extract_root)
+          print(json.dumps({'auditMode': 'reuse', 'originalInferenceRun': pin['runId'],
+                            'originalInferenceCodeCommit': pin['inferenceCodeCommit'],
+                            'currentCodeCommit': os.environ['GITHUB_SHA'],
+                            'diagnosticOnly': request.get('diagnosticOnly', False),
+                            'recordCount': receipt['recordCount'], 'candidateAuditSha256': pin['candidateAuditSha256'],
+                            'recordsSha256': pin['recordsSha256'], 'newInferencePerformed': False, 'auditRemerged': False}))
+          PY
+      - name: Download all partitions from this workflow run
+        if: needs.preflight.outputs.audit_mode == 'fresh'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: clean-core-v5-audit-part-*-${{ github.run_id }}
+          path: work/clean-v5-audit
+          merge-multiple: true
+      - name: Validate complete partition coverage and merge admission evidence
+        if: needs.preflight.outputs.audit_mode == 'fresh'
+        run: |
+          python tools/audit_clean_core_candidates.py \
+            --catalog current=public/seed-catalog \
+            --catalog ffhq=work/source-catalogs/ffhq-main \
+            --catalog wink-extras=work/source-catalogs/wink-extras \
+            --out work/clean-v5-audit \
+            --face-attribute-model "$ATTRIBUTE_MODEL_PATH" \
+            --face-model "$FACE_MODEL_PATH" \
+            --reviewed-visibility data/catalog-visibility-reviewed.json \
+            --prior-yaw-evidence work/catalog-quality/merged-evidence.json \
+            --merge-only --parts "$AUDIT_PARTS" --workers 1 \
+            --visibility-max-score "$VISIBILITY_MAX_SCORE"
+      - name: Export bounded original profile records and photographs for diagnosis
+        id: profile_diagnostics
+        if: needs.preflight.outputs.diagnostic_only == 'true'
+        env:
+          DIAGNOSTIC_FOCUS: ${{ needs.preflight.outputs.diagnostic_focus }}
+        run: |
+          diagnostic_args=()
+          if test "$DIAGNOSTIC_FOCUS" = all-observed-winks; then
+            diagnostic_args+=(--all-observed-winks)
+          fi
+          python tools/export_clean_core_profile_diagnostics.py \
+            --candidate-audit work/clean-v5-audit/candidate-audit.json \
+            --face-attribute-model "$ATTRIBUTE_MODEL_PATH" \
+            --face-model "$FACE_MODEL_PATH" \
+            --reviewed-visibility data/catalog-visibility-reviewed.json \
+            --source current=public/seed-catalog \
+            --source ffhq=work/source-catalogs/ffhq-main \
+            --source wink-extras=work/source-catalogs/wink-extras \
+            --out work/clean-v5-profile-diagnostics \
+            "${diagnostic_args[@]}"
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import shutil
+          from pathlib import Path
+
+          def digest(path):
+              value = hashlib.sha256()
+              with Path(path).open('rb') as source:
+                  for block in iter(lambda: source.read(1024 * 1024), b''):
+                      value.update(block)
+              return value.hexdigest()
+
+          root = Path('work/clean-v5-profile-diagnostics')
+          summary = root / 'summary'
+          if not (summary / 'summary.json').is_file() or not (summary / 'README.md').is_file():
+              raise ValueError('Profile diagnostic summary is incomplete')
+          report = json.loads((summary / 'summary.json').read_text())
+          if (report.get('status') != 'complete'
+                  or report.get('diagnosticFocus') != os.environ['DIAGNOSTIC_FOCUS']
+                  or report.get('modelInferencePerformed') is not False
+                  or report.get('expressionReviewApplied') is not False
+                  or report.get('laterSelectionDenialsApplied') is not False):
+              raise ValueError('Diagnostic export mode or unchanged-evidence declarations differ')
+          reuse = json.loads(Path('work/clean-v5-provenance/audit-reuse.json').read_text())
+          audit_root = Path('work/clean-v5-audit')
+          actual_files = [{'path': path.relative_to(audit_root).as_posix(), 'bytes': path.stat().st_size, 'sha256': digest(path)}
+                          for path in sorted(audit_root.rglob('*')) if path.is_file()]
+          if actual_files != reuse['auditFiles']:
+              raise ValueError('Original completed audit bytes changed during diagnostic export')
+          copies = {
+              'original-candidate-audit.json': audit_root / 'candidate-audit.json',
+              'audit-reuse.json': Path('work/clean-v5-provenance/audit-reuse.json'),
+              'original-selection-failure.json': Path('work/clean-v5-provenance/reused-inference/original-selection-failure.json'),
+              'request.json': Path('data/clean-core-v5-candidate-request.json'),
+          }
+          for name, source in copies.items():
+              shutil.copyfile(source, summary / name)
+          receipt = {
+              'schemaVersion': 1, 'artifactPurpose': 'profile-diagnostics-from-unchanged-completed-audit',
+              'workflowRunId': int(os.environ['GITHUB_RUN_ID']),
+              'workflowRunAttempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'diagnosticCodeCommit': os.environ['GITHUB_SHA'],
+              'diagnosticFocus': os.environ['DIAGNOSTIC_FOCUS'],
+              'exporterCodeSha256': digest('tools/export_clean_core_profile_diagnostics.py'),
+              'originalInference': reuse['originalInference'],
+              'candidateAuditSha256': reuse['candidateAuditSha256'], 'recordsSha256': reuse['recordsSha256'],
+              'sourceFingerprintValidation': 'passed', 'admissionBytesUnchanged': True,
+              'newInferencePerformed': False, 'auditRemerged': False, 'selectionPerformed': False,
+              'selectedPhotoHoldoutReviewed': False, 'humanVerified': False,
+              'datasetPromoted': False, 'sitePublished': False,
+          }
+          (summary / 'diagnostic-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          expected_directories = ['summary', 'wink-left', 'wink-right', 'mouth-wide', 'mouth-frown']
+          if os.environ['DIAGNOSTIC_FOCUS'] == 'all-observed-winks':
+              parts = report.get('artifactParts')
+              groups = report.get('exhaustiveAutomaticWinks')
+              if (not isinstance(parts, list) or not 1 <= len(parts) <= 8
+                      or not isinstance(groups, dict) or set(groups) != {'wink-left', 'wink-right'}):
+                  raise ValueError('Exhaustive wink groups or small artifact list are incomplete')
+              expected_directories = ['summary']
+              for number, part in enumerate(parts, 1):
+                  name = f'part-{number:02d}'
+                  if part.get('name') != name or part.get('directory') != 'parts/' + name:
+                      raise ValueError('Exhaustive artifact part names or ordering differ')
+                  expected_directories.append(part['directory'])
+              for group, values in groups.items():
+                  if (values.get('complete') is not True or values.get('expressionConfirmed') is not False
+                          or values.get('uniqueEncodedImages') != values.get('exportedUniqueEncodedImages')
+                          or values.get('sourceRows') != values.get('exportedSourceRows')):
+                      raise ValueError('Exhaustive automatic wink coverage is incomplete: ' + group)
+              seen_pages = set()
+              for page in report['groups']:
+                  name = page['directory']
+                  path = root / name
+                  if (name in seen_pages or page['group'] not in groups or len(Path(name).parts) != 3
+                          or '/'.join(Path(name).parts[:2]) not in expected_directories
+                          or not all((path / file).is_file() for file in ('index.json', 'contact-sheet.jpg'))
+                          or digest(path / 'index.json') != page['indexSha256']
+                          or not 0 <= page['sampleCount'] <= 48):
+                      raise ValueError('Exhaustive page path, index, count or hash differs')
+                  actual_page_files = [{'path': file.relative_to(path).as_posix(), 'bytes': file.stat().st_size, 'sha256': digest(file)}
+                                       for file in sorted(path.rglob('*')) if file.is_file()]
+                  if actual_page_files != page['files']:
+                      raise ValueError('An exhaustive original, frozen record or page file changed after export')
+                  seen_pages.add(name)
+              listed_pages = {part['directory'] + '/' + page['directory'] for part in parts for page in part['pages']}
+              actual_pages = {path.relative_to(root).as_posix() for path in (root / 'parts').glob('*/*') if path.is_dir()}
+              if seen_pages != listed_pages or seen_pages != actual_pages:
+                  raise ValueError('A contact page is omitted from the bounded artifact map')
+              if ({path.name for path in root.iterdir()} != {'summary', 'parts'}
+                      or {path.relative_to(root).as_posix() for path in (root / 'parts').iterdir()}
+                         != set(expected_directories) - {'summary'}):
+                  raise ValueError('Unexpected output exists outside the exhaustive small artifact map')
+              with Path(os.environ['GITHUB_OUTPUT']).open('a') as output:
+                  for number in range(1, 9):
+                      output.write(f'part_{number:02d}=' + str(number <= len(parts)).lower() + '\n')
+          counts = {}
+          for name in expected_directories:
+              directory = root / name
+              paths = list(directory.rglob('*'))
+              files = [path for path in paths if path.is_file()]
+              if not directory.is_dir() or not files or any(path.is_symlink() for path in paths):
+                  raise ValueError('Missing or unsafe diagnostic group: ' + name)
+              if name != 'summary' and not name.startswith('parts/') and not all((directory / file).is_file() for file in ('index.json', 'contact-sheet.jpg')):
+                  raise ValueError('Missing diagnostic index or contact sheet: ' + name)
+              if any(path.suffix.lower() in ('.sqlite', '.onnx', '.task', '.bin', '.zip') for path in files):
+                  raise ValueError('Large audit/model/catalog payload leaked into diagnostic export')
+              size = sum(path.stat().st_size for path in files)
+              if size > 24 * 1024 ** 2 or len(files) > 1000:
+                  raise ValueError('Diagnostic artifact exceeds its small-download bound: ' + name)
+              counts[name] = {'files': len(files), 'bytes': size}
+              if name.startswith('parts/'):
+                  part = next(part for part in parts if part['directory'] == name)
+                  if size != part['payloadBytes'] or len(files) != part['fileCount']:
+                      raise ValueError('Exhaustive artifact payload differs from its manifest')
+          print(json.dumps({'diagnosticExports': counts, 'newInferencePerformed': False,
+                            'auditRemerged': False, 'selectionPerformed': False,
+                            'datasetPromoted': False, 'sitePublished': False}))
+          PY
+      - name: Upload the small diagnostic summary and original receipt bindings
+        if: always() && steps.profile_diagnostics.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-profile-summary-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/summary/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload the small left wink diagnostic group
+        if: always() && steps.profile_diagnostics.outcome == 'success' && needs.preflight.outputs.diagnostic_focus == 'profile-challenges'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-profile-wink-left-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/wink-left/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload the small right wink diagnostic group
+        if: always() && steps.profile_diagnostics.outcome == 'success' && needs.preflight.outputs.diagnostic_focus == 'profile-challenges'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-profile-wink-right-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/wink-right/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload the small mouth wide diagnostic group
+        if: always() && steps.profile_diagnostics.outcome == 'success' && needs.preflight.outputs.diagnostic_focus == 'profile-challenges'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-profile-mouth-wide-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/mouth-wide/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload the small mouth frown diagnostic group
+        if: always() && steps.profile_diagnostics.outcome == 'success' && needs.preflight.outputs.diagnostic_focus == 'profile-challenges'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-profile-mouth-frown-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/mouth-frown/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload exhaustive automatic wink part 01
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_01 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-01-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-01/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload exhaustive automatic wink part 02
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_02 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-02-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-02/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload exhaustive automatic wink part 03
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_03 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-03-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-03/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload exhaustive automatic wink part 04
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_04 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-04-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-04/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload exhaustive automatic wink part 05
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_05 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-05-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-05/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload exhaustive automatic wink part 06
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_06 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-06-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-06/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload exhaustive automatic wink part 07
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_07 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-07-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-07/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Upload exhaustive automatic wink part 08
+        if: always() && steps.profile_diagnostics.outcome == 'success' && steps.profile_diagnostics.outputs.part_08 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-all-winks-part-08-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-profile-diagnostics/parts/part-08/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Select exactly 70000 admitted real photographs
+        if: needs.preflight.outputs.diagnostic_only == 'false'
+        env:
+          PREVIOUS_SELECTION_REVIEW: ${{ needs.preflight.outputs.previous_review_path }}
+        run: |
+          review_args=(--selection-review data/catalog-selection-reviewed.json --wink-review data/catalog-wink-expression-reviewed.json)
+          if test -n "$PREVIOUS_SELECTION_REVIEW"; then
+            review_args+=(--previous-selection-review "$PREVIOUS_SELECTION_REVIEW")
+          fi
+          python tools/run_build_clean_core_v3_real_only.py \
+            work/clean-v5-build \
+            --catalog current=public/seed-catalog \
+            --catalog ffhq=work/source-catalogs/ffhq-main \
+            --catalog wink-extras=work/source-catalogs/wink-extras \
+            --target-total 70000 \
+            --face-attribute-model "$ATTRIBUTE_MODEL_PATH" \
+            --candidate-audit work/clean-v5-audit/candidate-audit.json \
+            "${review_args[@]}"
+      - name: Validate assembled catalog structure
+        if: needs.preflight.outputs.diagnostic_only == 'false'
+        run: |
+          node tools/validate_face_catalog.mjs work/clean-v5-build/catalog \
+            | tee work/clean-v5-build/catalog-validation.json
+      - name: Repack the selected photos by pose cell
+        if: needs.preflight.outputs.diagnostic_only == 'false'
+        run: |
+          node tools/repack-live-pose-packs.mjs \
+            work/clean-v5-build/catalog \
+            work/clean-v5-candidate/catalog
+          cp work/clean-v5-build/audit.json work/clean-v5-candidate/catalog/clean-core-audit.json
+      - name: Validate the final physical catalog and admission correspondence
+        if: needs.preflight.outputs.diagnostic_only == 'false'
+        env:
+          PREVIOUS_SELECTION_REVIEW: ${{ needs.preflight.outputs.previous_review_path }}
+        run: |
+          node tools/validate_face_catalog.mjs work/clean-v5-candidate/catalog \
+            | tee work/clean-v5-candidate/catalog-validation.json
+          review_args=(--selection-review data/catalog-selection-reviewed.json --wink-review data/catalog-wink-expression-reviewed.json)
+          if test -n "$PREVIOUS_SELECTION_REVIEW"; then
+            review_args+=(--previous-selection-review "$PREVIOUS_SELECTION_REVIEW")
+          fi
+          python tools/validate_clean_core_admission.py \
+            --catalog work/clean-v5-candidate/catalog \
+            --candidate-audit work/clean-v5-audit/candidate-audit.json \
+            --face-attribute-model "$ATTRIBUTE_MODEL_PATH" \
+            --source current=public/seed-catalog \
+            --source ffhq=work/source-catalogs/ffhq-main \
+            --source wink-extras=work/source-catalogs/wink-extras \
+            "${review_args[@]}" \
+            --target-total 70000 \
+            | tee work/clean-v5-candidate/admission-validation.json
+      - name: Bind wink support to the validated final catalog
+        if: needs.preflight.outputs.diagnostic_only == 'false'
+        run: |
+          node --experimental-strip-types scripts/rebuild-clean-wink-support.mjs \
+            work/clean-v5-candidate/catalog \
+            work/clean-v5-candidate/wink-support/v1
+      - name: Package complete candidate and evidence for subsequent review
+        if: needs.preflight.outputs.diagnostic_only == 'false'
+        run: |
+          cp -a work/clean-v5-audit work/clean-v5-candidate/admission
+          mkdir -p work/clean-v5-candidate/selection
+          cp work/clean-v5-build/audit.json work/clean-v5-candidate/selection/audit.json
+          cp work/clean-v5-build/coverage.csv work/clean-v5-candidate/selection/coverage.csv
+          cp -a work/clean-v5-build/review work/clean-v5-candidate/selection/review
+          cp data/catalog-visibility-reviewed.json work/clean-v5-provenance/
+          cp data/catalog-selection-reviewed.json work/clean-v5-provenance/
+          cp data/catalog-wink-expression-reviewed.json work/clean-v5-provenance/
+          cp data/catalog-quality/existing-audit-evidence.json.gz work/clean-v5-provenance/
+          cp .github/workflows/clean-core-v5-candidate.yml work/clean-v5-provenance/workflow.yml
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          sys.path.insert(0, str(Path('tools').resolve()))
+          from clean_core_selection_review import SelectionReview, WinkExpressionReview
+          from validate_clean_core_admission import validate_wink_review_binding
+
+          def digest(file):
+              value = hashlib.sha256()
+              with Path(file).open('rb') as stream:
+                  for block in iter(lambda: stream.read(1024 * 1024), b''):
+                      value.update(block)
+              return value.hexdigest()
+
+          source_paths = {
+              'current': 'public/seed-catalog',
+              'ffhq': 'work/source-catalogs/ffhq-main',
+              'wink-extras': 'work/source-catalogs/wink-extras',
+          }
+          request = Path('data/clean-core-v5-candidate-request.json')
+          request_document = json.loads(request.read_text())
+          selection_review_sha256 = digest('data/catalog-selection-reviewed.json')
+          if (selection_review_sha256 != request_document.get('selectionReview', {}).get('sha256')
+                  or selection_review_sha256 != digest('work/clean-v5-candidate/catalog/selection-review.json')):
+              raise ValueError('Additional selection exclusion review changed or is missing from the candidate')
+          admission = json.loads(Path('work/clean-v5-audit/candidate-audit.json').read_text())
+          previous = request_document['selectionReview']['previous']
+          previous_path = Path(previous['path']) if previous is not None else None
+          selection_review = SelectionReview('data/catalog-selection-reviewed.json',
+                                             digest('work/clean-v5-audit/candidate-audit.json'), admission['recordsSha256'],
+                                             previous_path=previous_path)
+          selection_review.verify_catalog_files(Path('work/clean-v5-candidate/catalog'))
+          if previous_path is not None:
+              if digest(previous_path) != previous['sha256']:
+                  raise ValueError('Previous selection review changed after preflight')
+              Path('work/clean-v5-provenance/catalog-selection-reviewed-previous.json').write_bytes(previous_path.read_bytes())
+          previous_review_sha256 = selection_review.document.get('previousReviewSha256')
+          wink_review = WinkExpressionReview('data/catalog-wink-expression-reviewed.json',
+                                             digest('work/clean-v5-audit/candidate-audit.json'), admission['recordsSha256'])
+          if wink_review.sha256 != request_document.get('winkReview', {}).get('sha256'):
+              raise ValueError('Wink expression review changed after preflight')
+          final_catalog = Path('work/clean-v5-candidate/catalog')
+          final_manifest = json.loads((final_catalog / 'manifest.json').read_text())
+          selection_audit = json.loads((final_catalog / 'clean-core-audit.json').read_text())
+          validate_wink_review_binding(final_manifest, selection_audit, final_catalog, wink_review)
+          if final_manifest.get('selectionIdentity', {}).get('winkExpressionReviewSha256') != wink_review.sha256:
+              raise ValueError('Final selection identity does not bind the exact wink expression review')
+          physical = json.loads((final_catalog / 'clean-admission-validation.json').read_text())
+          wink_index = json.loads(Path('work/clean-v5-candidate/wink-support/v1/catalog.json').read_text())
+          wink_validation = json.loads(Path('work/clean-v5-candidate/wink-support/v1/audit.json').read_text())
+          if (physical.get('status') != 'passed'
+                  or physical.get('winkExpressionReviewSha256') != wink_review.sha256
+                  or physical.get('allSelectedWinkProfilesHaveReviewedEvidence') is not True
+                  or wink_index.get('winkExpressionReviewSha256') != wink_review.sha256
+                  or wink_validation.get('winkExpressionReviewSha256') != wink_review.sha256
+                  or wink_validation.get('allIndexedWinksHaveReviewedEvidence') is not True):
+              raise ValueError('Final physical catalog or specialist index lacks reviewed wink evidence')
+          reuse_path = Path('work/clean-v5-provenance/audit-reuse.json')
+          reuse = json.loads(reuse_path.read_text()) if reuse_path.is_file() else None
+          if reuse is not None:
+              audit_root = Path('work/clean-v5-audit')
+              actual_files = [{'path': path.relative_to(audit_root).as_posix(), 'bytes': path.stat().st_size, 'sha256': digest(path)}
+                              for path in sorted(audit_root.rglob('*')) if path.is_file()]
+              if actual_files != reuse['auditFiles']:
+                  raise ValueError('Original completed audit bytes changed during selection or packing')
+              copied_root = Path('work/clean-v5-candidate/admission')
+              copied_files = [{'path': path.relative_to(copied_root).as_posix(), 'bytes': path.stat().st_size, 'sha256': digest(path)}
+                              for path in sorted(copied_root.rglob('*')) if path.is_file()]
+              if copied_files != reuse['auditFiles']:
+                  raise ValueError('Packaged admission differs from the unchanged original completed audit')
+              if (digest(audit_root / 'candidate-audit.json') != reuse['candidateAuditSha256']
+                      or digest(audit_root / admission['recordsPath']) != reuse['recordsSha256']):
+                  raise ValueError('Original completed admission receipt/database changed')
+          inference = {
+              'mode': 'reused' if reuse is not None else 'fresh',
+              'workflowRunId': reuse['originalInference']['runId'] if reuse is not None else int(os.environ['GITHUB_RUN_ID']),
+              'workflowRunAttempt': reuse['originalInference']['runAttempt'] if reuse is not None else int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'codeCommit': reuse['originalInference']['inferenceCodeCommit'] if reuse is not None else os.environ['GITHUB_SHA'],
+              'candidateAuditSha256': digest('work/clean-v5-audit/candidate-audit.json'),
+              'recordsSha256': admission['recordsSha256'], 'analysisCodeSha256': admission['analysisCodeSha256'],
+              'runnerCodeSha256': admission['runnerCodeSha256'], 'policySha256': admission['policySha256'],
+              'controlsSha256': admission['controlsSha256'], 'models': admission['models'],
+              'sourceCandidateRows': admission['recordCount'],
+              'reuseVerificationSha256': digest(reuse_path) if reuse is not None else None,
+              'newInferencePerformedInThisRun': reuse is None,
+              'auditRemergedInThisRun': reuse is None,
+          }
+          selection_sources = (
+              'tools/build_clean_core_v3.py', 'tools/clean_core_policy_v2.py', 'tools/clean_core_policy_v3.py',
+              'tools/clean_core_selection_review.py',
+              'tools/run_build_clean_core_v3_real_only.py', 'tools/run_build_clean_core_v3_repair.py',
+              'tools/validate_clean_core_admission.py', 'tools/repack-live-pose-packs.mjs',
+              'scripts/rebuild-clean-wink-support.mjs',
+          )
+          receipt = {
+              'schemaVersion': 1,
+              'artifactPurpose': 'physical-catalog-candidate-for-review',
+              'workflowRunId': int(os.environ['GITHUB_RUN_ID']),
+              'workflowRunAttempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'builtFromCommit': os.environ['GITHUB_SHA'],
+              'inference': inference,
+              'selection': {'codeCommit': os.environ['GITHUB_SHA'],
+                            'additionalSelectionExclusionsSha256': selection_review_sha256,
+                            'previousAdditionalSelectionExclusionsSha256': previous_review_sha256,
+                            'winkExpressionReviewSha256': wink_review.sha256,
+                            'codeFilesSha256': {name: digest(name) for name in selection_sources},
+                            'selectionAuditSha256': digest('work/clean-v5-build/audit.json')},
+              'ffhqSourceCommit': os.environ['FFHQ_SOURCE_COMMIT'],
+              'targetTotal': 70000,
+              'auditPartitions': int(os.environ['AUDIT_PARTS']),
+              'visibilityMaxScore': float(os.environ['VISIBILITY_MAX_SCORE']),
+              'sourceManifestSha256': {
+                  label: digest(Path(root) / 'manifest.json')
+                  for label, root in source_paths.items()
+              },
+              'attributeModelSha256': digest(os.environ['ATTRIBUTE_MODEL_PATH']),
+              'faceModelSha256': digest(os.environ['FACE_MODEL_PATH']),
+              'priorYawEvidenceSha256': digest('work/catalog-quality/merged-evidence.json'),
+              'reviewedVisibilitySha256': digest('data/catalog-visibility-reviewed.json'),
+              'selectionReviewSha256': selection_review_sha256,
+              'previousSelectionReviewSha256': previous_review_sha256,
+              'winkExpressionReviewSha256': wink_review.sha256,
+              'winkExpressionReview': wink_review.stamp(),
+              'candidateAuditSha256': digest('work/clean-v5-audit/candidate-audit.json'),
+              'candidateManifestSha256': digest('work/clean-v5-candidate/catalog/manifest.json'),
+              'winkSupportIndexSha256': digest('work/clean-v5-candidate/wink-support/v1/catalog.json'),
+              'requestSha256': digest(request) if request.is_file() else None,
+              'runtimeExclusionOverlayRequired': False,
+              'selectedPhotoHoldoutReviewed': False,
+              'sameVideoComparisonCompleted': False,
+              'hostedSiteVerified': False,
+              'physicalCameraVerified': False,
+              'published': False,
+          }
+          receipt_path = Path('work/clean-v5-provenance/candidate-receipt.json')
+          receipt_path.write_text(
+              json.dumps(receipt, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+          print(json.dumps({'candidateManifestSha256': receipt['candidateManifestSha256'],
+                            'generationReceiptSha256': digest(receipt_path), 'inference': inference,
+                            'selectionCodeCommit': os.environ['GITHUB_SHA'], 'published': False}))
+          if request.is_file():
+              Path('work/clean-v5-provenance/request.json').write_bytes(request.read_bytes())
+          PY
+          cp -a work/clean-v5-provenance work/clean-v5-candidate/provenance
+      - name: Upload the complete validated candidate catalog and audit
+        if: needs.preflight.outputs.diagnostic_only == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-core-v5-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/clean-v5-candidate/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+      - name: Retain diagnostics if candidate generation fails
+        uses: actions/upload-artifact@v4
+        if: failure() && needs.preflight.outputs.diagnostic_only == 'false'
+        with:
+          name: clean-core-v5-failure-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            work/clean-v5-audit/
+            work/clean-v5-build/audit.json
+            work/clean-v5-build/catalog-validation.json
+            work/clean-v5-build/coverage.csv
+            work/clean-v5-build/review/
+            work/clean-v5-candidate/catalog-validation.json
+            work/clean-v5-candidate/admission-validation.json
+            work/clean-v5-candidate/wink-support/
+            work/clean-v5-provenance/
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 14

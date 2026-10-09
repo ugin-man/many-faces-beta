@@ -1,0 +1,1654 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-generation-verified-summary",
+  "draft": false,
+  "reportStatus": "native-generation-and-current-qa-verified-all-added-original-review-complete",
+  "sourceRunId": 37519882295,
+  "sourceRunAttempt": 1,
+  "sourceCommit": "8dd3e24aeb81ec4eec29edcf9b3b18987bdbc912",
+  "sourceJobId": 112462370774,
+  "artifact": {
+    "id": 11440656084,
+    "name": "clean-core-v5-candidate-37519882295-1",
+    "bytes": 3428838574,
+    "archiveSha256": "a1f13922732172bd0c602e83b79bdc7c8191934971f821e38a78be974c606caf"
+  },
+  "generation": {
+    "candidateManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "generationReceiptSha256": "d10bc862b779bdda7bd606d40408f5fda41eb7c43059fce61a63f9361d2441eb",
+    "inference": {
+      "mode": "reused",
+      "workflowRunId": 37464000479,
+      "workflowRunAttempt": 1,
+      "codeCommit": "8f209747dbf5edfd627707734ad01a19be43e897",
+      "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+      "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+      "analysisCodeSha256": "a801eb62f3c0a2e4cd86b94c9813318ea5f554f0b520ec7b3cf42712ef43d5f9",
+      "runnerCodeSha256": "8fb5f269ed08220de062e02ff0883e7889a8f5156fc4ecc189c538f498730613",
+      "policySha256": "2f820a6dff8f4d0fcd595623042d3397abfbd6efa8ca57c45aac9f68c3462481",
+      "controlsSha256": "df36d69dab58ad508297d8544d9b31d69f95002fb09bd889bd1e329bf040a63a",
+      "models": {
+        "attributeSha256": "1bf7c6453bec2fb28e0830f3a76dceb9ffd020124f87b28da5355940a7bc6e48",
+        "faceSha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
+      },
+      "sourceCandidateRows": 140105,
+      "reuseVerificationSha256": "246e77cf60341c349d2ee018e44da2ff48d62eb746b060646f6e62677a9c8dc9",
+      "newInferencePerformedInThisRun": false,
+      "auditRemergedInThisRun": false
+    },
+    "selectionCodeCommit": "8dd3e24aeb81ec4eec29edcf9b3b18987bdbc912",
+    "published": false
+  },
+  "physicalCatalogValidation": {
+    "schemaVersion": 1,
+    "status": "passed",
+    "physicalFaces": 70000,
+    "uniqueEncodedImages": 70000,
+    "allSelectedPhotosHavePassingAdmission": true,
+    "allFreshMeasurementsMatch": true,
+    "selectionReviewSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+    "selectionReview": {
+      "schemaVersion": 1,
+      "documentKind": "clean-core-selection-visibility-review",
+      "mode": "deny-only",
+      "reviewPath": "selection-review.json",
+      "reviewSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+      "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+      "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+      "excludedEncodedImages": 257,
+      "previousReviewSha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff",
+      "previousReviewPath": "selection-review-previous.json",
+      "reviewer": "assistant-visual-review",
+      "humanVerified": false,
+      "reviewedOn": "2026-10-06"
+    },
+    "allSelectedPhotosAbsentFromSelectionExclusions": true,
+    "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+    "winkExpressionReview": {
+      "schemaVersion": 1,
+      "documentKind": "clean-core-wink-expression-review",
+      "mode": "confirmed-side-only",
+      "reviewPath": "wink-expression-review.json",
+      "reviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+      "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+      "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+      "reviewedEncodedImages": 769,
+      "confirmedEncodedImages": 71,
+      "confirmedSides": {
+        "left": 31,
+        "right": 40
+      },
+      "reviewer": "assistant-visual-review",
+      "humanVerified": false,
+      "reviewedOn": "2026-10-06"
+    },
+    "allSelectedWinkProfilesHaveReviewedEvidence": true,
+    "allSelectedProfilesHaveDeclaredEvidence": true,
+    "profileEvidenceTiers": {
+      "winkLeft": [
+        "strict",
+        "observed"
+      ],
+      "winkRight": [
+        "strict",
+        "observed"
+      ],
+      "blink": [
+        "strict"
+      ],
+      "eyesWide": [
+        "strict"
+      ],
+      "gazeUp": [
+        "strict"
+      ],
+      "gazeDown": [
+        "strict"
+      ],
+      "gazeLeft": [
+        "strict"
+      ],
+      "gazeRight": [
+        "strict"
+      ],
+      "browsUp": [
+        "strict"
+      ],
+      "browsDown": [
+        "strict"
+      ],
+      "noseSneer": [
+        "strict"
+      ],
+      "mouthRound": [
+        "strict"
+      ],
+      "mouthPucker": [
+        "strict"
+      ],
+      "mouthSlightOpen": [
+        "strict"
+      ],
+      "mouthOpen": [
+        "strict"
+      ],
+      "smileClosed": [
+        "strict"
+      ],
+      "smileOpen": [
+        "strict"
+      ],
+      "mouthWide": [
+        "strict",
+        "observed"
+      ],
+      "mouthPress": [
+        "strict"
+      ],
+      "mouthRoll": [
+        "strict"
+      ],
+      "mouthLeft": [
+        "strict"
+      ],
+      "mouthRight": [
+        "strict"
+      ],
+      "mouthFrown": [
+        "strict",
+        "observed"
+      ],
+      "mouthShrug": [
+        "strict"
+      ],
+      "mouthUpperUp": [
+        "strict"
+      ],
+      "mouthLowerDown": [
+        "strict"
+      ],
+      "neutral": [
+        "strict"
+      ],
+      "backgroundNeutral": [
+        "background"
+      ],
+      "backgroundMouth": [
+        "background"
+      ],
+      "backgroundEyes": [
+        "background"
+      ],
+      "backgroundBrows": [
+        "background"
+      ],
+      "backgroundNose": [
+        "background"
+      ]
+    },
+    "strictProfiles": {
+      "winkLeft": 0,
+      "winkRight": 0,
+      "blink": 567,
+      "eyesWide": 10,
+      "gazeUp": 661,
+      "gazeDown": 689,
+      "gazeLeft": 2101,
+      "gazeRight": 1420,
+      "browsUp": 1033,
+      "browsDown": 230,
+      "noseSneer": 0,
+      "mouthRound": 2,
+      "mouthPucker": 268,
+      "mouthSlightOpen": 53,
+      "mouthOpen": 21,
+      "smileClosed": 916,
+      "smileOpen": 42,
+      "mouthWide": 13,
+      "mouthPress": 226,
+      "mouthRoll": 51,
+      "mouthLeft": 8,
+      "mouthRight": 2,
+      "mouthFrown": 5,
+      "mouthShrug": 138,
+      "mouthUpperUp": 20,
+      "mouthLowerDown": 51,
+      "neutral": 656
+    },
+    "strictProfilePoseCells": {
+      "winkLeft": 0,
+      "winkRight": 0,
+      "blink": 263,
+      "eyesWide": 10,
+      "gazeUp": 260,
+      "gazeDown": 267,
+      "gazeLeft": 481,
+      "gazeRight": 420,
+      "browsUp": 344,
+      "browsDown": 143,
+      "noseSneer": 0,
+      "mouthRound": 2,
+      "mouthPucker": 116,
+      "mouthSlightOpen": 43,
+      "mouthOpen": 18,
+      "smileClosed": 186,
+      "smileOpen": 31,
+      "mouthWide": 13,
+      "mouthPress": 127,
+      "mouthRoll": 36,
+      "mouthLeft": 8,
+      "mouthRight": 2,
+      "mouthFrown": 5,
+      "mouthShrug": 89,
+      "mouthUpperUp": 17,
+      "mouthLowerDown": 46,
+      "neutral": 242
+    },
+    "observedProfiles": {
+      "winkLeft": 31,
+      "winkRight": 40,
+      "mouthWide": 1288,
+      "mouthFrown": 546
+    },
+    "observedProfilePoseCells": {
+      "winkLeft": 30,
+      "winkRight": 35,
+      "mouthWide": 533,
+      "mouthFrown": 336
+    },
+    "selectionIdentity": {
+      "schemaVersion": 1,
+      "policyVersion": "clean-isolated-observed-mouth-reviewed-winks-v5",
+      "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+      "selectionCodeSha256": {
+        "clean_core_policy_v2.py": "b75bbefc0cc5de576d26d265d285458f06bb871dec925613fbad9dc3ff7dbe0d",
+        "clean_core_policy_v3.py": "0f24e9a769a421e2dec3ac43d1eac30b59096d9e18dbf5b611c1b8cd53d508ba",
+        "build_clean_core_v3.py": "145435b8f75d73d19b25654d56c5cfbbf85c6b7cb555bd9f4fd56c07893cbe49",
+        "run_build_clean_core_v3_real_only.py": "25e0b3d04d06fcea30412fb8beae95a6eea16e2b397b687d7f43d1dfb7ee7f9b",
+        "run_build_clean_core_v3_repair.py": "a96c1d947ee9740a74bcd5fb71fc4c6cc015e87f69704684a8712140045b66e2",
+        "clean_core_selection_review.py": "a503fff2a6b3227dc2b4a3c92fc2c3b0d6d82b7d5c7e37abd396713180fa7abd"
+      },
+      "targetTotal": 70000,
+      "preselectMultiplier": 6,
+      "profileEvidenceTiers": {
+        "winkLeft": [
+          "strict",
+          "observed"
+        ],
+        "winkRight": [
+          "strict",
+          "observed"
+        ],
+        "blink": [
+          "strict"
+        ],
+        "eyesWide": [
+          "strict"
+        ],
+        "gazeUp": [
+          "strict"
+        ],
+        "gazeDown": [
+          "strict"
+        ],
+        "gazeLeft": [
+          "strict"
+        ],
+        "gazeRight": [
+          "strict"
+        ],
+        "browsUp": [
+          "strict"
+        ],
+        "browsDown": [
+          "strict"
+        ],
+        "noseSneer": [
+          "strict"
+        ],
+        "mouthRound": [
+          "strict"
+        ],
+        "mouthPucker": [
+          "strict"
+        ],
+        "mouthSlightOpen": [
+          "strict"
+        ],
+        "mouthOpen": [
+          "strict"
+        ],
+        "smileClosed": [
+          "strict"
+        ],
+        "smileOpen": [
+          "strict"
+        ],
+        "mouthWide": [
+          "strict",
+          "observed"
+        ],
+        "mouthPress": [
+          "strict"
+        ],
+        "mouthRoll": [
+          "strict"
+        ],
+        "mouthLeft": [
+          "strict"
+        ],
+        "mouthRight": [
+          "strict"
+        ],
+        "mouthFrown": [
+          "strict",
+          "observed"
+        ],
+        "mouthShrug": [
+          "strict"
+        ],
+        "mouthUpperUp": [
+          "strict"
+        ],
+        "mouthLowerDown": [
+          "strict"
+        ],
+        "neutral": [
+          "strict"
+        ],
+        "backgroundNeutral": [
+          "background"
+        ],
+        "backgroundMouth": [
+          "background"
+        ],
+        "backgroundEyes": [
+          "background"
+        ],
+        "backgroundBrows": [
+          "background"
+        ],
+        "backgroundNose": [
+          "background"
+        ]
+      },
+      "profileMinimums": {
+        "neutral": 0,
+        "winkLeft": 4,
+        "winkRight": 4,
+        "blink": 200,
+        "eyesWide": 1,
+        "gazeUp": 100,
+        "gazeDown": 100,
+        "gazeLeft": 100,
+        "gazeRight": 100,
+        "browsUp": 100,
+        "browsDown": 100,
+        "noseSneer": 0,
+        "mouthSlightOpen": 5,
+        "mouthOpen": 20,
+        "smileClosed": 400,
+        "smileOpen": 20,
+        "mouthRound": 1,
+        "mouthPucker": 150,
+        "mouthWide": 20,
+        "mouthPress": 150,
+        "mouthRoll": 20,
+        "mouthLeft": 1,
+        "mouthRight": 1,
+        "mouthFrown": 8,
+        "mouthShrug": 80,
+        "mouthUpperUp": 20,
+        "mouthLowerDown": 20
+      },
+      "profilePoseCellMinimums": {
+        "neutral": 0,
+        "winkLeft": 2,
+        "winkRight": 2,
+        "blink": 20,
+        "eyesWide": 1,
+        "gazeUp": 25,
+        "gazeDown": 25,
+        "gazeLeft": 25,
+        "gazeRight": 25,
+        "browsUp": 18,
+        "browsDown": 18,
+        "noseSneer": 0,
+        "mouthSlightOpen": 3,
+        "mouthOpen": 15,
+        "smileClosed": 60,
+        "smileOpen": 18,
+        "mouthRound": 1,
+        "mouthPucker": 25,
+        "mouthWide": 10,
+        "mouthPress": 25,
+        "mouthRoll": 10,
+        "mouthLeft": 1,
+        "mouthRight": 1,
+        "mouthFrown": 4,
+        "mouthShrug": 12,
+        "mouthUpperUp": 8,
+        "mouthLowerDown": 8
+      },
+      "backgroundMinimums": {
+        "backgroundNeutral": 15000
+      },
+      "backgroundPoseCellMinimums": {
+        "backgroundNeutral": 650
+      },
+      "profileCellLimits": {
+        "neutral": 86,
+        "winkLeft": 14,
+        "winkRight": 14,
+        "blink": 18,
+        "eyesWide": 64,
+        "gazeUp": 18,
+        "gazeDown": 18,
+        "gazeLeft": 18,
+        "gazeRight": 18,
+        "browsUp": 20,
+        "browsDown": 20,
+        "noseSneer": 32,
+        "mouthSlightOpen": 64,
+        "mouthOpen": 26,
+        "smileClosed": 48,
+        "smileOpen": 30,
+        "mouthRound": 40,
+        "mouthPucker": 28,
+        "mouthWide": 48,
+        "mouthPress": 24,
+        "mouthRoll": 22,
+        "mouthLeft": 18,
+        "mouthRight": 18,
+        "mouthFrown": 40,
+        "mouthShrug": 20,
+        "mouthUpperUp": 18,
+        "mouthLowerDown": 18,
+        "backgroundNeutral": 120,
+        "backgroundEyes": 38,
+        "backgroundBrows": 30,
+        "backgroundNose": 24,
+        "backgroundMouth": 54
+      },
+      "additionalSelectionExclusionsSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+      "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f"
+    },
+    "selectionIdentitySha256": "28e6092363ed981f622773c00356fd42790c75bdc894d756abceb95d99b33029",
+    "runtimeExclusionOverlayRequired": false,
+    "bytes": 388681708,
+    "packs": 775,
+    "poseCells": 775,
+    "catalogId": "many-faces-clean-core-v5-28e6092363ed981f-pose-local-v1",
+    "manifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "qualityAdmission": {
+      "schemaVersion": 2,
+      "status": "complete",
+      "policyId": "exact-pixel-clean-core-admission-v1",
+      "policySha256": "2f820a6dff8f4d0fcd595623042d3397abfbd6efa8ca57c45aac9f68c3462481",
+      "receiptSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+      "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+      "attributeModelSha256": "1bf7c6453bec2fb28e0830f3a76dceb9ffd020124f87b28da5355940a7bc6e48",
+      "faceModelSha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+      "selectedCount": 70000,
+      "runtimeExclusionOverlayRequired": false
+    },
+    "selectedProfiles": {
+      "backgroundBrows": 8586,
+      "backgroundEyes": 11843,
+      "backgroundMouth": 16049,
+      "backgroundNeutral": 22434,
+      "blink": 567,
+      "browsDown": 230,
+      "browsUp": 1033,
+      "eyesWide": 10,
+      "gazeDown": 689,
+      "gazeLeft": 2101,
+      "gazeRight": 1420,
+      "gazeUp": 661,
+      "mouthFrown": 551,
+      "mouthLeft": 8,
+      "mouthLowerDown": 51,
+      "mouthOpen": 21,
+      "mouthPress": 226,
+      "mouthPucker": 268,
+      "mouthRight": 2,
+      "mouthRoll": 51,
+      "mouthRound": 2,
+      "mouthShrug": 138,
+      "mouthSlightOpen": 53,
+      "mouthUpperUp": 20,
+      "mouthWide": 1301,
+      "neutral": 656,
+      "smileClosed": 916,
+      "smileOpen": 42,
+      "winkLeft": 31,
+      "winkRight": 40
+    },
+    "selectedProfilePoseCells": {
+      "backgroundBrows": 758,
+      "backgroundEyes": 764,
+      "backgroundMouth": 769,
+      "backgroundNeutral": 775,
+      "backgroundNose": 0,
+      "blink": 263,
+      "browsDown": 143,
+      "browsUp": 344,
+      "eyesWide": 10,
+      "gazeDown": 267,
+      "gazeLeft": 481,
+      "gazeRight": 420,
+      "gazeUp": 260,
+      "mouthFrown": 337,
+      "mouthLeft": 8,
+      "mouthLowerDown": 46,
+      "mouthOpen": 18,
+      "mouthPress": 127,
+      "mouthPucker": 116,
+      "mouthRight": 2,
+      "mouthRoll": 36,
+      "mouthRound": 2,
+      "mouthShrug": 89,
+      "mouthSlightOpen": 43,
+      "mouthUpperUp": 17,
+      "mouthWide": 536,
+      "neutral": 242,
+      "noseSneer": 0,
+      "smileClosed": 186,
+      "smileOpen": 31,
+      "winkLeft": 30,
+      "winkRight": 35
+    },
+    "selectedSources": {
+      "many-faces-clean-core-v3-pose-local-v1": 47234,
+      "seed-ffhq-70224-actions-v4": 22762,
+      "wink-exact-source-6906a3d3fe85088b": 4
+    },
+    "directionCounts": {
+      "pitch_middle": 35358,
+      "pitch_negative_12": 15743,
+      "pitch_positive_12": 18899,
+      "yaw_frontal": 29252,
+      "yaw_negative_12": 20679,
+      "yaw_positive_12": 20069
+    },
+    "browserVerified": false,
+    "physicalCameraVerified": false
+  },
+  "selectionAudit": {
+    "policyVersion": "clean-isolated-observed-mouth-reviewed-winks-v5",
+    "inputEntries": 140105,
+    "selectionIdentity": {
+      "schemaVersion": 1,
+      "policyVersion": "clean-isolated-observed-mouth-reviewed-winks-v5",
+      "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+      "selectionCodeSha256": {
+        "clean_core_policy_v2.py": "b75bbefc0cc5de576d26d265d285458f06bb871dec925613fbad9dc3ff7dbe0d",
+        "clean_core_policy_v3.py": "0f24e9a769a421e2dec3ac43d1eac30b59096d9e18dbf5b611c1b8cd53d508ba",
+        "build_clean_core_v3.py": "145435b8f75d73d19b25654d56c5cfbbf85c6b7cb555bd9f4fd56c07893cbe49",
+        "run_build_clean_core_v3_real_only.py": "25e0b3d04d06fcea30412fb8beae95a6eea16e2b397b687d7f43d1dfb7ee7f9b",
+        "run_build_clean_core_v3_repair.py": "a96c1d947ee9740a74bcd5fb71fc4c6cc015e87f69704684a8712140045b66e2",
+        "clean_core_selection_review.py": "a503fff2a6b3227dc2b4a3c92fc2c3b0d6d82b7d5c7e37abd396713180fa7abd"
+      },
+      "targetTotal": 70000,
+      "preselectMultiplier": 6,
+      "profileEvidenceTiers": {
+        "winkLeft": [
+          "strict",
+          "observed"
+        ],
+        "winkRight": [
+          "strict",
+          "observed"
+        ],
+        "blink": [
+          "strict"
+        ],
+        "eyesWide": [
+          "strict"
+        ],
+        "gazeUp": [
+          "strict"
+        ],
+        "gazeDown": [
+          "strict"
+        ],
+        "gazeLeft": [
+          "strict"
+        ],
+        "gazeRight": [
+          "strict"
+        ],
+        "browsUp": [
+          "strict"
+        ],
+        "browsDown": [
+          "strict"
+        ],
+        "noseSneer": [
+          "strict"
+        ],
+        "mouthRound": [
+          "strict"
+        ],
+        "mouthPucker": [
+          "strict"
+        ],
+        "mouthSlightOpen": [
+          "strict"
+        ],
+        "mouthOpen": [
+          "strict"
+        ],
+        "smileClosed": [
+          "strict"
+        ],
+        "smileOpen": [
+          "strict"
+        ],
+        "mouthWide": [
+          "strict",
+          "observed"
+        ],
+        "mouthPress": [
+          "strict"
+        ],
+        "mouthRoll": [
+          "strict"
+        ],
+        "mouthLeft": [
+          "strict"
+        ],
+        "mouthRight": [
+          "strict"
+        ],
+        "mouthFrown": [
+          "strict",
+          "observed"
+        ],
+        "mouthShrug": [
+          "strict"
+        ],
+        "mouthUpperUp": [
+          "strict"
+        ],
+        "mouthLowerDown": [
+          "strict"
+        ],
+        "neutral": [
+          "strict"
+        ],
+        "backgroundNeutral": [
+          "background"
+        ],
+        "backgroundMouth": [
+          "background"
+        ],
+        "backgroundEyes": [
+          "background"
+        ],
+        "backgroundBrows": [
+          "background"
+        ],
+        "backgroundNose": [
+          "background"
+        ]
+      },
+      "profileMinimums": {
+        "neutral": 0,
+        "winkLeft": 4,
+        "winkRight": 4,
+        "blink": 200,
+        "eyesWide": 1,
+        "gazeUp": 100,
+        "gazeDown": 100,
+        "gazeLeft": 100,
+        "gazeRight": 100,
+        "browsUp": 100,
+        "browsDown": 100,
+        "noseSneer": 0,
+        "mouthSlightOpen": 5,
+        "mouthOpen": 20,
+        "smileClosed": 400,
+        "smileOpen": 20,
+        "mouthRound": 1,
+        "mouthPucker": 150,
+        "mouthWide": 20,
+        "mouthPress": 150,
+        "mouthRoll": 20,
+        "mouthLeft": 1,
+        "mouthRight": 1,
+        "mouthFrown": 8,
+        "mouthShrug": 80,
+        "mouthUpperUp": 20,
+        "mouthLowerDown": 20
+      },
+      "profilePoseCellMinimums": {
+        "neutral": 0,
+        "winkLeft": 2,
+        "winkRight": 2,
+        "blink": 20,
+        "eyesWide": 1,
+        "gazeUp": 25,
+        "gazeDown": 25,
+        "gazeLeft": 25,
+        "gazeRight": 25,
+        "browsUp": 18,
+        "browsDown": 18,
+        "noseSneer": 0,
+        "mouthSlightOpen": 3,
+        "mouthOpen": 15,
+        "smileClosed": 60,
+        "smileOpen": 18,
+        "mouthRound": 1,
+        "mouthPucker": 25,
+        "mouthWide": 10,
+        "mouthPress": 25,
+        "mouthRoll": 10,
+        "mouthLeft": 1,
+        "mouthRight": 1,
+        "mouthFrown": 4,
+        "mouthShrug": 12,
+        "mouthUpperUp": 8,
+        "mouthLowerDown": 8
+      },
+      "backgroundMinimums": {
+        "backgroundNeutral": 15000
+      },
+      "backgroundPoseCellMinimums": {
+        "backgroundNeutral": 650
+      },
+      "profileCellLimits": {
+        "neutral": 86,
+        "winkLeft": 14,
+        "winkRight": 14,
+        "blink": 18,
+        "eyesWide": 64,
+        "gazeUp": 18,
+        "gazeDown": 18,
+        "gazeLeft": 18,
+        "gazeRight": 18,
+        "browsUp": 20,
+        "browsDown": 20,
+        "noseSneer": 32,
+        "mouthSlightOpen": 64,
+        "mouthOpen": 26,
+        "smileClosed": 48,
+        "smileOpen": 30,
+        "mouthRound": 40,
+        "mouthPucker": 28,
+        "mouthWide": 48,
+        "mouthPress": 24,
+        "mouthRoll": 22,
+        "mouthLeft": 18,
+        "mouthRight": 18,
+        "mouthFrown": 40,
+        "mouthShrug": 20,
+        "mouthUpperUp": 18,
+        "mouthLowerDown": 18,
+        "backgroundNeutral": 120,
+        "backgroundEyes": 38,
+        "backgroundBrows": 30,
+        "backgroundNose": 24,
+        "backgroundMouth": 54
+      },
+      "additionalSelectionExclusionsSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+      "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f"
+    },
+    "selectionIdentitySha256": "28e6092363ed981f622773c00356fd42790c75bdc894d756abceb95d99b33029",
+    "selectionReview": {
+      "schemaVersion": 1,
+      "documentKind": "clean-core-selection-visibility-review",
+      "mode": "deny-only",
+      "reviewPath": "selection-review.json",
+      "reviewSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+      "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+      "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+      "excludedEncodedImages": 257,
+      "previousReviewSha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff",
+      "previousReviewPath": "selection-review-previous.json",
+      "reviewer": "assistant-visual-review",
+      "humanVerified": false,
+      "reviewedOn": "2026-10-06"
+    },
+    "selectionReviewSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+    "selectionReviewedCandidatesExcluded": 267,
+    "allSelectedPhotosAbsentFromSelectionExclusions": true,
+    "winkExpressionReview": {
+      "schemaVersion": 1,
+      "documentKind": "clean-core-wink-expression-review",
+      "mode": "confirmed-side-only",
+      "reviewPath": "wink-expression-review.json",
+      "reviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+      "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+      "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+      "reviewedEncodedImages": 769,
+      "confirmedEncodedImages": 71,
+      "confirmedSides": {
+        "left": 31,
+        "right": 40
+      },
+      "reviewer": "assistant-visual-review",
+      "humanVerified": false,
+      "reviewedOn": "2026-10-06"
+    },
+    "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+    "allSelectedWinkProfilesHaveReviewedEvidence": true,
+    "inputCatalogs": {
+      "many-faces-clean-core-v3-pose-local-v1": 70000,
+      "seed-ffhq-70224-actions-v4": 70099,
+      "wink-exact-source-6906a3d3fe85088b": 6
+    },
+    "classifiedCandidates": 97760,
+    "classifiedProfiles": {
+      "backgroundBrows": 9897,
+      "backgroundEyes": 13100,
+      "backgroundMouth": 31057,
+      "backgroundNeutral": 30096,
+      "blink": 677,
+      "browsDown": 291,
+      "browsUp": 1359,
+      "eyesWide": 14,
+      "gazeDown": 805,
+      "gazeLeft": 2575,
+      "gazeRight": 1749,
+      "gazeUp": 873,
+      "mouthFrown": 601,
+      "mouthLeft": 10,
+      "mouthLowerDown": 66,
+      "mouthOpen": 29,
+      "mouthPress": 293,
+      "mouthPucker": 345,
+      "mouthRight": 2,
+      "mouthRoll": 62,
+      "mouthRound": 2,
+      "mouthShrug": 174,
+      "mouthSlightOpen": 71,
+      "mouthUpperUp": 28,
+      "mouthWide": 1394,
+      "neutral": 847,
+      "smileClosed": 1217,
+      "smileOpen": 55,
+      "winkLeft": 31,
+      "winkRight": 40
+    },
+    "selectedFaces": 70000,
+    "targetFaces": 70000,
+    "selectedProfiles": {
+      "winkLeft": 31,
+      "winkRight": 40,
+      "blink": 567,
+      "eyesWide": 10,
+      "gazeUp": 661,
+      "gazeDown": 689,
+      "gazeLeft": 2101,
+      "gazeRight": 1420,
+      "browsUp": 1033,
+      "browsDown": 230,
+      "noseSneer": 0,
+      "mouthRound": 2,
+      "mouthPucker": 268,
+      "mouthSlightOpen": 53,
+      "mouthOpen": 21,
+      "smileClosed": 916,
+      "smileOpen": 42,
+      "mouthWide": 1301,
+      "mouthPress": 226,
+      "mouthRoll": 51,
+      "mouthLeft": 8,
+      "mouthRight": 2,
+      "mouthFrown": 551,
+      "mouthShrug": 138,
+      "mouthUpperUp": 20,
+      "mouthLowerDown": 51,
+      "neutral": 656,
+      "backgroundNeutral": 22434,
+      "backgroundMouth": 16049,
+      "backgroundEyes": 11843,
+      "backgroundBrows": 8586,
+      "backgroundNose": 0
+    },
+    "selectedProfilePoseCells": {
+      "winkLeft": 30,
+      "winkRight": 35,
+      "blink": 263,
+      "eyesWide": 10,
+      "gazeUp": 260,
+      "gazeDown": 267,
+      "gazeLeft": 481,
+      "gazeRight": 420,
+      "browsUp": 344,
+      "browsDown": 143,
+      "noseSneer": 0,
+      "mouthRound": 2,
+      "mouthPucker": 116,
+      "mouthSlightOpen": 43,
+      "mouthOpen": 18,
+      "smileClosed": 186,
+      "smileOpen": 31,
+      "mouthWide": 536,
+      "mouthPress": 127,
+      "mouthRoll": 36,
+      "mouthLeft": 8,
+      "mouthRight": 2,
+      "mouthFrown": 337,
+      "mouthShrug": 89,
+      "mouthUpperUp": 17,
+      "mouthLowerDown": 46,
+      "neutral": 242,
+      "backgroundNeutral": 775,
+      "backgroundMouth": 769,
+      "backgroundEyes": 764,
+      "backgroundBrows": 758,
+      "backgroundNose": 0
+    },
+    "strictProfiles": {
+      "winkLeft": 0,
+      "winkRight": 0,
+      "blink": 567,
+      "eyesWide": 10,
+      "gazeUp": 661,
+      "gazeDown": 689,
+      "gazeLeft": 2101,
+      "gazeRight": 1420,
+      "browsUp": 1033,
+      "browsDown": 230,
+      "noseSneer": 0,
+      "mouthRound": 2,
+      "mouthPucker": 268,
+      "mouthSlightOpen": 53,
+      "mouthOpen": 21,
+      "smileClosed": 916,
+      "smileOpen": 42,
+      "mouthWide": 13,
+      "mouthPress": 226,
+      "mouthRoll": 51,
+      "mouthLeft": 8,
+      "mouthRight": 2,
+      "mouthFrown": 5,
+      "mouthShrug": 138,
+      "mouthUpperUp": 20,
+      "mouthLowerDown": 51,
+      "neutral": 656
+    },
+    "strictProfilePoseCells": {
+      "winkLeft": 0,
+      "winkRight": 0,
+      "blink": 263,
+      "eyesWide": 10,
+      "gazeUp": 260,
+      "gazeDown": 267,
+      "gazeLeft": 481,
+      "gazeRight": 420,
+      "browsUp": 344,
+      "browsDown": 143,
+      "noseSneer": 0,
+      "mouthRound": 2,
+      "mouthPucker": 116,
+      "mouthSlightOpen": 43,
+      "mouthOpen": 18,
+      "smileClosed": 186,
+      "smileOpen": 31,
+      "mouthWide": 13,
+      "mouthPress": 127,
+      "mouthRoll": 36,
+      "mouthLeft": 8,
+      "mouthRight": 2,
+      "mouthFrown": 5,
+      "mouthShrug": 89,
+      "mouthUpperUp": 17,
+      "mouthLowerDown": 46,
+      "neutral": 242
+    },
+    "observedProfiles": {
+      "winkLeft": 31,
+      "winkRight": 40,
+      "mouthWide": 1288,
+      "mouthFrown": 546
+    },
+    "observedProfilePoseCells": {
+      "winkLeft": 30,
+      "winkRight": 35,
+      "mouthWide": 533,
+      "mouthFrown": 336
+    },
+    "profileEvidenceTiers": {
+      "winkLeft": [
+        "strict",
+        "observed"
+      ],
+      "winkRight": [
+        "strict",
+        "observed"
+      ],
+      "blink": [
+        "strict"
+      ],
+      "eyesWide": [
+        "strict"
+      ],
+      "gazeUp": [
+        "strict"
+      ],
+      "gazeDown": [
+        "strict"
+      ],
+      "gazeLeft": [
+        "strict"
+      ],
+      "gazeRight": [
+        "strict"
+      ],
+      "browsUp": [
+        "strict"
+      ],
+      "browsDown": [
+        "strict"
+      ],
+      "noseSneer": [
+        "strict"
+      ],
+      "mouthRound": [
+        "strict"
+      ],
+      "mouthPucker": [
+        "strict"
+      ],
+      "mouthSlightOpen": [
+        "strict"
+      ],
+      "mouthOpen": [
+        "strict"
+      ],
+      "smileClosed": [
+        "strict"
+      ],
+      "smileOpen": [
+        "strict"
+      ],
+      "mouthWide": [
+        "strict",
+        "observed"
+      ],
+      "mouthPress": [
+        "strict"
+      ],
+      "mouthRoll": [
+        "strict"
+      ],
+      "mouthLeft": [
+        "strict"
+      ],
+      "mouthRight": [
+        "strict"
+      ],
+      "mouthFrown": [
+        "strict",
+        "observed"
+      ],
+      "mouthShrug": [
+        "strict"
+      ],
+      "mouthUpperUp": [
+        "strict"
+      ],
+      "mouthLowerDown": [
+        "strict"
+      ],
+      "neutral": [
+        "strict"
+      ],
+      "backgroundNeutral": [
+        "background"
+      ],
+      "backgroundMouth": [
+        "background"
+      ],
+      "backgroundEyes": [
+        "background"
+      ],
+      "backgroundBrows": [
+        "background"
+      ],
+      "backgroundNose": [
+        "background"
+      ]
+    },
+    "backgroundProfiles": {
+      "backgroundNeutral": 22434,
+      "backgroundMouth": 16049,
+      "backgroundEyes": 11843,
+      "backgroundBrows": 8586,
+      "backgroundNose": 0
+    },
+    "backgroundProfilePoseCells": {
+      "backgroundNeutral": 775,
+      "backgroundMouth": 769,
+      "backgroundEyes": 764,
+      "backgroundBrows": 758,
+      "backgroundNose": 0
+    },
+    "selectedTiers": {
+      "background": 58912,
+      "observed": 1905,
+      "strict": 9183
+    },
+    "selectedSources": {
+      "many-faces-clean-core-v3-pose-local-v1": 47234,
+      "seed-ffhq-70224-actions-v4": 22762,
+      "wink-exact-source-6906a3d3fe85088b": 4
+    },
+    "rejections": {
+      "candidate_admission_not_passed": 25809,
+      "exact_image_duplicate": 5527,
+      "likely_artwork": 9,
+      "mixed_or_unsupported_state": 16260,
+      "selection_review_exact_image_exclusion": 267
+    },
+    "limits": {
+      "neutral": 86,
+      "winkLeft": 14,
+      "winkRight": 14,
+      "blink": 18,
+      "eyesWide": 64,
+      "gazeUp": 18,
+      "gazeDown": 18,
+      "gazeLeft": 18,
+      "gazeRight": 18,
+      "browsUp": 20,
+      "browsDown": 20,
+      "noseSneer": 32,
+      "mouthSlightOpen": 64,
+      "mouthOpen": 26,
+      "smileClosed": 48,
+      "smileOpen": 30,
+      "mouthRound": 40,
+      "mouthPucker": 28,
+      "mouthWide": 48,
+      "mouthPress": 24,
+      "mouthRoll": 22,
+      "mouthLeft": 18,
+      "mouthRight": 18,
+      "mouthFrown": 40,
+      "mouthShrug": 20,
+      "mouthUpperUp": 18,
+      "mouthLowerDown": 18,
+      "backgroundNeutral": 120,
+      "backgroundEyes": 38,
+      "backgroundBrows": 30,
+      "backgroundNose": 24,
+      "backgroundMouth": 54
+    },
+    "minimums": {
+      "neutral": 0,
+      "winkLeft": 4,
+      "winkRight": 4,
+      "blink": 200,
+      "eyesWide": 1,
+      "gazeUp": 100,
+      "gazeDown": 100,
+      "gazeLeft": 100,
+      "gazeRight": 100,
+      "browsUp": 100,
+      "browsDown": 100,
+      "noseSneer": 0,
+      "mouthSlightOpen": 5,
+      "mouthOpen": 20,
+      "smileClosed": 400,
+      "smileOpen": 20,
+      "mouthRound": 1,
+      "mouthPucker": 150,
+      "mouthWide": 20,
+      "mouthPress": 150,
+      "mouthRoll": 20,
+      "mouthLeft": 1,
+      "mouthRight": 1,
+      "mouthFrown": 8,
+      "mouthShrug": 80,
+      "mouthUpperUp": 20,
+      "mouthLowerDown": 20
+    },
+    "poseCellMinimums": {
+      "neutral": 0,
+      "winkLeft": 2,
+      "winkRight": 2,
+      "blink": 20,
+      "eyesWide": 1,
+      "gazeUp": 25,
+      "gazeDown": 25,
+      "gazeLeft": 25,
+      "gazeRight": 25,
+      "browsUp": 18,
+      "browsDown": 18,
+      "noseSneer": 0,
+      "mouthSlightOpen": 3,
+      "mouthOpen": 15,
+      "smileClosed": 60,
+      "smileOpen": 18,
+      "mouthRound": 1,
+      "mouthPucker": 25,
+      "mouthWide": 10,
+      "mouthPress": 25,
+      "mouthRoll": 10,
+      "mouthLeft": 1,
+      "mouthRight": 1,
+      "mouthFrown": 4,
+      "mouthShrug": 12,
+      "mouthUpperUp": 8,
+      "mouthLowerDown": 8
+    },
+    "backgroundMinimums": {
+      "backgroundNeutral": 15000
+    },
+    "backgroundPoseCellMinimums": {
+      "backgroundNeutral": 650
+    },
+    "gatePassed": true,
+    "gateFailures": [],
+    "qualityAdmission": {
+      "schemaVersion": 2,
+      "status": "complete",
+      "policyId": "exact-pixel-clean-core-admission-v1",
+      "policySha256": "2f820a6dff8f4d0fcd595623042d3397abfbd6efa8ca57c45aac9f68c3462481",
+      "receiptSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+      "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+      "attributeModelSha256": "1bf7c6453bec2fb28e0830f3a76dceb9ffd020124f87b28da5355940a7bc6e48",
+      "faceModelSha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+      "selectedCount": 70000,
+      "runtimeExclusionOverlayRequired": false
+    }
+  },
+  "poseRepack": {
+    "catalogId": "many-faces-clean-core-v5-28e6092363ed981f-pose-local-v1",
+    "schemaVersion": 1,
+    "policy": "one-pack-per-3-degree-pose-cell-v1",
+    "generatedAt": "2026-10-06T19:41:48.339Z",
+    "packCount": 775,
+    "shardCount": 775,
+    "poseCells": 775,
+    "totalImageBytes": 388681708,
+    "minimumPackBytes": 26054,
+    "medianPackBytes": 374912,
+    "p95PackBytes": 1213746,
+    "maximumPackBytes": 1817608
+  },
+  "winkSupportGeneration": {
+    "schemaVersion": 1,
+    "catalogRoot": "/home/runner/work/many-faces-beta/many-faces-beta/work/clean-v5-candidate/catalog",
+    "baseCatalogId": "many-faces-clean-core-v5-28e6092363ed981f-pose-local-v1",
+    "baseCatalogManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "policySha256": "2f820a6dff8f4d0fcd595623042d3397abfbd6efa8ca57c45aac9f68c3462481",
+    "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+    "confirmedReviewSides": {
+      "left": 31,
+      "right": 40
+    },
+    "allIndexedWinksHaveReviewedEvidence": true,
+    "physicalCoreCount": 70000,
+    "eligibleCoreWinks": 71,
+    "indexedCoreWinks": 71,
+    "omittedFromSpecialistIndex": 0,
+    "left": 31,
+    "right": 40,
+    "outputIndexBytes": 550495,
+    "separatePhotoAssets": 0,
+    "coreImagesRemoved": 0,
+    "independentHumanLabels": false,
+    "indexSha256": "7282c665512ff514877e78247e1d0647835a333497201cab79fb21c3fe57fa76"
+  },
+  "sourceEvidence": {
+    "decodedJobLog": {
+      "path": "work/clean-v5-generation-37519882295/native/generation-assemble-112462370774.log",
+      "sha256": "954a04a3bc302c46875119fcb353a5f28969cdc1043d9655a6ff15a45d80b07a",
+      "bytes": 194480,
+      "jobId": 112462370774
+    },
+    "nativeMetadata": {
+      "path": "work/clean-v5-generation-37519882295/native/run.json",
+      "sha256": "28cd3615f2a0740e6031a835aaac9732116703543d0392cad468d8711e48f772",
+      "bytes": 14603
+    },
+    "nativeJobs": {
+      "path": "work/clean-v5-generation-37519882295/native/jobs.json",
+      "sha256": "92e7940b63ede047f2938a068499582580926149d4a2ee1d4057346dc432203a",
+      "bytes": 8715
+    },
+    "nativeArtifacts": {
+      "path": "work/clean-v5-generation-37519882295/native/artifacts.json",
+      "sha256": "d7f48e53f6d154efae24feb8c173920b6771aeef785a2ac0c4dd00e75b6684d3",
+      "bytes": 872
+    },
+    "nativeSummary": {
+      "path": "work/clean-v5-generation-37519882295/native-generation-summary.json",
+      "sha256": "8cc841e532cd24b90b65bf59680c33e50d369d31371f9fc2cad721d921e87f78",
+      "bytes": 20189
+    },
+    "nativeOutputObjects": {
+      "path": "work/clean-v5-generation-37519882295/native-output-objects.json",
+      "sha256": "62ff7a642aa31522a3b69a3024f691cb7c636c86917b157b6d70391e066360e1",
+      "bytes": 17644
+    },
+    "candidatePins": {
+      "path": "work/clean-v5-generation-37519882295/candidate-pins.json",
+      "sha256": "37a8bd5a720bfef919cda452f4ac2de558617c0417ba8647c4609f90738c9563",
+      "bytes": 901
+    },
+    "nativeFilesManifest": {
+      "path": "work/clean-v5-generation-37519882295/native/files.sha256.json",
+      "sha256": "f1ed5a4e3314029c677856b2ca91292fda880be782cd544b8f0377b82c6f2f49",
+      "bytes": 3200
+    },
+    "completedLogs": [
+      {
+        "jobId": 112462265270,
+        "path": "work/clean-v5-generation-37519882295/native/generation-preflight-112462265270.log",
+        "bytes": 34506,
+        "sha256": "3b8ba64d1b60a4185dcdcc4a6a5336d3988eaa2d25532581c81df6bb5c8d0253",
+        "receivedContentExactlySaved": true
+      },
+      {
+        "jobId": 112462370774,
+        "path": "work/clean-v5-generation-37519882295/native/generation-assemble-112462370774.log",
+        "bytes": 194480,
+        "sha256": "954a04a3bc302c46875119fcb353a5f28969cdc1043d9655a6ff15a45d80b07a",
+        "receivedContentExactlySaved": true
+      },
+      {
+        "jobId": 112462286849,
+        "path": "work/clean-v5-generation-37519882295/native/ci-code-112462286849.log",
+        "bytes": 149423,
+        "sha256": "705cc66db2f3f6a9ef4697f214ce94b41382aad8b865028bbfbc40e9381d8fc2",
+        "receivedContentExactlySaved": true
+      }
+    ],
+    "establishedReportFormat": {
+      "path": "data/catalog-quality/clean-core-generation-37513093051.json",
+      "sha256": "f0b55c20565c797e7009810580246f4538835b7dee6782fa88426626f9435ccd",
+      "bytes": 44337,
+      "use": "structure and explicit policy-invariant comparisons only; prior QA and manual outcomes are not copied as current results"
+    },
+    "extractedObjectLines": {
+      "selectionAudit": 1007,
+      "poseRepack": 1751,
+      "physicalCatalogValidation": 1817,
+      "winkSupportGeneration": 1844,
+      "generation": 2048
+    }
+  },
+  "nativeJobs": [
+    {
+      "id": 112462265270,
+      "name": "preflight",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 112462370774,
+      "name": "assemble",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 112462371871,
+      "name": "audit",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ],
+  "normalCiForGenerationCode": {
+    "runId": 37519888758,
+    "runAttempt": 1,
+    "jobId": 112462286849,
+    "codeCommit": "8dd3e24aeb81ec4eec29edcf9b3b18987bdbc912",
+    "status": "completed",
+    "conclusion": "success",
+    "build": "passed",
+    "node": {
+      "total": 304,
+      "passed": 303,
+      "skipped": 1,
+      "failed": 0
+    },
+    "lint": {
+      "errors": 0,
+      "warnings": 15
+    },
+    "compileall": "passed",
+    "pythonUnittest": {
+      "total": 238,
+      "passed": 238
+    },
+    "pytestExecuted": false
+  },
+  "independentVisualHoldoutCompleted": false,
+  "allAddedPhotosReviewed": true,
+  "fixedVideoComparisonCompleted": true,
+  "sitePublished": false,
+  "humanVerified": false,
+  "replenishment": {
+    "fixedEvaluatedCandidateRunId": 37491677036,
+    "failedIndependentHoldoutRunId": 37494402324,
+    "previousSelectionExclusions": 256,
+    "additionalExactSelectionExclusions": 1,
+    "totalSelectionExclusions": 257,
+    "additionalConfirmedVisualDenials": 0,
+    "additionalConservativeQuarantines": 1,
+    "quarantinedVisualLabelsRemainUncertain": true,
+    "previouslyInspectedPhotos": 2045,
+    "allSelectionExclusionsAppliedBeforeSelection": true,
+    "rejectedSlotsReplenished": true,
+    "finalPhysicalFaces": 70000,
+    "reviewedSelectedWinkLeft": 31,
+    "reviewedSelectedWinkRight": 40,
+    "exactReplacementCountEstablished": true,
+    "completeAddedImageCensusRequired": true,
+    "generalAdmissionAndSelectionPolicyChanged": false,
+    "previousOriginalCensus": {
+      "path": "data/catalog-quality/remediation-original-review-37515456441.json",
+      "sha256": "05215ddee6108b5d004f8755af4b1b97db908aaea997e6b0e680c880cf3813a5",
+      "bytes": 154144,
+      "qaRunId": 37515456441,
+      "candidateRunId": 37513093051,
+      "use": "historical source for the additional exact-image quarantine only; not a review of this generation"
+    },
+    "originalFailedIndependentHoldout": {
+      "path": "data/catalog-quality/holdout-visual-review-37494402324.json",
+      "sha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c",
+      "bytes": 1004155,
+      "qaRunId": 37494402324,
+      "candidateRunId": 37491677036,
+      "status": "failed-requires-preselection-remediation",
+      "recordUnchanged": true
+    },
+    "previouslyInspectedIndex": {
+      "path": "data/catalog-previously-inspected.json",
+      "sha256": "b0981f1c3b45eb7bb3c9502002aa64cff896afdfd1d933cdf6a69c8225672eed",
+      "bytes": 467318
+    },
+    "selectionReview": {
+      "path": "data/catalog-selection-reviewed.json",
+      "sha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+      "bytes": 342820
+    },
+    "previousSelectionReview": {
+      "path": "data/catalog-selection-reviewed-30f0848.json",
+      "sha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff",
+      "bytes": 337060
+    },
+    "candidateRequest": {
+      "path": "data/clean-core-v5-candidate-request.json",
+      "sha256": "1e249c832dace96c7d7a591368eef0bf272b3bdb586d4524470087f6d847a550",
+      "bytes": 9737
+    },
+    "excludedCandidateSourceRowsIncludingAliases": 267,
+    "uniqueExcludedEncodedImages": 257,
+    "newDifferenceCensusStatus": "complete-native-59-added-59-removed-69941-retained-and-all-added-original-review-passed",
+    "allAddedPhotosPassed": true,
+    "currentDifferenceCensus": {
+      "qaRunId": 37521402519,
+      "counts": {
+        "addedPhotos": 59,
+        "finalPhotos": 70000,
+        "priorPhotos": 70000,
+        "removedPhotos": 59,
+        "retainedPhotos": 69941
+      },
+      "index": {
+        "path": "data/catalog-quality/remediation-index-37521402519.json",
+        "bytes": 389486,
+        "sha256": "f13aff1392da62804f5096f17608baf4570ef58a9a4db60e6bf5a0fd8206d01c",
+        "sourceLocalPath": "work/clean-v5-qa-37521402519/reports/remediation-index.json"
+      },
+      "downloadIntegrity": {
+        "path": "work/clean-v5-qa-37521402519/download-integrity.json",
+        "bytes": 17653,
+        "sha256": "3786716bfd2ab8fdac248205fb5898ce78f77b38ffd4849a299ff710474781d1"
+      }
+    },
+    "currentOriginalReview": {
+      "status": "complete",
+      "reviewedPhotos": 59,
+      "directNewOriginals": 1,
+      "reusedDirectPriorPasses": 58,
+      "counts": {
+        "pass": 59,
+        "deny": 0,
+        "uncertain": 0
+      },
+      "unresolvedSample": null,
+      "reviewer": "assistant-visual-review",
+      "humanVerified": false,
+      "allAddedOriginalsReviewed": true,
+      "allAddedPhotosPassed": true,
+      "allAddedOriginalsNewlyViewed": false,
+      "independentHoldoutPassed": false,
+      "evidence": {
+        "path": "data/catalog-quality/remediation-original-review-37521402519.json",
+        "bytes": 124318,
+        "sha256": "da658c7e44d36fc1237c4c926be2f69e8f35369ea5a5dbbc17a8e27561457390",
+        "sourceLocalPath": "work/final-remediation-review-drafts/data/catalog-quality/remediation-original-review-37521402519.json"
+      },
+      "verification": {
+        "path": "work/final-remediation-review-drafts/verified/remediation-verification.json",
+        "bytes": 14386,
+        "sha256": "fcaa5be18305d632e2dbd2fad93eb9ce5bcb36d44df1fcc6614cbbadadb51b9c"
+      },
+      "nextAction": "Apply the separate promotion gate; no dataset promotion or Site publication is claimed by this evidence record."
+    }
+  },
+  "nativeEvidenceVerification": {
+    "runAndArtifactMetadataReadIndependently": true,
+    "completeJobLogMatchesSavedEvidence": true,
+    "independentNativeAuthenticationBy": "parent root agent via native GitHub tools, confirmed in task message",
+    "savedNativeEvidenceBy": "ci_inventory agent; received full bytes and SHA matched saved files",
+    "localEvidenceBytesAndDecodedObjectsVerifiedBy": "quality_review agent",
+    "allRegisteredSourceFilesRehashed": 16,
+    "archiveDownloadedInChat": false,
+    "archiveBytesLocallyVerified": false,
+    "manifestBytesLocallyVerified": false,
+    "generationReceiptBytesLocallyVerified": false,
+    "physicalValidationPerformedBy": "GitHub Actions candidate generation",
+    "largeArtifactDigestSource": "Native GitHub Actions artifact metadata and authenticated completed job log",
+    "independentFullArtifactAndCatalogByteValidation": "Completed by the new GitHub Actions QA 37521402519; root authenticated the bounded evidence transport. The large candidate archive was not downloaded in Chat.",
+    "currentQaSourceEvidence": {
+      "path": "data/catalog-quality/native-qa-source-37521402519.json",
+      "bytes": 62270,
+      "sha256": "f94d38d4f97c1ba5112325f414b4a074f24ad9c77874b632793f42ebfd44d5c3"
+    }
+  },
+  "verificationScope": {
+    "nativeGenerationSucceeded": true,
+    "candidateArchiveIndependentQACompleted": true,
+    "candidateBrowserQACompleted": true,
+    "candidateOriginalImageCensusCompleted": true,
+    "physicalCameraVerified": false,
+    "promotionReady": false,
+    "qualityAdmissionModified": false,
+    "policyThresholdsOrMinimumsChanged": false,
+    "runtimeExclusionOverlayRequired": false,
+    "allAddedPhotosPassed": true
+  },
+  "nextQa": {
+    "runId": 37521402519,
+    "runAttempt": 1,
+    "codeCommit": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+    "status": "success",
+    "automatedChecksPassed": true,
+    "statusContext": "Actual current native QA and exact downloaded receipt are complete. Separate bound formal review covers all 59 additions (58 direct prior PASS rows, one new original). No independent holdout pass, promotion or Site result is claimed.",
+    "nativeQaReceipt": {
+      "path": "data/catalog-quality/native-qa-receipt-37521402519.json",
+      "bytes": 21457,
+      "sha256": "b60c64edd7c5b714219d44758928ed5f2c1ce9bc6dd51eec00021de2f39bc5ba",
+      "sourceLocalPath": "work/clean-v5-qa-37521402519/summary/qa-receipt.json"
+    },
+    "nativeComparison": {
+      "path": "data/catalog-quality/native-comparison-37521402519.json",
+      "bytes": 153949,
+      "sha256": "b8ddcbff696d5581c6fdc703b89a58c94c586e844a294b801ba5f2f798658959",
+      "sourceLocalPath": "work/clean-v5-qa-37521402519/reports/browser/admitted-catalog/report.json"
+    },
+    "nativeSourceEvidence": {
+      "path": "data/catalog-quality/native-qa-source-37521402519.json",
+      "bytes": 62270,
+      "sha256": "f94d38d4f97c1ba5112325f414b4a074f24ad9c77874b632793f42ebfd44d5c3"
+    },
+    "comparisonContract": {
+      "schemaVersion": 1,
+      "status": "complete",
+      "candidatePassed": true,
+      "candidateInitialPresentationPassed": true,
+      "baselinePassed": true,
+      "baselineInitialPresentationPassed": true,
+      "baselineRemainingChecksPassed": true,
+      "baselineKnownInitialFailureAccepted": false,
+      "sameAcquiredFrames": true,
+      "sameTimeline": true,
+      "acquiredFramesSha256": "e14e8727696fc54a4be92a380436722d6a60b5d2f07632235f1cb412c2dd4fc1",
+      "timelineSha256": "3db75403f6d628aee0558a40334969d356dc528eb6ef04d6ba6d7f146e97fd5f",
+      "comparedFaceFrames": 410
+    },
+    "baselineVerification": {
+      "status": "passed",
+      "baselinePassed": true,
+      "initialPresentationPassed": true,
+      "remainingChecksPassed": true,
+      "knownInitialFailure": null,
+      "initialRecovery": null,
+      "source": {
+        "commit": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e",
+        "path": "app/live/review-client-lite.tsx",
+        "sha256": "2639a28d55083e77a2b97af3791183f4543ce0619efda5a820d1489557d71984",
+        "sourceIdentity": {
+          "version": "camera-arrival-v3",
+          "build": "1974b9a72d971acf",
+          "revision": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e"
+        },
+        "verifiedUnchanged": true
+      }
+    },
+    "allAddedOriginalReview": {
+      "path": "data/catalog-quality/remediation-original-review-37521402519.json",
+      "bytes": 124318,
+      "sha256": "da658c7e44d36fc1237c4c926be2f69e8f35369ea5a5dbbc17a8e27561457390",
+      "sourceLocalPath": "work/final-remediation-review-drafts/data/catalog-quality/remediation-original-review-37521402519.json"
+    },
+    "allAddedOriginalReviewVerification": {
+      "path": "work/final-remediation-review-drafts/verified/remediation-verification.json",
+      "bytes": 14386,
+      "sha256": "fcaa5be18305d632e2dbd2fad93eb9ce5bcb36d44df1fcc6614cbbadadb51b9c"
+    }
+  },
+  "policyInvariants": {
+    "comparedWithGenerationRunId": 37513093051,
+    "selectionIdentityChangedKeys": [
+      "additionalSelectionExclusionsSha256"
+    ],
+    "inferenceProvenanceChangedKeys": [
+      "reuseVerificationSha256"
+    ],
+    "allProfileAndCellMinimumsUnchanged": true,
+    "allSelectionCodeHashesUnchanged": true,
+    "admissionReceiptAndDatabaseUnchanged": true,
+    "modelsAndOriginalVisibilityPolicyUnchanged": true,
+    "note": "The per-run reuse-verification digest changes with provenance. The underlying completed inference, models, policy, source pool and classification bytes remain identical."
+  }
+}

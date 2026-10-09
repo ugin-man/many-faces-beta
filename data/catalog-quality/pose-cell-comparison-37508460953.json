@@ -1,0 +1,4792 @@
+{
+  "allVisualQualityPassed": false,
+  "axisMarginals": {
+    "pitch": [
+      {
+        "cellDegrees": -36,
+        "delta": -3,
+        "new": 718,
+        "old": 721
+      },
+      {
+        "cellDegrees": -33,
+        "delta": -2,
+        "new": 796,
+        "old": 798
+      },
+      {
+        "cellDegrees": -30,
+        "delta": -3,
+        "new": 1030,
+        "old": 1033
+      },
+      {
+        "cellDegrees": -27,
+        "delta": -3,
+        "new": 1349,
+        "old": 1352
+      },
+      {
+        "cellDegrees": -24,
+        "delta": 0,
+        "new": 1809,
+        "old": 1809
+      },
+      {
+        "cellDegrees": -21,
+        "delta": -4,
+        "new": 2222,
+        "old": 2226
+      },
+      {
+        "cellDegrees": -18,
+        "delta": -3,
+        "new": 2758,
+        "old": 2761
+      },
+      {
+        "cellDegrees": -15,
+        "delta": 1,
+        "new": 3275,
+        "old": 3274
+      },
+      {
+        "cellDegrees": -12,
+        "delta": 2,
+        "new": 3792,
+        "old": 3790
+      },
+      {
+        "cellDegrees": -9,
+        "delta": 0,
+        "new": 3998,
+        "old": 3998
+      },
+      {
+        "cellDegrees": -6,
+        "delta": 4,
+        "new": 4293,
+        "old": 4289
+      },
+      {
+        "cellDegrees": -3,
+        "delta": 1,
+        "new": 4666,
+        "old": 4665
+      },
+      {
+        "cellDegrees": 0,
+        "delta": 1,
+        "new": 4778,
+        "old": 4777
+      },
+      {
+        "cellDegrees": 3,
+        "delta": 3,
+        "new": 4635,
+        "old": 4632
+      },
+      {
+        "cellDegrees": 6,
+        "delta": 4,
+        "new": 4586,
+        "old": 4582
+      },
+      {
+        "cellDegrees": 9,
+        "delta": 1,
+        "new": 4310,
+        "old": 4309
+      },
+      {
+        "cellDegrees": 12,
+        "delta": 1,
+        "new": 3985,
+        "old": 3984
+      },
+      {
+        "cellDegrees": 15,
+        "delta": 2,
+        "new": 3532,
+        "old": 3530
+      },
+      {
+        "cellDegrees": 18,
+        "delta": 4,
+        "new": 3159,
+        "old": 3155
+      },
+      {
+        "cellDegrees": 21,
+        "delta": 1,
+        "new": 2673,
+        "old": 2672
+      },
+      {
+        "cellDegrees": 24,
+        "delta": 0,
+        "new": 2234,
+        "old": 2234
+      },
+      {
+        "cellDegrees": 27,
+        "delta": -2,
+        "new": 1732,
+        "old": 1734
+      },
+      {
+        "cellDegrees": 30,
+        "delta": -1,
+        "new": 1475,
+        "old": 1476
+      },
+      {
+        "cellDegrees": 33,
+        "delta": -2,
+        "new": 1129,
+        "old": 1131
+      },
+      {
+        "cellDegrees": 36,
+        "delta": -2,
+        "new": 1066,
+        "old": 1068
+      }
+    ],
+    "yaw": [
+      {
+        "cellDegrees": -45,
+        "delta": 0,
+        "new": 1040,
+        "old": 1040
+      },
+      {
+        "cellDegrees": -42,
+        "delta": 0,
+        "new": 731,
+        "old": 731
+      },
+      {
+        "cellDegrees": -39,
+        "delta": 0,
+        "new": 937,
+        "old": 937
+      },
+      {
+        "cellDegrees": -36,
+        "delta": -2,
+        "new": 1234,
+        "old": 1236
+      },
+      {
+        "cellDegrees": -33,
+        "delta": -2,
+        "new": 1514,
+        "old": 1516
+      },
+      {
+        "cellDegrees": -30,
+        "delta": -1,
+        "new": 1817,
+        "old": 1818
+      },
+      {
+        "cellDegrees": -27,
+        "delta": -1,
+        "new": 1945,
+        "old": 1946
+      },
+      {
+        "cellDegrees": -24,
+        "delta": 0,
+        "new": 2222,
+        "old": 2222
+      },
+      {
+        "cellDegrees": -21,
+        "delta": 1,
+        "new": 2376,
+        "old": 2375
+      },
+      {
+        "cellDegrees": -18,
+        "delta": -1,
+        "new": 2526,
+        "old": 2527
+      },
+      {
+        "cellDegrees": -15,
+        "delta": -4,
+        "new": 2891,
+        "old": 2895
+      },
+      {
+        "cellDegrees": -12,
+        "delta": -1,
+        "new": 3044,
+        "old": 3045
+      },
+      {
+        "cellDegrees": -9,
+        "delta": -2,
+        "new": 3275,
+        "old": 3277
+      },
+      {
+        "cellDegrees": -6,
+        "delta": -2,
+        "new": 3449,
+        "old": 3451
+      },
+      {
+        "cellDegrees": -3,
+        "delta": -3,
+        "new": 3946,
+        "old": 3949
+      },
+      {
+        "cellDegrees": 0,
+        "delta": -4,
+        "new": 4332,
+        "old": 4336
+      },
+      {
+        "cellDegrees": 3,
+        "delta": -2,
+        "new": 4136,
+        "old": 4138
+      },
+      {
+        "cellDegrees": 6,
+        "delta": 13,
+        "new": 3658,
+        "old": 3645
+      },
+      {
+        "cellDegrees": 9,
+        "delta": 10,
+        "new": 3219,
+        "old": 3209
+      },
+      {
+        "cellDegrees": 12,
+        "delta": 7,
+        "new": 3130,
+        "old": 3123
+      },
+      {
+        "cellDegrees": 15,
+        "delta": 5,
+        "new": 2959,
+        "old": 2954
+      },
+      {
+        "cellDegrees": 18,
+        "delta": 0,
+        "new": 2607,
+        "old": 2607
+      },
+      {
+        "cellDegrees": 21,
+        "delta": 0,
+        "new": 2274,
+        "old": 2274
+      },
+      {
+        "cellDegrees": 24,
+        "delta": 0,
+        "new": 2026,
+        "old": 2026
+      },
+      {
+        "cellDegrees": 27,
+        "delta": 0,
+        "new": 1848,
+        "old": 1848
+      },
+      {
+        "cellDegrees": 30,
+        "delta": -4,
+        "new": 1641,
+        "old": 1645
+      },
+      {
+        "cellDegrees": 33,
+        "delta": -3,
+        "new": 1415,
+        "old": 1418
+      },
+      {
+        "cellDegrees": 36,
+        "delta": 0,
+        "new": 1191,
+        "old": 1191
+      },
+      {
+        "cellDegrees": 39,
+        "delta": 0,
+        "new": 959,
+        "old": 959
+      },
+      {
+        "cellDegrees": 42,
+        "delta": -1,
+        "new": 735,
+        "old": 736
+      },
+      {
+        "cellDegrees": 45,
+        "delta": -3,
+        "new": 923,
+        "old": 926
+      }
+    ]
+  },
+  "commonGateSha256": "43e658e7625b83aabd11567a2594272509e59d6cf633c18f94e5fab7d783a296",
+  "datasetPromoted": false,
+  "directions": {
+    "pitch_middle": {
+      "delta": 19,
+      "new": 35358,
+      "old": 35339
+    },
+    "pitch_negative_12": {
+      "delta": -18,
+      "new": 15743,
+      "old": 15761
+    },
+    "pitch_positive_12": {
+      "delta": -1,
+      "new": 18899,
+      "old": 18900
+    },
+    "yaw_frontal": {
+      "delta": 13,
+      "new": 29251,
+      "old": 29238
+    },
+    "yaw_negative_12": {
+      "delta": -12,
+      "new": 20679,
+      "old": 20691
+    },
+    "yaw_positive_12": {
+      "delta": -1,
+      "new": 20070,
+      "old": 20071
+    }
+  },
+  "documentKind": "clean-core-full-pose-cell-comparison",
+  "focusedProfiles": {
+    "blink": {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 239,
+          "old": 239
+        },
+        "pitch_negative_12": {
+          "delta": -1,
+          "new": 49,
+          "old": 50
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 279,
+          "old": 279
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 398,
+          "old": 398
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 74,
+          "old": 74
+        },
+        "yaw_positive_12": {
+          "delta": -1,
+          "new": 95,
+          "old": 96
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": -1,
+            "new": 263,
+            "old": 264
+          },
+          "photos": {
+            "delta": -1,
+            "new": 567,
+            "old": 568
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": -1,
+        "new": 263,
+        "old": 264
+      },
+      "photoMarginAboveMinimum": {
+        "new": 367,
+        "old": 368
+      },
+      "photoMinimum": 200,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": -1,
+        "new": 567,
+        "old": 568
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 243,
+        "old": 244
+      },
+      "poseCellMinimum": 20,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "blink"
+    },
+    "mouthFrown": {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 193,
+          "old": 193
+        },
+        "pitch_negative_12": {
+          "delta": -2,
+          "new": 258,
+          "old": 260
+        },
+        "pitch_positive_12": {
+          "delta": -1,
+          "new": 100,
+          "old": 101
+        },
+        "yaw_frontal": {
+          "delta": -2,
+          "new": 175,
+          "old": 177
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 165,
+          "old": 165
+        },
+        "yaw_positive_12": {
+          "delta": -1,
+          "new": 211,
+          "old": 212
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": -2,
+            "new": 336,
+            "old": 338
+          },
+          "photos": {
+            "delta": -3,
+            "new": 546,
+            "old": 549
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 5,
+            "old": 5
+          },
+          "photos": {
+            "delta": 0,
+            "new": 5,
+            "old": 5
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": -2,
+        "new": 337,
+        "old": 339
+      },
+      "photoMarginAboveMinimum": {
+        "new": 543,
+        "old": 546
+      },
+      "photoMinimum": 8,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": -3,
+        "new": 551,
+        "old": 554
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 333,
+        "old": 335
+      },
+      "poseCellMinimum": 4,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthFrown"
+    },
+    "mouthOpen": {
+      "directions": {
+        "pitch_middle": {
+          "delta": -1,
+          "new": 15,
+          "old": 16
+        },
+        "pitch_negative_12": {
+          "delta": -1,
+          "new": 2,
+          "old": 3
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "yaw_frontal": {
+          "delta": -1,
+          "new": 16,
+          "old": 17
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 5,
+          "old": 5
+        },
+        "yaw_positive_12": {
+          "delta": -1,
+          "new": 0,
+          "old": 1
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": -2,
+            "new": 18,
+            "old": 20
+          },
+          "photos": {
+            "delta": -2,
+            "new": 21,
+            "old": 23
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": -2,
+        "new": 18,
+        "old": 20
+      },
+      "photoMarginAboveMinimum": {
+        "new": 1,
+        "old": 3
+      },
+      "photoMinimum": 20,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": -2,
+        "new": 21,
+        "old": 23
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 3,
+        "old": 5
+      },
+      "poseCellMinimum": 15,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthOpen"
+    },
+    "mouthWide": {
+      "directions": {
+        "pitch_middle": {
+          "delta": -1,
+          "new": 581,
+          "old": 582
+        },
+        "pitch_negative_12": {
+          "delta": -1,
+          "new": 561,
+          "old": 562
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 159,
+          "old": 159
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 274,
+          "old": 274
+        },
+        "yaw_negative_12": {
+          "delta": -2,
+          "new": 502,
+          "old": 504
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 525,
+          "old": 525
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 533,
+            "old": 533
+          },
+          "photos": {
+            "delta": -2,
+            "new": 1288,
+            "old": 1290
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 13,
+            "old": 13
+          },
+          "photos": {
+            "delta": 0,
+            "new": 13,
+            "old": 13
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 536,
+        "old": 536
+      },
+      "photoMarginAboveMinimum": {
+        "new": 1281,
+        "old": 1283
+      },
+      "photoMinimum": 20,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": -2,
+        "new": 1301,
+        "old": 1303
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 526,
+        "old": 526
+      },
+      "poseCellMinimum": 10,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthWide"
+    },
+    "smileClosed": {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 689,
+          "old": 689
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 47,
+          "old": 47
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 180,
+          "old": 180
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 793,
+          "old": 793
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 82,
+          "old": 82
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 41,
+          "old": 41
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 186,
+            "old": 186
+          },
+          "photos": {
+            "delta": 0,
+            "new": 916,
+            "old": 916
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 186,
+        "old": 186
+      },
+      "photoMarginAboveMinimum": {
+        "new": 516,
+        "old": 516
+      },
+      "photoMinimum": 400,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 916,
+        "old": 916
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 126,
+        "old": 126
+      },
+      "poseCellMinimum": 60,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "smileClosed"
+    },
+    "smileOpen": {
+      "directions": {
+        "pitch_middle": {
+          "delta": -1,
+          "new": 33,
+          "old": 34
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 7,
+          "old": 7
+        },
+        "yaw_frontal": {
+          "delta": -1,
+          "new": 39,
+          "old": 40
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 31,
+            "old": 31
+          },
+          "photos": {
+            "delta": -1,
+            "new": 42,
+            "old": 43
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 31,
+        "old": 31
+      },
+      "photoMarginAboveMinimum": {
+        "new": 22,
+        "old": 23
+      },
+      "photoMinimum": 20,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": -1,
+        "new": 42,
+        "old": 43
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 13,
+        "old": 13
+      },
+      "poseCellMinimum": 18,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "smileOpen"
+    },
+    "winkLeft": {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 20,
+          "old": 20
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 9,
+          "old": 9
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 22,
+          "old": 22
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 30,
+            "old": 30
+          },
+          "photos": {
+            "delta": 0,
+            "new": 31,
+            "old": 31
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 30,
+        "old": 30
+      },
+      "photoMarginAboveMinimum": {
+        "new": 27,
+        "old": 27
+      },
+      "photoMinimum": 4,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 31,
+        "old": 31
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 28,
+        "old": 28
+      },
+      "poseCellMinimum": 2,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "winkLeft"
+    },
+    "winkRight": {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 26,
+          "old": 26
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 23,
+          "old": 23
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 17,
+          "old": 17
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 35,
+            "old": 35
+          },
+          "photos": {
+            "delta": 0,
+            "new": 40,
+            "old": 40
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 35,
+        "old": 35
+      },
+      "photoMarginAboveMinimum": {
+        "new": 36,
+        "old": 36
+      },
+      "photoMinimum": 4,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 40,
+        "old": 40
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 33,
+        "old": 33
+      },
+      "poseCellMinimum": 2,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "winkRight"
+    }
+  },
+  "generatedAtUtc": "2026-10-06T18:31:57.406120+00:00",
+  "humanVerified": false,
+  "inputEvidence": {
+    "downloadIntegrity": {
+      "bytes": 16061,
+      "path": "/workspace/scratch/d3ea6516fdb8/many-faces-beta/work/clean-v5-qa-37508460953/download-integrity.json",
+      "sha256": "58c1de16b739c42cffaec21ed131e34c685ef5f8c08f5e39823e30dc54fb2b4c"
+    },
+    "inventories": [
+      {
+        "actualRows": 70000,
+        "bytes": 17431786,
+        "path": "reports/remediation-inventories/prior-inventory.jsonl.gz",
+        "rows": 70000,
+        "sha256": "fd0cdb676ccc08f14fccf20f640ade383f360f09a754ba631a18ba575b2ed78b",
+        "uniqueEncodedImages": 70000,
+        "uniqueSourceIds": 70000,
+        "variant": "old"
+      },
+      {
+        "actualRows": 70000,
+        "bytes": 17431060,
+        "path": "reports/remediation-inventories/final-inventory.jsonl.gz",
+        "rows": 70000,
+        "sha256": "657b57f16765b8b6d60d10b68135e012f47e9c8b0e6ce8a6e665985da79f4c1c",
+        "uniqueEncodedImages": 70000,
+        "uniqueSourceIds": 70000,
+        "variant": "new"
+      }
+    ],
+    "physicalCountReceipts": {
+      "new": {
+        "bytes": 12970,
+        "path": "/workspace/scratch/d3ea6516fdb8/many-faces-beta/work/clean-v5-qa-37508460953/summary/generation-physical-admission.json",
+        "sha256": "619fd5ef3bea1b4736b4211025bc0e875fd638764f832b3e09c55da37caeea47"
+      },
+      "old": {
+        "bytes": 12970,
+        "path": "/workspace/scratch/d3ea6516fdb8/many-faces-beta/work/clean-v5-qa-37494402324/summary/generation-physical-admission.json",
+        "sha256": "11639069389de099229398f275ecf9caab8f57f4d5c928d7ddaf79a4fbedf295"
+      }
+    }
+  },
+  "limitations": [
+    "This describes candidate run 37504332182 from 6ab3c0d, not a promoted catalog.",
+    "QA run 37508460953 had a browser validation failure; this distribution calculation does not resolve or interpret it.",
+    "The separate complete added-original review reported 49 pass and 10 deny/uncertain to be excluded before another replenishment. These totals are parent-task context, not newly performed visual review by this calculation.",
+    "Coverage/count minima do not establish image quality or a complete visual pass."
+  ],
+  "methodology": {
+    "countReconciliation": "All computed profile counts, occupied profile cells, evidence-tier counts and raw direction counts match each candidate generation physical receipt.",
+    "directionGroups": {
+      "pitch_middle": "-12 < freshPitch < 12",
+      "pitch_negative_12": "freshPitch <= -12",
+      "pitch_positive_12": "freshPitch >= 12",
+      "yaw_frontal": "-12 < freshYaw < 12",
+      "yaw_negative_12": "freshYaw <= -12",
+      "yaw_positive_12": "freshYaw >= 12"
+    },
+    "directionInterpretation": "Signed raw-pose groups retained exactly as the physical validator. No mirrored UI direction or new visual yaw assessment is inferred.",
+    "poseCells": "Use unchanged stored poseCell values; do not flip signs or reassign cells. Full 31 yaw ×25 pitch grid, 3-degree centers.",
+    "rows": "All 70,000 exact inventory rows in each candidate; no sampling or fresh inference. SHA bindings, canonical bytes, uniqueness, profile/tier membership and raw record delta verified.",
+    "zeroProfiles": "All declared profiles appear in each cell, including zero counts. Null minimum means no such gate is declared; it is not a newly introduced zero threshold."
+  },
+  "newCandidate": {
+    "codeCommit": "6ab3c0d1608e37d508858c0f32f45f1877147364",
+    "generationReceiptSha256": "a6acf087d6d70187059d08fe1127774f427f93209598b2f1d5a1a5c18fa8726b",
+    "manifestSha256": "43d7731b9fda6d94a381425b2722fd289adcdc9fe5258504ab3bedf517cf9a76",
+    "physicalValidationSha256": "619fd5ef3bea1b4736b4211025bc0e875fd638764f832b3e09c55da37caeea47",
+    "runAttempt": 1,
+    "runId": 37504332182,
+    "selectionAuditSha256": "f37ec0652bf519fa43a0e8b2570e4929b965b2683c742bf103b3911fdd2d70cf",
+    "selectionIdentitySha256": "e41bf258dd33c9cbfad7075f5684696575d02819d902465ad0770af2037bbb4a",
+    "selectionReviewSha256": "fe6444a7e54bae14eb3a82fa16b87823f63687ff0d37f45957262e3cdc065416",
+    "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f"
+  },
+  "oldCandidate": {
+    "archiveSha256": "923b59d9b59ca4ba7ac54bb7660731d5fe89ac81495438f3ed098db705bd1f1c",
+    "artifactId": 11426800117,
+    "artifactName": "clean-core-v5-candidate-37491677036-1",
+    "codeCommit": "c92fba37022b46bbf0f69b75bd7f011ae9d55297",
+    "generationReceiptSha256": "79c8f68790b11414cdb8b88e9ec2aeb2665d6747e99a7dd51690bb5824ec505f",
+    "manifestSha256": "d8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785",
+    "physicalValidationSha256": "11639069389de099229398f275ecf9caab8f57f4d5c928d7ddaf79a4fbedf295",
+    "runAttempt": 1,
+    "runId": 37491677036,
+    "selectionAuditSha256": "7a622bf4147f7bc25a78f85d95268ad684c20d88d2260a5a552b52b32df02aaa",
+    "selectionIdentitySha256": "5281fc23723c252b2ed646f2b53bf7d4a0b6d2b0618aeba8e864abffb5eb5131",
+    "selectionReviewSha256": "da2b294442ed56c87db3362885e5765e909809ebdb95b1a25ae9bdd8d7618c77",
+    "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f"
+  },
+  "profileSummary": [
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": -3,
+          "new": 4477,
+          "old": 4480
+        },
+        "pitch_negative_12": {
+          "delta": -2,
+          "new": 1963,
+          "old": 1965
+        },
+        "pitch_positive_12": {
+          "delta": -2,
+          "new": 2146,
+          "old": 2148
+        },
+        "yaw_frontal": {
+          "delta": -1,
+          "new": 3605,
+          "old": 3606
+        },
+        "yaw_negative_12": {
+          "delta": -2,
+          "new": 2406,
+          "old": 2408
+        },
+        "yaw_positive_12": {
+          "delta": -4,
+          "new": 2575,
+          "old": 2579
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 758,
+            "old": 758
+          },
+          "photos": {
+            "delta": -7,
+            "new": 8586,
+            "old": 8593
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 758,
+        "old": 758
+      },
+      "photoMarginAboveMinimum": {
+        "new": null,
+        "old": null
+      },
+      "photoMinimum": null,
+      "photoMinimumMet": {
+        "new": null,
+        "old": null
+      },
+      "photos": {
+        "delta": -7,
+        "new": 8586,
+        "old": 8593
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": null,
+        "old": null
+      },
+      "poseCellMinimum": null,
+      "poseCellMinimumMet": {
+        "new": null,
+        "old": null
+      },
+      "profile": "backgroundBrows"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": -2,
+          "new": 5907,
+          "old": 5909
+        },
+        "pitch_negative_12": {
+          "delta": -1,
+          "new": 2073,
+          "old": 2074
+        },
+        "pitch_positive_12": {
+          "delta": -3,
+          "new": 3863,
+          "old": 3866
+        },
+        "yaw_frontal": {
+          "delta": -2,
+          "new": 3813,
+          "old": 3815
+        },
+        "yaw_negative_12": {
+          "delta": -1,
+          "new": 4289,
+          "old": 4290
+        },
+        "yaw_positive_12": {
+          "delta": -3,
+          "new": 3741,
+          "old": 3744
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 764,
+            "old": 764
+          },
+          "photos": {
+            "delta": -6,
+            "new": 11843,
+            "old": 11849
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 764,
+        "old": 764
+      },
+      "photoMarginAboveMinimum": {
+        "new": null,
+        "old": null
+      },
+      "photoMinimum": null,
+      "photoMinimumMet": {
+        "new": null,
+        "old": null
+      },
+      "photos": {
+        "delta": -6,
+        "new": 11843,
+        "old": 11849
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": null,
+        "old": null
+      },
+      "poseCellMinimum": null,
+      "poseCellMinimumMet": {
+        "new": null,
+        "old": null
+      },
+      "profile": "backgroundEyes"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 32,
+          "new": 7817,
+          "old": 7785
+        },
+        "pitch_negative_12": {
+          "delta": 1,
+          "new": 3838,
+          "old": 3837
+        },
+        "pitch_positive_12": {
+          "delta": 10,
+          "new": 4394,
+          "old": 4384
+        },
+        "yaw_frontal": {
+          "delta": 30,
+          "new": 8115,
+          "old": 8085
+        },
+        "yaw_negative_12": {
+          "delta": -3,
+          "new": 3886,
+          "old": 3889
+        },
+        "yaw_positive_12": {
+          "delta": 16,
+          "new": 4048,
+          "old": 4032
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 769,
+            "old": 769
+          },
+          "photos": {
+            "delta": 43,
+            "new": 16049,
+            "old": 16006
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 769,
+        "old": 769
+      },
+      "photoMarginAboveMinimum": {
+        "new": null,
+        "old": null
+      },
+      "photoMinimum": null,
+      "photoMinimumMet": {
+        "new": null,
+        "old": null
+      },
+      "photos": {
+        "delta": 43,
+        "new": 16049,
+        "old": 16006
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": null,
+        "old": null
+      },
+      "poseCellMinimum": null,
+      "poseCellMinimumMet": {
+        "new": null,
+        "old": null
+      },
+      "profile": "backgroundMouth"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": -2,
+          "new": 10482,
+          "old": 10484
+        },
+        "pitch_negative_12": {
+          "delta": -9,
+          "new": 5597,
+          "old": 5606
+        },
+        "pitch_positive_12": {
+          "delta": -5,
+          "new": 6355,
+          "old": 6360
+        },
+        "yaw_frontal": {
+          "delta": -6,
+          "new": 8255,
+          "old": 8261
+        },
+        "yaw_negative_12": {
+          "delta": -4,
+          "new": 7032,
+          "old": 7036
+        },
+        "yaw_positive_12": {
+          "delta": -6,
+          "new": 7147,
+          "old": 7153
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 775,
+            "old": 775
+          },
+          "photos": {
+            "delta": -16,
+            "new": 22434,
+            "old": 22450
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 775,
+        "old": 775
+      },
+      "photoMarginAboveMinimum": {
+        "new": 7434,
+        "old": 7450
+      },
+      "photoMinimum": 15000,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": -16,
+        "new": 22434,
+        "old": 22450
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 125,
+        "old": 125
+      },
+      "poseCellMinimum": 650,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "backgroundNeutral"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 0,
+        "old": 0
+      },
+      "photoMarginAboveMinimum": {
+        "new": null,
+        "old": null
+      },
+      "photoMinimum": null,
+      "photoMinimumMet": {
+        "new": null,
+        "old": null
+      },
+      "photos": {
+        "delta": 0,
+        "new": 0,
+        "old": 0
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": null,
+        "old": null
+      },
+      "poseCellMinimum": null,
+      "poseCellMinimumMet": {
+        "new": null,
+        "old": null
+      },
+      "profile": "backgroundNose"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 239,
+          "old": 239
+        },
+        "pitch_negative_12": {
+          "delta": -1,
+          "new": 49,
+          "old": 50
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 279,
+          "old": 279
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 398,
+          "old": 398
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 74,
+          "old": 74
+        },
+        "yaw_positive_12": {
+          "delta": -1,
+          "new": 95,
+          "old": 96
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": -1,
+            "new": 263,
+            "old": 264
+          },
+          "photos": {
+            "delta": -1,
+            "new": 567,
+            "old": 568
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": -1,
+        "new": 263,
+        "old": 264
+      },
+      "photoMarginAboveMinimum": {
+        "new": 367,
+        "old": 368
+      },
+      "photoMinimum": 200,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": -1,
+        "new": 567,
+        "old": 568
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 243,
+        "old": 244
+      },
+      "poseCellMinimum": 20,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "blink"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 170,
+          "old": 170
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 38,
+          "old": 38
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 22,
+          "old": 22
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 125,
+          "old": 125
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 72,
+          "old": 72
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 33,
+          "old": 33
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 143,
+            "old": 143
+          },
+          "photos": {
+            "delta": 0,
+            "new": 230,
+            "old": 230
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 143,
+        "old": 143
+      },
+      "photoMarginAboveMinimum": {
+        "new": 130,
+        "old": 130
+      },
+      "photoMinimum": 100,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 230,
+        "old": 230
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 125,
+        "old": 125
+      },
+      "poseCellMinimum": 18,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "browsDown"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 753,
+          "old": 753
+        },
+        "pitch_negative_12": {
+          "delta": -1,
+          "new": 136,
+          "old": 137
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 144,
+          "old": 144
+        },
+        "yaw_frontal": {
+          "delta": -1,
+          "new": 566,
+          "old": 567
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 245,
+          "old": 245
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 222,
+          "old": 222
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 344,
+            "old": 344
+          },
+          "photos": {
+            "delta": -1,
+            "new": 1033,
+            "old": 1034
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 344,
+        "old": 344
+      },
+      "photoMarginAboveMinimum": {
+        "new": 933,
+        "old": 934
+      },
+      "photoMinimum": 100,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": -1,
+        "new": 1033,
+        "old": 1034
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 326,
+        "old": 326
+      },
+      "poseCellMinimum": 18,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "browsUp"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 9,
+          "old": 9
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 10,
+            "old": 10
+          },
+          "photos": {
+            "delta": 0,
+            "new": 10,
+            "old": 10
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 10,
+        "old": 10
+      },
+      "photoMarginAboveMinimum": {
+        "new": 9,
+        "old": 9
+      },
+      "photoMinimum": 1,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 10,
+        "old": 10
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 9,
+        "old": 9
+      },
+      "poseCellMinimum": 1,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "eyesWide"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": -1,
+          "new": 333,
+          "old": 334
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 349,
+          "old": 349
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 7,
+          "old": 7
+        },
+        "yaw_frontal": {
+          "delta": -1,
+          "new": 464,
+          "old": 465
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 104,
+          "old": 104
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 121,
+          "old": 121
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 267,
+            "old": 267
+          },
+          "photos": {
+            "delta": -1,
+            "new": 689,
+            "old": 690
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 267,
+        "old": 267
+      },
+      "photoMarginAboveMinimum": {
+        "new": 589,
+        "old": 590
+      },
+      "photoMinimum": 100,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": -1,
+        "new": 689,
+        "old": 690
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 242,
+        "old": 242
+      },
+      "poseCellMinimum": 25,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "gazeDown"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": -1,
+          "new": 1357,
+          "old": 1358
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 350,
+          "old": 350
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 394,
+          "old": 394
+        },
+        "yaw_frontal": {
+          "delta": -1,
+          "new": 685,
+          "old": 686
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 1138,
+          "old": 1138
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 278,
+          "old": 278
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 481,
+            "old": 481
+          },
+          "photos": {
+            "delta": -1,
+            "new": 2101,
+            "old": 2102
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 481,
+        "old": 481
+      },
+      "photoMarginAboveMinimum": {
+        "new": 2001,
+        "old": 2002
+      },
+      "photoMinimum": 100,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": -1,
+        "new": 2101,
+        "old": 2102
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 456,
+        "old": 456
+      },
+      "poseCellMinimum": 25,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "gazeLeft"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 914,
+          "old": 914
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 246,
+          "old": 246
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 260,
+          "old": 260
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 387,
+          "old": 387
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 309,
+          "old": 309
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 724,
+          "old": 724
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 420,
+            "old": 420
+          },
+          "photos": {
+            "delta": 0,
+            "new": 1420,
+            "old": 1420
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 420,
+        "old": 420
+      },
+      "photoMarginAboveMinimum": {
+        "new": 1320,
+        "old": 1320
+      },
+      "photoMinimum": 100,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 1420,
+        "old": 1420
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 395,
+        "old": 395
+      },
+      "poseCellMinimum": 25,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "gazeRight"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 244,
+          "old": 244
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 22,
+          "old": 22
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 395,
+          "old": 395
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 443,
+          "old": 443
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 86,
+          "old": 86
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 132,
+          "old": 132
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 260,
+            "old": 260
+          },
+          "photos": {
+            "delta": 0,
+            "new": 661,
+            "old": 661
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 260,
+        "old": 260
+      },
+      "photoMarginAboveMinimum": {
+        "new": 561,
+        "old": 561
+      },
+      "photoMinimum": 100,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 661,
+        "old": 661
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 235,
+        "old": 235
+      },
+      "poseCellMinimum": 25,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "gazeUp"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 193,
+          "old": 193
+        },
+        "pitch_negative_12": {
+          "delta": -2,
+          "new": 258,
+          "old": 260
+        },
+        "pitch_positive_12": {
+          "delta": -1,
+          "new": 100,
+          "old": 101
+        },
+        "yaw_frontal": {
+          "delta": -2,
+          "new": 175,
+          "old": 177
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 165,
+          "old": 165
+        },
+        "yaw_positive_12": {
+          "delta": -1,
+          "new": 211,
+          "old": 212
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": -2,
+            "new": 336,
+            "old": 338
+          },
+          "photos": {
+            "delta": -3,
+            "new": 546,
+            "old": 549
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 5,
+            "old": 5
+          },
+          "photos": {
+            "delta": 0,
+            "new": 5,
+            "old": 5
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": -2,
+        "new": 337,
+        "old": 339
+      },
+      "photoMarginAboveMinimum": {
+        "new": 543,
+        "old": 546
+      },
+      "photoMinimum": 8,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": -3,
+        "new": 551,
+        "old": 554
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 333,
+        "old": 335
+      },
+      "poseCellMinimum": 4,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthFrown"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 8,
+            "old": 8
+          },
+          "photos": {
+            "delta": 0,
+            "new": 8,
+            "old": 8
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 8,
+        "old": 8
+      },
+      "photoMarginAboveMinimum": {
+        "new": 7,
+        "old": 7
+      },
+      "photoMinimum": 1,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 8,
+        "old": 8
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 7,
+        "old": 7
+      },
+      "poseCellMinimum": 1,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthLeft"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 30,
+          "old": 30
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 16,
+          "old": 16
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 5,
+          "old": 5
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 16,
+          "old": 16
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 25,
+          "old": 25
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 10,
+          "old": 10
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 46,
+            "old": 46
+          },
+          "photos": {
+            "delta": 0,
+            "new": 51,
+            "old": 51
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 46,
+        "old": 46
+      },
+      "photoMarginAboveMinimum": {
+        "new": 31,
+        "old": 31
+      },
+      "photoMinimum": 20,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 51,
+        "old": 51
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 38,
+        "old": 38
+      },
+      "poseCellMinimum": 8,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthLowerDown"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": -1,
+          "new": 15,
+          "old": 16
+        },
+        "pitch_negative_12": {
+          "delta": -1,
+          "new": 2,
+          "old": 3
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "yaw_frontal": {
+          "delta": -1,
+          "new": 16,
+          "old": 17
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 5,
+          "old": 5
+        },
+        "yaw_positive_12": {
+          "delta": -1,
+          "new": 0,
+          "old": 1
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": -2,
+            "new": 18,
+            "old": 20
+          },
+          "photos": {
+            "delta": -2,
+            "new": 21,
+            "old": 23
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": -2,
+        "new": 18,
+        "old": 20
+      },
+      "photoMarginAboveMinimum": {
+        "new": 1,
+        "old": 3
+      },
+      "photoMinimum": 20,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": -2,
+        "new": 21,
+        "old": 23
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 3,
+        "old": 5
+      },
+      "poseCellMinimum": 15,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthOpen"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 171,
+          "old": 171
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 33,
+          "old": 33
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 22,
+          "old": 22
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 162,
+          "old": 162
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 36,
+          "old": 36
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 28,
+          "old": 28
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 127,
+            "old": 127
+          },
+          "photos": {
+            "delta": 0,
+            "new": 226,
+            "old": 226
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 127,
+        "old": 127
+      },
+      "photoMarginAboveMinimum": {
+        "new": 76,
+        "old": 76
+      },
+      "photoMinimum": 150,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 226,
+        "old": 226
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 102,
+        "old": 102
+      },
+      "poseCellMinimum": 25,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthPress"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 210,
+          "old": 210
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 17,
+          "old": 17
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 41,
+          "old": 41
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 223,
+          "old": 223
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 33,
+          "old": 33
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 12,
+          "old": 12
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 116,
+            "old": 116
+          },
+          "photos": {
+            "delta": 0,
+            "new": 268,
+            "old": 268
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 116,
+        "old": 116
+      },
+      "photoMarginAboveMinimum": {
+        "new": 118,
+        "old": 118
+      },
+      "photoMinimum": 150,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 268,
+        "old": 268
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 91,
+        "old": 91
+      },
+      "poseCellMinimum": 25,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthPucker"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 2,
+            "old": 2
+          },
+          "photos": {
+            "delta": 0,
+            "new": 2,
+            "old": 2
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 2,
+        "old": 2
+      },
+      "photoMarginAboveMinimum": {
+        "new": 1,
+        "old": 1
+      },
+      "photoMinimum": 1,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 2,
+        "old": 2
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 1,
+        "old": 1
+      },
+      "poseCellMinimum": 1,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthRight"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 32,
+          "old": 32
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 18,
+          "old": 18
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 44,
+          "old": 44
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 5,
+          "old": 5
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 36,
+            "old": 36
+          },
+          "photos": {
+            "delta": 0,
+            "new": 51,
+            "old": 51
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 36,
+        "old": 36
+      },
+      "photoMarginAboveMinimum": {
+        "new": 31,
+        "old": 31
+      },
+      "photoMinimum": 20,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 51,
+        "old": 51
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 26,
+        "old": 26
+      },
+      "poseCellMinimum": 10,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthRoll"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 2,
+            "old": 2
+          },
+          "photos": {
+            "delta": 0,
+            "new": 2,
+            "old": 2
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 2,
+        "old": 2
+      },
+      "photoMarginAboveMinimum": {
+        "new": 1,
+        "old": 1
+      },
+      "photoMinimum": 1,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 2,
+        "old": 2
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 1,
+        "old": 1
+      },
+      "poseCellMinimum": 1,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthRound"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 93,
+          "old": 93
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 29,
+          "old": 29
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 16,
+          "old": 16
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 109,
+          "old": 109
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 16,
+          "old": 16
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 89,
+            "old": 89
+          },
+          "photos": {
+            "delta": 0,
+            "new": 138,
+            "old": 138
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 89,
+        "old": 89
+      },
+      "photoMarginAboveMinimum": {
+        "new": 58,
+        "old": 58
+      },
+      "photoMinimum": 80,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 138,
+        "old": 138
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 77,
+        "old": 77
+      },
+      "poseCellMinimum": 12,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthShrug"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": -1,
+          "new": 42,
+          "old": 43
+        },
+        "pitch_negative_12": {
+          "delta": -1,
+          "new": 8,
+          "old": 9
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "yaw_frontal": {
+          "delta": -1,
+          "new": 40,
+          "old": 41
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 7,
+          "old": 7
+        },
+        "yaw_positive_12": {
+          "delta": -1,
+          "new": 6,
+          "old": 7
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": -2,
+            "new": 43,
+            "old": 45
+          },
+          "photos": {
+            "delta": -2,
+            "new": 53,
+            "old": 55
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": -2,
+        "new": 43,
+        "old": 45
+      },
+      "photoMarginAboveMinimum": {
+        "new": 48,
+        "old": 50
+      },
+      "photoMinimum": 5,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": -2,
+        "new": 53,
+        "old": 55
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 40,
+        "old": 42
+      },
+      "poseCellMinimum": 3,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthSlightOpen"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 17,
+          "old": 17
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 17,
+          "old": 17
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 17,
+            "old": 17
+          },
+          "photos": {
+            "delta": 0,
+            "new": 20,
+            "old": 20
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 17,
+        "old": 17
+      },
+      "photoMarginAboveMinimum": {
+        "new": 0,
+        "old": 0
+      },
+      "photoMinimum": 20,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 20,
+        "old": 20
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 9,
+        "old": 9
+      },
+      "poseCellMinimum": 8,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthUpperUp"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": -1,
+          "new": 581,
+          "old": 582
+        },
+        "pitch_negative_12": {
+          "delta": -1,
+          "new": 561,
+          "old": 562
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 159,
+          "old": 159
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 274,
+          "old": 274
+        },
+        "yaw_negative_12": {
+          "delta": -2,
+          "new": 502,
+          "old": 504
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 525,
+          "old": 525
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 533,
+            "old": 533
+          },
+          "photos": {
+            "delta": -2,
+            "new": 1288,
+            "old": 1290
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 13,
+            "old": 13
+          },
+          "photos": {
+            "delta": 0,
+            "new": 13,
+            "old": 13
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 536,
+        "old": 536
+      },
+      "photoMarginAboveMinimum": {
+        "new": 1281,
+        "old": 1283
+      },
+      "photoMinimum": 20,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": -2,
+        "new": 1301,
+        "old": 1303
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 526,
+        "old": 526
+      },
+      "poseCellMinimum": 10,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "mouthWide"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 493,
+          "old": 493
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 85,
+          "old": 85
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 78,
+          "old": 78
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 427,
+          "old": 427
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 149,
+          "old": 149
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 80,
+          "old": 80
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 242,
+            "old": 242
+          },
+          "photos": {
+            "delta": 0,
+            "new": 656,
+            "old": 656
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 242,
+        "old": 242
+      },
+      "photoMarginAboveMinimum": {
+        "new": 656,
+        "old": 656
+      },
+      "photoMinimum": 0,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 656,
+        "old": 656
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 242,
+        "old": 242
+      },
+      "poseCellMinimum": 0,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "neutral"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 0,
+        "old": 0
+      },
+      "photoMarginAboveMinimum": {
+        "new": 0,
+        "old": 0
+      },
+      "photoMinimum": 0,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 0,
+        "old": 0
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 0,
+        "old": 0
+      },
+      "poseCellMinimum": 0,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "noseSneer"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 689,
+          "old": 689
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 47,
+          "old": 47
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 180,
+          "old": 180
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 793,
+          "old": 793
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 82,
+          "old": 82
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 41,
+          "old": 41
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 186,
+            "old": 186
+          },
+          "photos": {
+            "delta": 0,
+            "new": 916,
+            "old": 916
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 186,
+        "old": 186
+      },
+      "photoMarginAboveMinimum": {
+        "new": 516,
+        "old": 516
+      },
+      "photoMinimum": 400,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 916,
+        "old": 916
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 126,
+        "old": 126
+      },
+      "poseCellMinimum": 60,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "smileClosed"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": -1,
+          "new": 33,
+          "old": 34
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 7,
+          "old": 7
+        },
+        "yaw_frontal": {
+          "delta": -1,
+          "new": 39,
+          "old": 40
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 31,
+            "old": 31
+          },
+          "photos": {
+            "delta": -1,
+            "new": 42,
+            "old": 43
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 31,
+        "old": 31
+      },
+      "photoMarginAboveMinimum": {
+        "new": 22,
+        "old": 23
+      },
+      "photoMinimum": 20,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": -1,
+        "new": 42,
+        "old": 43
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 13,
+        "old": 13
+      },
+      "poseCellMinimum": 18,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "smileOpen"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 20,
+          "old": 20
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 9,
+          "old": 9
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 22,
+          "old": 22
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 30,
+            "old": 30
+          },
+          "photos": {
+            "delta": 0,
+            "new": 31,
+            "old": 31
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 30,
+        "old": 30
+      },
+      "photoMarginAboveMinimum": {
+        "new": 27,
+        "old": 27
+      },
+      "photoMinimum": 4,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 31,
+        "old": 31
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 28,
+        "old": 28
+      },
+      "poseCellMinimum": 2,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "winkLeft"
+    },
+    {
+      "directions": {
+        "pitch_middle": {
+          "delta": 0,
+          "new": 26,
+          "old": 26
+        },
+        "pitch_negative_12": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "pitch_positive_12": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        },
+        "yaw_frontal": {
+          "delta": 0,
+          "new": 23,
+          "old": 23
+        },
+        "yaw_negative_12": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "yaw_positive_12": {
+          "delta": 0,
+          "new": 17,
+          "old": 17
+        }
+      },
+      "evidenceTiers": {
+        "background": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        },
+        "observed": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 35,
+            "old": 35
+          },
+          "photos": {
+            "delta": 0,
+            "new": 40,
+            "old": 40
+          }
+        },
+        "strict": {
+          "occupiedPoseCells": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          },
+          "photos": {
+            "delta": 0,
+            "new": 0,
+            "old": 0
+          }
+        }
+      },
+      "occupiedPoseCells": {
+        "delta": 0,
+        "new": 35,
+        "old": 35
+      },
+      "photoMarginAboveMinimum": {
+        "new": 36,
+        "old": 36
+      },
+      "photoMinimum": 4,
+      "photoMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "photos": {
+        "delta": 0,
+        "new": 40,
+        "old": 40
+      },
+      "poseCellMarginAboveMinimum": {
+        "new": 33,
+        "old": 33
+      },
+      "poseCellMinimum": 2,
+      "poseCellMinimumMet": {
+        "new": true,
+        "old": true
+      },
+      "profile": "winkRight"
+    }
+  ],
+  "qaRunId": 37508460953,
+  "remediationIndexSha256": "41fabd829cfe49bf07378f641a3d01ca151298b6ec92f2617565c7da0075afff",
+  "requirementsUnchanged": {
+    "backgroundMinimums": {
+      "backgroundNeutral": 15000
+    },
+    "backgroundPoseCellMinimums": {
+      "backgroundNeutral": 650
+    },
+    "limits": {
+      "backgroundBrows": 30,
+      "backgroundEyes": 38,
+      "backgroundMouth": 54,
+      "backgroundNeutral": 120,
+      "backgroundNose": 24,
+      "blink": 18,
+      "browsDown": 20,
+      "browsUp": 20,
+      "eyesWide": 64,
+      "gazeDown": 18,
+      "gazeLeft": 18,
+      "gazeRight": 18,
+      "gazeUp": 18,
+      "mouthFrown": 40,
+      "mouthLeft": 18,
+      "mouthLowerDown": 18,
+      "mouthOpen": 26,
+      "mouthPress": 24,
+      "mouthPucker": 28,
+      "mouthRight": 18,
+      "mouthRoll": 22,
+      "mouthRound": 40,
+      "mouthShrug": 20,
+      "mouthSlightOpen": 64,
+      "mouthUpperUp": 18,
+      "mouthWide": 48,
+      "neutral": 86,
+      "noseSneer": 32,
+      "smileClosed": 48,
+      "smileOpen": 30,
+      "winkLeft": 14,
+      "winkRight": 14
+    },
+    "minimums": {
+      "blink": 200,
+      "browsDown": 100,
+      "browsUp": 100,
+      "eyesWide": 1,
+      "gazeDown": 100,
+      "gazeLeft": 100,
+      "gazeRight": 100,
+      "gazeUp": 100,
+      "mouthFrown": 8,
+      "mouthLeft": 1,
+      "mouthLowerDown": 20,
+      "mouthOpen": 20,
+      "mouthPress": 150,
+      "mouthPucker": 150,
+      "mouthRight": 1,
+      "mouthRoll": 20,
+      "mouthRound": 1,
+      "mouthShrug": 80,
+      "mouthSlightOpen": 5,
+      "mouthUpperUp": 20,
+      "mouthWide": 20,
+      "neutral": 0,
+      "noseSneer": 0,
+      "smileClosed": 400,
+      "smileOpen": 20,
+      "winkLeft": 4,
+      "winkRight": 4
+    },
+    "policyVersion": "clean-isolated-observed-mouth-reviewed-winks-v5",
+    "poseCellMinimums": {
+      "blink": 20,
+      "browsDown": 18,
+      "browsUp": 18,
+      "eyesWide": 1,
+      "gazeDown": 25,
+      "gazeLeft": 25,
+      "gazeRight": 25,
+      "gazeUp": 25,
+      "mouthFrown": 4,
+      "mouthLeft": 1,
+      "mouthLowerDown": 8,
+      "mouthOpen": 15,
+      "mouthPress": 25,
+      "mouthPucker": 25,
+      "mouthRight": 1,
+      "mouthRoll": 10,
+      "mouthRound": 1,
+      "mouthShrug": 12,
+      "mouthSlightOpen": 3,
+      "mouthUpperUp": 8,
+      "mouthWide": 10,
+      "neutral": 0,
+      "noseSneer": 0,
+      "smileClosed": 60,
+      "smileOpen": 18,
+      "winkLeft": 2,
+      "winkRight": 2
+    },
+    "profileEvidenceTiers": {
+      "backgroundBrows": [
+        "background"
+      ],
+      "backgroundEyes": [
+        "background"
+      ],
+      "backgroundMouth": [
+        "background"
+      ],
+      "backgroundNeutral": [
+        "background"
+      ],
+      "backgroundNose": [
+        "background"
+      ],
+      "blink": [
+        "strict"
+      ],
+      "browsDown": [
+        "strict"
+      ],
+      "browsUp": [
+        "strict"
+      ],
+      "eyesWide": [
+        "strict"
+      ],
+      "gazeDown": [
+        "strict"
+      ],
+      "gazeLeft": [
+        "strict"
+      ],
+      "gazeRight": [
+        "strict"
+      ],
+      "gazeUp": [
+        "strict"
+      ],
+      "mouthFrown": [
+        "strict",
+        "observed"
+      ],
+      "mouthLeft": [
+        "strict"
+      ],
+      "mouthLowerDown": [
+        "strict"
+      ],
+      "mouthOpen": [
+        "strict"
+      ],
+      "mouthPress": [
+        "strict"
+      ],
+      "mouthPucker": [
+        "strict"
+      ],
+      "mouthRight": [
+        "strict"
+      ],
+      "mouthRoll": [
+        "strict"
+      ],
+      "mouthRound": [
+        "strict"
+      ],
+      "mouthShrug": [
+        "strict"
+      ],
+      "mouthSlightOpen": [
+        "strict"
+      ],
+      "mouthUpperUp": [
+        "strict"
+      ],
+      "mouthWide": [
+        "strict",
+        "observed"
+      ],
+      "neutral": [
+        "strict"
+      ],
+      "noseSneer": [
+        "strict"
+      ],
+      "smileClosed": [
+        "strict"
+      ],
+      "smileOpen": [
+        "strict"
+      ],
+      "winkLeft": [
+        "strict",
+        "observed"
+      ],
+      "winkRight": [
+        "strict",
+        "observed"
+      ]
+    }
+  },
+  "schemaVersion": 1,
+  "scope": "complete-inventory-distribution-only",
+  "sources": {
+    "many-faces-clean-core-v3-pose-local-v1": {
+      "delta": -54,
+      "new": 47234,
+      "old": 47288
+    },
+    "seed-ffhq-70224-actions-v4": {
+      "delta": 54,
+      "new": 22762,
+      "old": 22708
+    },
+    "wink-exact-source-6906a3d3fe85088b": {
+      "delta": 0,
+      "new": 4,
+      "old": 4
+    }
+  },
+  "summary": {
+    "addedEncodedPhotos": 59,
+    "allDeclaredPhotoAndPoseCellMinimumsMet": {
+      "new": true,
+      "old": true
+    },
+    "cellsWithAnyProfileChange": 99,
+    "changedCellTotalCount": 98,
+    "changedProfileCellPairs": 102,
+    "declaredProfiles": 32,
+    "emptyPoseCells": {
+      "new": [],
+      "old": []
+    },
+    "expectedPoseCells": 775,
+    "maximumCellDecrease": -2,
+    "maximumCellIncrease": 1,
+    "maximumPhotosInAnyCell": {
+      "new": 308,
+      "old": 308
+    },
+    "minimumPhotosInAnyCell": {
+      "new": 6,
+      "old": 6
+    },
+    "minimumsUnchanged": true,
+    "occupiedPoseCells": {
+      "delta": 0,
+      "new": 775,
+      "old": 775
+    },
+    "profileCellPairsReported": 24800,
+    "removedEncodedPhotos": 59,
+    "retainedEncodedPhotos": 69941,
+    "retainedInventoryRowsUnchanged": true,
+    "totalPhotos": {
+      "delta": 0,
+      "new": 70000,
+      "old": 70000
+    }
+  },
+  "visualReviewPerformedByThisAggregation": false,
+  "completeCellMatrix": {
+    "path": "data/catalog-quality/pose-cell-comparison-37508460953.json.gz",
+    "encoding": "gzip",
+    "bytes": 68025,
+    "sha256": "62274655da8f775a7915454b01bb294eb2e0068f648912aabbf6a529f7463162",
+    "uncompressedBytes": 2952986,
+    "uncompressedSha256": "31404bb76c9fe150251c999b44070d1b7004bae3e6cab4293983f8cfa2c81aae",
+    "cells": 775,
+    "profileCellPairs": 24800,
+    "includesZeroCounts": true
+  }
+}

@@ -1,0 +1,40 @@
+name: Recheck original wink photographs (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: Reproduce fresh-pixel overlay as a review artifact only
+        run: |
+          mkdir -p work/wink-core
+          test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1 esbuild@0.25.12
+          echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          npm run lint > work/wink-core/lint.log 2>&1
+          node --experimental-strip-types scripts/refresh-core-winks.mjs --prepare
+          npm run build > work/wink-core/build.log 2>&1
+          PORT=4183 HOST=127.0.0.1 nohup npm start > work/wink-core/server.log 2>&1 &
+          for attempt in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:4183/__wink_core/index.html > /dev/null; then break; fi
+            sleep 1
+          done
+          node --experimental-strip-types scripts/refresh-core-winks.mjs
+          git diff --exit-code -- app scripts tests data public
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: core-wink-refresh-${{ github.run_id }}
+          path: work/wink-core
+          retention-days: 14

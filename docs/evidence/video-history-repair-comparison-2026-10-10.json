@@ -1,0 +1,2057 @@
+{
+  "schemaVersion": 1,
+  "experiment": "baseline-preserving-local-history-repair",
+  "startedAt": "2026-10-09T15:50:33.544Z",
+  "baselineCommit": "04a41b80469980454758feba9a31ac48b92c11fd",
+  "sourceCommit": "f5e74d74861c4de9d3c7f93d79b32b0209ebf202",
+  "sourceFilesSha256": {
+    "app/live/review-history-repair.ts": "855d82db65aa58275f25bb44417a952914dd5b8275d6258bb298bd0a4dc89958",
+    "app/live/review-history-selection.ts": "76b342464b7dd594d65ab1847e450e1560e0f3b3a0a1681d64ccc79c8c6550a1",
+    "app/projection-matching.ts": "402dd8b99a44a08250a6d76958b8d57b66fbec50e226c94eb4c1a4265d0aa040",
+    "scripts/benchmark-history-repair.mjs": "b0ae7cc6e54d0734e87247d0443a8ca445419a5b210001729a25ffbf5bc35451"
+  },
+  "node": "v24.19.0",
+  "platform": "linux",
+  "architecture": "x64",
+  "fixtureSha256": "d470cf5a8aeb847f9c127ed8f0d567fcadd99e83c185ef60b7a8c9c6236a005b",
+  "catalogManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+  "catalogId": "many-faces-clean-core-v5-28e6092363ed981f-pose-local-v1",
+  "totalFaces": 70000,
+  "poseStep": 3,
+  "snapshotSha256": "8f48df320c4360cd9f107a2ed8790878b4072af5c4ce292c081c9ed98c8c4ab9",
+  "samplingFps": 20,
+  "plannedFrames": 466,
+  "includesVideoDecodeAndCandidateRanking": false,
+  "frames": 410,
+  "baselineChoicesSha256": "fb7d00b6531f0cff7a54ce56ea68f8fbd41044bafa8108b461b6f2970731b46f",
+  "baseline": {
+    "frames": 410,
+    "uniqueImages": 134,
+    "runs": 153,
+    "switches": 152,
+    "reappearances": 19,
+    "recentReappearances": 14,
+    "shortCompletedRuns": 88,
+    "singleSampleRuns": 92,
+    "reentryEvents": [
+      {
+        "index": 36,
+        "time": 2.85,
+        "id": "clean-v5-a1428dd3556fe48a64bff47d609b",
+        "gapSeconds": 1.8
+      },
+      {
+        "index": 107,
+        "time": 7.2,
+        "id": "clean-v5-2cccbfe046954c849e160cc5e4da",
+        "gapSeconds": 0.10000000000000053
+      },
+      {
+        "index": 117,
+        "time": 7.8,
+        "id": "clean-v5-15fe8d03e42c2ed13e075ab37dd4",
+        "gapSeconds": 0.09999999999999964
+      },
+      {
+        "index": 121,
+        "time": 8,
+        "id": "clean-v5-b666c1e485ea358e7b9bd0726bd3",
+        "gapSeconds": 1
+      },
+      {
+        "index": 124,
+        "time": 8.15,
+        "id": "clean-v5-3d784242af5812129948415cc0f5",
+        "gapSeconds": 1
+      },
+      {
+        "index": 133,
+        "time": 8.6,
+        "id": "clean-v5-5d96c8f7353583d71683430399ef",
+        "gapSeconds": 1.8999999999999995
+      },
+      {
+        "index": 147,
+        "time": 9.3,
+        "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+        "gapSeconds": 8.3
+      },
+      {
+        "index": 183,
+        "time": 11.1,
+        "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+        "gapSeconds": 1.5999999999999996
+      },
+      {
+        "index": 269,
+        "time": 15.4,
+        "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+        "gapSeconds": 13
+      },
+      {
+        "index": 275,
+        "time": 15.7,
+        "id": "clean-v5-a78c64a395c1b10c850360f1d61a",
+        "gapSeconds": 13.2
+      },
+      {
+        "index": 276,
+        "time": 15.75,
+        "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+        "gapSeconds": 0.05000000000000071
+      },
+      {
+        "index": 281,
+        "time": 16,
+        "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+        "gapSeconds": 0.1999999999999993
+      },
+      {
+        "index": 282,
+        "time": 16.05,
+        "id": "clean-v5-9a8d34bdd758e0c964e3e838c079",
+        "gapSeconds": 13.5
+      },
+      {
+        "index": 284,
+        "time": 16.15,
+        "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+        "gapSeconds": 0.6999999999999993
+      },
+      {
+        "index": 315,
+        "time": 18.55,
+        "id": "clean-v5-3d3feddab128615bf8dcb17ce81b",
+        "gapSeconds": 0.6500000000000021
+      },
+      {
+        "index": 333,
+        "time": 19.45,
+        "id": "clean-v5-9db9e768671c4dbbf63f8cb1ade8",
+        "gapSeconds": 0.05000000000000071
+      },
+      {
+        "index": 370,
+        "time": 21.3,
+        "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+        "gapSeconds": 12
+      },
+      {
+        "index": 402,
+        "time": 22.9,
+        "id": "clean-v5-1de60bff419893348adec23f00bf",
+        "gapSeconds": 0.3999999999999986
+      },
+      {
+        "index": 404,
+        "time": 23,
+        "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+        "gapSeconds": 1.1999999999999993
+      }
+    ],
+    "error": {
+      "mean": 0.1427788639564288,
+      "p95": 0.4335826975840034,
+      "max": 1.1614797664967236
+    },
+    "worstLocal": {
+      "mean": 0.1646323256446155,
+      "p95": 0.5554125084201308,
+      "max": 1.6129606171862634
+    },
+    "mouth": {
+      "mean": 0.12062601042557337,
+      "p95": 0.3890150583297632,
+      "max": 1.4025744497271857
+    },
+    "eyes": {
+      "mean": 0.024453342246644826,
+      "p95": 0.05374422585329778,
+      "max": 0.12389137708044537
+    },
+    "brows": {
+      "mean": 0.09315347251890226,
+      "p95": 0.3012571022689495,
+      "max": 0.6026620868196543
+    },
+    "wink": {
+      "mean": 0.06789541804947231,
+      "p95": 0.18533652275800705,
+      "max": 0.6245997827500105
+    },
+    "poseDegrees": {
+      "mean": 5.390750269909492,
+      "p95": 12.73211772134925,
+      "max": 24.85113363826677
+    },
+    "yawDegrees": {
+      "mean": 3.5281040672904447,
+      "p95": 8.592890249444151,
+      "max": 12.439424625601706
+    },
+    "pitchDegrees": {
+      "mean": 2.7197428237110257,
+      "p95": 9.554113646195654,
+      "max": 16.877051069490616
+    },
+    "accepted": 14,
+    "continuity": {
+      "mean": 0.05874292704809147,
+      "p95": 0.2005480918828789,
+      "max": 0.7365885025676269
+    },
+    "expressionMotion": {
+      "mean": 0.029329654660999117,
+      "p95": 0.08942089571044229,
+      "max": 0.4711500980655823
+    },
+    "poseMotionResidual": {
+      "mean": 4.089751829668437,
+      "p95": 12.845356880696759,
+      "max": 70.88638495611819
+    },
+    "objectiveWithoutHistory": {
+      "mean": 0.5665612804565698,
+      "p95": 1.8468563363820905,
+      "max": 7.834813982909222
+    }
+  },
+  "qualityBudget": {
+    "meanRelative": 0.0025,
+    "p95Relative": 0.005,
+    "maximumFrameErrorIncrease": 0.003,
+    "maximumLocalErrorIncrease": 0.003,
+    "maximumPoseIncreaseDegrees": 0.5,
+    "motionMeanRelative": 0.005,
+    "motionP95Relative": 0.01
+  },
+  "variants": [
+    {
+      "name": "original-ranked-beams",
+      "candidateRecords": 5025,
+      "uniqueCandidateIds": 5023,
+      "includesAdditionalCandidatePreparation": true,
+      "timingScope": "Complete sequence selection after capture and ranking. Repair uses the existing ranked beams and requires no additional candidate preparation. Video decoding and original candidate ranking are excluded from both timings.",
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "before": {
+        "frames": 410,
+        "uniqueImages": 134,
+        "runs": 153,
+        "switches": 152,
+        "reappearances": 19,
+        "recentReappearances": 14,
+        "shortCompletedRuns": 88,
+        "singleSampleRuns": 92,
+        "reentryEvents": [
+          {
+            "index": 36,
+            "time": 2.85,
+            "id": "clean-v5-a1428dd3556fe48a64bff47d609b",
+            "gapSeconds": 1.8
+          },
+          {
+            "index": 107,
+            "time": 7.2,
+            "id": "clean-v5-2cccbfe046954c849e160cc5e4da",
+            "gapSeconds": 0.10000000000000053
+          },
+          {
+            "index": 117,
+            "time": 7.8,
+            "id": "clean-v5-15fe8d03e42c2ed13e075ab37dd4",
+            "gapSeconds": 0.09999999999999964
+          },
+          {
+            "index": 121,
+            "time": 8,
+            "id": "clean-v5-b666c1e485ea358e7b9bd0726bd3",
+            "gapSeconds": 1
+          },
+          {
+            "index": 124,
+            "time": 8.15,
+            "id": "clean-v5-3d784242af5812129948415cc0f5",
+            "gapSeconds": 1
+          },
+          {
+            "index": 133,
+            "time": 8.6,
+            "id": "clean-v5-5d96c8f7353583d71683430399ef",
+            "gapSeconds": 1.8999999999999995
+          },
+          {
+            "index": 147,
+            "time": 9.3,
+            "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+            "gapSeconds": 8.3
+          },
+          {
+            "index": 183,
+            "time": 11.1,
+            "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+            "gapSeconds": 1.5999999999999996
+          },
+          {
+            "index": 269,
+            "time": 15.4,
+            "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+            "gapSeconds": 13
+          },
+          {
+            "index": 275,
+            "time": 15.7,
+            "id": "clean-v5-a78c64a395c1b10c850360f1d61a",
+            "gapSeconds": 13.2
+          },
+          {
+            "index": 276,
+            "time": 15.75,
+            "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+            "gapSeconds": 0.05000000000000071
+          },
+          {
+            "index": 281,
+            "time": 16,
+            "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+            "gapSeconds": 0.1999999999999993
+          },
+          {
+            "index": 282,
+            "time": 16.05,
+            "id": "clean-v5-9a8d34bdd758e0c964e3e838c079",
+            "gapSeconds": 13.5
+          },
+          {
+            "index": 284,
+            "time": 16.15,
+            "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+            "gapSeconds": 0.6999999999999993
+          },
+          {
+            "index": 315,
+            "time": 18.55,
+            "id": "clean-v5-3d3feddab128615bf8dcb17ce81b",
+            "gapSeconds": 0.6500000000000021
+          },
+          {
+            "index": 333,
+            "time": 19.45,
+            "id": "clean-v5-9db9e768671c4dbbf63f8cb1ade8",
+            "gapSeconds": 0.05000000000000071
+          },
+          {
+            "index": 370,
+            "time": 21.3,
+            "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+            "gapSeconds": 12
+          },
+          {
+            "index": 402,
+            "time": 22.9,
+            "id": "clean-v5-1de60bff419893348adec23f00bf",
+            "gapSeconds": 0.3999999999999986
+          },
+          {
+            "index": 404,
+            "time": 23,
+            "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+            "gapSeconds": 1.1999999999999993
+          }
+        ],
+        "error": {
+          "mean": 0.1427788639564288,
+          "p95": 0.4335826975840034,
+          "max": 1.1614797664967236
+        },
+        "worstLocal": {
+          "mean": 0.1646323256446155,
+          "p95": 0.5554125084201308,
+          "max": 1.6129606171862634
+        },
+        "mouth": {
+          "mean": 0.12062601042557337,
+          "p95": 0.3890150583297632,
+          "max": 1.4025744497271857
+        },
+        "eyes": {
+          "mean": 0.024453342246644826,
+          "p95": 0.05374422585329778,
+          "max": 0.12389137708044537
+        },
+        "brows": {
+          "mean": 0.09315347251890226,
+          "p95": 0.3012571022689495,
+          "max": 0.6026620868196543
+        },
+        "wink": {
+          "mean": 0.06789541804947231,
+          "p95": 0.18533652275800705,
+          "max": 0.6245997827500105
+        },
+        "poseDegrees": {
+          "mean": 5.390750269909492,
+          "p95": 12.73211772134925,
+          "max": 24.85113363826677
+        },
+        "yawDegrees": {
+          "mean": 3.5281040672904447,
+          "p95": 8.592890249444151,
+          "max": 12.439424625601706
+        },
+        "pitchDegrees": {
+          "mean": 2.7197428237110257,
+          "p95": 9.554113646195654,
+          "max": 16.877051069490616
+        },
+        "accepted": 14,
+        "continuity": {
+          "mean": 0.05874292704809147,
+          "p95": 0.2005480918828789,
+          "max": 0.7365885025676269
+        },
+        "expressionMotion": {
+          "mean": 0.029329654660999117,
+          "p95": 0.08942089571044229,
+          "max": 0.4711500980655823
+        },
+        "poseMotionResidual": {
+          "mean": 4.089751829668437,
+          "p95": 12.845356880696759,
+          "max": 70.88638495611819
+        },
+        "objectiveWithoutHistory": {
+          "mean": 0.5665612804565698,
+          "p95": 1.8468563363820905,
+          "max": 7.834813982909222
+        }
+      },
+      "after": {
+        "frames": 410,
+        "uniqueImages": 134,
+        "runs": 153,
+        "switches": 152,
+        "reappearances": 19,
+        "recentReappearances": 14,
+        "shortCompletedRuns": 88,
+        "singleSampleRuns": 92,
+        "reentryEvents": [
+          {
+            "index": 36,
+            "time": 2.85,
+            "id": "clean-v5-a1428dd3556fe48a64bff47d609b",
+            "gapSeconds": 1.8
+          },
+          {
+            "index": 107,
+            "time": 7.2,
+            "id": "clean-v5-2cccbfe046954c849e160cc5e4da",
+            "gapSeconds": 0.10000000000000053
+          },
+          {
+            "index": 117,
+            "time": 7.8,
+            "id": "clean-v5-15fe8d03e42c2ed13e075ab37dd4",
+            "gapSeconds": 0.09999999999999964
+          },
+          {
+            "index": 121,
+            "time": 8,
+            "id": "clean-v5-b666c1e485ea358e7b9bd0726bd3",
+            "gapSeconds": 1
+          },
+          {
+            "index": 124,
+            "time": 8.15,
+            "id": "clean-v5-3d784242af5812129948415cc0f5",
+            "gapSeconds": 1
+          },
+          {
+            "index": 133,
+            "time": 8.6,
+            "id": "clean-v5-5d96c8f7353583d71683430399ef",
+            "gapSeconds": 1.8999999999999995
+          },
+          {
+            "index": 147,
+            "time": 9.3,
+            "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+            "gapSeconds": 8.3
+          },
+          {
+            "index": 183,
+            "time": 11.1,
+            "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+            "gapSeconds": 1.5999999999999996
+          },
+          {
+            "index": 269,
+            "time": 15.4,
+            "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+            "gapSeconds": 13
+          },
+          {
+            "index": 275,
+            "time": 15.7,
+            "id": "clean-v5-a78c64a395c1b10c850360f1d61a",
+            "gapSeconds": 13.2
+          },
+          {
+            "index": 276,
+            "time": 15.75,
+            "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+            "gapSeconds": 0.05000000000000071
+          },
+          {
+            "index": 281,
+            "time": 16,
+            "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+            "gapSeconds": 0.1999999999999993
+          },
+          {
+            "index": 282,
+            "time": 16.05,
+            "id": "clean-v5-9a8d34bdd758e0c964e3e838c079",
+            "gapSeconds": 13.5
+          },
+          {
+            "index": 284,
+            "time": 16.15,
+            "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+            "gapSeconds": 0.6999999999999993
+          },
+          {
+            "index": 315,
+            "time": 18.55,
+            "id": "clean-v5-3d3feddab128615bf8dcb17ce81b",
+            "gapSeconds": 0.6500000000000021
+          },
+          {
+            "index": 333,
+            "time": 19.45,
+            "id": "clean-v5-9db9e768671c4dbbf63f8cb1ade8",
+            "gapSeconds": 0.05000000000000071
+          },
+          {
+            "index": 370,
+            "time": 21.3,
+            "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+            "gapSeconds": 12
+          },
+          {
+            "index": 402,
+            "time": 22.9,
+            "id": "clean-v5-1de60bff419893348adec23f00bf",
+            "gapSeconds": 0.3999999999999986
+          },
+          {
+            "index": 404,
+            "time": 23,
+            "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+            "gapSeconds": 1.1999999999999993
+          }
+        ],
+        "error": {
+          "mean": 0.1427788639564288,
+          "p95": 0.4335826975840034,
+          "max": 1.1614797664967236
+        },
+        "worstLocal": {
+          "mean": 0.1646323256446155,
+          "p95": 0.5554125084201308,
+          "max": 1.6129606171862634
+        },
+        "mouth": {
+          "mean": 0.12062601042557337,
+          "p95": 0.3890150583297632,
+          "max": 1.4025744497271857
+        },
+        "eyes": {
+          "mean": 0.024453342246644826,
+          "p95": 0.05374422585329778,
+          "max": 0.12389137708044537
+        },
+        "brows": {
+          "mean": 0.09315347251890226,
+          "p95": 0.3012571022689495,
+          "max": 0.6026620868196543
+        },
+        "wink": {
+          "mean": 0.06789541804947231,
+          "p95": 0.18533652275800705,
+          "max": 0.6245997827500105
+        },
+        "poseDegrees": {
+          "mean": 5.390750269909492,
+          "p95": 12.73211772134925,
+          "max": 24.85113363826677
+        },
+        "yawDegrees": {
+          "mean": 3.5281040672904447,
+          "p95": 8.592890249444151,
+          "max": 12.439424625601706
+        },
+        "pitchDegrees": {
+          "mean": 2.7197428237110257,
+          "p95": 9.554113646195654,
+          "max": 16.877051069490616
+        },
+        "accepted": 14,
+        "continuity": {
+          "mean": 0.05874292704809147,
+          "p95": 0.2005480918828789,
+          "max": 0.7365885025676269
+        },
+        "expressionMotion": {
+          "mean": 0.029329654660999117,
+          "p95": 0.08942089571044229,
+          "max": 0.4711500980655823
+        },
+        "poseMotionResidual": {
+          "mean": 4.089751829668437,
+          "p95": 12.845356880696759,
+          "max": 70.88638495611819
+        },
+        "objectiveWithoutHistory": {
+          "mean": 0.5665612804565698,
+          "p95": 1.8468563363820905,
+          "max": 7.834813982909222
+        }
+      },
+      "diagnostics": {
+        "adopted": false,
+        "reason": "baseline-preserved",
+        "invalidReason": null,
+        "before": {
+          "frames": 410,
+          "uniqueImages": 134,
+          "runs": 153,
+          "switches": 152,
+          "reappearances": 19,
+          "recentReappearances": 14,
+          "shortCompletedRuns": 88,
+          "singleSampleRuns": 92,
+          "reentryEvents": [
+            {
+              "index": 36,
+              "time": 2.85,
+              "id": "clean-v5-a1428dd3556fe48a64bff47d609b",
+              "gapSeconds": 1.8
+            },
+            {
+              "index": 107,
+              "time": 7.2,
+              "id": "clean-v5-2cccbfe046954c849e160cc5e4da",
+              "gapSeconds": 0.10000000000000053
+            },
+            {
+              "index": 117,
+              "time": 7.8,
+              "id": "clean-v5-15fe8d03e42c2ed13e075ab37dd4",
+              "gapSeconds": 0.09999999999999964
+            },
+            {
+              "index": 121,
+              "time": 8,
+              "id": "clean-v5-b666c1e485ea358e7b9bd0726bd3",
+              "gapSeconds": 1
+            },
+            {
+              "index": 124,
+              "time": 8.15,
+              "id": "clean-v5-3d784242af5812129948415cc0f5",
+              "gapSeconds": 1
+            },
+            {
+              "index": 133,
+              "time": 8.6,
+              "id": "clean-v5-5d96c8f7353583d71683430399ef",
+              "gapSeconds": 1.8999999999999995
+            },
+            {
+              "index": 147,
+              "time": 9.3,
+              "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+              "gapSeconds": 8.3
+            },
+            {
+              "index": 183,
+              "time": 11.1,
+              "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+              "gapSeconds": 1.5999999999999996
+            },
+            {
+              "index": 269,
+              "time": 15.4,
+              "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+              "gapSeconds": 13
+            },
+            {
+              "index": 275,
+              "time": 15.7,
+              "id": "clean-v5-a78c64a395c1b10c850360f1d61a",
+              "gapSeconds": 13.2
+            },
+            {
+              "index": 276,
+              "time": 15.75,
+              "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+              "gapSeconds": 0.05000000000000071
+            },
+            {
+              "index": 281,
+              "time": 16,
+              "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+              "gapSeconds": 0.1999999999999993
+            },
+            {
+              "index": 282,
+              "time": 16.05,
+              "id": "clean-v5-9a8d34bdd758e0c964e3e838c079",
+              "gapSeconds": 13.5
+            },
+            {
+              "index": 284,
+              "time": 16.15,
+              "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+              "gapSeconds": 0.6999999999999993
+            },
+            {
+              "index": 315,
+              "time": 18.55,
+              "id": "clean-v5-3d3feddab128615bf8dcb17ce81b",
+              "gapSeconds": 0.6500000000000021
+            },
+            {
+              "index": 333,
+              "time": 19.45,
+              "id": "clean-v5-9db9e768671c4dbbf63f8cb1ade8",
+              "gapSeconds": 0.05000000000000071
+            },
+            {
+              "index": 370,
+              "time": 21.3,
+              "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+              "gapSeconds": 12
+            },
+            {
+              "index": 402,
+              "time": 22.9,
+              "id": "clean-v5-1de60bff419893348adec23f00bf",
+              "gapSeconds": 0.3999999999999986
+            },
+            {
+              "index": 404,
+              "time": 23,
+              "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+              "gapSeconds": 1.1999999999999993
+            }
+          ],
+          "error": {
+            "mean": 0.1427788639564288,
+            "p95": 0.4335826975840034,
+            "max": 1.1614797664967236
+          },
+          "worstLocal": {
+            "mean": 0.1646323256446155,
+            "p95": 0.5554125084201308,
+            "max": 1.6129606171862634
+          },
+          "mouth": {
+            "mean": 0.12062601042557337,
+            "p95": 0.3890150583297632,
+            "max": 1.4025744497271857
+          },
+          "eyes": {
+            "mean": 0.024453342246644826,
+            "p95": 0.05374422585329778,
+            "max": 0.12389137708044537
+          },
+          "brows": {
+            "mean": 0.09315347251890226,
+            "p95": 0.3012571022689495,
+            "max": 0.6026620868196543
+          },
+          "wink": {
+            "mean": 0.06789541804947231,
+            "p95": 0.18533652275800705,
+            "max": 0.6245997827500105
+          },
+          "poseDegrees": {
+            "mean": 5.390750269909492,
+            "p95": 12.73211772134925,
+            "max": 24.85113363826677
+          },
+          "yawDegrees": {
+            "mean": 3.5281040672904447,
+            "p95": 8.592890249444151,
+            "max": 12.439424625601706
+          },
+          "pitchDegrees": {
+            "mean": 2.7197428237110257,
+            "p95": 9.554113646195654,
+            "max": 16.877051069490616
+          },
+          "accepted": 14,
+          "continuity": {
+            "mean": 0.05874292704809147,
+            "p95": 0.2005480918828789,
+            "max": 0.7365885025676269
+          },
+          "expressionMotion": {
+            "mean": 0.029329654660999117,
+            "p95": 0.08942089571044229,
+            "max": 0.4711500980655823
+          },
+          "poseMotionResidual": {
+            "mean": 4.089751829668437,
+            "p95": 12.845356880696759,
+            "max": 70.88638495611819
+          },
+          "objectiveWithoutHistory": {
+            "mean": 0.5665612804565698,
+            "p95": 1.8468563363820905,
+            "max": 7.834813982909222
+          }
+        },
+        "after": {
+          "frames": 410,
+          "uniqueImages": 134,
+          "runs": 153,
+          "switches": 152,
+          "reappearances": 19,
+          "recentReappearances": 14,
+          "shortCompletedRuns": 88,
+          "singleSampleRuns": 92,
+          "reentryEvents": [
+            {
+              "index": 36,
+              "time": 2.85,
+              "id": "clean-v5-a1428dd3556fe48a64bff47d609b",
+              "gapSeconds": 1.8
+            },
+            {
+              "index": 107,
+              "time": 7.2,
+              "id": "clean-v5-2cccbfe046954c849e160cc5e4da",
+              "gapSeconds": 0.10000000000000053
+            },
+            {
+              "index": 117,
+              "time": 7.8,
+              "id": "clean-v5-15fe8d03e42c2ed13e075ab37dd4",
+              "gapSeconds": 0.09999999999999964
+            },
+            {
+              "index": 121,
+              "time": 8,
+              "id": "clean-v5-b666c1e485ea358e7b9bd0726bd3",
+              "gapSeconds": 1
+            },
+            {
+              "index": 124,
+              "time": 8.15,
+              "id": "clean-v5-3d784242af5812129948415cc0f5",
+              "gapSeconds": 1
+            },
+            {
+              "index": 133,
+              "time": 8.6,
+              "id": "clean-v5-5d96c8f7353583d71683430399ef",
+              "gapSeconds": 1.8999999999999995
+            },
+            {
+              "index": 147,
+              "time": 9.3,
+              "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+              "gapSeconds": 8.3
+            },
+            {
+              "index": 183,
+              "time": 11.1,
+              "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+              "gapSeconds": 1.5999999999999996
+            },
+            {
+              "index": 269,
+              "time": 15.4,
+              "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+              "gapSeconds": 13
+            },
+            {
+              "index": 275,
+              "time": 15.7,
+              "id": "clean-v5-a78c64a395c1b10c850360f1d61a",
+              "gapSeconds": 13.2
+            },
+            {
+              "index": 276,
+              "time": 15.75,
+              "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+              "gapSeconds": 0.05000000000000071
+            },
+            {
+              "index": 281,
+              "time": 16,
+              "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+              "gapSeconds": 0.1999999999999993
+            },
+            {
+              "index": 282,
+              "time": 16.05,
+              "id": "clean-v5-9a8d34bdd758e0c964e3e838c079",
+              "gapSeconds": 13.5
+            },
+            {
+              "index": 284,
+              "time": 16.15,
+              "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+              "gapSeconds": 0.6999999999999993
+            },
+            {
+              "index": 315,
+              "time": 18.55,
+              "id": "clean-v5-3d3feddab128615bf8dcb17ce81b",
+              "gapSeconds": 0.6500000000000021
+            },
+            {
+              "index": 333,
+              "time": 19.45,
+              "id": "clean-v5-9db9e768671c4dbbf63f8cb1ade8",
+              "gapSeconds": 0.05000000000000071
+            },
+            {
+              "index": 370,
+              "time": 21.3,
+              "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+              "gapSeconds": 12
+            },
+            {
+              "index": 402,
+              "time": 22.9,
+              "id": "clean-v5-1de60bff419893348adec23f00bf",
+              "gapSeconds": 0.3999999999999986
+            },
+            {
+              "index": 404,
+              "time": 23,
+              "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+              "gapSeconds": 1.1999999999999993
+            }
+          ],
+          "error": {
+            "mean": 0.1427788639564288,
+            "p95": 0.4335826975840034,
+            "max": 1.1614797664967236
+          },
+          "worstLocal": {
+            "mean": 0.1646323256446155,
+            "p95": 0.5554125084201308,
+            "max": 1.6129606171862634
+          },
+          "mouth": {
+            "mean": 0.12062601042557337,
+            "p95": 0.3890150583297632,
+            "max": 1.4025744497271857
+          },
+          "eyes": {
+            "mean": 0.024453342246644826,
+            "p95": 0.05374422585329778,
+            "max": 0.12389137708044537
+          },
+          "brows": {
+            "mean": 0.09315347251890226,
+            "p95": 0.3012571022689495,
+            "max": 0.6026620868196543
+          },
+          "wink": {
+            "mean": 0.06789541804947231,
+            "p95": 0.18533652275800705,
+            "max": 0.6245997827500105
+          },
+          "poseDegrees": {
+            "mean": 5.390750269909492,
+            "p95": 12.73211772134925,
+            "max": 24.85113363826677
+          },
+          "yawDegrees": {
+            "mean": 3.5281040672904447,
+            "p95": 8.592890249444151,
+            "max": 12.439424625601706
+          },
+          "pitchDegrees": {
+            "mean": 2.7197428237110257,
+            "p95": 9.554113646195654,
+            "max": 16.877051069490616
+          },
+          "accepted": 14,
+          "continuity": {
+            "mean": 0.05874292704809147,
+            "p95": 0.2005480918828789,
+            "max": 0.7365885025676269
+          },
+          "expressionMotion": {
+            "mean": 0.029329654660999117,
+            "p95": 0.08942089571044229,
+            "max": 0.4711500980655823
+          },
+          "poseMotionResidual": {
+            "mean": 4.089751829668437,
+            "p95": 12.845356880696759,
+            "max": 70.88638495611819
+          },
+          "objectiveWithoutHistory": {
+            "mean": 0.5665612804565698,
+            "p95": 1.8468563363820905,
+            "max": 7.834813982909222
+          }
+        },
+        "comparison": null,
+        "candidatesInspected": 2535,
+        "fidelityRejected": 1670,
+        "scoredPatches": 0,
+        "triedPatches": 0,
+        "eventsInspected": 14,
+        "adoptedPatches": 0,
+        "rolledBackPatches": 0,
+        "patches": [],
+        "rejectedReasons": {},
+        "capHit": false,
+        "capReasons": [],
+        "limits": {
+          "enabled": true,
+          "maxFrames": 12000,
+          "maxIntervalFrames": 240,
+          "maxEvents": 64,
+          "maxCandidatesInspected": 750000,
+          "maxScoredPatches": 512,
+          "maxTrials": 128,
+          "maxPatches": 16
+        },
+        "windowSeconds": 2
+      },
+      "changedFrames": [],
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0,
+      "choicesSha256": "fb7d00b6531f0cff7a54ce56ea68f8fbd41044bafa8108b461b6f2970731b46f",
+      "timings": [
+        {
+          "index": 0,
+          "mode": "baseline",
+          "elapsedMs": 2342.1494380000004
+        },
+        {
+          "index": 1,
+          "mode": "candidate",
+          "elapsedMs": 2255.220637000002
+        },
+        {
+          "index": 2,
+          "mode": "repairOnly",
+          "elapsedMs": 18.19487300000037
+        },
+        {
+          "index": 3,
+          "mode": "candidate",
+          "elapsedMs": 2146.054572000001
+        },
+        {
+          "index": 4,
+          "mode": "baseline",
+          "elapsedMs": 2248.514424000001
+        },
+        {
+          "index": 5,
+          "mode": "repairOnly",
+          "elapsedMs": 23.931642999999895
+        },
+        {
+          "index": 6,
+          "mode": "candidate",
+          "elapsedMs": 2269.8068679999997
+        },
+        {
+          "index": 7,
+          "mode": "baseline",
+          "elapsedMs": 2408.832434
+        },
+        {
+          "index": 8,
+          "mode": "repairOnly",
+          "elapsedMs": 19.947769999998854
+        },
+        {
+          "index": 9,
+          "mode": "baseline",
+          "elapsedMs": 2437.9744299999984
+        },
+        {
+          "index": 10,
+          "mode": "candidate",
+          "elapsedMs": 2236.712575999998
+        },
+        {
+          "index": 11,
+          "mode": "repairOnly",
+          "elapsedMs": 15.994352999998227
+        },
+        {
+          "index": 12,
+          "mode": "baseline",
+          "elapsedMs": 2284.2984810000016
+        },
+        {
+          "index": 13,
+          "mode": "candidate",
+          "elapsedMs": 2444.9230129999996
+        },
+        {
+          "index": 14,
+          "mode": "repairOnly",
+          "elapsedMs": 19.866189000000304
+        },
+        {
+          "index": 15,
+          "mode": "candidate",
+          "elapsedMs": 2492.015943999999
+        },
+        {
+          "index": 16,
+          "mode": "baseline",
+          "elapsedMs": 2618.9034150000007
+        },
+        {
+          "index": 17,
+          "mode": "repairOnly",
+          "elapsedMs": 22.043504999994184
+        }
+      ],
+      "medianMs": {
+        "baseline": 2375.490936,
+        "candidate": 2262.513752500001,
+        "repairOnly": 19.90697949999958
+      },
+      "selectorOverheadPercent": -4.755950939987052
+    },
+    {
+      "name": "full-catalog-feasible-beams",
+      "candidateRecords": 140,
+      "uniqueCandidateIds": 140,
+      "snapshotSha256": "eea5326a52c42dfc68a44b7d35c3a37260526e4d31591b3882e8ad49352ae3f9",
+      "includesAdditionalCandidatePreparation": false,
+      "timingScope": "Offline feasibility experiment. This selector timing excludes the full 70,000-photo decode and feasibility scan; it is not end-to-end video time.",
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "before": {
+        "frames": 410,
+        "uniqueImages": 134,
+        "runs": 153,
+        "switches": 152,
+        "reappearances": 19,
+        "recentReappearances": 14,
+        "shortCompletedRuns": 88,
+        "singleSampleRuns": 92,
+        "reentryEvents": [
+          {
+            "index": 36,
+            "time": 2.85,
+            "id": "clean-v5-a1428dd3556fe48a64bff47d609b",
+            "gapSeconds": 1.8
+          },
+          {
+            "index": 107,
+            "time": 7.2,
+            "id": "clean-v5-2cccbfe046954c849e160cc5e4da",
+            "gapSeconds": 0.10000000000000053
+          },
+          {
+            "index": 117,
+            "time": 7.8,
+            "id": "clean-v5-15fe8d03e42c2ed13e075ab37dd4",
+            "gapSeconds": 0.09999999999999964
+          },
+          {
+            "index": 121,
+            "time": 8,
+            "id": "clean-v5-b666c1e485ea358e7b9bd0726bd3",
+            "gapSeconds": 1
+          },
+          {
+            "index": 124,
+            "time": 8.15,
+            "id": "clean-v5-3d784242af5812129948415cc0f5",
+            "gapSeconds": 1
+          },
+          {
+            "index": 133,
+            "time": 8.6,
+            "id": "clean-v5-5d96c8f7353583d71683430399ef",
+            "gapSeconds": 1.8999999999999995
+          },
+          {
+            "index": 147,
+            "time": 9.3,
+            "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+            "gapSeconds": 8.3
+          },
+          {
+            "index": 183,
+            "time": 11.1,
+            "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+            "gapSeconds": 1.5999999999999996
+          },
+          {
+            "index": 269,
+            "time": 15.4,
+            "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+            "gapSeconds": 13
+          },
+          {
+            "index": 275,
+            "time": 15.7,
+            "id": "clean-v5-a78c64a395c1b10c850360f1d61a",
+            "gapSeconds": 13.2
+          },
+          {
+            "index": 276,
+            "time": 15.75,
+            "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+            "gapSeconds": 0.05000000000000071
+          },
+          {
+            "index": 281,
+            "time": 16,
+            "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+            "gapSeconds": 0.1999999999999993
+          },
+          {
+            "index": 282,
+            "time": 16.05,
+            "id": "clean-v5-9a8d34bdd758e0c964e3e838c079",
+            "gapSeconds": 13.5
+          },
+          {
+            "index": 284,
+            "time": 16.15,
+            "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+            "gapSeconds": 0.6999999999999993
+          },
+          {
+            "index": 315,
+            "time": 18.55,
+            "id": "clean-v5-3d3feddab128615bf8dcb17ce81b",
+            "gapSeconds": 0.6500000000000021
+          },
+          {
+            "index": 333,
+            "time": 19.45,
+            "id": "clean-v5-9db9e768671c4dbbf63f8cb1ade8",
+            "gapSeconds": 0.05000000000000071
+          },
+          {
+            "index": 370,
+            "time": 21.3,
+            "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+            "gapSeconds": 12
+          },
+          {
+            "index": 402,
+            "time": 22.9,
+            "id": "clean-v5-1de60bff419893348adec23f00bf",
+            "gapSeconds": 0.3999999999999986
+          },
+          {
+            "index": 404,
+            "time": 23,
+            "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+            "gapSeconds": 1.1999999999999993
+          }
+        ],
+        "error": {
+          "mean": 0.1427788639564288,
+          "p95": 0.4335826975840034,
+          "max": 1.1614797664967236
+        },
+        "worstLocal": {
+          "mean": 0.1646323256446155,
+          "p95": 0.5554125084201308,
+          "max": 1.6129606171862634
+        },
+        "mouth": {
+          "mean": 0.12062601042557337,
+          "p95": 0.3890150583297632,
+          "max": 1.4025744497271857
+        },
+        "eyes": {
+          "mean": 0.024453342246644826,
+          "p95": 0.05374422585329778,
+          "max": 0.12389137708044537
+        },
+        "brows": {
+          "mean": 0.09315347251890226,
+          "p95": 0.3012571022689495,
+          "max": 0.6026620868196543
+        },
+        "wink": {
+          "mean": 0.06789541804947231,
+          "p95": 0.18533652275800705,
+          "max": 0.6245997827500105
+        },
+        "poseDegrees": {
+          "mean": 5.390750269909492,
+          "p95": 12.73211772134925,
+          "max": 24.85113363826677
+        },
+        "yawDegrees": {
+          "mean": 3.5281040672904447,
+          "p95": 8.592890249444151,
+          "max": 12.439424625601706
+        },
+        "pitchDegrees": {
+          "mean": 2.7197428237110257,
+          "p95": 9.554113646195654,
+          "max": 16.877051069490616
+        },
+        "accepted": 14,
+        "continuity": {
+          "mean": 0.05874292704809147,
+          "p95": 0.2005480918828789,
+          "max": 0.7365885025676269
+        },
+        "expressionMotion": {
+          "mean": 0.029329654660999117,
+          "p95": 0.08942089571044229,
+          "max": 0.4711500980655823
+        },
+        "poseMotionResidual": {
+          "mean": 4.089751829668437,
+          "p95": 12.845356880696759,
+          "max": 70.88638495611819
+        },
+        "objectiveWithoutHistory": {
+          "mean": 0.5665612804565698,
+          "p95": 1.8468563363820905,
+          "max": 7.834813982909222
+        }
+      },
+      "after": {
+        "frames": 410,
+        "uniqueImages": 134,
+        "runs": 153,
+        "switches": 152,
+        "reappearances": 19,
+        "recentReappearances": 14,
+        "shortCompletedRuns": 88,
+        "singleSampleRuns": 92,
+        "reentryEvents": [
+          {
+            "index": 36,
+            "time": 2.85,
+            "id": "clean-v5-a1428dd3556fe48a64bff47d609b",
+            "gapSeconds": 1.8
+          },
+          {
+            "index": 107,
+            "time": 7.2,
+            "id": "clean-v5-2cccbfe046954c849e160cc5e4da",
+            "gapSeconds": 0.10000000000000053
+          },
+          {
+            "index": 117,
+            "time": 7.8,
+            "id": "clean-v5-15fe8d03e42c2ed13e075ab37dd4",
+            "gapSeconds": 0.09999999999999964
+          },
+          {
+            "index": 121,
+            "time": 8,
+            "id": "clean-v5-b666c1e485ea358e7b9bd0726bd3",
+            "gapSeconds": 1
+          },
+          {
+            "index": 124,
+            "time": 8.15,
+            "id": "clean-v5-3d784242af5812129948415cc0f5",
+            "gapSeconds": 1
+          },
+          {
+            "index": 133,
+            "time": 8.6,
+            "id": "clean-v5-5d96c8f7353583d71683430399ef",
+            "gapSeconds": 1.8999999999999995
+          },
+          {
+            "index": 147,
+            "time": 9.3,
+            "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+            "gapSeconds": 8.3
+          },
+          {
+            "index": 183,
+            "time": 11.1,
+            "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+            "gapSeconds": 1.5999999999999996
+          },
+          {
+            "index": 269,
+            "time": 15.4,
+            "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+            "gapSeconds": 13
+          },
+          {
+            "index": 275,
+            "time": 15.7,
+            "id": "clean-v5-a78c64a395c1b10c850360f1d61a",
+            "gapSeconds": 13.2
+          },
+          {
+            "index": 276,
+            "time": 15.75,
+            "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+            "gapSeconds": 0.05000000000000071
+          },
+          {
+            "index": 281,
+            "time": 16,
+            "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+            "gapSeconds": 0.1999999999999993
+          },
+          {
+            "index": 282,
+            "time": 16.05,
+            "id": "clean-v5-9a8d34bdd758e0c964e3e838c079",
+            "gapSeconds": 13.5
+          },
+          {
+            "index": 284,
+            "time": 16.15,
+            "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+            "gapSeconds": 0.6999999999999993
+          },
+          {
+            "index": 315,
+            "time": 18.55,
+            "id": "clean-v5-3d3feddab128615bf8dcb17ce81b",
+            "gapSeconds": 0.6500000000000021
+          },
+          {
+            "index": 333,
+            "time": 19.45,
+            "id": "clean-v5-9db9e768671c4dbbf63f8cb1ade8",
+            "gapSeconds": 0.05000000000000071
+          },
+          {
+            "index": 370,
+            "time": 21.3,
+            "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+            "gapSeconds": 12
+          },
+          {
+            "index": 402,
+            "time": 22.9,
+            "id": "clean-v5-1de60bff419893348adec23f00bf",
+            "gapSeconds": 0.3999999999999986
+          },
+          {
+            "index": 404,
+            "time": 23,
+            "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+            "gapSeconds": 1.1999999999999993
+          }
+        ],
+        "error": {
+          "mean": 0.1427788639564288,
+          "p95": 0.4335826975840034,
+          "max": 1.1614797664967236
+        },
+        "worstLocal": {
+          "mean": 0.1646323256446155,
+          "p95": 0.5554125084201308,
+          "max": 1.6129606171862634
+        },
+        "mouth": {
+          "mean": 0.12062601042557337,
+          "p95": 0.3890150583297632,
+          "max": 1.4025744497271857
+        },
+        "eyes": {
+          "mean": 0.024453342246644826,
+          "p95": 0.05374422585329778,
+          "max": 0.12389137708044537
+        },
+        "brows": {
+          "mean": 0.09315347251890226,
+          "p95": 0.3012571022689495,
+          "max": 0.6026620868196543
+        },
+        "wink": {
+          "mean": 0.06789541804947231,
+          "p95": 0.18533652275800705,
+          "max": 0.6245997827500105
+        },
+        "poseDegrees": {
+          "mean": 5.390750269909492,
+          "p95": 12.73211772134925,
+          "max": 24.85113363826677
+        },
+        "yawDegrees": {
+          "mean": 3.5281040672904447,
+          "p95": 8.592890249444151,
+          "max": 12.439424625601706
+        },
+        "pitchDegrees": {
+          "mean": 2.7197428237110257,
+          "p95": 9.554113646195654,
+          "max": 16.877051069490616
+        },
+        "accepted": 14,
+        "continuity": {
+          "mean": 0.05874292704809147,
+          "p95": 0.2005480918828789,
+          "max": 0.7365885025676269
+        },
+        "expressionMotion": {
+          "mean": 0.029329654660999117,
+          "p95": 0.08942089571044229,
+          "max": 0.4711500980655823
+        },
+        "poseMotionResidual": {
+          "mean": 4.089751829668437,
+          "p95": 12.845356880696759,
+          "max": 70.88638495611819
+        },
+        "objectiveWithoutHistory": {
+          "mean": 0.5665612804565698,
+          "p95": 1.8468563363820905,
+          "max": 7.834813982909222
+        }
+      },
+      "diagnostics": {
+        "adopted": false,
+        "reason": "baseline-preserved",
+        "invalidReason": null,
+        "before": {
+          "frames": 410,
+          "uniqueImages": 134,
+          "runs": 153,
+          "switches": 152,
+          "reappearances": 19,
+          "recentReappearances": 14,
+          "shortCompletedRuns": 88,
+          "singleSampleRuns": 92,
+          "reentryEvents": [
+            {
+              "index": 36,
+              "time": 2.85,
+              "id": "clean-v5-a1428dd3556fe48a64bff47d609b",
+              "gapSeconds": 1.8
+            },
+            {
+              "index": 107,
+              "time": 7.2,
+              "id": "clean-v5-2cccbfe046954c849e160cc5e4da",
+              "gapSeconds": 0.10000000000000053
+            },
+            {
+              "index": 117,
+              "time": 7.8,
+              "id": "clean-v5-15fe8d03e42c2ed13e075ab37dd4",
+              "gapSeconds": 0.09999999999999964
+            },
+            {
+              "index": 121,
+              "time": 8,
+              "id": "clean-v5-b666c1e485ea358e7b9bd0726bd3",
+              "gapSeconds": 1
+            },
+            {
+              "index": 124,
+              "time": 8.15,
+              "id": "clean-v5-3d784242af5812129948415cc0f5",
+              "gapSeconds": 1
+            },
+            {
+              "index": 133,
+              "time": 8.6,
+              "id": "clean-v5-5d96c8f7353583d71683430399ef",
+              "gapSeconds": 1.8999999999999995
+            },
+            {
+              "index": 147,
+              "time": 9.3,
+              "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+              "gapSeconds": 8.3
+            },
+            {
+              "index": 183,
+              "time": 11.1,
+              "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+              "gapSeconds": 1.5999999999999996
+            },
+            {
+              "index": 269,
+              "time": 15.4,
+              "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+              "gapSeconds": 13
+            },
+            {
+              "index": 275,
+              "time": 15.7,
+              "id": "clean-v5-a78c64a395c1b10c850360f1d61a",
+              "gapSeconds": 13.2
+            },
+            {
+              "index": 276,
+              "time": 15.75,
+              "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+              "gapSeconds": 0.05000000000000071
+            },
+            {
+              "index": 281,
+              "time": 16,
+              "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+              "gapSeconds": 0.1999999999999993
+            },
+            {
+              "index": 282,
+              "time": 16.05,
+              "id": "clean-v5-9a8d34bdd758e0c964e3e838c079",
+              "gapSeconds": 13.5
+            },
+            {
+              "index": 284,
+              "time": 16.15,
+              "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+              "gapSeconds": 0.6999999999999993
+            },
+            {
+              "index": 315,
+              "time": 18.55,
+              "id": "clean-v5-3d3feddab128615bf8dcb17ce81b",
+              "gapSeconds": 0.6500000000000021
+            },
+            {
+              "index": 333,
+              "time": 19.45,
+              "id": "clean-v5-9db9e768671c4dbbf63f8cb1ade8",
+              "gapSeconds": 0.05000000000000071
+            },
+            {
+              "index": 370,
+              "time": 21.3,
+              "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+              "gapSeconds": 12
+            },
+            {
+              "index": 402,
+              "time": 22.9,
+              "id": "clean-v5-1de60bff419893348adec23f00bf",
+              "gapSeconds": 0.3999999999999986
+            },
+            {
+              "index": 404,
+              "time": 23,
+              "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+              "gapSeconds": 1.1999999999999993
+            }
+          ],
+          "error": {
+            "mean": 0.1427788639564288,
+            "p95": 0.4335826975840034,
+            "max": 1.1614797664967236
+          },
+          "worstLocal": {
+            "mean": 0.1646323256446155,
+            "p95": 0.5554125084201308,
+            "max": 1.6129606171862634
+          },
+          "mouth": {
+            "mean": 0.12062601042557337,
+            "p95": 0.3890150583297632,
+            "max": 1.4025744497271857
+          },
+          "eyes": {
+            "mean": 0.024453342246644826,
+            "p95": 0.05374422585329778,
+            "max": 0.12389137708044537
+          },
+          "brows": {
+            "mean": 0.09315347251890226,
+            "p95": 0.3012571022689495,
+            "max": 0.6026620868196543
+          },
+          "wink": {
+            "mean": 0.06789541804947231,
+            "p95": 0.18533652275800705,
+            "max": 0.6245997827500105
+          },
+          "poseDegrees": {
+            "mean": 5.390750269909492,
+            "p95": 12.73211772134925,
+            "max": 24.85113363826677
+          },
+          "yawDegrees": {
+            "mean": 3.5281040672904447,
+            "p95": 8.592890249444151,
+            "max": 12.439424625601706
+          },
+          "pitchDegrees": {
+            "mean": 2.7197428237110257,
+            "p95": 9.554113646195654,
+            "max": 16.877051069490616
+          },
+          "accepted": 14,
+          "continuity": {
+            "mean": 0.05874292704809147,
+            "p95": 0.2005480918828789,
+            "max": 0.7365885025676269
+          },
+          "expressionMotion": {
+            "mean": 0.029329654660999117,
+            "p95": 0.08942089571044229,
+            "max": 0.4711500980655823
+          },
+          "poseMotionResidual": {
+            "mean": 4.089751829668437,
+            "p95": 12.845356880696759,
+            "max": 70.88638495611819
+          },
+          "objectiveWithoutHistory": {
+            "mean": 0.5665612804565698,
+            "p95": 1.8468563363820905,
+            "max": 7.834813982909222
+          }
+        },
+        "after": {
+          "frames": 410,
+          "uniqueImages": 134,
+          "runs": 153,
+          "switches": 152,
+          "reappearances": 19,
+          "recentReappearances": 14,
+          "shortCompletedRuns": 88,
+          "singleSampleRuns": 92,
+          "reentryEvents": [
+            {
+              "index": 36,
+              "time": 2.85,
+              "id": "clean-v5-a1428dd3556fe48a64bff47d609b",
+              "gapSeconds": 1.8
+            },
+            {
+              "index": 107,
+              "time": 7.2,
+              "id": "clean-v5-2cccbfe046954c849e160cc5e4da",
+              "gapSeconds": 0.10000000000000053
+            },
+            {
+              "index": 117,
+              "time": 7.8,
+              "id": "clean-v5-15fe8d03e42c2ed13e075ab37dd4",
+              "gapSeconds": 0.09999999999999964
+            },
+            {
+              "index": 121,
+              "time": 8,
+              "id": "clean-v5-b666c1e485ea358e7b9bd0726bd3",
+              "gapSeconds": 1
+            },
+            {
+              "index": 124,
+              "time": 8.15,
+              "id": "clean-v5-3d784242af5812129948415cc0f5",
+              "gapSeconds": 1
+            },
+            {
+              "index": 133,
+              "time": 8.6,
+              "id": "clean-v5-5d96c8f7353583d71683430399ef",
+              "gapSeconds": 1.8999999999999995
+            },
+            {
+              "index": 147,
+              "time": 9.3,
+              "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+              "gapSeconds": 8.3
+            },
+            {
+              "index": 183,
+              "time": 11.1,
+              "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+              "gapSeconds": 1.5999999999999996
+            },
+            {
+              "index": 269,
+              "time": 15.4,
+              "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+              "gapSeconds": 13
+            },
+            {
+              "index": 275,
+              "time": 15.7,
+              "id": "clean-v5-a78c64a395c1b10c850360f1d61a",
+              "gapSeconds": 13.2
+            },
+            {
+              "index": 276,
+              "time": 15.75,
+              "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+              "gapSeconds": 0.05000000000000071
+            },
+            {
+              "index": 281,
+              "time": 16,
+              "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+              "gapSeconds": 0.1999999999999993
+            },
+            {
+              "index": 282,
+              "time": 16.05,
+              "id": "clean-v5-9a8d34bdd758e0c964e3e838c079",
+              "gapSeconds": 13.5
+            },
+            {
+              "index": 284,
+              "time": 16.15,
+              "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+              "gapSeconds": 0.6999999999999993
+            },
+            {
+              "index": 315,
+              "time": 18.55,
+              "id": "clean-v5-3d3feddab128615bf8dcb17ce81b",
+              "gapSeconds": 0.6500000000000021
+            },
+            {
+              "index": 333,
+              "time": 19.45,
+              "id": "clean-v5-9db9e768671c4dbbf63f8cb1ade8",
+              "gapSeconds": 0.05000000000000071
+            },
+            {
+              "index": 370,
+              "time": 21.3,
+              "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+              "gapSeconds": 12
+            },
+            {
+              "index": 402,
+              "time": 22.9,
+              "id": "clean-v5-1de60bff419893348adec23f00bf",
+              "gapSeconds": 0.3999999999999986
+            },
+            {
+              "index": 404,
+              "time": 23,
+              "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+              "gapSeconds": 1.1999999999999993
+            }
+          ],
+          "error": {
+            "mean": 0.1427788639564288,
+            "p95": 0.4335826975840034,
+            "max": 1.1614797664967236
+          },
+          "worstLocal": {
+            "mean": 0.1646323256446155,
+            "p95": 0.5554125084201308,
+            "max": 1.6129606171862634
+          },
+          "mouth": {
+            "mean": 0.12062601042557337,
+            "p95": 0.3890150583297632,
+            "max": 1.4025744497271857
+          },
+          "eyes": {
+            "mean": 0.024453342246644826,
+            "p95": 0.05374422585329778,
+            "max": 0.12389137708044537
+          },
+          "brows": {
+            "mean": 0.09315347251890226,
+            "p95": 0.3012571022689495,
+            "max": 0.6026620868196543
+          },
+          "wink": {
+            "mean": 0.06789541804947231,
+            "p95": 0.18533652275800705,
+            "max": 0.6245997827500105
+          },
+          "poseDegrees": {
+            "mean": 5.390750269909492,
+            "p95": 12.73211772134925,
+            "max": 24.85113363826677
+          },
+          "yawDegrees": {
+            "mean": 3.5281040672904447,
+            "p95": 8.592890249444151,
+            "max": 12.439424625601706
+          },
+          "pitchDegrees": {
+            "mean": 2.7197428237110257,
+            "p95": 9.554113646195654,
+            "max": 16.877051069490616
+          },
+          "accepted": 14,
+          "continuity": {
+            "mean": 0.05874292704809147,
+            "p95": 0.2005480918828789,
+            "max": 0.7365885025676269
+          },
+          "expressionMotion": {
+            "mean": 0.029329654660999117,
+            "p95": 0.08942089571044229,
+            "max": 0.4711500980655823
+          },
+          "poseMotionResidual": {
+            "mean": 4.089751829668437,
+            "p95": 12.845356880696759,
+            "max": 70.88638495611819
+          },
+          "objectiveWithoutHistory": {
+            "mean": 0.5665612804565698,
+            "p95": 1.8468563363820905,
+            "max": 7.834813982909222
+          }
+        },
+        "comparison": null,
+        "candidatesInspected": 42,
+        "fidelityRejected": 0,
+        "scoredPatches": 0,
+        "triedPatches": 0,
+        "eventsInspected": 14,
+        "adoptedPatches": 0,
+        "rolledBackPatches": 0,
+        "patches": [],
+        "rejectedReasons": {},
+        "capHit": false,
+        "capReasons": [],
+        "limits": {
+          "enabled": true,
+          "maxFrames": 12000,
+          "maxIntervalFrames": 240,
+          "maxEvents": 64,
+          "maxCandidatesInspected": 750000,
+          "maxScoredPatches": 512,
+          "maxTrials": 128,
+          "maxPatches": 16
+        },
+        "windowSeconds": 2
+      },
+      "changedFrames": [],
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0,
+      "choicesSha256": "fb7d00b6531f0cff7a54ce56ea68f8fbd41044bafa8108b461b6f2970731b46f",
+      "timings": [
+        {
+          "index": 0,
+          "mode": "baseline",
+          "elapsedMs": 2264.2162640000024
+        },
+        {
+          "index": 1,
+          "mode": "candidate",
+          "elapsedMs": 2151.1086630000063
+        },
+        {
+          "index": 2,
+          "mode": "repairOnly",
+          "elapsedMs": 16.97082500000397
+        },
+        {
+          "index": 3,
+          "mode": "candidate",
+          "elapsedMs": 2286.519720000004
+        },
+        {
+          "index": 4,
+          "mode": "baseline",
+          "elapsedMs": 2357.040283999995
+        },
+        {
+          "index": 5,
+          "mode": "repairOnly",
+          "elapsedMs": 19.988798999998835
+        },
+        {
+          "index": 6,
+          "mode": "candidate",
+          "elapsedMs": 2267.7283270000044
+        },
+        {
+          "index": 7,
+          "mode": "baseline",
+          "elapsedMs": 2198.7559619999956
+        },
+        {
+          "index": 8,
+          "mode": "repairOnly",
+          "elapsedMs": 15.300058000000718
+        },
+        {
+          "index": 9,
+          "mode": "baseline",
+          "elapsedMs": 2483.0464129999964
+        },
+        {
+          "index": 10,
+          "mode": "candidate",
+          "elapsedMs": 2665.675049999998
+        },
+        {
+          "index": 11,
+          "mode": "repairOnly",
+          "elapsedMs": 20.097806999998284
+        },
+        {
+          "index": 12,
+          "mode": "baseline",
+          "elapsedMs": 2483.309947000009
+        },
+        {
+          "index": 13,
+          "mode": "candidate",
+          "elapsedMs": 2473.762406000009
+        },
+        {
+          "index": 14,
+          "mode": "repairOnly",
+          "elapsedMs": 15.885427000001073
+        },
+        {
+          "index": 15,
+          "mode": "candidate",
+          "elapsedMs": 2470.1216980000027
+        },
+        {
+          "index": 16,
+          "mode": "baseline",
+          "elapsedMs": 2587.609746999995
+        },
+        {
+          "index": 17,
+          "mode": "repairOnly",
+          "elapsedMs": 17.73711000000185
+        }
+      ],
+      "medianMs": {
+        "baseline": 2420.043348499996,
+        "candidate": 2378.3207090000033,
+        "repairOnly": 17.35396750000291
+      },
+      "selectorOverheadPercent": -1.724045130259888
+    }
+  ],
+  "freshVideoInference": false,
+  "browserVerifiedThisRun": false,
+  "physicalCameraVerified": false,
+  "adoptionAccepted": false,
+  "reason": "no-quality-passing-reappearance-reduction",
+  "finishedAt": "2026-10-09T15:51:40.137Z"
+}

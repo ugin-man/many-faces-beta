@@ -11,6 +11,14 @@ Only this report and evidence are recorded on the current
 `astra/realtime-hardening` branch. The current runtime and published Site v56
 keep their original selection code.
 
+The [2026-10-10 JST full-catalog follow-up](VIDEO_HISTORY_FULL_CATALOG.md)
+adds a bounded, baseline-preserving local-repair prototype and checks all 70,000
+catalog descriptors. It is also **not adopted**: under the unchanged per-frame
+quality limits, all 9,216 possible admissible sequences retain at least the
+baseline's 14 recent and 19 total reappearances. The follow-up's implementation,
+tests and reproducible scripts are on `astra/video-history-full-catalog`; the
+current branch receives its report and evidence only.
+
 ## Fixed source and scope
 
 The comparison baseline is `04a41b80469980454758feba9a31ac48b92c11fd` on

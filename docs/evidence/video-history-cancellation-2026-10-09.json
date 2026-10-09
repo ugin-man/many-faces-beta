@@ -1,0 +1,40 @@
+{
+  "commit": "4941d5242477e59793d8aa28fec12b54a647dff4",
+  "checks": [
+    "client hydration confirmed before file selection",
+    "real full-recording analysis reaches a pending catalog request",
+    "cancel releases the operation without a false successful result or late restart"
+  ],
+  "history": [
+    {
+      "elapsedMs": 32,
+      "runtime": {
+        "version": "camera-arrival-v3",
+        "build": "5acee58d0674e9fa",
+        "revision": "4941d5242477e59793d8aa28fec12b54a647dff4",
+        "phase": "waiting",
+        "label": "解析エンジンを受信中 4.1 MB",
+        "updatedAt": 1791518765561,
+        "stalled": false
+      },
+      "videoSource": true
+    },
+    {
+      "elapsedMs": 462,
+      "runtime": {
+        "version": "camera-arrival-v3",
+        "build": "5acee58d0674e9fa",
+        "revision": "4941d5242477e59793d8aa28fec12b54a647dff4",
+        "phase": "analyzing",
+        "label": "解析エンジンを準備中 14.8 MB",
+        "updatedAt": 1791518765846,
+        "stalled": false
+      },
+      "videoSource": true
+    }
+  ],
+  "pageErrors": [],
+  "interceptedShards": 4,
+  "passed": true,
+  "cancelToIdleMs": 35
+}

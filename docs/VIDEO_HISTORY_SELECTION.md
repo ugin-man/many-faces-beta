@@ -1,8 +1,15 @@
 # Video image reappearance experiment
 
-Status: experimental and not connected to the video Worker. Initial quality
-screening rejected all four declared weights; full-video fallback timing is
-being completed before recording the final decision.
+**Decision: not adopted.** Both complete video comparisons finished successfully,
+but none of the four declared history weights passed the quality gates. The
+trial remains disconnected from the video Worker. A successful CI run is not
+an adoption decision; the final report records `adoptionAccepted: false`.
+
+The trial implementation and reproducible scripts are on
+[`astra/video-history-selection`](https://github.com/ugin-man/many-faces-beta/tree/astra/video-history-selection).
+Only this report and evidence are recorded on the current
+`astra/realtime-hardening` branch. The current runtime and published Site v56
+keep their original selection code.
 
 ## Fixed source and scope
 
@@ -122,9 +129,134 @@ contains 410 face frames, 134 unique images, 152 switches, 19 total
 reappearances and 14 recent reappearances. None of the four declared weights
 improved recent reappearance counts while passing the unchanged quality gates.
 
+| Raw selection | Unique images | All reappearances | Recent reappearances | Switches | Mean strict error | Mean coarse motion residual | Mean expression motion residual |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Current baseline | 134 | 19 | 14 | 152 | 0.142778864 | 0.058742927 | 0.029329655 |
+| History weight 0.001 | 137 | 20 | 15 | 156 | 0.144610473 | 0.058901521 | 0.029209727 |
+| History weight 0.003 | 137 | 20 | 15 | 156 | 0.144610473 | 0.058901521 | 0.029209727 |
+| History weight 0.01 | 134 | 19 | 14 | 152 | 0.142778864 | 0.058742927 | 0.029329655 |
+| History weight 0.03 | 133 | 20 | 14 | 152 | 0.142733697 | 0.058640250 | 0.029355817 |
+
+Lower error and residuals are better. Residuals compare changes in output
+landmarks/pose with the input's motion; they are not a subjective visual score.
+All five paths have strict-error p95 `0.433582698` and maximum `1.161479766`.
+The detailed per-component distributions and paired limits are in
+[the immutable screening receipt](evidence/video-history-screening-2026-10-09.json).
+
+Weights 0.001 and 0.003 increased mean strict error by 1.283%, increased
+short/single-sample runs, and produced frame-local increases as large as
+0.171432454 and pose-component increases of 10.2012 degrees. Weight 0.01
+reproduced the original path exactly. Weight 0.03 improved mean strict error
+by 0.0316% but increased total reappearances and exceeded local/pose frame
+limits (0.071574314 and 2.2258 degrees). These are rejected outcomes, not
+changes to the deployed video result.
+
+The first screening measured the entire 410-frame optimizer on the same
+captured inputs, with three warmed samples per variant on one runner:
+
+| Weight | Baseline median, ms | Raw history median, ms | Full guard median, ms |
+| --- | ---: | ---: | ---: |
+| 0.001 | 833.4 | 767.8 | 1604.7 |
+| 0.003 | 843.2 | 952.3 | 1790.5 |
+| 0.01 | 870.9 | 962.0 | 1823.6 |
+| 0.03 | 849.1 | 962.2 | 1828.2 |
+
+These are optimizer totals, not per-frame p95 or complete browser processing
+times. The guard includes original selection, trial selection and quality
+comparison, even when it rejects the trial. Runtime/JIT/GC variation is visible
+between batches, so small timing differences should not be treated as a
+general speed gain.
+
 The follow-up `scripts/analyze-history-feasibility.mjs` is explicitly exploratory:
 it filters each captured beam using the original per-frame error/local/pose
 budgets, retains the baseline, and tests 14 combinations of weights and history
 counts. It does not change the catalog, ranker or acceptance thresholds. Its
 conclusions concern the captured ranked beams, not an exhaustive search of all
-70,000 photos. Final timings and the adoption decision will be recorded below.
+70,000 photos. Only 12 of 410 frames have an admissible alternative (1.034
+candidates per frame on average); all 14 weight/history-count combinations
+return the baseline sequence.
+
+All 9,216 combinations within those unchanged per-frame limits were also
+enumerated, omitting the additional aggregate and motion gates. Even this
+larger set has minimum recent reappearances 14, total reappearances 19 and
+switches 152. Further history-weight or beam-width tuning within this captured
+candidate set cannot produce a passing path. A future search experiment would
+need to investigate admissible candidates outside the captured beams.
+
+## Final full-video timing and regression evidence
+
+Final comparison: [run 37881350146](https://github.com/ugin-man/many-faces-beta/actions/runs/37881350146),
+tested experiment commit
+[`4941d5242477e59793d8aa28fec12b54a647dff4`](https://github.com/ugin-man/many-faces-beta/commit/4941d5242477e59793d8aa28fec12b54a647dff4).
+The first and final runs reproduced the same detected-input hash, baseline
+choices, all four trial choice hashes, and every quality metric.
+
+With no passing quality configuration, the complete browser comparison used
+the declared default weight 0.003 and its **baseline fallback**. It therefore
+measures the cost of computing and rejecting the trial, while rendering the
+original image sequence. The experiment did not connect the native app Worker;
+the harness substituted its test bundle. Production adoption is not implied.
+
+| Fresh browser trial | Mode | Full-video wall time, seconds |
+| --- | --- | ---: |
+| A1 | Current original selection | 85.928 |
+| B1 | History trial + quality check + baseline fallback | 88.445 |
+| B2 | History trial + quality check + baseline fallback | 87.912 |
+| A2 | Current original selection | 86.081 |
+
+| Timing measure | Original | Guarded trial, including fallback | Change |
+| --- | ---: | ---: | ---: |
+| Full-video wall time, median of two fresh-browser trials | 86.004 s | 88.179 s | +2.53% |
+| Complete selector, median of three warmed Node samples | 1434.2 ms | 3198.3 ms | +123.0% |
+
+The complete selector includes original selection, history selection and the
+quality comparison. The additional cost is absent from the unchanged current
+runtime. Both declared speed budgets passed, but quality rejection still makes
+`recommended: null`, `uiEvaluationMode: baseline-fallback`, and
+`adoptionAccepted: false` final. Timing varies by runner, so do not mix the
+first screening's Node timings with the final runner's browser timings.
+
+Checks completed on the exact experiment source:
+
+- Production builds, lint and all **314 tests passed**.
+- Original and zero-weight paths match exactly; repeated trials are deterministic.
+- All four browser trials use identical input frames and candidate traffic
+  (722 files, 68,163 decoded candidates, 497,852,679 received bytes).
+- All four return identical image IDs, times, numerical errors and choice hashes,
+  with 410 output frames and no image failures or page exceptions.
+- Playback, pause, frame advance and end-of-video seek pass. Final-frame
+  before/after screenshots were inspected; this is not a full-clip subjective
+  visual-quality review of a changed path.
+- Pending-network cancellation returns to idle in **35 ms**, without a false
+  success or late restart.
+- The entire protected `app`, `worker`, `public` and dependency source matches
+  the baseline except for the explicit experiment allowance. Projection math
+  matches the original byte-for-byte after adding five export keywords.
+- Exact enumeration independently reproduces all **9,216** admissible paths
+  and minimum recent/all/switch counts **14 / 19 / 152**.
+
+Durable receipts:
+
+- [Complete final comparison](evidence/video-history-comparison-2026-10-09.json).
+- [Constrained replay and exhaustive feasibility](evidence/video-history-feasibility-2026-10-09.json).
+- [Cancellation verification](evidence/video-history-cancellation-2026-10-09.json).
+- [Initial screening](evidence/video-history-screening-2026-10-09.json).
+
+The CI artifacts additionally retain the compressed same-input ranking
+snapshot, full per-frame trial errors/choices, browser screenshots and logs for
+the configured 14-day retention. The checked-in JSON receipts do not expire
+with the artifacts. Use the experiment branch's workflow for a fresh complete
+run; the baseline, recording and catalog identifiers above remain pinned.
+
+## Runtime preservation
+
+The current `astra/realtime-hardening` branch receives documentation and
+evidence only. The experiment code is retained on its dedicated branch; the
+Site remains public v56 with source `09ae2f991245cf6a3c899e874750578eba0ebfa7`.
+No production selection overhead or UI change is introduced.
+
+The existing draw path applies each frame's geometry even when the image ID is
+unchanged, so continuous image holding does not disable face-position or size
+tracking. Those functions, their callers, the realtime/camera path and all
+catalog/image data remain unchanged. Actual physical-camera and Safari
+verification are outside the completed Chromium fixed-video comparison.

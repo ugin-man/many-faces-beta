@@ -120,7 +120,7 @@ const EXPRESSION_INDEXES = [...new Set([
   ...MOUTH_INDEXES, ...EYE_INDEXES, ...BROWS,
 ])] as number[];
 
-const COARSE_INDEXES = [...new Set([
+export const COARSE_INDEXES = [...new Set([
   ...FACE_OVAL,
   ...LEFT_EYE.filter((_, index) => index % 2 === 0),
   ...RIGHT_EYE.filter((_, index) => index % 2 === 0),
@@ -627,7 +627,7 @@ export function rankProjectionCandidates<T extends ProjectionCandidate>(
   return rankProjectionCandidateModes(frame, candidates, limit)[mode];
 }
 
-function residualMotionAtIndexes(
+export function residualMotionAtIndexes(
   previousFrame: SequenceFrame,
   previousCandidate: ProjectionCandidate,
   currentFrame: SequenceFrame,
@@ -657,7 +657,7 @@ function residualMotionAtIndexes(
   return count ? Math.sqrt(total / count) : 0;
 }
 
-function expressionResidualMotion(
+export function expressionResidualMotion(
   previousFrame: SequenceFrame,
   previousCandidate: ProjectionCandidate,
   currentFrame: SequenceFrame,
@@ -673,13 +673,13 @@ function expressionResidualMotion(
   ) * weights.brows;
 }
 
-function sourceExpressionActivity(previousFrame: SequenceFrame, currentFrame: SequenceFrame) {
+export function sourceExpressionActivity(previousFrame: SequenceFrame, currentFrame: SequenceFrame) {
   const previous = previousFrame.geometry.projection;
   const current = currentFrame.geometry.projection;
   return rmsAtIndexes(previous, current, EXPRESSION_INDEXES);
 }
 
-function rareActionPenalty(frame: SequenceFrame, error: ProjectionError) {
+export function rareActionPenalty(frame: SequenceFrame, error: ProjectionError) {
   const targetPitch = Math.abs(Number(frame.feature[1] ?? 0) * 90);
   const pitchActivity = clamp01(targetPitch / 24);
   const targetWink = Math.abs(

@@ -49,7 +49,7 @@ export function drawDemoFaceComposite(
   video: HTMLVideoElement | null,
   replacement: (CanvasImageSource & { width: number; height: number }) | undefined,
   choice: DemoChoice | null,
-  options: { time: number; fps: number; sourceAspectRatio: number },
+  options: { time: number; fps: number; sourceAspectRatio: number; mirror?: boolean },
 ): boolean {
   const ctx = canvas.getContext("2d", { alpha: false });
   if (!ctx) return false;
@@ -58,6 +58,7 @@ export function drawDemoFaceComposite(
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = DEMO_BACKGROUND;
   ctx.fillRect(0, 0, width, height);
+  if (options.mirror) { ctx.translate(width, 0); ctx.scale(-1, 1); }
 
   if (!video || !replacement || !choice ||
       !demoFrameIsSafe(video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && !video.seeking,

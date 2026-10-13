@@ -38,6 +38,45 @@ function drawCover(ctx: CanvasRenderingContext2D, image: CanvasImageSource, iw: 
 }
 
 const layers = new WeakMap<HTMLCanvasElement, HTMLCanvasElement>();
+const lastSafeComposites = new WeakMap<HTMLCanvasElement, HTMLCanvasElement>();
+
+/** Drop a previous recording's protected frame before loading a different input. */
+export function resetDemoFaceComposite(canvas: HTMLCanvasElement | null) {
+  if (canvas) lastSafeComposites.delete(canvas);
+}
+
+/** The fallback never draws the source video, even when tracking or decoding fails. */
+function drawProtectedFallback(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+  const retained = lastSafeComposites.get(canvas);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (retained && retained.width === canvas.width && retained.height === canvas.height) {
+    ctx.drawImage(retained, 0, 0);
+    return;
+  }
+  // Neutral privacy slate only before the first safe composited frame.
+  ctx.fillStyle = "#29313b";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#e2e8f0";
+  ctx.font = `${Math.max(16, Math.round(canvas.width * .025))}px sans-serif`;
+  ctx.textAlign = "center";
+  ctx.fillText("顔を保護しています", canvas.width / 2, canvas.height / 2);
+}
+
+function rememberProtectedFrame(canvas: HTMLCanvasElement) {
+  let saved = lastSafeComposites.get(canvas);
+  if (!saved) {
+    saved = document.createElement("canvas");
+    lastSafeComposites.set(canvas, saved);
+  }
+  if (saved.width !== canvas.width || saved.height !== canvas.height) {
+    saved.width = canvas.width;
+    saved.height = canvas.height;
+  }
+  const context = saved.getContext("2d");
+  if (!context) return;
+  context.setTransform(1, 0, 0, 1, 0, 0);
+  context.drawImage(canvas, 0, 0);
+}
 
 /**
  * Demo-only composite. Never display source pixels if a matching detected face,
@@ -64,6 +103,7 @@ export function drawDemoFaceComposite(
       !demoFrameIsSafe(video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && !video.seeking,
         video.currentTime, options.time, choice.frame.time, options.fps) ||
       !video.videoWidth || !video.videoHeight) {
+    drawProtectedFallback(canvas, ctx);
     ctx.restore();
     return false;
   }
@@ -112,5 +152,6 @@ export function drawDemoFaceComposite(
   ctx.scale(transform.scale, transform.scale);
   ctx.drawImage(layer, -width / 2, -height / 2);
   ctx.restore();
+  rememberProtectedFrame(canvas);
   return true;
 }

@@ -60,10 +60,14 @@ test("one or three missing frames reuse a complete protected frame, never the ra
     assert.equal(originalDraws, 1, "only safe matched frames may draw the raw source");
     for (let i = 1; i <= 3; i++) {
       video.currentTime = 1 + i / 20;
+      const priorDraws = draws.length;
       assert.equal(drawDemoFaceComposite(canvas, video, undefined, choice,
         { time: video.currentTime, fps: 20, sourceAspectRatio: 1 }), false);
       assert.equal(draws.filter(x => x === video).length, originalDraws);
-      assert.ok(draws.includes(canvas) === false, "fallback must copy from a protected cache");
+      const fallbackDraws = draws.slice(priorDraws);
+      assert.equal(fallbackDraws.length, 1, "missing frame should draw one cached composite");
+      assert.notEqual(fallbackDraws[0], video, "fallback must never draw raw video");
+      assert.notEqual(fallbackDraws[0], canvas, "fallback must copy from an independent protected cache");
     }
     resetDemoFaceComposite(canvas);
     assert.equal(drawDemoFaceComposite(canvas, video, undefined, null,

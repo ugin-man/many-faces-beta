@@ -475,6 +475,28 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
     }, "image/png");
   };
 
+  const reportDemoPhoto = () => {
+    if (phase !== "review") return;
+    const time = playbackVideoRef.current?.currentTime ?? playbackTime;
+    const item = reviewItemAtTime(sequenceRef.current, quantizeReviewTime(time, replayFpsRef.current, clipDuration));
+    if (!item) return;
+    const payload = {
+      schemaVersion: 1, kind: "many-faces-photo-quality-report",
+      imageId: item.choice.candidate.id,
+      imageName: item.choice.candidate.name,
+      sourceName: item.choice.candidate.sourceName || item.choice.candidate.creator || "",
+      storedYawDegrees: Number((item.choice.candidate.feature[0] * 90).toFixed(2)),
+      frameYawDegrees: Number((item.choice.frame.feature[0] * 90).toFixed(2)),
+      videoTimeSeconds: Number(time.toFixed(3)),
+      reportReason: "wrong-facing-photo",
+      // No raw video, source face pixels or personal data are included.
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob), anchor = document.createElement("a");
+    anchor.href = url; anchor.download = "many-faces-wrong-photo.json"; anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
   const recordDemoVideo = async () => {
     const canvas = outputCanvasRef.current;
     const video = playbackVideoRef.current;
@@ -586,6 +608,7 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
       {busy ? <button className={`${styles.tool} ${styles.danger}`} onClick={reset} data-testid="cancel-analysis"><Icon name="stop" /><span>中止</span></button>
         : phase === "review" ? <>
           {demoComposite && <button className={styles.tool} onClick={saveDemoImage} disabled={recordingDemo} data-testid="demo-save-image"><Icon name="sample" /><span>画像保存</span></button>}
+          {demoComposite && <button className={styles.tool} onClick={reportDemoPhoto} disabled={recordingDemo} data-testid="demo-report-photo"><Icon name="info" /><span>誤画像を報告</span></button>}
           {demoComposite && <button className={styles.tool} onClick={() => void recordDemoVideo()} disabled={recordingDemo} data-testid="demo-export-video"><Icon name="video" /><span>{recordingDemo ? "録画中" : "デモ動画保存"}</span></button>}
           <button className={styles.tool} onClick={() => seekReview(playbackTime - 1 / analysisFps)} disabled={recordingDemo} aria-label="1フレーム戻る" data-testid="step-back"><Icon name="previous" /><span>1コマ戻る</span></button>
           <button className={`${styles.tool} ${styles.primary}`} onClick={() => void togglePlayback().catch(() => setError("再生できませんでした。もう一度お試しください。"))} aria-label={playing ? "一時停止" : "再生"} data-testid="play-pause" disabled={recordingDemo}><Icon name={playing ? "pause" : "play"} /><span>{playing ? "一時停止" : "再生"}</span></button>

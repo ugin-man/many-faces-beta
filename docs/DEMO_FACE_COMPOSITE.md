@@ -24,6 +24,12 @@ The public video and camera modes are unchanged. This is an **opt-in demo-only r
 - Original video UI, realtime camera, 70k assets, face matching and dataset remain untouched.
 - A Git commit does not deploy the existing ChatGPT Site. Rebuild the existing Site from the feature branch before attempting `/demo` on the published domain.
 
-## Side-facing direction QA (pending)
+## Side-facing direction QA (automated scan complete; visual report pending)
 
-A dedicated four-part independent MediaPipe audit (`.github/workflows/side-yaw-investigation.yml`) compares the stored yaw with a fresh yaw measurement on the **exact packed published image** for every side-facing catalog photo. It emits image-backed contradiction sheets and SHA-256 evidence. Do not blindly reverse labels or remove photographs on the basis of a single classifier: manually review candidates, exclude confirmed wrong-way originals before catalog selection, replenish to 70,000 and rerun video/camera regression tests before republishing. Until that audit and refill finish, direction contamination is not considered fixed.
+The exact-photo side/near-frontal audits checked **53,971** packed catalog images, and the same MediaPipe model found **zero** opposite-sign yaw discrepancies. This does not prove visual correctness because the original catalog and audit may share a systematic pose error. See [SIDE_YAW_AUDIT_20261014.md](SIDE_YAW_AUDIT_20261014.md). The user-reported opposite-facing photo(s) have not been replaced. Use the `誤画像を報告` button at the offending demo frame to export `many-faces-wrong-photo.json` with its exact image ID and yaw; no private video bytes are included. Once the exact original photo is independently confirmed, exclude it **before** selection, refill to 70,000, re-test and only then republish. Do not flip an entire yaw cell on suspicion.
+
+## Black-flash regression gate
+
+The full browser QA run [38445537467](https://github.com/ugin-man/many-faces-beta/actions/runs/38445537467) passed on commit `cbb70e0633c30bdb3d1c271a54b71da560503d0b`: real fixed-video matching, PNG export, MP4/WebM export and FFmpeg full-frame black-flash detection. A previous QA failure was due to **FFmpeg missing on the CI runner** (exit 127), not an observed black frame; the workflow now installs FFmpeg and executes the check. This validates the test fixture, not every personal recording or complete anonymity.
+
+The deployed ChatGPT Site is managed separately from GitHub; this evidence does not establish that this commit has been published to that Site.

@@ -108,6 +108,7 @@ export function drawDemoFaceComposite(
     return false;
   }
 
+  try {
   const target = objectFitCoverLayout(choice.frame.geometry.layout, options.sourceAspectRatio);
   const targetMask = demoMaskGeometry(target);
   drawCover(ctx, video, video.videoWidth, video.videoHeight, width, height);
@@ -154,4 +155,10 @@ export function drawDemoFaceComposite(
   ctx.restore();
   rememberProtectedFrame(canvas);
   return true;
+  } catch {
+    // A decode/canvas/transform exception must never leave an uncovered source frame.
+    drawProtectedFallback(canvas, ctx);
+    ctx.restore();
+    return false;
+  }
 }

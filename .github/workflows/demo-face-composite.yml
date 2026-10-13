@@ -45,6 +45,14 @@ jobs:
           exit 1
       - name: Verify original-face masking, image save and recorded video
         run: node scripts/verify-demo-composite.mjs
+      - name: Reject full-frame black flashes in recorded demo
+        run: |
+          file=$(find work/demo-evidence -maxdepth 1 -type f \( -name 'many-faces-demo.mp4' -o -name 'many-faces-demo.webm' \) | head -n 1)
+          test -n "$file"
+          ffmpeg -hide_banner -i "$file" -vf 'blackdetect=d=0.02:pix_th=0.10:pic_th=0.97' -an -f null - > work/demo-evidence/blackdetect.log 2>&1
+          if grep -q 'black_start:' work/demo-evidence/blackdetect.log; then
+            echo 'FAIL: protected demo contains a black flash'; exit 1
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:

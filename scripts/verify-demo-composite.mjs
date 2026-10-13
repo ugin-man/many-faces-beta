@@ -40,6 +40,18 @@ try {
   const imageDownload = await png;
   assert.equal(imageDownload.suggestedFilename(), "many-faces-demo.png");
 
+  const reportDownloadPromise = page.waitForEvent("download", { timeout: 15000 });
+  await page.getByTestId("demo-report-photo").click();
+  const reportDownload = await reportDownloadPromise;
+  assert.equal(reportDownload.suggestedFilename(), "many-faces-wrong-photo.json");
+  const reportPath = path.join("work/demo-evidence", "wrong-photo.json");
+  await fs.mkdir("work/demo-evidence", { recursive: true });
+  await reportDownload.saveAs(reportPath);
+  const reported = JSON.parse(await fs.readFile(reportPath, "utf8"));
+  assert.match(reported.imageId, /^clean-v5-/);
+  assert.equal(reported.reportReason, "wrong-facing-photo");
+  assert.equal(Object.hasOwn(reported, "videoBytes"), false);
+  assert.equal(Object.hasOwn(reported, "imageBytes"), false);
   const exportButton = page.getByTestId("demo-export-video");
   await exportButton.click();
   const videoDownload = await page.waitForEvent("download", { timeout: 30000 });

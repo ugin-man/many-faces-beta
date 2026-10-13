@@ -8,7 +8,7 @@ import type { FaceLandmarker } from "@mediapipe/tasks-vision";
 import { catalogFeatureFromResult as featureFromResult } from "../catalog-feature";
 import { faceGeometryFromLandmarks, type FaceGeometry, type SequenceFrame } from "../offline-matching";
 import { drawFacePresentation } from "../face-presentation";
-import { drawDemoFaceComposite } from "../demo-face-composite";
+import { drawDemoFaceComposite, resetDemoFaceComposite } from "../demo-face-composite";
 import type { ProjectionChoice, ProjectionError } from "../projection-matching";
 import { searchReviewFrames } from "./review-search";
 import { createStableLandmarker } from "./stable-landmarker";
@@ -216,6 +216,7 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
     stopPlayback(); processingTokenRef.current += 1;
     captureAbortRef.current?.abort(); captureAbortRef.current = null;
     outputImagesRef.current.clear(); sequenceRef.current = [];
+    resetDemoFaceComposite(outputCanvasRef.current);
     lastOutputIdRef.current = null; setReport(null); window.__MANY_FACES_VERIFY__ = undefined;
     if (recordingUrlRef.current) URL.revokeObjectURL(recordingUrlRef.current);
     recordingUrlRef.current = null;
@@ -275,7 +276,7 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
       const image = outputImagesRef.current.get(item.choice.candidate.id);
       if (image) drawFacePresentation(canvas, image, item.choice, { sourceAspectRatio, trackFace: faceTracking, faceOnly, background: "#0a0c10" });
     }
-    if (lastOutputIdRef.current !== item.choice.candidate.id) {
+    if (item && lastOutputIdRef.current !== item.choice.candidate.id) {
       lastOutputIdRef.current = item.choice.candidate.id; setCurrentOutputName(item.choice.candidate.name);
       setCurrentOutputSource(item.choice.candidate.sourceName || item.choice.candidate.creator || "—"); setCurrentError(item.choice.error);
     }

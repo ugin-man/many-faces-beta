@@ -12,7 +12,7 @@ The public video and camera modes are unchanged. This is an **opt-in demo-only r
 ## Safety
 
 - The original video is processed locally by the browser in this mode, as with the video lab; no server-side video upload is added.
-- Missing candidate images, seeking frames, missing face detections, and frame synchronization gaps render **an opaque black frame**, never the uncovered source video.
+- Missing candidate images, seeking frames, missing face detections, and frame synchronization gaps **hold the last fully protected composited frame** (including its background and opaque face cover). This avoids full-frame black flashes without ever rendering an uncovered source video. Before the first safe frame, a neutral privacy slate is shown. The retained frame is cleared on input change/reset.
 - A solid face-sized matte is drawn before a feathered replacement photo; a direct transparent fade over the original face is prohibited.
 - This is **not guaranteed anonymization**. The original subject may still be recognizable from hair, ears, neck, body, clothing, background, or voice (audio is omitted in exported demos). Inspect the entire output before publication.
 - Browser capture is not a deterministic frame-perfect export; for production-grade videos use a frame-by-frame offline renderer with explicit gap checks.
@@ -23,3 +23,7 @@ The public video and camera modes are unchanged. This is an **opt-in demo-only r
 - Browser QA: `.github/workflows/demo-face-composite.yml` tests the full /demo route, source PiP visibility, fixed video analysis, PNG download, and MediaRecorder video export.
 - Original video UI, realtime camera, 70k assets, face matching and dataset remain untouched.
 - A Git commit does not deploy the existing ChatGPT Site. Rebuild the existing Site from the feature branch before attempting `/demo` on the published domain.
+
+## Side-facing direction QA (pending)
+
+A dedicated four-part independent MediaPipe audit (`.github/workflows/side-yaw-investigation.yml`) compares the stored yaw with a fresh yaw measurement on the **exact packed published image** for every side-facing catalog photo. It emits image-backed contradiction sheets and SHA-256 evidence. Do not blindly reverse labels or remove photographs on the basis of a single classifier: manually review candidates, exclude confirmed wrong-way originals before catalog selection, replenish to 70,000 and rerun video/camera regression tests before republishing. Until that audit and refill finish, direction contamination is not considered fixed.

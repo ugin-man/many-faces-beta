@@ -1,0 +1,41 @@
+name: Read-only screenshot photo lookup index
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths:
+      - 'scripts/export-catalog-lookup.py'
+      - '.github/workflows/screenshot-photo-lookup.yml'
+permissions:
+  contents: read
+jobs:
+  index:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install Pillow==11.1.0
+      - run: python scripts/export-catalog-lookup.py
+      - run: git diff --exit-code -- public/seed-catalog
+      - uses: actions/upload-artifact@v4
+        with:
+          name: photo-lookup-even-${{ github.run_id }}
+          path: work/photo-lookup/thumbnails-0.zip
+          retention-days: 7
+          compression-level: 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: photo-lookup-odd-${{ github.run_id }}
+          path: work/photo-lookup/thumbnails-1.zip
+          retention-days: 7
+          compression-level: 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: photo-lookup-index-${{ github.run_id }}
+          path: work/photo-lookup/index.json
+          retention-days: 7

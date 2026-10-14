@@ -1,0 +1,33 @@
+name: Exact-photo facing geometry review
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths:
+      - 'scripts/audit-facing-geometry.py'
+      - '.github/workflows/facing-geometry-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install Pillow==11.1.0
+      - name: Rank all 70k measurements and export original review candidates
+        run: python scripts/audit-facing-geometry.py
+      - name: Verify the published catalog is unchanged
+        run: git diff --exit-code -- public/seed-catalog
+      - uses: actions/upload-artifact@v4
+        with:
+          name: facing-geometry-review-${{ github.run_id }}
+          path: work/facing-geometry-review/
+          if-no-files-found: error
+          retention-days: 30

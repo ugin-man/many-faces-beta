@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "screenshot-catalog-asset-identification",
+  "reviewedOn": "2026-10-15",
+  "reviewer": "assistant-visual-review",
+  "humanVerified": false,
+  "catalog": {
+    "id": "many-faces-clean-core-v5-28e6092363ed981f-pose-local-v1",
+    "manifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "totalFaces": 70000,
+    "poseStep": 3,
+    "assetCommit": "ba8c746246879221db41fe3ee1270c811d6b29cb"
+  },
+  "input": {
+    "kind": "two-user-screenshots",
+    "visibleVideoDurationSeconds": 23,
+    "displayedVideoTimeSeconds": 5,
+    "exactFrameTimesKnown": false,
+    "sourceVideoAvailable": false,
+    "userScreenshotsUploadedToRepository": false
+  },
+  "method": {
+    "thumbnailIndexRunId": 38622806689,
+    "thumbnailIndexCommit": "01e7d1288bece91d0daba03aafb4c686965039bb",
+    "search": "SIFT image-patch matching across all 70000 catalog thumbnails, both horizontal orientations; exact original bytes then fetched and SHA-256 checked; visual comparison against the screenshots",
+    "matchedPersonsIdentified": false
+  },
+  "matches": [
+    {
+      "attachment": "IMG_3856.jpeg",
+      "id": "clean-v5-da44e6c159bb530523e38979e391",
+      "encodedSha256": "da44e6c159bb530523e38979e3911b885282ab392a1e063462d9c341f46a9894",
+      "shard": "clean_v3_yaw_p045_pitch_n009_000.json",
+      "pack": "live_yaw_p045_pitch_n009.bin",
+      "offset": 260638,
+      "length": 2148,
+      "storedYawDegrees": 67.24558604455515,
+      "storedPitchDegrees": -10.12089316165537,
+      "imagePatchInliers": 14,
+      "imagePatchMatches": 14,
+      "patchMirrored": false,
+      "originalVisuallyInspected": true,
+      "visualFacing": "viewer-right",
+      "directionLabelReversed": false,
+      "incidentalQualityObservation": "The original includes a gray diagonal padded region and a clipped nose-side boundary; this is separate from the reported facing mismatch."
+    },
+    {
+      "attachment": "IMG_3857.jpeg",
+      "id": "clean-v5-f4ed17176d3c7051461e5941640d",
+      "encodedSha256": "f4ed17176d3c7051461e5941640d86422f1bfcf4aba1fd1b1412a4e848eee2bc",
+      "shard": "clean_v3_yaw_p030_pitch_n036_000.json",
+      "pack": "live_yaw_p030_pitch_n036.bin",
+      "offset": 63182,
+      "length": 3282,
+      "storedYawDegrees": 30.456748055615144,
+      "storedPitchDegrees": -35.41812125873133,
+      "imagePatchInliers": 16,
+      "imagePatchMatches": 17,
+      "patchMirrored": false,
+      "originalVisuallyInspected": true,
+      "visualFacing": "viewer-right",
+      "directionLabelReversed": false
+    }
+  ],
+  "webPoseCheck": {
+    "runId": 38622332769,
+    "commit": "674a85dba5da7f3bd24624595bac1ee7596f4bab",
+    "artifactId": 11922343912,
+    "artifactSha256": "6f1fabb1932f9f5ad4ef00f5724bb063d0a4b99f42af5ae55aa788ac66b42c6f",
+    "visionVersion": "1.0.1",
+    "samples": 18,
+    "detected": 18,
+    "yawSignsAgree": 18,
+    "yawMeanAbsoluteErrorDegrees": 0.18908884748767518,
+    "browser": "GitHub Actions Chromium",
+    "physicalIphoneVerified": false,
+    "scope": "Current catalog/public images only; does not reproduce the user's video."
+  },
+  "outcome": {
+    "reportedPhotosIdentified": 2,
+    "confirmedReversedCatalogLabels": 0,
+    "catalogImagesReplaced": 0,
+    "applicationSourceChanged": false,
+    "siteVersion": 59,
+    "sourceFramePoseKnown": false,
+    "cause": "unresolved; need the original video to compare actual decoded frame, computed pose, chosen ID and presented frame",
+    "nextRequiredInput": "Original 23-second video shown in the screenshots, especially the interval around 5 seconds"
+  }
+}

@@ -14,13 +14,17 @@ const page = await browser.newPage({ acceptDownloads: true, viewport: { width: 1
 const errors = [];
 page.on("pageerror", error => errors.push(String(error)));
 try {
-  await page.goto("http://127.0.0.1:4173/demo", { waitUntil: "domcontentloaded" });
-  await page.getByTestId("settings").click();
-  const mode = page.getByTestId("face-display-mode");
-  await mode.waitFor();
-  assert.equal(await mode.inputValue(), "demo");
-  await page.getByRole("button", { name: "閉じる" }).click();
-  assert.equal(await page.getByTestId("source-pip").getAttribute("data-visible"), "false");
+  const routes = ["/demo", "/live", "/"];
+  for (const route of routes) {
+    await page.goto(`http://127.0.0.1:4173${route}`, { waitUntil: "domcontentloaded" });
+    await page.getByTestId("settings").click();
+    const mode = page.getByTestId("face-display-mode");
+    await mode.waitFor();
+    assert.equal(await mode.inputValue(), "demo", `${route} must open in face composite mode`);
+    assert.equal(await mode.locator("option:checked").textContent(), "動画に顔を合成");
+    await page.getByRole("button", { name: "閉じる" }).click();
+    assert.equal(await page.getByTestId("source-pip").getAttribute("data-visible"), "false");
+  }
 
   await page.getByTestId("sample-video").click();
   await page.getByTestId("demo-save-image").waitFor({ timeout: 900000 });
@@ -38,7 +42,7 @@ try {
   const png = page.waitForEvent("download", { timeout: 15000 });
   await page.getByTestId("demo-save-image").click();
   const imageDownload = await png;
-  assert.equal(imageDownload.suggestedFilename(), "many-faces-demo.png");
+  assert.equal(imageDownload.suggestedFilename(), "many-faces-composite.png");
 
   const reportDownloadPromise = page.waitForEvent("download", { timeout: 15000 });
   await page.getByTestId("demo-report-photo").click();
@@ -53,15 +57,24 @@ try {
   assert.equal(Object.hasOwn(reported, "videoBytes"), false);
   assert.equal(Object.hasOwn(reported, "imageBytes"), false);
   const exportButton = page.getByTestId("demo-export-video");
+  const videoDownloadPromise = page.waitForEvent("download", { timeout: 30000 });
   await exportButton.click();
-  const videoDownload = await page.waitForEvent("download", { timeout: 30000 });
-  assert.match(videoDownload.suggestedFilename(), /^many-faces-demo\.(webm|mp4)$/);
+  const videoDownload = await videoDownloadPromise;
+  assert.match(videoDownload.suggestedFilename(), /^many-faces-composite\.(webm|mp4)$/);
   const output = path.join("work/demo-evidence", videoDownload.suggestedFilename());
   await fs.mkdir("work/demo-evidence", { recursive: true });
   await videoDownload.saveAs(output);
   assert.ok((await fs.stat(output)).size > 2000);
   await page.screenshot({ path: "work/demo-evidence/demo.png" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const button of await page.getByRole("group", { name: "操作", exact: true }).getByRole("button").all()) {
+    const box = await button.boundingBox();
+    assert.ok(box && box.x >= 0 && box.x + box.width <= 390 && box.y >= 0 && box.y + box.height <= 844,
+      `${await button.textContent()} must remain reachable on a phone`);
+  }
+  await page.screenshot({ path: "work/demo-evidence/mobile.png" });
   await fs.writeFile("work/demo-evidence/report.json", JSON.stringify({
+    routes, exportRoute: "/", mobileControlsInViewport: true,
     sourcePiPHidden: true, defaultMode: "demo", outputNonblackPixels: sample.nonblack,
     savedImage: imageDownload.suggestedFilename(), savedVideo: videoDownload.suggestedFilename(),
     pageErrors: errors,

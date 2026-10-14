@@ -31,7 +31,7 @@
 .modeButtons button { display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; border: 0; border-radius: 100px; padding: 8px 21px; background: transparent; color: #b2b4bc; font-size: 12px; white-space: nowrap; }
 .modeButtons button[aria-pressed="true"] { background: #eeeeef; color: #141519; }
 .modeButtons svg { width: 17px; height: 17px; }
-.dock { display: flex; gap: 22px; align-items: flex-start; justify-content: center; max-width: 100%; }
+.dock { display: flex; flex-wrap: wrap; gap: 16px 22px; align-items: flex-start; justify-content: center; max-width: 100%; }
 .tool { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 8px; border: 0; background: transparent; color: #ebebef; min-width: 52px; padding: 0; flex-shrink: 0; }
 .tool > svg { width: 54px; height: 54px; padding: 16px; border: 1px solid #ffffff1c; border-radius: 50%; background: #35363dbd; backdrop-filter: blur(20px); }
 .tool:hover:not(:disabled) > svg { background: #525560; }

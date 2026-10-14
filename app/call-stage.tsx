@@ -71,7 +71,7 @@ export default function CallStage(props: Props) {
     </div>}
     <div className={styles.bottom} data-hidden={!chrome && hasOutput} inert={!chrome && hasOutput}>
       <div className={styles.modeButtons} role="group" aria-label="モード選択">
-        <button aria-pressed={mode === "video"} onClick={() => { if (mode !== "video") onModeChange?.("video"); }} data-testid="mode-video"><Icon name="video" />動画検証</button>
+        <button aria-pressed={mode === "video"} onClick={() => { if (mode !== "video") onModeChange?.("video"); }} data-testid="mode-video"><Icon name="video" />動画</button>
         <button aria-pressed={mode === "camera"} onClick={() => { if (mode !== "camera") onModeChange?.("camera"); }} data-testid="mode-camera"><Icon name="camera" />リアルタイム</button>
       </div>
       {props.timeline && <div className={styles.timeline}>{props.timeline}</div>}

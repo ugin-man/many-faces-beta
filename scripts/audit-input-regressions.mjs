@@ -33,13 +33,14 @@ if(process.argv.includes('--prepare')){
 import {FaceLandmarker,FilesetResolver} from '@mediapipe/tasks-vision';
 import {captureVideoFrameAt} from './app/live/video-frame.ts';
 import {catalogPoseFromWebMatrix} from './app/catalog-pose.ts';
+import {faceGeometryFromLandmarks} from './app/offline-matching.ts';
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const ranges=value=>Array.from({length:value.length},(_,i)=>[value.start(i),value.end(i)]);
 const oldPose=m=>[Math.atan2(-m[8],Math.hypot(m[9],m[10])),Math.atan2(m[9],m[10])*1.4,Math.atan2(m[4],m[0])].map(v=>v*180/Math.PI);
 window.__poseAudit=async()=>{
   const engine=await FaceLandmarker.createFromOptions(await FilesetResolver.forVisionTasks(location.origin+'/api/mediapipe'),{baseOptions:{modelAssetPath:location.origin+'/api/mediapipe/face_landmarker.task',delegate:'CPU'},runningMode:'IMAGE',numFaces:1,outputFaceBlendshapes:true,outputFacialTransformationMatrixes:true});
   const cases=await(await fetch('/__input_audit/cases.json')).json(),rows=[];
-  try{for(const c of cases){const image=new Image();image.src=c.url;await image.decode();const result=engine.detect(image),m=result.facialTransformationMatrixes[0]?.data;rows.push({...c,url:undefined,detected:!!m,old:m?oldPose(m):null,corrected:catalogPoseFromWebMatrix(m)?.map(v=>v*90)||null});}}finally{engine.close();}
+  try{for(const c of cases){const image=new Image();image.src=c.url;await image.decode();const result=engine.detect(image),m=result.facialTransformationMatrixes[0]?.data;const geometry=result.faceLandmarks[0]?faceGeometryFromLandmarks(result.faceLandmarks[0],image.naturalWidth/image.naturalHeight):null;const p=geometry?.projection;const nose=p?{eyeOffset:(p[2]+p[8])/2,bridgeOffset:(p[2]+p[8])/2-p[336]}:null;rows.push({...c,url:undefined,detected:!!m,matrix:m?Array.from(m):null,nose,old:m?oldPose(m):null,corrected:catalogPoseFromWebMatrix(m)?.map(v=>v*90)||null});}}finally{engine.close();}
   return rows;
 };
 window.__httpSeekAudit=async()=>{
@@ -80,7 +81,8 @@ window.__frameAudit=async()=>{
   console.log('Prepared public-only pixel tests and exact application helper probes');process.exit(0);
 }
 const check=(value,message)=>{if(!value)throw new Error(message);};
-const report={testedCommit:process.env.GITHUB_SHA||null,physicalCameraVerified:false,privateUserVideoUsed:false,mode:'regression',frameSource:'File-equivalent Blob URL, 12fps WebM',pose:[],frames:[],errors:[],passed:false};
+const visionVersion=JSON.parse(await fs.readFile('node_modules/@mediapipe/tasks-vision/package.json','utf8')).version;
+const report={visionVersion,testedCommit:process.env.GITHUB_SHA||null,physicalCameraVerified:false,privateUserVideoUsed:false,mode:'regression',frameSource:'File-equivalent Blob URL, 12fps WebM',pose:[],frames:[],errors:[],passed:false};
 const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader']});
 try{
   const page=await browser.newPage();page.on('pageerror',error=>report.errors.push(error.message));

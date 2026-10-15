@@ -1,0 +1,32 @@
+name: Retire private recording from repository history
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths: ['.github/workflows/retire-private-history.yml']
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: private-recording-retirement
+  cancel-in-progress: false
+jobs:
+  retire:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install history filtering tool
+        run: python -m pip install git-filter-repo==2.47.0
+      - name: Remove only the four audited private files and private-video artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/retire-private-history.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: private-recording-retirement-${{ github.run_id }}
+          path: work/privacy-retirement.json
+          retention-days: 30

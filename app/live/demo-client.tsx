@@ -647,7 +647,7 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
       {demoComposite && <p>背景と身体を残し、顔をMany Facesの写真に差し替えます。保存する動画は音声なしです。</p>}
     </>}
     details={<>
-      {demoComposite && <p>検出や画像の読み込みが欠けたコマでは、直前の合成済み画面を保持します。最初の合成前は「顔を保護しています」と表示します。公開前に元の顔が映っていないか全編確認してください。</p>}
+      {demoComposite && <p>短く動きが小さい検出抜けは補間します。長い検出抜けや画像の読み込み失敗では、直前の合成済み画面を保持します。最初の合成前は「顔を保護しています」と表示します。公開前に元の顔が映っていないか全編確認してください。</p>}
       <p>{currentOutputName}<br />{currentOutputSource}</p>
       <RuntimeCheck />
       <p>{sourceName || "動画未選択"} ／ {clipDuration.toFixed(1)} 秒<br />{readinessLabel} ／ カタログ {catalogTotal.toLocaleString()}枚</p>

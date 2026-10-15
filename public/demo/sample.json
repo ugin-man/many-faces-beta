@@ -11,18 +11,7 @@
   "sourceFacePixelsIncluded": false,
   "sha256": "3a3b4b45523bed7f3136dc0d58fb92841584ae6b4d4efe9520eaec996b116eb1",
   "bytes": 2024677,
-  "renderCommit": "3d6899cafae249b220f6c9f47d21e24de793e481",
   "analysisFps": 30,
-  "protectedIntervals": [
-    {
-      "start": 4.533333333333333,
-      "end": 5.4,
-      "anchorTime": 4.5,
-      "rejectedTimes": [
-        4.933333333333334,
-        4.966666666666667
-      ]
-    }
-  ],
-  "catalogFaces": 70000
+  "catalogFaces": 70000,
+  "sampleVersion": "protected-sample-v1"
 }

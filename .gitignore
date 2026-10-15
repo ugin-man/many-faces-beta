@@ -46,3 +46,7 @@ next-env.d.ts
 /public/test-fixtures/
 /.browser-tools/
 /artifacts/
+
+# Python test caches
+__pycache__/
+*.py[cod]

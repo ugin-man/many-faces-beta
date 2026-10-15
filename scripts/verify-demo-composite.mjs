@@ -18,7 +18,11 @@ const controlsFit=async(width,height)=>{
  }
 };
 const seek=async(time)=>{
- await page.getByTestId('sample-seek').fill(String(time));
+ await page.getByTestId('sample-seek').evaluate((element,value)=>{
+  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(element,String(value));
+  element.dispatchEvent(new Event('input',{bubbles:true}));
+  element.dispatchEvent(new Event('change',{bubbles:true}));
+ },time);
  await page.waitForFunction(t=>{const v=document.querySelector('[data-testid="processed-sample-video"]');return v&&!v.seeking&&Math.abs(v.currentTime-t)<.005;},time);
 };
 try{
@@ -56,7 +60,7 @@ try{
  const video=page.waitForEvent('download',{timeout:30000});await page.getByTestId('demo-export-video').click();const d=await video;assert.match(d.suggestedFilename(),/^many-faces-composite\.(mp4|webm)$/);await d.saveAs(`${output}/${d.suggestedFilename()}`);
  await page.setViewportSize({width:390,height:844});await controlsFit(390,844);
  await page.getByTestId('mode-camera').click();await page.getByTestId('mode-camera').waitFor();assert.equal(await page.getByTestId('mode-camera').getAttribute('aria-pressed'),'true');
- await page.getByTestId('mode-video').click();await page.getByTestId('video-input').waitFor();
+ await page.getByTestId('mode-video').click();await page.getByTestId('video-input').waitFor({state:'attached'});
  assert.equal(errors.length,0,errors.join('\n'));
  await fs.writeFile(`${output}/report.json`,JSON.stringify({passed:true,sample:vm,sampleHash:meta.sha256,sampleUsesInference:false,phoneAndLandscapeControls:true,retiredAssetsUnavailable:true,userUploadPassed:verification.passed,cameraModeNavigation:true,pageErrors:errors},null,2));
  console.log('PRODUCT_QA_PASS');

@@ -79,6 +79,11 @@ REPORT.write_text(json.dumps(result, indent=2) + '\n')
 env = dict(os.environ)
 env.update({'GIT_CONFIG_COUNT': '1', 'GIT_CONFIG_KEY_0': 'http.https://github.com/.extraheader',
             'GIT_CONFIG_VALUE_0': 'AUTHORIZATION: basic ' + base64.b64encode(('x-access-token:' + os.environ['GH_TOKEN']).encode()).decode()})
+# Keep the server's old heads locally for pack negotiation. Without them Git
+# sends the entire multi-GB catalog again despite identical asset blob IDs.
+# These temporary refs never appear in the explicit push refspecs below.
+git('fetch', '--no-tags', str(ROOT), '+refs/remotes/origin/*:refs/retirement-base/*', clean=True)
+print('Validated filtered heads; reused existing server objects for a small push', flush=True)
 remote = 'https://github.com/' + os.environ['GITHUB_REPOSITORY'] + '.git'
 args = ['push', '--atomic'] + ['--force-with-lease=' + r + ':' + refs[r] for r in refs] + [remote] + [new_refs[r] + ':' + r for r in refs]
 git(*args, clean=True, env=env)

@@ -2,6 +2,7 @@ name: Retire private recording from repository history
 on:
   push:
     branches: [astra/realtime-hardening]
+    # Preserve existing catalog objects during pack negotiation.
     paths: ['.github/workflows/retire-private-history.yml']
 permissions:
   contents: write

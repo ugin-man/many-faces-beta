@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CallStage, { type StudioClientProps } from "./call-stage";
 import { Icon } from "./studio-icons";
 import { timeLabel } from "./studio-controls";
@@ -16,6 +16,19 @@ export default function ProcessedSample({ onBack, onModeChange }: StudioClientPr
   const [ready, setReady] = useState(false);
   const [mirror, setMirror] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const sync = () => {
+      if (Number.isFinite(video.duration) && video.duration > 0) setDuration(video.duration);
+      setReady(video.readyState >= 1 && !video.error);
+    };
+    const events = ["loadedmetadata", "loadeddata", "canplay", "progress"];
+    for (const event of events) video.addEventListener(event, sync);
+    // A cached resource may already have loaded before React attaches handlers.
+    sync();
+    return () => { for (const event of events) video.removeEventListener(event, sync); };
+  }, []);
   const toggle = async () => {
     const video = videoRef.current;
     if (!video) return;
@@ -60,7 +73,7 @@ export default function ProcessedSample({ onBack, onModeChange }: StudioClientPr
       <button className={styles.tool} disabled={!ready} onClick={saveImage} data-testid="sample-save-image"><Icon name="sample" /><span>画像保存</span></button>
       <button className={styles.tool} onClick={saveVideo} data-testid="sample-save-video"><Icon name="video" /><span>動画保存</span></button>
       <button className={styles.tool} disabled={!ready} onClick={() => seek(time - 1 / 30)} aria-label="1フレーム戻る"><Icon name="previous" /><span>1コマ戻る</span></button>
-      <button className={`${styles.tool} ${styles.primary}`} disabled={!ready} onClick={() => void toggle()}
+      <button className={`${styles.tool} ${styles.primary}`} disabled={Boolean(error)} onClick={() => void toggle()}
         aria-label={playing ? "一時停止" : "再生"} data-testid="sample-play-pause"><Icon name={playing ? "pause" : "play"} /><span>{playing ? "一時停止" : "再生"}</span></button>
       <button className={styles.tool} disabled={!ready} onClick={() => seek(time + 1 / 30)} aria-label="1フレーム進む"><Icon name="next" /><span>1コマ進む</span></button>
       <button className={styles.tool} onClick={onBack}><Icon name="upload" /><span>自分の動画へ</span></button>
@@ -73,7 +86,7 @@ export default function ProcessedSample({ onBack, onModeChange }: StudioClientPr
     <video ref={videoRef} src={PROCESSED_SAMPLE_URL} poster="/demo/poster.webp" muted playsInline loop
       preload="auto" className={mirror ? styles.mirror : undefined} data-testid="processed-sample-video"
       aria-label="顔を差し替えたMany Facesのサンプル動画"
-      onLoadedMetadata={event => setDuration(event.currentTarget.duration)} onLoadedData={() => setReady(true)}
+      onLoadedMetadata={event => { setDuration(event.currentTarget.duration); setReady(true); }} onLoadedData={() => setReady(true)}
       onTimeUpdate={event => setTime(event.currentTarget.currentTime)} onPlay={() => setPlaying(true)}
       onPause={() => setPlaying(false)} onError={() => { setReady(false); setError("サンプルを読み込めませんでした。ページを再読み込みしてください。"); }} />
   </CallStage>;

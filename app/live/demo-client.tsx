@@ -20,6 +20,7 @@ import { evaluateVerificationGate } from "./verification-gate";
 import { emptyReviewPhaseTimings, reviewSequenceFingerprint, roundedReviewPhaseTimings, type ReviewPhaseTimings } from "./review-sequence-metrics";
 import { OPERATION_STALL_TIMEOUT_MS, operationIsStalled, preparationFailureReason, progressSignature } from "./runtime-liveness";
 import { captureVideoFrameAt } from "./video-frame";
+import { filterVideoProfileIslands, uncertainProfileAtTime, type UncertainProfileInterval } from "./video-pose-continuity";
 import styles from "../studio.module.css";
 
 const CAPTURE_SECONDS = 5;
@@ -45,6 +46,7 @@ type VerificationReport = {
   sequenceFingerprint: string; canvasNonBlank: boolean; faceCoverage: number;
   passed: boolean; reasons: string[];
   frameEvidence: { presentationCallbacks: number; decodedPausedReadbacks: number };
+  poseContinuity?: { rejectedFrames: number; intervals: UncertainProfileInterval[] };
   inputBuild: string;
   build: string;
   searchTraffic: { bytes: number; files: number; decoded: number };
@@ -142,6 +144,7 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
   const landmarkerRef = useRef<FaceLandmarker | null>(null);
   const outputImagesRef = useRef(new Map<string, HTMLImageElement>());
   const sequenceRef = useRef<ReviewTimelineItem[]>([]);
+  const uncertainProfilesRef = useRef<Array<UncertainProfileInterval & { protectedFrame?: HTMLCanvasElement }>>([]);
   const processingTokenRef = useRef(0);
   const captureAbortRef = useRef<AbortController | null>(null);
   const playbackRafRef = useRef<number | null>(null);
@@ -215,7 +218,7 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
   const clearReview = useCallback(() => {
     stopPlayback(); processingTokenRef.current += 1;
     captureAbortRef.current?.abort(); captureAbortRef.current = null;
-    outputImagesRef.current.clear(); sequenceRef.current = [];
+    outputImagesRef.current.clear(); sequenceRef.current = []; uncertainProfilesRef.current = [];
     resetDemoFaceComposite(outputCanvasRef.current);
     lastOutputIdRef.current = null; setReport(null); window.__MANY_FACES_VERIFY__ = undefined;
     if (recordingUrlRef.current) URL.revokeObjectURL(recordingUrlRef.current);
@@ -270,8 +273,9 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
     const item = reviewItemAtTime(sequenceRef.current, quantizeReviewTime(time, replayFpsRef.current, clipDuration));
     if (demoComposite) {
       const image = item ? outputImagesRef.current.get(item.choice.candidate.id) : undefined;
-      drawDemoFaceComposite(canvas, playbackVideoRef.current, image, item?.choice ?? null,
-        { time, fps: replayFpsRef.current, sourceAspectRatio, mirror });
+      const uncertain = uncertainProfileAtTime(uncertainProfilesRef.current, time);
+      drawDemoFaceComposite(canvas, playbackVideoRef.current, image, uncertain ? null : item?.choice ?? null,
+        { time, fps: replayFpsRef.current, sourceAspectRatio, mirror, protectedFrame: uncertain?.protectedFrame });
     } else if (item) {
       const image = outputImagesRef.current.get(item.choice.candidate.id);
       if (image) drawFacePresentation(canvas, image, item.choice, { sourceAspectRatio, trackFace: faceTracking, faceOnly, background: "#0a0c10" });
@@ -312,7 +316,7 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
     lastProgressAtRef.current = Date.now(); searchTrafficRef.current = { bytes: 0, files: 0, decoded: 0 };
     setError(null); setProgress(null); setFaceFrames(0); setLoadedShards(0); setPeakCandidates(0);
     setProcessingMs(0); setOutputChanges(0); setUniqueFaces(0); setImageFailures(0);
-    outputImagesRef.current.clear(); sequenceRef.current = [];
+    outputImagesRef.current.clear(); sequenceRef.current = []; uncertainProfilesRef.current = [];
     lastOutputIdRef.current = null;
     try {
       setPhase("waiting"); await waitUntilPrepared(token);
@@ -326,7 +330,7 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
       setSourceAspectRatio(video.videoWidth > 0 && video.videoHeight > 0 ? video.videoWidth / video.videoHeight : 1);
       const frameCount = Math.max(2, Math.floor(safeDuration * analysisFps));
       setPlannedFrames(frameCount);
-      const frames: SequenceFrame[] = [];
+      const detectedFrames: SequenceFrame[] = [];
       phaseStarted = performance.now(); setPhase("analyzing");
       for (let index = 0; index < frameCount; index++) {
         checkCurrent();
@@ -350,10 +354,12 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
         const landmarks = result.faceLandmarks[0];
         if (landmarks && result.faceBlendshapes.length) {
           const geometry = faceGeometryFromLandmarks(landmarks, sourceWidth / sourceHeight);
-          if (geometry) frames.push({ time, feature: featureFromResult(result), geometry });
+          if (geometry) detectedFrames.push({ time, feature: featureFromResult(result), geometry });
         }
         setProgress({ done: index + 1, total: frameCount, label: `Face Mesh ${index + 1} / ${frameCount}` }); await nextPaint();
       }
+      const { frames, intervals } = filterVideoProfileIslands(detectedFrames, analysisFps);
+      uncertainProfilesRef.current = intervals;
       phaseTimings.faceMesh = performance.now() - phaseStarted; setFaceFrames(frames.length);
       if (frames.length < 2) throw new Error("顔を十分に検出できませんでした。明るい場所で撮り直してください");
       setPhase("searching");
@@ -389,6 +395,23 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
         }
       };
       await Promise.all(Array.from({ length: Math.min(6, selected.length) }, () => preloadWorker())); checkCurrent();
+      // Build a complete protected neighbour for each uncertain interval. A seek
+      // straight into the gap must show that neighbour, not whichever unrelated
+      // frame happened to be displayed before the seek.
+      for (const interval of uncertainProfilesRef.current) {
+        const anchor = reviewItemAtTime(sequenceRef.current, interval.anchorTime);
+        const image = anchor && outputImagesRef.current.get(anchor.choice.candidate.id);
+        if (!anchor || !image) continue;
+        const captured = await captureVideoFrameAt(video, interval.anchorTime, { signal: cancellation.signal });
+        captured.bitmap.close(); checkCurrent();
+        const protectedFrame = document.createElement("canvas");
+        protectedFrame.width = outputCanvasRef.current?.width ?? 768;
+        protectedFrame.height = outputCanvasRef.current?.height ?? 768;
+        if (drawDemoFaceComposite(protectedFrame, video, image, anchor.choice,
+          { time: interval.anchorTime, fps: analysisFps, sourceAspectRatio: video.videoWidth / video.videoHeight })) {
+          interval.protectedFrame = protectedFrame;
+        }
+      }
       phaseTimings.imagePreload = performance.now() - phaseStarted; setImageFailures(failures);
       const sequenceIds = choices.map(choice => choice.candidate.id), sequenceFingerprint = reviewSequenceFingerprint(sequenceIds);
       const changes = choices.reduce((count, choice, index) => index > 0 && choices[index - 1].candidate.id !== choice.candidate.id ? count + 1 : count, 0);
@@ -405,6 +428,8 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
         phaseTimingsMs: roundedReviewPhaseTimings(phaseTimings), sequenceIds, sequenceFingerprint,
         canvasNonBlank, faceCoverage: gate.faceCoverage, passed: gate.passed, reasons: gate.reasons,
         frameEvidence, inputBuild: runtimeIdentity.version, build: runtimeIdentity.build, searchTraffic: { ...searchTrafficRef.current },
+        poseContinuity: { rejectedFrames: detectedFrames.length - frames.length,
+          intervals: intervals.map(({ start, end, anchorTime, rejectedTimes }) => ({ start, end, anchorTime, rejectedTimes })) },
         matching: {
           meanYawErrorDegrees: choices.reduce((sum, choice) => sum + Math.abs(choice.error.yawDegrees), 0) / choices.length,
           meanPitchErrorDegrees: choices.reduce((sum, choice) => sum + Math.abs(choice.error.pitchDegrees), 0) / choices.length,
@@ -480,6 +505,7 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
     const time = playbackVideoRef.current?.currentTime ?? playbackTime;
     const item = reviewItemAtTime(sequenceRef.current, quantizeReviewTime(time, replayFpsRef.current, clipDuration));
     if (!item) return;
+    const uncertain = uncertainProfileAtTime(uncertainProfilesRef.current, time);
     const payload = {
       schemaVersion: 1, kind: "many-faces-photo-quality-report",
       imageId: item.choice.candidate.id,
@@ -488,6 +514,8 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
       storedYawDegrees: Number((item.choice.candidate.feature[0] * 90).toFixed(2)),
       frameYawDegrees: Number((item.choice.frame.feature[0] * 90).toFixed(2)),
       videoTimeSeconds: Number(time.toFixed(3)),
+      displaySourceTimeSeconds: Number((uncertain?.anchorTime ?? item.choice.frame.time).toFixed(3)),
+      protectedHold: Boolean(uncertain),
       reportReason: "wrong-facing-photo",
       // No raw video, source face pixels or personal data are included.
     };

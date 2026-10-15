@@ -69,6 +69,14 @@ test("one or three missing frames reuse a complete protected frame, never the ra
       assert.notEqual(fallbackDraws[0], video, "fallback must never draw raw video");
       assert.notEqual(fallbackDraws[0], canvas, "fallback must copy from an independent protected cache");
     }
+    const preparedNeighbour = new FakeCanvas();
+    const beforePrepared = draws.length;
+    video.currentTime = 5;
+    assert.equal(drawDemoFaceComposite(canvas, video, photo,
+      { ...choice, frame: { ...choice.frame, time: 5 } },
+      { time: 5, fps: 20, sourceAspectRatio: 1, protectedFrame: preparedNeighbour }), false);
+    assert.deepEqual(draws.slice(beforePrepared), [preparedNeighbour],
+      "a direct seek into an uncertain profile uses the prepared safe neighbour, even if a fresh but unreliable mesh exists");
     resetDemoFaceComposite(canvas);
     assert.equal(drawDemoFaceComposite(canvas, video, undefined, null,
       { time: 1.5, fps: 20, sourceAspectRatio: 1 }), false);

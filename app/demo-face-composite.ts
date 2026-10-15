@@ -46,10 +46,14 @@ export function resetDemoFaceComposite(canvas: HTMLCanvasElement | null) {
 }
 
 /** The fallback never draws the source video, even when tracking or decoding fails. */
-function drawProtectedFallback(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
-  const retained = lastSafeComposites.get(canvas);
+function drawProtectedFallback(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D,
+  prepared?: HTMLCanvasElement, mirror = false) {
+  const retained = prepared ?? lastSafeComposites.get(canvas);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   if (retained && retained.width === canvas.width && retained.height === canvas.height) {
+    // Prepared frames are stored unmirrored; the ordinary playback cache already
+    // contains the complete presentation transform.
+    if (prepared && mirror) { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
     ctx.drawImage(retained, 0, 0);
     return;
   }
@@ -88,7 +92,7 @@ export function drawDemoFaceComposite(
   video: HTMLVideoElement | null,
   replacement: (CanvasImageSource & { width: number; height: number }) | undefined,
   choice: DemoChoice | null,
-  options: { time: number; fps: number; sourceAspectRatio: number; mirror?: boolean },
+  options: { time: number; fps: number; sourceAspectRatio: number; mirror?: boolean; protectedFrame?: HTMLCanvasElement },
 ): boolean {
   const ctx = canvas.getContext("2d", { alpha: false });
   if (!ctx) return false;
@@ -98,6 +102,12 @@ export function drawDemoFaceComposite(
   ctx.fillStyle = DEMO_BACKGROUND;
   ctx.fillRect(0, 0, width, height);
   if (options.mirror) { ctx.translate(width, 0); ctx.scale(-1, 1); }
+
+  if (options.protectedFrame) {
+    drawProtectedFallback(canvas, ctx, options.protectedFrame, options.mirror);
+    ctx.restore();
+    return false;
+  }
 
   if (!video || !replacement || !choice ||
       !demoFrameIsSafe(video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && !video.seeking,

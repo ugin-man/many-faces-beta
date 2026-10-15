@@ -56,6 +56,36 @@ try {
   assert.equal(reported.reportReason, "wrong-facing-photo");
   assert.equal(Object.hasOwn(reported, "videoBytes"), false);
   assert.equal(Object.hasOwn(reported, "imageBytes"), false);
+  const verification = await page.evaluate(() => window.__MANY_FACES_VERIFY__);
+  const heldInterval = verification.poseContinuity?.intervals.find(interval => interval.start <= 5 && interval.end > 5);
+  assert.ok(heldInterval, "the fixed video's uncertain profile must be rejected before photo search");
+  const seek = async time => {
+    await page.getByTestId("review-seek").evaluate((element, value) => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(element, String(value));
+      element.dispatchEvent(new Event("input", { bubbles: true }));
+      element.dispatchEvent(new Event("change", { bubbles: true }));
+    }, time);
+    await page.waitForFunction(target => {
+      const video = document.querySelector('[data-testid="input-video"]');
+      return video && !video.seeking && Math.abs(video.currentTime-target)<.005;
+    }, time);
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    return canvas.evaluate(element => element.toDataURL("image/png"));
+  };
+  const heldPixels = await seek(5);
+  await fs.writeFile("work/demo-evidence/fixed-direction-5s.png", Buffer.from(heldPixels.split(",")[1], "base64"));
+  const directionDownloadPromise = page.waitForEvent("download");
+  await page.getByTestId("demo-report-photo").click();
+  const directionDownload = await directionDownloadPromise;
+  await directionDownload.saveAs("work/demo-evidence/fixed-direction-5s.json");
+  const directionReport = JSON.parse(await fs.readFile("work/demo-evidence/fixed-direction-5s.json", "utf8"));
+  assert.ok(directionReport.storedYawDegrees < -20, "the protected neighbour must face viewer-left like the source");
+  assert.equal(directionReport.protectedHold, true);
+  assert.equal(directionReport.displaySourceTimeSeconds, heldInterval.anchorTime);
+  assert.equal(await seek(heldInterval.anchorTime), heldPixels, "the uncertain frame must contain the complete protected neighbour");
+  await seek(8);
+  assert.equal(await seek(5), heldPixels, "seeking from a different pose must not change the held composite");
+  await fs.writeFile("work/demo-evidence/verification.json", JSON.stringify(verification, null, 2));
   const exportButton = page.getByTestId("demo-export-video");
   const videoDownloadPromise = page.waitForEvent("download", { timeout: 30000 });
   await exportButton.click();
@@ -77,6 +107,7 @@ try {
     routes, exportRoute: "/", mobileControlsInViewport: true,
     sourcePiPHidden: true, defaultMode: "demo", outputNonblackPixels: sample.nonblack,
     savedImage: imageDownload.suggestedFilename(), savedVideo: videoDownload.suggestedFilename(),
+    fixedVideoDirection: directionReport, protectedNeighbourPixelMatch: true,
     pageErrors: errors,
   }, null, 2));
   assert.equal(errors.length, 0, errors.join("\n"));

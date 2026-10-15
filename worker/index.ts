@@ -1,3 +1,4 @@
+import { BodyLimitError, readBoundedBody, withDeadline } from "../app/runtime-io";
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
@@ -18,13 +19,9 @@ interface Env {
 }
 
 function canUploadCatalog(request: Request, env?: Env) {
-  if (!env?.BUCKET) return false;
-  if (!env.CATALOG_UPLOAD_KEY) return true;
-  const suppliedKey = request.headers.get("x-catalog-upload-key");
-  if (suppliedKey && suppliedKey === env.CATALOG_UPLOAD_KEY) return true;
-  const ownerEmail = env.CATALOG_OWNER_EMAIL?.trim().toLowerCase();
-  const signedInEmail = request.headers.get("oai-authenticated-user-email")?.trim().toLowerCase();
-  return Boolean(ownerEmail && signedInEmail && ownerEmail === signedInEmail);
+  if (!env?.BUCKET || !env.CATALOG_UPLOAD_KEY?.trim()) return false;
+  const supplied = request.headers.get("x-catalog-upload-key");
+  return Boolean(supplied && supplied === env.CATALOG_UPLOAD_KEY);
 }
 
 interface ExecutionContext {
@@ -89,7 +86,7 @@ async function mediapipeAssetRead(
 
   const headers = new Headers(response.headers);
   headers.set("content-type", mediapipeContentType(staticPath));
-  headers.set("cache-control", "public, max-age=31536000, immutable");
+  headers.set("cache-control", "public, no-cache");
   headers.set("x-content-type-options", "nosniff");
   return new Response(response.body, {
     status: response.status,
@@ -146,9 +143,11 @@ async function seedCatalogPackRange(
   if (!response.ok) return catalogJson({ error: "Image pack not found" }, 404);
   let body: BodyInit;
   if (response.status === 206) {
-    body = response.body as ReadableStream;
+    const bytes = await withDeadline((signal) => readBoundedBody(response.body, length, signal));
+    if (bytes.byteLength !== length) return catalogJson({ error: "Invalid image range" }, 416);
+    body = bytes;
   } else {
-    const source = new Uint8Array(await response.arrayBuffer());
+    const source = new Uint8Array(await withDeadline((signal) => readBoundedBody(response.body, MAX_CATALOG_OBJECT_BYTES, signal)));
     if (offset + length > source.byteLength) {
       return catalogJson({ error: "Invalid image range" }, 416);
     }
@@ -156,7 +155,7 @@ async function seedCatalogPackRange(
   }
   return new Response(body, {
     headers: {
-      "cache-control": "private, max-age=31536000, immutable",
+      "cache-control": "private, no-cache",
       "content-length": String(length),
       "content-type": "image/webp",
       "x-content-type-options": "nosniff",
@@ -178,7 +177,7 @@ async function seedCatalogRead(
   const headers = new Headers(response.headers);
   headers.set(
     "cache-control",
-    immutable ? "private, max-age=31536000, immutable" : "private, no-cache",
+    immutable ? "private, no-cache" : "private, no-cache",
   );
   headers.set("content-type", catalogContentType(path));
   headers.set("x-content-type-options", "nosniff");
@@ -207,7 +206,7 @@ type CatalogPreferenceCache = {
   remoteManifest: CatalogManifest | null;
 };
 
-let catalogPreferenceCache: CatalogPreferenceCache | null = null;
+const catalogPreferenceCaches = new WeakMap<Env, CatalogPreferenceCache>();
 
 function isSearchableCatalog(payload: CatalogManifest) {
   return (
@@ -239,6 +238,7 @@ function requestedCatalogSource(url: URL): CatalogSource {
 async function preferredRemoteManifest(request: Request, env?: Env) {
   if (!env?.BUCKET) return null;
   const now = Date.now();
+  const catalogPreferenceCache = catalogPreferenceCaches.get(env);
   if (catalogPreferenceCache && catalogPreferenceCache.expiresAt > now) {
     return catalogPreferenceCache.remoteManifest;
   }
@@ -284,10 +284,10 @@ async function preferredRemoteManifest(request: Request, env?: Env) {
     }
   }
 
-  catalogPreferenceCache = {
+  catalogPreferenceCaches.set(env, {
     expiresAt: now + CATALOG_PREFERENCE_CACHE_MS,
     remoteManifest: selected,
-  };
+  });
   return selected;
 }
 
@@ -299,7 +299,7 @@ function remoteCatalogResponse(
   return new Response(object.body, {
     headers: {
       "cache-control": immutable
-        ? "private, max-age=31536000, immutable"
+        ? "private, no-cache"
         : "private, no-cache",
       "content-type": catalogContentType(path),
       "x-content-type-options": "nosniff",
@@ -336,17 +336,10 @@ async function catalogRead(
   }
 
   const remote = await preferredRemoteManifest(request, env);
-  if (!remote) {
-    const seed = await seedCatalogRead(request, env as Env, path, immutable);
-    if (seed.ok || !env?.BUCKET) return seed;
-    const stagedObject = await env.BUCKET.get(`${CATALOG_PREFIX}${path}`);
-    return stagedObject
-      ? remoteCatalogResponse(stagedObject, path, immutable)
-      : seed;
-  }
-  const object = await env?.BUCKET?.get(`${CATALOG_PREFIX}${path}`);
-  if (!object) return seedCatalogRead(request, env as Env, path, immutable);
-  return remoteCatalogResponse(object, path, immutable);
+  // A missing object is an error, not permission to mix another generation.
+  return remote
+    ? remoteCatalogRead(env, path, immutable)
+    : seedCatalogRead(request, env as Env, path, immutable);
 }
 
 async function catalogManifestRead(
@@ -395,7 +388,7 @@ async function catalogExportRead(
     "cache-control",
     path === "manifest.json"
       ? "public, no-cache"
-      : "public, max-age=31536000, immutable",
+      : "public, no-cache",
   );
   headers.set("content-type", catalogContentType(path));
   headers.set("x-content-type-options", "nosniff");
@@ -460,6 +453,8 @@ async function handleCatalog(request: Request, env: Env | undefined, url: URL) {
         !/^[a-z0-9_.-]+\.bin$/i.test(pack) ||
         !Number.isSafeInteger(offset) ||
         !Number.isSafeInteger(length) ||
+        !Number.isSafeInteger(offset + length) ||
+        !url.searchParams.has("offset") ||
         offset < 0 ||
         length < 1 ||
         length > 2 * 1024 * 1024
@@ -467,26 +462,16 @@ async function handleCatalog(request: Request, env: Env | undefined, url: URL) {
         return catalogJson({ error: "Invalid image range" }, 400);
       }
 
-      if (source !== "remote") {
-        const seed = await seedCatalogPackRange(
-          request,
-          env as Env,
-          pack,
-          offset,
-          length,
-        );
-        if (seed.ok || source === "seed" || !env?.BUCKET) return seed;
-      }
-
+      const useRemote = source === "remote" || (source === "auto" && Boolean(await preferredRemoteManifest(request, env)));
+      if (!useRemote) return seedCatalogPackRange(request, env as Env, pack, offset, length);
       const remoteObject = await remotePackRange(env, pack, offset, length);
-      if (!remoteObject) {
-        return source === "remote"
-          ? catalogJson({ error: "Image pack not found" }, 404)
-          : seedCatalogPackRange(request, env as Env, pack, offset, length);
-      }
-      return new Response(remoteObject.body, {
+      if (!remoteObject) return catalogJson({ error: "Image pack not found" }, 404);
+      const bytes = await withDeadline((signal) => readBoundedBody(new Response(remoteObject.body).body, length, signal));
+      if (bytes.byteLength !== length) return catalogJson({ error: "Invalid image range" }, 416);
+
+      return new Response(bytes, {
         headers: {
-          "cache-control": "private, max-age=31536000, immutable",
+          "cache-control": "private, no-cache",
           "content-length": String(length),
           "content-type": "image/webp",
           "x-content-type-options": "nosniff",
@@ -506,19 +491,21 @@ async function handleCatalog(request: Request, env: Env | undefined, url: URL) {
       if (declaredLength > MAX_CATALOG_OBJECT_BYTES) {
         return catalogJson({ error: "Object is too large" }, 413);
       }
-      const body = await request.arrayBuffer();
+      const body = await withDeadline((signal) => readBoundedBody(request.body, MAX_CATALOG_OBJECT_BYTES, signal), request.signal, 20_000);
       if (!body.byteLength || body.byteLength > MAX_CATALOG_OBJECT_BYTES) {
         return catalogJson({ error: "Invalid object size" }, 413);
       }
       await env?.BUCKET?.put(`${CATALOG_PREFIX}${path}`, body, {
         httpMetadata: { contentType: catalogContentType(path) },
       });
-      catalogPreferenceCache = null;
+      if (env) catalogPreferenceCaches.delete(env);
       return catalogJson({ ok: true, path, bytes: body.byteLength });
     }
 
     return catalogJson({ error: "Method not allowed" }, 405);
   } catch (error) {
+    if (error instanceof BodyLimitError) return catalogJson({ error: "Object is too large" }, 413);
+    if (error instanceof DOMException && error.name === "TimeoutError") return catalogJson({ error: "Request timed out" }, 408);
     console.error("Catalog request failed.", error);
     return catalogJson({ error: "Catalog is unavailable" }, 503);
   }
@@ -548,6 +535,8 @@ const worker = {
     }
 
     if (url.pathname === "/_vinext/image") {
+      const images = env.IMAGES;
+      if (!images) return new Response("Image transformation is unavailable", { status: 503 });
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
       return handleImageOptimization(request, {
           fetchAsset: (path) => {
@@ -555,7 +544,7 @@ const worker = {
             return env.ASSETS ? env.ASSETS.fetch(assetRequest) : fetch(assetRequest);
           },
         transformImage: async (body, { width, format, quality }) => {
-          const result = await env.IMAGES.input(body).transform(width > 0 ? { width } : {}).output({ format, quality });
+          const result = await images.input(body).transform(width > 0 ? { width } : {}).output({ format, quality });
           return result.response();
         },
       }, allowedWidths);

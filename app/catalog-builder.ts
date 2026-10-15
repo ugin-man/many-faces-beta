@@ -327,7 +327,7 @@ function cellFilename(yaw: number, pitch: number) {
   return `yaw_${token(yaw)}_pitch_${token(pitch)}`;
 }
 
-function encodeShape(values: number[]) {
+function encodeShape(values: number[] | Float32Array) {
   const quantized = new Int16Array(values.length);
   values.forEach((value, index) => {
     quantized[index] = Math.max(-32768, Math.min(32767, Math.round(value * 4096)));

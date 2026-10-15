@@ -66,6 +66,7 @@ test("uploads catalog objects and serves one packed WebP range", async () => {
   const bucket = memoryBucket();
   const env = {
     BUCKET: bucket,
+    CATALOG_UPLOAD_KEY: "test-secret",
     ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) },
   };
   const ctx = { waitUntil() {}, passThroughOnException() {} };
@@ -73,6 +74,7 @@ test("uploads catalog objects and serves one packed WebP range", async () => {
   const upload = await worker.fetch(
     new Request("http://localhost/api/catalog/upload?path=packs%2Ffaces_00000.bin", {
       method: "POST",
+      headers: { "x-catalog-upload-key": "test-secret" },
       body: new TextEncoder().encode("abcdef"),
     }),
     env,
@@ -82,7 +84,7 @@ test("uploads catalog objects and serves one packed WebP range", async () => {
 
   const image = await worker.fetch(
     new Request(
-      "http://localhost/api/catalog/image?pack=faces_00000.bin&offset=2&length=3",
+      "http://localhost/api/catalog/image?source=remote&pack=faces_00000.bin&offset=2&length=3",
     ),
     env,
     ctx,
@@ -343,7 +345,7 @@ test("accepts a newer verified geometry-in-shards remote catalog", async () => {
   );
   assert.equal(exportedPack.status, 200);
   assert.equal(exportedPack.headers.get("content-type"), "application/octet-stream");
-  assert.equal(exportedPack.headers.get("cache-control"), "public, max-age=31536000, immutable");
+  assert.equal(exportedPack.headers.get("cache-control"), "public, no-cache");
   assert.equal(await exportedPack.text(), "remote-pack");
 
   const exportedManifest = await worker.fetch(

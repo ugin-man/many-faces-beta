@@ -1,0 +1,73 @@
+name: Project audit
+on:
+  push:
+    branches: [work/audit-overhaul-20260905]
+    paths: [.github/workflows/project-audit.yml, data/project-audit-request.json]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: project-audit-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - name: Verify the exact committed source
+        run: |
+          mkdir -p work/project-audit
+          npm ci > work/project-audit/install.log 2>&1 || { tail -50 work/project-audit/install.log; exit 1; }
+          npm run build > work/project-audit/build.log 2>&1 || { tail -60 work/project-audit/build.log; exit 1; }
+          npm run typecheck > work/project-audit/types.log 2>&1 || { cat work/project-audit/types.log; exit 1; }
+          npm run test:unit > work/project-audit/tests.log 2>&1 || { cat work/project-audit/tests.log; exit 1; }
+          tail -12 work/project-audit/tests.log
+          grep CATALOG_AUDIT work/project-audit/tests.log
+          npm run lint > work/project-audit/lint.log 2>&1 || { cat work/project-audit/lint.log; exit 1; }
+          git diff --exit-code
+      - name: Install isolated browser tooling, without changing application dependencies
+        run: |
+          npm install --prefix /tmp/many-faces-browser --no-package-lock playwright@1.55.0 > work/project-audit/browser-install.log 2>&1
+          /tmp/many-faces-browser/node_modules/.bin/playwright install --with-deps chromium >> work/project-audit/browser-install.log 2>&1
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg > /dev/null
+      - name: Prepare a public seven-second fixture whose first five seconds are reviewed
+        run: |
+          ffmpeg -hide_banner -loglevel warning -y -ss 17.2 -i public/test-fixtures/reference-face-motion.mp4 -an -vf 'trim=duration=5,setpts=PTS-STARTPTS,scale=512:-2:flags=lanczos,tpad=stop_mode=clone:stop_duration=2' -c:v libvpx-vp9 -deadline good -cpu-used 4 -b:v 0 -crf 31 work/reference-face-motion.webm
+      - name: Serve the built Worker with local-only Cloudflare bindings
+        run: |
+          find dist -name wrangler.json -print
+          test -f dist/server/wrangler.json
+          node node_modules/wrangler/bin/wrangler.js dev --config dist/server/wrangler.json --local --port 3000 > work/project-audit/server.log 2>&1 &
+          echo $! > work/project-audit/server.pid
+          for i in $(seq 1 90); do
+            if curl --silent --fail 'http://127.0.0.1:3000/api/catalog/manifest?source=seed' > work/project-audit/manifest.json; then exit 0; fi
+            sleep 1
+          done
+          tail -80 work/project-audit/server.log
+          exit 1
+      - name: Exercise browser output, cancellation and playback boundaries
+        env:
+          PLAYWRIGHT_MODULE: /tmp/many-faces-browser/node_modules/playwright/index.mjs
+          AUDIT_RUNTIME: workerd-local-built-artifact
+        run: node tools/project-audit-browser.mjs
+      - name: Dependency report
+        if: always()
+        run: npm audit --json > work/project-audit/dependencies.json || true
+      - name: Stop local test services
+        if: always()
+        run: |
+          if test -f work/project-audit/server.pid; then kill "$(cat work/project-audit/server.pid)" || true; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: project-audit-${{ github.sha }}
+          path: work/project-audit
+          retention-days: 14

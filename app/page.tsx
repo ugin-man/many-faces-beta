@@ -1213,7 +1213,7 @@ function LegacyLiveLab() {
       );
 
       const result = await ingestCandidates(payload.items ?? []);
-      setFfhqOffset(payload.nextOffset ?? ffhqOffset + payload.items.length);
+      setFfhqOffset(payload.nextOffset ?? ffhqOffset + (payload.items ?? []).length);
       setSourceMessage(
         `FFHQを${payload.items?.length ?? 0}枚探索し${result.accepted}枚追加。顔検出外${result.rejected}枚、埋まった角度${result.covered}枚を除外しました。`,
       );

@@ -50,7 +50,7 @@ try{
  }
  assert.equal(requests.filter(u=>/mediapipe|face_landmarker|\.wasm|processor\.worker|review-search\.worker/.test(u)).length,0,'Sample navigation must not start inference or download the model');
  await page.getByTestId('back').click();await page.getByTestId('sample-video').waitFor();
- await page.goto('http://127.0.0.1:4173/demo',{waitUntil:'networkidle'});await waitReady();
+ await page.goto('http://127.0.0.1:4173/demo',{waitUntil:'domcontentloaded'});await waitReady();
  for(const p of ['/test-fixtures/reference-face-motion.mp4','/test-fixtures/reference-face-motion-analysis.json','/test-fixtures/reference-face-motion-rankings.json']){const r=await page.request.get('http://127.0.0.1:4173'+p);assert.ok([404,410].includes(r.status()),`${p} must not be distributed`);}
  // Exercise the real upload pipeline with an already-protected, short input.
  await page.getByTestId('back').click();await page.getByTestId('video-input').setInputFiles(path.resolve('work/public-test-input.mp4'));

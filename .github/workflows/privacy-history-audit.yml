@@ -1,0 +1,27 @@
+name: Audit retired private fixtures
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths: ['.github/workflows/privacy-history-audit.yml', 'scripts/audit-private-history.py']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Inventory paths and artifact metadata only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/audit-private-history.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: private-fixture-inventory-${{ github.run_id }}
+          path: work/privacy-inventory.json
+          retention-days: 7

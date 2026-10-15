@@ -29,7 +29,7 @@ from test_verify_clean_core_native_qa import native_receipt, remediation_native_
 
 def packaging_python():
     """Extract the named real step without a YAML dependency or a code copy."""
-    path = PROJECT / ".github/workflows/clean-core-v5-qa.yml"
+    path = PROJECT / ".github/archive/workflows/clean-core-v5-qa.yml.disabled"
     lines = path.read_text().splitlines()
     marker = "      - name: Package factual reports and bounded review artifacts"
     if lines.count(marker) != 1:
@@ -71,7 +71,7 @@ class QARemediationPackagingTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.source = packaging_python()
-        cls.code = compile(cls.source, str(PROJECT / ".github/workflows/clean-core-v5-qa.yml") + ":packaging", "exec")
+        cls.code = compile(cls.source, str(PROJECT / ".github/archive/workflows/clean-core-v5-qa.yml.disabled") + ":packaging", "exec")
 
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()

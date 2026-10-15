@@ -1,6 +1,7 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { isRetiredAsset, retiredAssetResponse } from "./retired-assets";
 
 interface Env {
   ASSETS?: Fetcher;
@@ -533,6 +534,7 @@ async function handleCatalog(request: Request, env: Env | undefined, url: URL) {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+    if (isRetiredAsset(url.pathname)) return retiredAssetResponse();
 
     if (url.pathname.startsWith("/api/mediapipe/")) {
       return mediapipeAssetRead(
@@ -551,6 +553,7 @@ const worker = {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
       return handleImageOptimization(request, {
           fetchAsset: (path) => {
+            if (isRetiredAsset(path)) return Promise.resolve(retiredAssetResponse());
             const assetRequest = new Request(new URL(path, request.url));
             return env.ASSETS ? env.ASSETS.fetch(assetRequest) : fetch(assetRequest);
           },

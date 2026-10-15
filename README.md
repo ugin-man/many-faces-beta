@@ -1,74 +1,59 @@
-# Many Faces Beta
+# Many Faces
 
-Many Faces turns a source video into a rapid sequence of different people whose
-face geometry, pose and expression follow the original performance. It searches
-precomputed MediaPipe face-mesh geometry instead of generating or swapping a
-single identity.
+動画の顔の向きや表情に合わせて、7万枚の写真から顔を選んで合成するブラウザアプリです。背景と身体を残したまま、さまざまな人の顔へ切り替わります。
 
-This is an experimental, non-commercial Beta. The current catalog contains
-70,224 source faces, 70,099 searchable meshes, 761 pose shards and 55 matching
-features covering head pose, face outline, eyes, brows and mouth actions.
+**[Many Facesを開く](https://many-faces-prototype.uginn-poppo.chatgpt.site)** · [処理済みサンプル](https://many-faces-prototype.uginn-poppo.chatgpt.site/demo) · [使い方](docs/USER_GUIDE.md)
 
-## Repository layout
+## できること
 
-- `app/`, `worker/`, `tools/`: application, matching pipeline and catalog tools
-- `public/seed-catalog/`: the complete precomputed 70k catalog and packed previews
-- `data/`: dataset card, attribution, integrity hashes and data license
+| 入口 | 動作 |
+| --- | --- |
+| 動画を選ぶ | 手元の動画をブラウザ内で解析し、顔の位置・向き・表情に合わせて写真を合成します。画像保存、動画保存、コマ送りに対応します。 |
+| 右上のサンプル | 合成済みの23.3秒・30fpsのMP4をそのまま再生します。解析やカメラの許可は不要です。 |
+| リアルタイム（デモ） | カメラの動きに合わせて写真を表示する実験機能です。端末性能やカメラ環境に影響されます。 |
 
-The software and data share one repository but remain separately licensed. The
-FFHQ-derived catalog is governed by CC BY-NC-SA 4.0 and source-specific image
-licenses. It is public and source-available for non-commercial research and
-creative experiments, but it is not distributed under the MIT software license.
+合成前の個人動画と、その顔の解析キャッシュは現在の配布物に含めません。サンプルは全699コマを合成した768 × 768の無音動画です。元動画をダウンロードして再合成する仕組みは廃止しました。
 
-## Run locally
+## 使い方
 
-Requirements: Node.js 22.13 or newer.
+1. 「動画を選ぶ」から動画を開きます。初回は解析モデルと写真の取得に時間がかかります。
+2. 解析完了後に再生・シーク・コマ送りで確認します。設定で解析密度や表示方法を変更できます。
+3. 「画像保存」または「合成動画保存」で保存します。合成動画は音声なしです。
+
+検出や写真の読み込みが欠けた区間は、直前の合成済みフレームを保持します。最初の合成前は保護画面を表示します。横顔の急な反転が不確かな場合も前後の検出を確認し、保護済み画面を保持します。任意の入力に対する匿名化の保証はないため、共有前に出力全編を確認してください。
+
+## 開発
+
+Node.js 22.13以上とLinuxの標準ビルドツールが必要です。
 
 ```bash
 npm ci
 npm run dev
 ```
 
-The full catalog is already stored in `public/seed-catalog/`, so a normal clone
-is immediately usable. To refresh it from a compatible deployment:
-
-```bash
-npm run catalog:export -- \
-  --site https://many-faces-prototype.uginn-poppo.chatgpt.site \
-  --output ./public/seed-catalog
-npm run catalog:validate -- ./public/seed-catalog
-```
-
-## How matching works
-
-1. MediaPipe extracts a 468-point face mesh from each source frame.
-2. The mesh is normalized around stable facial anchors, not the image canvas.
-3. A coarse pose cell narrows the 70k catalog to relevant shards.
-4. A weighted 55-feature score compares outline, scale, eyes, brows, mouth,
-   gaze and head pose.
-5. Temporal penalties and candidate cycling preserve motion while avoiding a
-   single frozen match.
-6. The chosen face is aligned and shown beside the source video for evaluation.
-
-The catalog stores feature vectors and geometry beside each image, so playback
-does not rerun face detection across all 70,000 images.
-
-## Development
+通常のGit cloneには7万枚のカタログが含まれます。サンプル再生には顔解析モデルは不要です。動画解析・カメラ用モデルはブラウザで取得します。オフライン配置や本番ビルドの詳細は [開発ガイド](docs/DEVELOPMENT.md) を参照してください。
 
 ```bash
 npm test
 npm run lint
 ```
 
-Useful tools live in `tools/`. Normal CI uses a sparse checkout that omits the
-large catalog; the complete data can still be cloned or validated when needed.
+主要CIはNode/Pythonの回帰テスト、ビルド、サンプル再生・通常動画アップロードのブラウザテスト、仮想カメラによるリアルタイム検証です。ブラウザテストには個人の未加工動画を使いません。
 
-## Licenses and responsible use
+## 構成
 
-Software in this repository is licensed under the [MIT License](LICENSE).
-Dataset files are covered separately by [data/LICENSE.md](data/LICENSE.md).
+- `app/` — 動画の解析・合成、処理済みサンプルのプレイヤー、カメラデモ
+- `public/demo/` — 公開用の合成済みMP4、ポスター、検証用メタデータ
+- `public/seed-catalog/` — 70,000枚の写真、3度刻み・775セルの索引と特徴量
+- `worker/` — カタログとモデルの配信、廃止した素材URLの遮断
+- `tests/` — 合成・検出欠落・向き・入力・カタログの回帰テスト
+- `data/` — データの説明、出典、ライセンス
+- `.github/archive/workflows/` — 過去の一回限りの移行・収集・比較手順。自動実行されません。
 
-Do not use this project to identify people, build biometric profiles, or improve
-facial-recognition systems. Respect the source-image licenses, privacy and
-removal requests. This project is about matching visible performance geometry,
-not establishing identity.
+旧実験のレポートは当時の記録です。現在の仕様はこのREADMEと [使い方](docs/USER_GUIDE.md)、[開発ガイド](docs/DEVELOPMENT.md) を基準にしてください。
+
+## データとライセンス
+
+ソフトウェアは [MIT License](LICENSE)、写真カタログは別の [データライセンス](data/LICENSE.md) に従います。FFHQ由来のデータにはCC BY-NC-SA 4.0と元画像のライセンスが適用されます。非商用の創作・実験向けで、商用利用や人物の識別・認証用には使えません。補助画像の出典はアプリの設定内から確認できます。
+
+入力動画の扱い、保存内容、過去版の削除状況は [プライバシーと配布](docs/PRIVACY.md) にまとめています。

@@ -30,6 +30,9 @@ export function sites(): Plugin {
     async closeBundle() {
       if (command !== "build") return;
 
+      // Private recordings and face analysis never belong in a public build.
+      await rm(resolve(root, "dist/client/test-fixtures"), { recursive: true, force: true });
+
       const outputDirectory = resolve(root, "dist", ".openai");
       const hostingConfig = resolve(root, ".openai", "hosting.json");
       const drizzleSource = resolve(root, "drizzle");

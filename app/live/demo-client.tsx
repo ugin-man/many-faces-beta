@@ -13,7 +13,6 @@ import type { ProjectionChoice, ProjectionError } from "../projection-matching";
 import { searchReviewFrames } from "./review-search";
 import { createStableLandmarker } from "./stable-landmarker";
 import { runtimeIdentity } from "../runtime-identity";
-import { readAssetBytes } from "./asset-reader";
 import { type ReviewCatalogManifest } from "./review-local-catalog";
 import { processingSecondsPerOutputSecond, quantizeReviewTime, reviewItemAtTime } from "./review-timeline";
 import { evaluateVerificationGate } from "./verification-gate";
@@ -127,9 +126,10 @@ function phaseText(phase: Phase) {
   }
 }
 
-export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}) {
+export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioClientProps = {}) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [mirror, setMirror] = useState(false);
+  const [engineRequested, setEngineRequested] = useState(false);
   const [faceTracking, setFaceTracking] = useState(true);
   const [faceOnly, setFaceOnly] = useState(false);
   const [demoComposite, setDemoComposite] = useState(true);
@@ -241,6 +241,15 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
         setCatalogTotal(Number(manifest.searchableFaces ?? manifest.totalFaces ?? 0)); setManifestState("ready");
       } catch (caught) { console.error("Review manifest setup failed.", caught); if (!disposed) { manifestStateRef.current = "failed"; setManifestState("failed"); } }
     }
+    void prepareManifest();
+    return () => { disposed = true; preparationAbort.abort(); clearReview(); };
+  }, [clearReview]);
+
+  useEffect(() => {
+    if (!engineRequested) return;
+    let disposed = false;
+    const preparationAbort = new AbortController();
+    modelStateRef.current = "loading";
     async function prepareModel() {
       try {
         const landmarker = await createStableLandmarker("IMAGE", event => {
@@ -254,9 +263,9 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
         landmarkerRef.current = landmarker; modelStateRef.current = "ready"; setModelState("ready");
       } catch (caught) { console.error("Review model setup failed.", caught); if (!disposed) { modelStateRef.current = "failed"; setModelState("failed"); } }
     }
-    void prepareManifest(); void prepareModel();
-    return () => { disposed = true; preparationAbort.abort(); clearReview(); landmarkerRef.current?.close(); landmarkerRef.current = null; };
-  }, [clearReview]);
+    void prepareModel();
+    return () => { disposed = true; preparationAbort.abort(); landmarkerRef.current?.close(); landmarkerRef.current = null; };
+  }, [engineRequested]);
 
   const waitUntilPrepared = useCallback(async (token: number) => {
     const startedAt = Date.now();
@@ -450,6 +459,7 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
   const verifyVideoFile = useCallback(async (file: File | null) => {
     if (!file || busy) return;
     if (file.size === 0) { setError("空の動画ファイルです。別の動画を選んでください。"); setPhase("error"); return; }
+    setEngineRequested(true);
     clearReview(); setError(null); setSourceName(file.name); setPhase("waiting"); lastProgressAtRef.current = Date.now();
     const token = processingTokenRef.current;
     const cancellation = new AbortController(); captureAbortRef.current = cancellation;
@@ -595,26 +605,6 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
     }
   };
 
-  const verifySample = async () => {
-    if (busy) return;
-    clearReview(); setError(null); setPhase("waiting");
-    setProgress({ done: 0, total: 1, label: "固定動画を読み込み中" });
-    const token = processingTokenRef.current;
-    const cancellation = new AbortController(); captureAbortRef.current = cancellation;
-    try {
-      const bytes = await readAssetBytes("/test-fixtures/reference-face-motion.mp4", { signal: cancellation.signal, maxBytes: 256 * 1024 * 1024, onBytes: received => {
-        if (processingTokenRef.current !== token) return;
-        lastProgressAtRef.current = Date.now();
-        setProgress({ done: 0, total: 0, label: `固定動画を受信中 ${(received / 1048576).toFixed(1)} MB` });
-      } });
-      const blob = new Blob([bytes], { type: "video/mp4" });
-      if (processingTokenRef.current !== token || cancellation.signal.aborted) return;
-      await verifyVideoFile(new File([blob], "reference-face-motion.mp4", { type: "video/mp4" }));
-    } catch (caught) {
-      if (processingTokenRef.current !== token || cancellation.signal.aborted) return;
-      setError(caught instanceof Error ? caught.message : "固定動画を開けませんでした"); setPhase("error"); setProgress(null);
-    }
-  };
   const progressRatio = progress?.total ? clamp(progress.done / progress.total, 0, 1) : 0;
   const perSecond = processingSecondsPerOutputSecond(processingMs, clipDuration);
   const downloadDiagnostics = () => {
@@ -624,7 +614,7 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
   const presentationClass = mirror && !demoComposite ? styles.mirror : "";
-  return <CallStage mode="video" onModeChange={onModeChange} onBack={reset}
+  return <CallStage mode="video" onModeChange={onModeChange} onBack={reset} onOpenSample={busy ? undefined : onOpenSample}
     active={busy || phase === "review"} hasOutput={phase === "review"} sourceVisible={Boolean(sourceName) && phase !== "waiting" && !demoComposite}
     status={busy ? progress?.label ?? phaseText(phase) : undefined}
     error={error || (modelState === "failed" || manifestState === "failed" ? "準備に失敗しました。ページを再読み込みしてください。" : undefined)}
@@ -645,7 +635,6 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
           <button className={styles.tool} disabled={recordingDemo} onClick={() => fileInputRef.current?.click()}><Icon name="upload" /><span>動画を変更</span></button>
         </> : <>
           <button className={`${styles.tool} ${styles.primary}`} onClick={() => fileInputRef.current?.click()}><Icon name="upload" /><span>動画を選ぶ</span></button>
-          <button className={styles.tool} onClick={() => void verifySample()} data-testid="sample-video"><Icon name="sample" /><span>固定動画</span></button>
         </>}
     </>}
     settings={<>

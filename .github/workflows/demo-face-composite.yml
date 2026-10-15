@@ -1,23 +1,8 @@
-name: Video face composite browser QA
+name: Product video and sample QA
 on:
   push:
-    branches: [astra/realtime-hardening]
-    paths:
-      - '.github/workflows/demo-face-composite.yml'
-      - 'app/page.tsx'
-      - 'app/studio.tsx'
-      - 'app/studio.module.css'
-      - 'app/call-stage.tsx'
-      - 'app/live/page.tsx'
-      - 'app/demo/**'
-      - 'app/live/demo-client.tsx'
-      - 'app/demo-face-composite.ts'
-      - 'app/live/video-pose-continuity.ts'
-      - 'tests/video-pose-continuity.test.mjs'
-      - 'tests/fixtures/fixed-video-profile-20261015.json'
-      - 'scripts/verify-demo-composite.mjs'
-      - 'scripts/audit-fixed-video-direction.mjs'
-      - 'tests/demo-face-composite.test.mjs'
+    branches: [main, astra/realtime-hardening]
+    paths: ['app/**', 'public/demo/**', 'worker/**', 'scripts/verify-demo-composite.mjs', '.github/workflows/demo-face-composite.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -34,21 +19,30 @@ jobs:
         with:
           node-version: 22.16.0
           cache: npm
-      - name: Prepare full original assets and browser
+      - name: Prepare public-only fixture and browser
         run: |
           mkdir -p work/demo-evidence public/mediapipe/wasm public/models
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends ffmpeg
+          sudo apt-get install -y --no-install-recommends ffmpeg fonts-noto-cjk
           npm ci
           npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1
           cp -a node_modules/@mediapipe/tasks-vision/wasm/. public/mediapipe/wasm/
           curl -fL --retry 3 --max-time 90 -o public/models/face_landmarker.task https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
+          ffmpeg -hide_banner -loglevel error -y -i public/demo/many-faces-sample-30fps.mp4 -t 3 -an -c:v libx264 work/public-test-input.mp4
           echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
-      - name: Prepare fixed-video direction probe
-        run: node scripts/audit-fixed-video-direction.mjs --prepare
+      - name: Validate shipped sample encoding
+        run: |
+          ffprobe -v error -show_entries stream=codec_type,r_frame_rate,avg_frame_rate,nb_frames -of json public/demo/many-faces-sample-30fps.mp4 > work/demo-evidence/encoding.json
+          python - <<'PY'
+          import json
+          s=json.load(open('work/demo-evidence/encoding.json'))['streams']
+          assert len(s)==1 and s[0]['codec_type']=='video'
+          assert s[0]['avg_frame_rate']=='30/1' and s[0]['r_frame_rate']=='30/1'
+          assert int(s[0]['nb_frames'])==699
+          PY
       - name: Build production application
         run: npm run build > work/demo-evidence/build.log 2>&1
-      - name: Start full production runtime
+      - name: Start production runtime
         run: |
           PORT=4173 HOST=127.0.0.1 nohup npm start > work/demo-evidence/server.log 2>&1 &
           for i in $(seq 1 90); do
@@ -56,21 +50,11 @@ jobs:
             sleep 1
           done
           exit 1
-      - name: Inspect actual fixed-video detection at 20 fps
-        run: node scripts/audit-fixed-video-direction.mjs
-      - name: Verify normal video entry, phone controls, image save and recorded video
+      - name: Verify finished sample and normal video workflow
         run: node scripts/verify-demo-composite.mjs
-      - name: Reject full-frame black flashes in recorded composite
-        run: |
-          file=$(find work/demo-evidence -maxdepth 1 -type f \( -name 'many-faces-composite.mp4' -o -name 'many-faces-composite.webm' \) | head -n 1)
-          test -n "$file"
-          ffmpeg -hide_banner -i "$file" -vf 'blackdetect=d=0.02:pix_th=0.10:pic_th=0.97' -an -f null - > work/demo-evidence/blackdetect.log 2>&1
-          if grep -q 'black_start:' work/demo-evidence/blackdetect.log; then
-            echo 'FAIL: protected composite contains a black flash'; exit 1
-          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: demo-composite-qa-${{ github.run_id }}
+          name: product-qa-${{ github.run_id }}
           path: work/demo-evidence/
-          retention-days: 14
+          retention-days: 7

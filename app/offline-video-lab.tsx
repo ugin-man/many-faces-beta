@@ -45,9 +45,6 @@ import { ANALYSIS_CHUNK_SECONDS, buildAnalysisChunks } from "./video-chunking";
 
 const WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm";
 const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
-const TEST_VIDEO_URL = "/test-fixtures/reference-face-motion.mp4";
-const TEST_ANALYSIS_URL = "/test-fixtures/reference-face-motion-analysis.json";
-const TEST_RANKINGS_URL = "/test-fixtures/reference-face-motion-rankings.json";
 const INDEX_BEAM_PER_FRAME = 64;
 const DEFAULT_SAMPLE_RATE = 30;
 const DEFAULT_COOLDOWN = 12;
@@ -1311,16 +1308,6 @@ export default function OfflineVideoLab() {
     });
   }, [analyzeVideo]);
 
-  const handleTestVideo = useCallback(() => {
-    void analyzeVideo({
-      name: "FIXTURE / IMG_3665.mp4",
-      url: TEST_VIDEO_URL,
-      revokeOnReplace: false,
-      analysisUrl: TEST_ANALYSIS_URL,
-      rankingsUrl: TEST_RANKINGS_URL,
-    });
-  }, [analyzeVideo]);
-
   useEffect(() => {
     if (!isPlaying) return;
     let animation = 0;
@@ -1462,8 +1449,6 @@ export default function OfflineVideoLab() {
   const isAnalyzing = phase === "scanning" || phase === "catalog" ||
     phase === "geometry" || phase === "optimizing";
   const canStartAnalysis = Boolean(engineReady && manifest) &&
-    (phase === "ready" || phase === "done" || phase === "error");
-  const canStartTestAnalysis = Boolean(manifest) &&
     (phase === "ready" || phase === "done" || phase === "error");
 
   const phaseLabel = phase === "preparing"
@@ -1628,15 +1613,10 @@ export default function OfflineVideoLab() {
             <small>端末内で{ANALYSIS_CHUNK_SECONDS}秒ずつ動画全体を解析・アップロードなし</small>
           </label>
 
-          <button
-            type="button"
-            className="offline-test-video"
-            onClick={handleTestVideo}
-            disabled={!canStartTestAnalysis}
-          >
-            <span>{fileName === "FIXTURE / IMG_3665.mp4" ? "解析済み結果を再読込" : "固定検証動画を開く（解析済み）"}</span>
-            <small>IMG_3665 · 23.3秒 · 613 Face Mesh frames · 全件探索済み</small>
-          </button>
+          <a className="offline-test-video" href="/demo">
+            <span>処理済みサンプルを見る</span>
+            <small>30fps · 23.3秒 · 解析待ちなし</small>
+          </a>
 
           {isAnalyzing && (
             <button type="button" className="offline-cancel-analysis" onClick={cancelAnalysis}>

@@ -32,8 +32,8 @@ test("the review may keep the exact match instead of forcing a worse identity",(
 test("one studio entry replaces the old three-tab navigation and keeps atomic capture",async()=>{
  const layout=await readFile(new URL("../app/layout.tsx",import.meta.url),"utf8");
  assert.doesNotMatch(layout,/ModeNav|next\/font/);
- const video=await readFile(new URL("../app/live/review-client-lite.tsx",import.meta.url),"utf8");
- assert.match(video,/reference-face-motion\.mp4/);assert.match(video,/captureVideoFrameAt/);
+ const video=await readFile(new URL("../app/live/demo-client.tsx",import.meta.url),"utf8");
+ assert.doesNotMatch(video,/reference-face-motion/);assert.match(video,/captureVideoFrameAt/);
  assert.match(video,/video.currentTime >= clipDuration/);
  assert.doesNotMatch(video,/recordFiveSeconds|styles\.(?:guideBox|faceFrame)\b/);
  const shell=await readFile(new URL("../app/call-stage.tsx",import.meta.url),"utf8");

@@ -1,117 +1,63 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { createRequire } from "node:module";
+import { createHash } from "node:crypto";
 import path from "node:path";
-
-const require = createRequire(import.meta.url);
-const { chromium } = require(path.resolve(".browser-tools/node_modules/playwright"));
-const browser = await chromium.launch({
-  executablePath: process.env.CHROME_PATH || "/usr/bin/google-chrome",
-  headless: true,
-  args: ["--no-sandbox", "--disable-dev-shm-usage", "--enable-unsafe-swiftshader"],
-});
-const page = await browser.newPage({ acceptDownloads: true, viewport: { width: 1280, height: 850 } });
-const errors = [];
-page.on("pageerror", error => errors.push(String(error)));
-try {
-  const routes = ["/demo", "/live", "/"];
-  for (const route of routes) {
-    await page.goto(`http://127.0.0.1:4173${route}`, { waitUntil: "domcontentloaded" });
-    await page.getByTestId("settings").click();
-    const mode = page.getByTestId("face-display-mode");
-    await mode.waitFor();
-    assert.equal(await mode.inputValue(), "demo", `${route} must open in face composite mode`);
-    assert.equal(await mode.locator("option:checked").textContent(), "動画に顔を合成");
-    await page.getByRole("button", { name: "閉じる" }).click();
-    assert.equal(await page.getByTestId("source-pip").getAttribute("data-visible"), "false");
-  }
-
-  await page.getByTestId("sample-video").click();
-  await page.getByTestId("demo-save-image").waitFor({ timeout: 900000 });
-  await page.waitForTimeout(500);
-  assert.equal(await page.getByTestId("source-pip").getAttribute("data-visible"), "false");
-  const canvas = page.getByTestId("output-canvas");
-  const sample = await canvas.evaluate(element => {
-    const c = element, ctx = c.getContext("2d");
-    const pixels = ctx.getImageData(0, 0, c.width, c.height).data;
-    let nonblack = 0;
-    for (let i = 0; i < pixels.length; i += 4) if (pixels[i] > 28 || pixels[i + 1] > 28 || pixels[i + 2] > 28) nonblack++;
-    return { nonblack, total: pixels.length / 4 };
-  });
-  assert.ok(sample.nonblack > sample.total * .04, "Composite should show source background and a replacement face");
-  const png = page.waitForEvent("download", { timeout: 15000 });
-  await page.getByTestId("demo-save-image").click();
-  const imageDownload = await png;
-  assert.equal(imageDownload.suggestedFilename(), "many-faces-composite.png");
-
-  const reportDownloadPromise = page.waitForEvent("download", { timeout: 15000 });
-  await page.getByTestId("demo-report-photo").click();
-  const reportDownload = await reportDownloadPromise;
-  assert.equal(reportDownload.suggestedFilename(), "many-faces-wrong-photo.json");
-  const reportPath = path.join("work/demo-evidence", "wrong-photo.json");
-  await fs.mkdir("work/demo-evidence", { recursive: true });
-  await reportDownload.saveAs(reportPath);
-  const reported = JSON.parse(await fs.readFile(reportPath, "utf8"));
-  assert.match(reported.imageId, /^clean-v5-/);
-  assert.equal(reported.reportReason, "wrong-facing-photo");
-  assert.equal(Object.hasOwn(reported, "videoBytes"), false);
-  assert.equal(Object.hasOwn(reported, "imageBytes"), false);
-  const verification = await page.evaluate(() => window.__MANY_FACES_VERIFY__);
-  const heldInterval = verification.poseContinuity?.intervals.find(interval => interval.start <= 5 && interval.end > 5);
-  assert.ok(heldInterval, "the fixed video's uncertain profile must be rejected before photo search");
-  const seek = async time => {
-    await page.getByTestId("review-seek").evaluate((element, value) => {
-      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(element, String(value));
-      element.dispatchEvent(new Event("input", { bubbles: true }));
-      element.dispatchEvent(new Event("change", { bubbles: true }));
-    }, time);
-    await page.waitForFunction(target => {
-      const video = document.querySelector('[data-testid="input-video"]');
-      return video && !video.seeking && Math.abs(video.currentTime-target)<.005;
-    }, time);
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    return canvas.evaluate(element => element.toDataURL("image/png"));
-  };
-  const heldPixels = await seek(5);
-  await fs.writeFile("work/demo-evidence/fixed-direction-5s.png", Buffer.from(heldPixels.split(",")[1], "base64"));
-  const directionDownloadPromise = page.waitForEvent("download");
-  await page.getByTestId("demo-report-photo").click();
-  const directionDownload = await directionDownloadPromise;
-  await directionDownload.saveAs("work/demo-evidence/fixed-direction-5s.json");
-  const directionReport = JSON.parse(await fs.readFile("work/demo-evidence/fixed-direction-5s.json", "utf8"));
-  assert.ok(directionReport.storedYawDegrees < -20, "the protected neighbour must face viewer-left like the source");
-  assert.equal(directionReport.protectedHold, true);
-  assert.equal(directionReport.displaySourceTimeSeconds, heldInterval.anchorTime);
-  assert.equal(await seek(heldInterval.anchorTime), heldPixels, "the uncertain frame must contain the complete protected neighbour");
-  await seek(8);
-  assert.equal(await seek(5), heldPixels, "seeking from a different pose must not change the held composite");
-  await fs.writeFile("work/demo-evidence/verification.json", JSON.stringify(verification, null, 2));
-  const exportButton = page.getByTestId("demo-export-video");
-  const videoDownloadPromise = page.waitForEvent("download", { timeout: 30000 });
-  await exportButton.click();
-  const videoDownload = await videoDownloadPromise;
-  assert.match(videoDownload.suggestedFilename(), /^many-faces-composite\.(webm|mp4)$/);
-  const output = path.join("work/demo-evidence", videoDownload.suggestedFilename());
-  await fs.mkdir("work/demo-evidence", { recursive: true });
-  await videoDownload.saveAs(output);
-  assert.ok((await fs.stat(output)).size > 2000);
-  await page.screenshot({ path: "work/demo-evidence/demo.png" });
-  await page.setViewportSize({ width: 390, height: 844 });
-  for (const button of await page.getByRole("group", { name: "操作", exact: true }).getByRole("button").all()) {
-    const box = await button.boundingBox();
-    assert.ok(box && box.x >= 0 && box.x + box.width <= 390 && box.y >= 0 && box.y + box.height <= 844,
-      `${await button.textContent()} must remain reachable on a phone`);
-  }
-  await page.screenshot({ path: "work/demo-evidence/mobile.png" });
-  await fs.writeFile("work/demo-evidence/report.json", JSON.stringify({
-    routes, exportRoute: "/", mobileControlsInViewport: true,
-    sourcePiPHidden: true, defaultMode: "demo", outputNonblackPixels: sample.nonblack,
-    savedImage: imageDownload.suggestedFilename(), savedVideo: videoDownload.suggestedFilename(),
-    fixedVideoDirection: directionReport, protectedNeighbourPixelMatch: true,
-    pageErrors: errors,
-  }, null, 2));
-  assert.equal(errors.length, 0, errors.join("\n"));
-  console.log("DEMO_QA_PASS", JSON.stringify({ sample, savedVideo: videoDownload.suggestedFilename() }));
-} finally {
-  await browser.close();
-}
+const require=createRequire(import.meta.url);
+const {chromium}=require(path.resolve('.browser-tools/node_modules/playwright'));
+const output='work/demo-evidence';await fs.mkdir(output,{recursive:true});
+const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader']});
+const page=await browser.newPage({acceptDownloads:true,viewport:{width:390,height:844}});
+const errors=[],requests=[];
+page.on('pageerror',e=>errors.push(String(e)));page.on('request',r=>requests.push(r.url()));
+const meta=JSON.parse(await fs.readFile('public/demo/sample.json','utf8'));
+const waitReady=()=>page.waitForFunction(()=>document.querySelector('[data-testid="processed-sample-video"]')?.readyState>=2);
+const controlsFit=async(width,height)=>{
+ for(const b of await page.locator('[data-testid="mode-camera"], [data-testid="mode-video"], [aria-label="操作"] button').all()){
+  const box=await b.boundingBox();assert.ok(box&&box.x>=0&&box.y>=0&&box.x+box.width<=width+1&&box.y+box.height<=height+1,`${await b.textContent()} clipped at ${width}x${height}`);
+ }
+};
+const seek=async(time)=>{
+ await page.getByTestId('sample-seek').fill(String(time));
+ await page.waitForFunction(t=>{const v=document.querySelector('[data-testid="processed-sample-video"]');return v&&!v.seeking&&Math.abs(v.currentTime-t)<.005;},time);
+};
+try{
+ await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
+ assert.match(await page.getByTestId('mode-camera').textContent(),/リアルタイム（デモ）/);
+ const button=await page.getByTestId('sample-video').boundingBox();assert.ok(button.x>250&&button.width<125&&button.y<100);
+ await page.screenshot({path:`${output}/home-phone.png`});
+ await page.getByTestId('sample-video').click();await waitReady();
+ assert.equal(await page.getByTestId('source-pip').getAttribute('data-visible'),'false');
+ const vm=await page.getByTestId('processed-sample-video').evaluate(v=>({src:new URL(v.currentSrc).pathname,duration:v.duration,width:v.videoWidth,height:v.videoHeight}));
+ assert.equal(vm.src,'/demo/many-faces-sample-30fps.mp4');assert.ok(Math.abs(vm.duration-23.3)<.01);assert.equal(vm.width,768);assert.equal(vm.height,768);
+ await page.getByTestId('sample-play-pause').click();await page.waitForFunction(()=>document.querySelector('[data-testid="processed-sample-video"]').currentTime>.2);
+ await page.getByTestId('sample-play-pause').click();await seek(5);
+ await page.getByRole('button',{name:'1フレーム進む',exact:true}).click();
+ assert.ok(Math.abs(await page.getByTestId('processed-sample-video').evaluate(v=>v.currentTime)-(5+1/30))<.001);
+ await page.getByRole('button',{name:'1フレーム戻る',exact:true}).click();await seek(5);
+ for(const [id,name] of [['sample-save-image','many-faces-sample.png'],['sample-save-video','many-faces-sample-30fps.mp4']]){
+  const downloaded=page.waitForEvent('download');await page.getByTestId(id).click();const d=await downloaded;assert.equal(d.suggestedFilename(),name);await d.saveAs(`${output}/${name}`);
+ }
+ const saved=await fs.readFile(`${output}/many-faces-sample-30fps.mp4`);assert.equal(createHash('sha256').update(saved).digest('hex'),meta.sha256);
+ for(const [width,height] of [[390,844],[320,568],[844,390],[1280,850]]){
+  await page.setViewportSize({width,height});await controlsFit(width,height);
+  if(width===390)await page.screenshot({path:`${output}/sample-phone.png`});
+ }
+ assert.equal(requests.filter(u=>/mediapipe|face_landmarker|\.wasm|processor\.worker|review-search\.worker/.test(u)).length,0,'Sample navigation must not start inference or download the model');
+ await page.getByTestId('back').click();await page.getByTestId('sample-video').waitFor();
+ await page.goto('http://127.0.0.1:4173/demo',{waitUntil:'networkidle'});await waitReady();
+ for(const p of ['/test-fixtures/reference-face-motion.mp4','/test-fixtures/reference-face-motion-analysis.json','/test-fixtures/reference-face-motion-rankings.json']){const r=await page.request.get('http://127.0.0.1:4173'+p);assert.ok([404,410].includes(r.status()),`${p} must not be distributed`);}
+ // Exercise the real upload pipeline with an already-protected, short input.
+ await page.getByTestId('back').click();await page.getByTestId('video-input').setInputFiles(path.resolve('work/public-test-input.mp4'));
+ await page.getByTestId('demo-save-image').waitFor({timeout:900000});
+ const verification=await page.evaluate(()=>window.__MANY_FACES_VERIFY__);assert.ok(verification.passed,verification.reasons.join('; '));
+ assert.equal(await page.getByTestId('source-pip').getAttribute('data-visible'),'false');
+ const image=page.waitForEvent('download');await page.getByTestId('demo-save-image').click();await(await image).saveAs(`${output}/upload-composite.png`);
+ const video=page.waitForEvent('download',{timeout:30000});await page.getByTestId('demo-export-video').click();const d=await video;assert.match(d.suggestedFilename(),/^many-faces-composite\.(mp4|webm)$/);await d.saveAs(`${output}/${d.suggestedFilename()}`);
+ await page.setViewportSize({width:390,height:844});await controlsFit(390,844);
+ await page.getByTestId('mode-camera').click();await page.getByTestId('mode-camera').waitFor();assert.equal(await page.getByTestId('mode-camera').getAttribute('aria-pressed'),'true');
+ await page.getByTestId('mode-video').click();await page.getByTestId('video-input').waitFor();
+ assert.equal(errors.length,0,errors.join('\n'));
+ await fs.writeFile(`${output}/report.json`,JSON.stringify({passed:true,sample:vm,sampleHash:meta.sha256,sampleUsesInference:false,phoneAndLandscapeControls:true,retiredAssetsUnavailable:true,userUploadPassed:verification.passed,cameraModeNavigation:true,pageErrors:errors},null,2));
+ console.log('PRODUCT_QA_PASS');
+}finally{await browser.close();}

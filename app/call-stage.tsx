@@ -4,7 +4,7 @@ import { Icon } from "./studio-icons";
 import { shouldExitSwipe, type StudioMode, type SwipePoint } from "./studio-controls";
 import styles from "./studio.module.css";
 
-export type StudioClientProps = { onModeChange?: (mode: StudioMode) => void };
+export type StudioClientProps = { onModeChange?: (mode: StudioMode) => void; onOpenSample?: () => void };
 type Props = StudioClientProps & {
   mode: StudioMode; onBack: () => void; active: boolean; hasOutput: boolean;
   children: ReactNode; preview: ReactNode; controls: ReactNode;
@@ -63,6 +63,7 @@ export default function CallStage(props: Props) {
       <button className={styles.round} onClick={back} aria-label="戻る" title="戻る" data-testid="back"><Icon name="back" /></button>
       <span className={styles.brand}>Many Faces</span>
     </header>
+    {props.onOpenSample && <button className={styles.sampleLink} onClick={props.onOpenSample} data-testid="sample-video" aria-label="処理済みサンプルを見る"><Icon name="sample" /><span>サンプル</span></button>}
     <aside className={styles.pip} data-pip data-visible={props.sourceVisible !== false} aria-label="入力映像" data-testid="source-pip">{props.preview}</aside>
     {!hasOutput && <div className={styles.empty}>{props.empty}</div>}
     {(props.status || props.error) && <div className={styles.status} data-error={Boolean(props.error)} role={props.error ? "alert" : "status"}>
@@ -72,7 +73,7 @@ export default function CallStage(props: Props) {
     <div className={styles.bottom} data-hidden={!chrome && hasOutput} inert={!chrome && hasOutput}>
       <div className={styles.modeButtons} role="group" aria-label="モード選択">
         <button aria-pressed={mode === "video"} onClick={() => { if (mode !== "video") onModeChange?.("video"); }} data-testid="mode-video"><Icon name="video" />動画</button>
-        <button aria-pressed={mode === "camera"} onClick={() => { if (mode !== "camera") onModeChange?.("camera"); }} data-testid="mode-camera"><Icon name="camera" />リアルタイム</button>
+        <button aria-pressed={mode === "camera"} onClick={() => { if (mode !== "camera") onModeChange?.("camera"); }} data-testid="mode-camera"><Icon name="camera" />リアルタイム（デモ）</button>
       </div>
       {props.timeline && <div className={styles.timeline}>{props.timeline}</div>}
       <div className={styles.dock} role="group" aria-label="操作">
@@ -89,7 +90,7 @@ export default function CallStage(props: Props) {
           <label className={styles.settingRow}><span>画像全体を表示</span><input type="checkbox" checked={fit} onChange={event => setFit(event.target.checked)} /></label>
           <button className={styles.settingRow} onClick={() => void toggleFullscreen()}><span>{fullscreen ? "全画面表示を終了" : "全画面表示"}</span><Icon name={fullscreen ? "shrink" : "expand"} /></button>
           <button className={styles.settingRow} onClick={() => setSheet("details")}><span>画像情報・診断</span><Icon name="info" /></button>
-        </> : <div className={styles.details}>{props.details}{mode === "video" && <p><a href="/wink-support/v1/ATTRIBUTION.html" target="_blank" rel="noopener noreferrer" data-testid="wink-attribution">補助カタログの画像出典・ライセンス</a></p>}<small>Fullscreen UI v1</small></div>}
+        </> : <div className={styles.details}>{props.details}{mode === "video" && <p><a href="/wink-support/v1/ATTRIBUTION.html" target="_blank" rel="noopener noreferrer" data-testid="wink-attribution">補助カタログの画像出典・ライセンス</a></p>}</div>}
       </div>
     </dialog>
   </main>;

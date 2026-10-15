@@ -43,7 +43,7 @@ test('source gate rejects a changed baseline even when both sides share that cha
 
 test('both browser workflows invoke the exact-delta gate and retain the independent drawing-math and camera diff', () => {
   for (const name of ['clean-core-v5-qa.yml', 'video-speed.yml']) {
-    const workflow = readFileSync(new URL(`../.github/workflows/${name}`, import.meta.url), 'utf8');
+    const workflow = readFileSync(new URL(`../.github/archive/workflows/${name}.disabled`, import.meta.url), 'utf8');
     assert.match(workflow, /node scripts\/validate-review-presentation-change\.mjs "\$(?:VIDEO_)?BASELINE_COMMIT" "\$GITHUB_SHA"/);
     assert.match(workflow, /presentation-source-guard\.json/);
     for (const protectedPath of ['app/live/astra', 'app/live/media-input.ts', 'app/live/frame-arrival.ts', 'app/face-presentation.ts', 'app/offline-matching.ts', 'app/call-stage.tsx', 'app/live/review-timeline.ts']) {

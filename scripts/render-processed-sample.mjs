@@ -6,6 +6,7 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 const require=createRequire(import.meta.url);
 const {chromium}=require(path.resolve(".browser-tools/node_modules/playwright"));
+assert.ok(process.env.SAMPLE_SOURCE, "Set SAMPLE_SOURCE to an authorized local input; private recordings must never be committed or uploaded.");
 const output=path.resolve("work/processed-sample"), frames=path.resolve("work/composite-frames");
 await fs.mkdir(output,{recursive:true});await fs.mkdir(frames,{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||"/usr/bin/google-chrome",headless:true,args:["--no-sandbox","--disable-dev-shm-usage","--enable-unsafe-swiftshader"]});
@@ -15,7 +16,7 @@ try{
  await page.getByTestId("settings").click();
  await page.getByTestId("analysis-fps").selectOption("30");
  await page.getByRole("button",{name:"閉じる"}).click();
- await page.getByTestId("video-input").setInputFiles(path.resolve(process.env.SAMPLE_SOURCE||"public/test-fixtures/reference-face-motion.mp4"));
+ await page.getByTestId("video-input").setInputFiles(path.resolve(process.env.SAMPLE_SOURCE));
  await page.getByTestId("demo-save-image").waitFor({timeout:900000});
  const verification=await page.evaluate(()=>window.__MANY_FACES_VERIFY__);
  assert.ok(verification.passed,verification.reasons.join("; "));

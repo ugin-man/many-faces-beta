@@ -25,7 +25,7 @@ PROJECT = Path(__file__).resolve().parents[1]
 
 
 def workflow_program():
-    source = (PROJECT / ".github/workflows/clean-core-v5-promote.yml").read_text()
+    source = (PROJECT / ".github/archive/workflows/clean-core-v5-promote.yml.disabled").read_text()
     start = source.index("      - name: Verify request, candidate QA and successful candidate run\n")
     start = source.index("          python - <<'PY'\n", start) + len("          python - <<'PY'\n")
     end = source.index("          PY\n", start)

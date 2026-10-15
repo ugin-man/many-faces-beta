@@ -7,7 +7,7 @@ import test from 'node:test';
 import {admittedCoreWink, boundedWinkIndex} from '../scripts/rebuild-clean-wink-support.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const workflow = await readFile(new URL('../.github/workflows/clean-core-v5-promote.yml', import.meta.url), 'utf8');
+const workflow = await readFile(new URL('../.github/archive/workflows/clean-core-v5-promote.yml.disabled', import.meta.url), 'utf8');
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 const policySha256 = 'a'.repeat(64), receiptSha256 = 'b'.repeat(64), recordsSha256 = 'c'.repeat(64);
 const pilot = JSON.parse(await readFile(new URL('../data/wink-pilot/catalog.json', import.meta.url)));
@@ -139,7 +139,7 @@ ids_node = single([node for node in tree.body if isinstance(node, ast.Assign)
 
 def compiled(nodes):
     return compile(ast.fix_missing_locations(ast.Module(body=nodes, type_ignores=[])),
-                   '.github/workflows/clean-core-v5-promote.yml', 'exec')
+                   '.github/archive/workflows/clean-core-v5-promote.yml.disabled', 'exec')
 
 setup = compiled([require_node, side_node, ids_node])
 project = compiled([reference_node])

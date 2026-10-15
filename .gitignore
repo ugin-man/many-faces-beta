@@ -40,3 +40,9 @@ next-env.d.ts
 /.sites-runtime/
 /outputs/
 /work/
+
+# Private inputs and local browser tooling must never ship.
+/private-inputs/
+/public/test-fixtures/
+/.browser-tools/
+/artifacts/

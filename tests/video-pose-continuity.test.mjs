@@ -1,29 +1,23 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFileSync } from "node:fs";
 import { filterVideoProfileIslands, uncertainProfileAtTime } from "../app/live/video-pose-continuity.ts";
 
 const frames = pairs => pairs.map(([time, yaw]) => ({ time, feature: [yaw / 90, 0, 0], geometry: { marker: time } }));
 
-test("the current full-resolution browser detector's collapsed profile is rejected without changing other frames", () => {
-  const fixture = JSON.parse(readFileSync(new URL("./fixtures/fixed-video-profile-20261015.json", import.meta.url)));
-  const result = filterVideoProfileIslands(fixture.frames, fixture.sampleRate);
-  assert.deepEqual(result.intervals, [{ start: 4.55, end: 5.4, anchorTime: 4.5, rejectedTimes: [4.95] }]);
-  assert.deepEqual(result.frames, fixture.frames.filter(frame => frame.time !== 4.95));
+test("collapsed profile with an abrupt roll is held across a detection gap", () => {
+  const source = frames([[1,-55],[1.45,6],[1.9,-57],[2,-58]]);
+  source[1].feature[2] = 60 / 90;
+  const result = filterVideoProfileIslands(source,20);
+  assert.deepEqual(result.frames,[source[0],source[2],source[3]]);
+  assert.deepEqual(result.intervals,[{start:1.05,end:1.9,anchorTime:1,rejectedTimes:[1.45]}]);
+  assert.equal(uncertainProfileAtTime(result.intervals,1.5)?.anchorTime,1);
 });
 
-test("the fixed video's false right-facing island never enters photo selection", () => {
-  const fixture = JSON.parse(readFileSync(new URL("../public/test-fixtures/reference-face-motion-analysis.json", import.meta.url)));
-  const source = fixture.frames;
-  const result = filterVideoProfileIslands(source, fixture.sampleRate);
-  const interval = uncertainProfileAtTime(result.intervals, 5);
-  assert.ok(interval);
-  assert.equal(interval.anchorTime, 4.466666666666667);
-  assert.equal(interval.end, 5.4);
-  assert.deepEqual(interval.rejectedTimes, [5, 5.1, 5.133333333333334, 5.166666666666667]);
-  assert.equal(result.frames.length, source.length - 4);
-  assert.ok(result.frames.every(frame => frame.time < 5 || frame.time >= 5.4));
-  assert.equal(source.length, 612, "leave the source detections and meshes unchanged");
+test("several false opposite-profile detections form one protected interval", () => {
+  const source = frames([[1,-55],[1.5,45],[1.6,37],[1.65,35],[1.7,33],[1.95,-57]]);
+  const result = filterVideoProfileIslands(source,30);
+  assert.deepEqual(result.frames,[source[0],source[5]]);
+  assert.deepEqual(result.intervals,[{start:1+1/30,end:1.95,anchorTime:1,rejectedTimes:[1.5,1.6,1.65,1.7]}]);
 });
 
 test("reject either direction, preserve original trusted frames, and bound hold time", () => {

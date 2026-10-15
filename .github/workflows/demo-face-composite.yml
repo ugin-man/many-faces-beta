@@ -40,7 +40,8 @@ jobs:
           s=json.load(open('work/demo-evidence/encoding.json'))['streams']
           assert len(s)==1 and s[0]['codec_type']=='video'
           assert s[0]['avg_frame_rate']=='30/1' and s[0]['r_frame_rate']=='30/1'
-          assert int(s[0]['nb_frames'])==699
+          meta=json.load(open('public/demo/sample.json'))
+          assert int(s[0]['nb_frames'])==meta['frames']
           PY
       - name: Build production application
         run: npm run build > work/demo-evidence/build.log 2>&1

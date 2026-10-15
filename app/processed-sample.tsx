@@ -12,7 +12,7 @@ export default function ProcessedSample({ onBack, onModeChange }: StudioClientPr
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
-  const [duration, setDuration] = useState(23.3);
+  const [duration, setDuration] = useState(0);
   const [ready, setReady] = useState(false);
   const [mirror, setMirror] = useState(false);
   const [error, setError] = useState<string | null>(null);

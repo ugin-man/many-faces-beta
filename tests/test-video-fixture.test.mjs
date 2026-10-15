@@ -4,15 +4,18 @@ import { createHash } from "node:crypto";
 import test from "node:test";
 import { isRetiredAsset, retiredAssetResponse } from "../worker/retired-assets.ts";
 
-test("the distributed sample is the reviewed 699-frame composite", async () => {
+test("the distributed sample is the reviewed 1061-frame composite", async () => {
   const base = new URL("../public/demo/", import.meta.url);
   const bytes = await readFile(new URL("many-faces-sample-30fps.mp4", base));
   const meta = JSON.parse(await readFile(new URL("sample.json", base), "utf8"));
   assert.equal(bytes.subarray(4, 8).toString("ascii"), "ftyp");
   assert.equal(createHash("sha256").update(bytes).digest("hex"), meta.sha256);
   assert.equal(bytes.length, meta.bytes);
-  assert.equal(meta.fps,30); assert.equal(meta.frames,699);
+  assert.equal(meta.fps,30); assert.equal(meta.frames,1061);
   assert.equal(meta.durationSeconds,meta.frames/meta.fps);
+  assert.equal(meta.fullFrameHolds,0);
+  assert.equal(meta.consecutiveIdenticalFrames,0);
+  assert.equal(meta.renderMethod,"sequential-decoded-frames-v1");
   assert.equal(meta.sourceVideoIncluded,false); assert.equal(meta.audio,false);
   const fixtures = await readdir(new URL("../public/test-fixtures/",import.meta.url)).catch(e => e.code === "ENOENT" ? [] : Promise.reject(e));
   assert.deepEqual(fixtures,[],"private fixture directory must stay empty");

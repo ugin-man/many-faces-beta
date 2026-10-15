@@ -1,0 +1,44 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {createRequire} from 'node:module';
+import {execFileSync} from 'node:child_process';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {drawDemoFaceComposite} from '../app/demo-face-composite.ts';
+const require=createRequire(import.meta.url);
+const {createCanvas,loadImage}=require('@napi-rs/canvas');
+globalThis.document={createElement:()=>createCanvas(1,1)};
+globalThis.HTMLMediaElement={HAVE_CURRENT_DATA:2};
+const root=process.env.COMPOSITE_WORK;
+assert.ok(root && path.isAbsolute(root), 'COMPOSITE_WORK must be an absolute private work directory containing decoded input-frames, choices.json and packs.');
+assert.ok(!path.resolve(root).startsWith(path.resolve('public')+path.sep), 'Private work must not live under public/.');
+const out=path.join(root,'output');fs.mkdirSync(out,{recursive:true});fs.mkdirSync(out+'/frames',{recursive:true});
+const choices=JSON.parse(fs.readFileSync(root+'/choices.json'));
+assert.ok(choices.length>0,'No verified choices');
+assert.equal(fs.readdirSync(root+'/input-frames').filter(f=>/^\d{4}\.png$/.test(f)).length,choices.length,'Every decoded input frame must have exactly one output choice');
+const images=new Map();
+for(const {candidate:c} of choices){if(images.has(c.id))continue;const pack=fs.readFileSync(root+'/packs/'+c.pack);images.set(c.id,await loadImage(pack.subarray(c.offset,c.offset+c.length)));}
+const canvas=createCanvas(768,768),video=createCanvas(768,768),vctx=video.getContext('2d');
+video.readyState=2;video.seeking=false;video.videoWidth=768;video.videoHeight=768;
+const inputProbe=await loadImage(root+'/input-frames/0001.png');
+const aspect=inputProbe.width/inputProbe.height;
+const sx=Math.min(1,aspect),sy=Math.min(1,1/aspect);
+const contain=([x,y,w,h])=>[.5+(x-.5)*sx,.5+(y-.5)*sy,w*sx,h*sy];
+let failures=0;const hashes=[];
+for(let i=0;i<choices.length;i++){
+ const c=choices[i];assert.ok(Math.abs(c.frame.time-i/30)<1e-6,'Require a verified dense 30fps timeline; never silently duplicate frames.');
+ const input=await loadImage(root+'/input-frames/'+String(i+1).padStart(4,'0')+'.png');
+ vctx.fillStyle='#0a0c10';vctx.fillRect(0,0,768,768);vctx.drawImage(input,(768-768*sx)/2,(768-768*sy)/2,768*sx,768*sy);
+ video.currentTime=i/30;
+ const geometry={...c.frame.geometry,layout:contain(c.frame.geometry.layout),protectionLayout:contain(c.frame.geometry.protectionLayout??c.frame.geometry.layout)};
+ const safe=drawDemoFaceComposite(canvas,video,images.get(c.candidate.id),{...c,frame:{...c.frame,time:i/30,geometry}},{time:i/30,fps:30,sourceAspectRatio:1});
+ if(!safe)failures++;
+ const png=canvas.toBuffer('image/png');fs.writeFileSync(out+'/frames/'+String(i).padStart(4,'0')+'.png',png);hashes.push(createHash('sha256').update(png).digest('hex'));
+ if(i%100===0)console.log('rendered',i);
+}
+if(failures)throw Error('Unsafe frames '+failures);
+execFileSync('ffmpeg',['-hide_banner','-loglevel','error','-y','-framerate','30','-i',out+'/frames/%04d.png','-an','-c:v','libx264','-preset','slow','-crf','20','-pix_fmt','yuv420p','-r','30','-movflags','+faststart',out+'/many-faces-sample-30fps.mp4']);
+execFileSync('ffmpeg',['-hide_banner','-loglevel','error','-y','-i',out+'/frames/0000.png','-c:v','libwebp','-quality','84',out+'/poster.webp']);
+const bytes=fs.readFileSync(out+'/many-faces-sample-30fps.mp4');
+const manifest={schemaVersion:1,kind:'protected-composite',fps:30,frames:choices.length,durationSeconds:choices.length/30,width:768,height:768,audio:false,sourceVideoIncluded:false,sourceFacePixelsIncluded:false,sha256:createHash('sha256').update(bytes).digest('hex'),bytes:bytes.length,analysisFps:30,catalogFaces:70000,renderMethod:'sequential-decoded-frames-v1',sampleVersion:process.env.SAMPLE_VERSION??new Date().toISOString().slice(0,10),opticalFlowRecoveredFrames:choices.filter(c=>c.frame.tracked).length,fullFrameHolds:failures,consecutiveIdenticalFrames:hashes.filter((h,i)=>i&&h===hashes[i-1]).length};
+fs.writeFileSync(out+'/sample.json',JSON.stringify(manifest,null,2)+'\n');console.log(manifest);

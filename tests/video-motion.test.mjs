@@ -52,3 +52,11 @@ test('only the rotating renderer ignores roll in photo matching; yaw remains sig
  assert.equal(projectionError({...tilted,compensateRoll:true},b).poseDegrees,0);
  assert.ok(projectionError({...tilted,compensateRoll:true,feature:[.5,0,1,...a.feature.slice(3)]},b).poseDegrees>0);
 });
+
+test('video placement can shrink to a distant face without changing legacy alignment', async () => {
+  const { alignmentTransform } = await import('../app/offline-matching.ts');
+  const geometry = { layout: [.5,.5,.6,.7] };
+  const target = [.5,.4,.12,.14];
+  assert.ok(Math.abs(alignmentTransform(geometry,target,.05).scale-.2)<1e-10);
+  assert.equal(alignmentTransform(geometry,target).scale,.5);
+});

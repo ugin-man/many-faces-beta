@@ -464,12 +464,13 @@ export function objectFitCoverLayout(
 export function alignmentTransform(
   geometry: FaceGeometry,
   target: FaceGeometry["layout"],
+  minimumScale = 0.5,
 ) {
   const [centerX, centerY, width, height] = geometry.layout;
   const scaleFromHeight = target[3] / Math.max(0.01, height);
   const scaleFromWidth = target[2] / Math.max(0.01, width);
   // One global crop transform only; facial parts are never warped independently.
-  const scale = Math.max(0.5, Math.min(2.5, (scaleFromHeight * 0.7 + scaleFromWidth * 0.3)));
+  const scale = Math.max(minimumScale, Math.min(2.5, (scaleFromHeight * 0.7 + scaleFromWidth * 0.3)));
   const scaledCenterX = 0.5 + (centerX - 0.5) * scale;
   const scaledCenterY = 0.5 + (centerY - 0.5) * scale;
   return {

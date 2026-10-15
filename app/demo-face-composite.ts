@@ -159,7 +159,7 @@ export function drawDemoFaceComposite(
   lctx.restore();
   lctx.globalCompositeOperation = "source-over";
 
-  const transform = alignmentTransform(choice.candidate.geometry, target);
+  const transform = alignmentTransform(choice.candidate.geometry, target, 0.05);
   const rotation = shortestAngle(screenRoll(choice.frame.geometry, choice.frame.feature) -
     screenRoll(choice.candidate.geometry, choice.candidate.feature));
   ctx.translate(target[0] * width, target[1] * height);

@@ -398,20 +398,21 @@ export default function DemoVideoClient({ onModeChange }: StudioClientProps = {}
       // Build a complete protected neighbour for each uncertain interval. A seek
       // straight into the gap must show that neighbour, not whichever unrelated
       // frame happened to be displayed before the seek.
-      for (const interval of uncertainProfilesRef.current) {
+      const preparedIntervals: Array<UncertainProfileInterval & { protectedFrame?: HTMLCanvasElement }> = [];
+      for (const interval of intervals) {
         const anchor = reviewItemAtTime(sequenceRef.current, interval.anchorTime);
         const image = anchor && outputImagesRef.current.get(anchor.choice.candidate.id);
-        if (!anchor || !image) continue;
+        if (!anchor || !image) { preparedIntervals.push(interval); continue; }
         const captured = await captureVideoFrameAt(video, interval.anchorTime, { signal: cancellation.signal });
         captured.bitmap.close(); checkCurrent();
         const protectedFrame = document.createElement("canvas");
         protectedFrame.width = outputCanvasRef.current?.width ?? 768;
         protectedFrame.height = outputCanvasRef.current?.height ?? 768;
-        if (drawDemoFaceComposite(protectedFrame, video, image, anchor.choice,
-          { time: interval.anchorTime, fps: analysisFps, sourceAspectRatio: video.videoWidth / video.videoHeight })) {
-          interval.protectedFrame = protectedFrame;
-        }
+        const safe = drawDemoFaceComposite(protectedFrame, video, image, anchor.choice,
+          { time: interval.anchorTime, fps: analysisFps, sourceAspectRatio: video.videoWidth / video.videoHeight });
+        preparedIntervals.push({ ...interval, protectedFrame: safe ? protectedFrame : undefined });
       }
+      uncertainProfilesRef.current = preparedIntervals;
       phaseTimings.imagePreload = performance.now() - phaseStarted; setImageFailures(failures);
       const sequenceIds = choices.map(choice => choice.candidate.id), sequenceFingerprint = reviewSequenceFingerprint(sequenceIds);
       const changes = choices.reduce((count, choice, index) => index > 0 && choices[index - 1].candidate.id !== choice.candidate.id ? count + 1 : count, 0);

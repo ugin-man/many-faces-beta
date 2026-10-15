@@ -21,4 +21,11 @@ Catalog photos, their direction labels, the 70,000-photo count, 3° grid, and re
 - Browser QA additionally checks the selected photo faces left, the held pixels exactly equal the protected neighbour, and seeking from another time does not change them. It also exercises image/video saving, phone controls and the existing black-flash export check.
 - Whole-repository TypeScript checking already contains unrelated errors; targeted tests and production build remain the applicable checks. Physical iPhone Safari testing is not available in this environment.
 
-Final fix browser run and deployment: pending.
+Final fix commit: `4fe1749c7028cfb1076bf3a954e7062c2ff70803`.
+- Dedicated browser QA run **38679834762 passed** on the final commit, including the left-facing photo, exact protected-neighbour pixel match after direct seeks, image/video export, mobile controls, and black-flash rejection. Artifact 11947754361, SHA-256 `655f4c62f9ea844e833bc29606cf6266334cf2ad2733e1c5d0a62c5f08883297`.
+- Main CI run **38679847387 passed**: 310 Node tests passed / one skipped / zero failed; ESLint zero errors (existing warnings); 238 Python tests passed.
+- The earlier fix QA run 38679634047 also passed. Its five-second image was inspected visually: the selected photograph faces viewer-left (stored yaw -56.68°), matching the trusted 4.5-second source frame (-54.46°). The held composite is pixel-identical to that trustworthy neighbour.
+- The separate legacy Fullscreen UI workflow is still blocked at setup by its obsolete pinned catalog tree `559f7f39e3a8eed452ef7eb6a3355a318235c307`; its browser tests did not run. This gate was not weakened or changed.
+- Existing public Site published successfully as **version 60**, source commit `1dbdf17da06e39cfaa04a6135010310f46f4b620`, deployment `appgdep_6ad0528c349c8191a855e6daa4ff7f2c`.
+- Production URL: https://many-faces-prototype.uginn-poppo.chatgpt.site
+- Public audience, catalog identity/count and all existing camera paths were retained. No physical iPhone Safari claim is made.

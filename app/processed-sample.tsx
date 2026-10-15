@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import CallStage, { type StudioClientProps } from "./call-stage";
 import { Icon } from "./studio-icons";
 import { timeLabel } from "./studio-controls";
@@ -16,6 +16,22 @@ export default function ProcessedSample({ onBack, onModeChange }: StudioClientPr
   const [ready, setReady] = useState(false);
   const [mirror, setMirror] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sampleUrl, setSampleUrl] = useState<string>();
+  useEffect(() => {
+    const controller = new AbortController();
+    let objectUrl: string | undefined;
+    // A complete local blob also supports frame seeking on hosts without byte ranges.
+    void fetch(PROCESSED_SAMPLE_URL, { signal: controller.signal }).then(async response => {
+      if (!response.ok) throw new Error("Sample unavailable");
+      const blob = await response.blob();
+      if (controller.signal.aborted) return;
+      objectUrl = URL.createObjectURL(blob);
+      setSampleUrl(objectUrl);
+    }).catch(() => {
+      if (!controller.signal.aborted) setError("サンプルを読み込めませんでした。ページを再読み込みしてください。");
+    });
+    return () => { controller.abort(); if (objectUrl) URL.revokeObjectURL(objectUrl); };
+  }, []);
   const mediaCleanup = useRef<() => void>(() => {});
   const bindVideo = useCallback((video: HTMLVideoElement | null) => {
     mediaCleanup.current();
@@ -77,7 +93,7 @@ export default function ProcessedSample({ onBack, onModeChange }: StudioClientPr
       <button className={styles.tool} disabled={!ready} onClick={saveImage} data-testid="sample-save-image"><Icon name="sample" /><span>画像保存</span></button>
       <button className={styles.tool} onClick={saveVideo} data-testid="sample-save-video"><Icon name="video" /><span>動画保存</span></button>
       <button className={styles.tool} disabled={!ready} onClick={() => seek(time - 1 / 30)} aria-label="1フレーム戻る"><Icon name="previous" /><span>1コマ戻る</span></button>
-      <button className={`${styles.tool} ${styles.primary}`} onClick={() => void toggle()}
+      <button className={`${styles.tool} ${styles.primary}`} disabled={!sampleUrl} onClick={() => void toggle()}
         aria-label={playing ? "一時停止" : "再生"} data-testid="sample-play-pause"><Icon name={playing ? "pause" : "play"} /><span>{playing ? "一時停止" : "再生"}</span></button>
       <button className={styles.tool} disabled={!ready} onClick={() => seek(time + 1 / 30)} aria-label="1フレーム進む"><Icon name="next" /><span>1コマ進む</span></button>
       <button className={styles.tool} onClick={onBack}><Icon name="upload" /><span>自分の動画へ</span></button>
@@ -87,7 +103,7 @@ export default function ProcessedSample({ onBack, onModeChange }: StudioClientPr
       <label className={styles.settingRow}><span>鏡表示（再生・画像保存）</span><input type="checkbox" checked={mirror} onChange={event => setMirror(event.target.checked)} /></label>
     </>}
     details={<p>Many Facesの合成サンプル<br />{duration.toFixed(1)}秒・30fps・768 × 768<br />顔を差し替えた動画のみを再生します。</p>}>
-    <video ref={bindVideo} src={PROCESSED_SAMPLE_URL} poster="/demo/poster.webp" muted playsInline loop
+    <video ref={bindVideo} src={sampleUrl} data-source={PROCESSED_SAMPLE_URL} poster="/demo/poster.webp" muted playsInline loop
       preload="auto" className={mirror ? styles.mirror : undefined} data-testid="processed-sample-video"
       aria-label="顔を差し替えたMany Facesのサンプル動画"
       onLoadedMetadata={event => { setDuration(event.currentTarget.duration); setReady(true); }} onLoadedData={() => setReady(true)}

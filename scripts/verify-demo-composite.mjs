@@ -32,7 +32,8 @@ try{
  await page.screenshot({path:`${output}/home-phone.png`});
  await page.getByTestId('sample-video').click();await waitReady();
  assert.equal(await page.getByTestId('source-pip').getAttribute('data-visible'),'false');
- const vm=await page.getByTestId('processed-sample-video').evaluate(v=>({src:new URL(v.currentSrc).pathname,duration:v.duration,width:v.videoWidth,height:v.videoHeight}));
+ const vm=await page.getByTestId('processed-sample-video').evaluate(v=>({src:v.dataset.source,localPlayback:v.currentSrc.startsWith('blob:'),duration:v.duration,width:v.videoWidth,height:v.videoHeight}));
+ assert.ok(vm.localPlayback,'Complete local media must support seeking independently of host byte-range support');
  assert.equal(vm.src,'/demo/many-faces-sample-30fps.mp4');assert.ok(Math.abs(vm.duration-23.3)<.01);assert.equal(vm.width,768);assert.equal(vm.height,768);
  await page.getByTestId('sample-play-pause').click();await page.waitForFunction(()=>document.querySelector('[data-testid="processed-sample-video"]').currentTime>.2);
  await page.getByTestId('sample-play-pause').click();await seek(5);

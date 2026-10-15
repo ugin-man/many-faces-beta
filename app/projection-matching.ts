@@ -394,7 +394,7 @@ export function projectionError(
   const yaw = (Number(frame.feature[0] ?? 0) - Number(candidate.feature[0] ?? 0)) * 90;
   const pitch = (Number(frame.feature[1] ?? 0) - Number(candidate.feature[1] ?? 0)) * 90;
   const roll = (Number(frame.feature[2] ?? 0) - Number(candidate.feature[2] ?? 0)) * 90;
-  const poseDegrees = Math.hypot(yaw, pitch, roll * 0.35);
+  const poseDegrees = Math.hypot(yaw, pitch, frame.compensateRoll ? 0 : roll * 0.35);
   const poseUnit = poseDegrees / 90;
   const pitchUnit = Math.abs(pitch) / 90;
   const shapeGate = contour * 0.62 + nose * 0.2 + poseUnit * 0.08 + pitchUnit * 0.1;
@@ -508,7 +508,7 @@ function quickProjectionMeasures(frame: SequenceFrame, candidate: ProjectionCand
   );
   const yaw = Math.abs(Number(frame.feature[0] ?? 0) - Number(candidate.feature[0] ?? 0));
   const pitch = Math.abs(Number(frame.feature[1] ?? 0) - Number(candidate.feature[1] ?? 0));
-  const roll = Math.abs(Number(frame.feature[2] ?? 0) - Number(candidate.feature[2] ?? 0));
+  const roll = frame.compensateRoll ? 0 : Math.abs(Number(frame.feature[2] ?? 0) - Number(candidate.feature[2] ?? 0));
   const pose = yaw * 0.8 + pitch * 1.15 + roll * 0.15;
   const action = fastActionDistance(frame.feature, candidate.feature);
   const mouthShape = mouthShapeGeometryDistance(

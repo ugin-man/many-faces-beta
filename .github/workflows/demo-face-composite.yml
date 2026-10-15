@@ -2,7 +2,7 @@ name: Product video and sample QA
 on:
   push:
     branches: [main, astra/realtime-hardening]
-    paths: ['app/**', 'public/demo/**', 'worker/**', 'scripts/verify-demo-composite.mjs', '.github/workflows/demo-face-composite.yml']
+    paths: ['app/**', 'public/demo/**', 'worker/**', 'scripts/verify-demo-composite.mjs', 'scripts/verify-video-motion.mjs', '.github/workflows/demo-face-composite.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -30,6 +30,8 @@ jobs:
           curl -fL --retry 3 --max-time 90 -o public/models/face_landmarker.task https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
           ffmpeg -hide_banner -loglevel error -y -i public/demo/many-faces-sample-30fps.mp4 -t 3 -an -c:v libx264 work/public-test-input.mp4
           echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
+      - name: Prepare rotation checks using public catalog photographs
+        run: node scripts/verify-video-motion.mjs --prepare
       - name: Validate shipped sample encoding
         run: |
           ffprobe -v error -show_entries stream=codec_type,r_frame_rate,avg_frame_rate,nb_frames -of json public/demo/many-faces-sample-30fps.mp4 > work/demo-evidence/encoding.json
@@ -50,6 +52,8 @@ jobs:
             sleep 1
           done
           exit 1
+      - name: Verify real-photo tilt and rendered rotation
+        run: node scripts/verify-video-motion.mjs
       - name: Verify finished sample and normal video workflow
         run: node scripts/verify-demo-composite.mjs
       - uses: actions/upload-artifact@v4

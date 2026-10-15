@@ -55,7 +55,7 @@ try{
  // Exercise the real upload pipeline with an already-protected, short input.
  await page.getByTestId('back').click();await page.getByTestId('video-input').setInputFiles(path.resolve('work/public-test-input.mp4'));
  await page.getByTestId('demo-save-image').waitFor({timeout:900000});
- const verification=await page.evaluate(()=>window.__MANY_FACES_VERIFY__);assert.ok(verification.passed,verification.reasons.join('; '));
+ const verification=await page.evaluate(()=>window.__MANY_FACES_VERIFY__);assert.ok(verification.passed,verification.reasons.join('; '));assert.ok(verification.plannedFrames>=89,'Default analysis must track the three-second input at 30fps');
  assert.equal(await page.getByTestId('source-pip').getAttribute('data-visible'),'false');
  const image=page.waitForEvent('download');await page.getByTestId('demo-save-image').click();await(await image).saveAs(`${output}/upload-composite.png`);
  const video=page.waitForEvent('download',{timeout:30000});await page.getByTestId('demo-export-video').click();const d=await video;assert.match(d.suggestedFilename(),/^many-faces-composite\.(mp4|webm)$/);await d.saveAs(`${output}/${d.suggestedFilename()}`);

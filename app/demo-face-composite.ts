@@ -1,7 +1,8 @@
 import { alignmentTransform, objectFitCoverLayout, type FaceGeometry } from "./offline-matching.ts";
+import { screenRoll, shortestAngle } from "./live/video-motion.ts";
 
-export type DemoFrame = { time: number; geometry: FaceGeometry };
-export type DemoCandidate = { geometry: FaceGeometry };
+export type DemoFrame = { time: number; geometry: FaceGeometry; feature?: number[] };
+export type DemoCandidate = { geometry: FaceGeometry; feature?: number[] };
 export type DemoChoice = { frame: DemoFrame; candidate: DemoCandidate };
 
 export const DEMO_BACKGROUND = "#0a0c10";
@@ -120,7 +121,8 @@ export function drawDemoFaceComposite(
 
   try {
   const target = objectFitCoverLayout(choice.frame.geometry.layout, options.sourceAspectRatio);
-  const targetMask = demoMaskGeometry(target);
+  const cover = objectFitCoverLayout(choice.frame.geometry.protectionLayout ?? choice.frame.geometry.layout, options.sourceAspectRatio);
+  const targetMask = demoMaskGeometry(cover);
   drawCover(ctx, video, video.videoWidth, video.videoHeight, width, height);
 
   // Opaque backing must extend beyond the feathered replacement boundary.
@@ -135,7 +137,7 @@ export function drawDemoFaceComposite(
   if (!layer) { layer = document.createElement("canvas"); layers.set(canvas, layer); }
   if (layer.width !== width || layer.height !== height) { layer.width = width; layer.height = height; }
   const lctx = layer.getContext("2d");
-  if (!lctx) { ctx.restore(); return false; }
+  if (!lctx) { drawProtectedFallback(canvas, ctx); ctx.restore(); return false; }
   lctx.setTransform(1, 0, 0, 1, 0, 0);
   lctx.globalCompositeOperation = "source-over";
   lctx.clearRect(0, 0, width, height);
@@ -158,10 +160,20 @@ export function drawDemoFaceComposite(
   lctx.globalCompositeOperation = "source-over";
 
   const transform = alignmentTransform(choice.candidate.geometry, target);
-  ctx.translate(width / 2 + transform.xPercent * width / 100,
-    height / 2 + transform.yPercent * height / 100);
+  const rotation = shortestAngle(screenRoll(choice.frame.geometry, choice.frame.feature) -
+    screenRoll(choice.candidate.geometry, choice.candidate.feature));
+  ctx.translate(target[0] * width, target[1] * height);
+  if (rotation) ctx.rotate(rotation);
   ctx.scale(transform.scale, transform.scale);
-  ctx.drawImage(layer, -width / 2, -height / 2);
+  ctx.translate(-sourceMask.cx * width, -sourceMask.cy * height);
+  // Rotate the opaque backing with the photograph too. Keep the conservative
+  // axis-aligned source cover above: rotating it alone could uncover a corner.
+  ctx.fillStyle = DEMO_BACKGROUND;
+  ctx.beginPath();
+  ctx.ellipse(sourceMask.cx * width, sourceMask.cy * height,
+    sourceMask.coverRx * width, sourceMask.coverRy * height, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.drawImage(layer, 0, 0);
   ctx.restore();
   rememberProtectedFrame(canvas);
   return true;

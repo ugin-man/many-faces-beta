@@ -108,7 +108,7 @@ export class ReviewStrictRanker {
         const projection = coarseRms(frame.geometry.projection, candidate.geometry.projection);
         const yaw = Math.abs(Number(frame.feature[0] ?? 0) - Number(candidate.feature[0] ?? 0));
         const pitch = Math.abs(Number(frame.feature[1] ?? 0) - Number(candidate.feature[1] ?? 0));
-        const roll = Math.abs(Number(frame.feature[2] ?? 0) - Number(candidate.feature[2] ?? 0));
+        const roll = frame.compensateRoll ? 0 : Math.abs(Number(frame.feature[2] ?? 0) - Number(candidate.feature[2] ?? 0));
         const pose = yaw * 0.8 + pitch * 1.15 + roll * 0.15;
         const action = actionDistance(frame.feature, candidate.feature);
         const mouth = shapeDistance(sourceShape, this.candidateShape(candidate.geometry.projection)) * 0.62 + mouthDistance(frame.feature, candidate.feature) * 0.38;

@@ -19,6 +19,7 @@ import { evaluateVerificationGate } from "./verification-gate";
 import { emptyReviewPhaseTimings, reviewSequenceFingerprint, roundedReviewPhaseTimings, type ReviewPhaseTimings } from "./review-sequence-metrics";
 import { OPERATION_STALL_TIMEOUT_MS, operationIsStalled, preparationFailureReason, progressSignature } from "./runtime-liveness";
 import { captureVideoFrameAt } from "./video-frame";
+import { motionChoiceAtTime } from "./video-motion";
 import { filterVideoProfileIslands, uncertainProfileAtTime, type UncertainProfileInterval } from "./video-pose-continuity";
 import styles from "../studio.module.css";
 
@@ -148,7 +149,7 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
   const processingTokenRef = useRef(0);
   const captureAbortRef = useRef<AbortController | null>(null);
   const playbackRafRef = useRef<number | null>(null);
-  const replayFpsRef = useRef(20);
+  const replayFpsRef = useRef(30);
   const lastOutputIdRef = useRef<string | null>(null);
   const modelStateRef = useRef<Readiness>("loading");
   const manifestStateRef = useRef<Readiness>("loading");
@@ -163,8 +164,8 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
   const [catalogTotal, setCatalogTotal] = useState(0);
   const [sourceName, setSourceName] = useState("");
   const [report, setReport] = useState<VerificationReport | null>(null);
-  const [analysisFps, setAnalysisFps] = useState(20);
-  const [replayFps, setReplayFps] = useState(20);
+  const [analysisFps, setAnalysisFps] = useState(30);
+  const [replayFps, setReplayFps] = useState(30);
   const [progress, setProgress] = useState<Progress | null>(null);
   const [clipDuration, setClipDuration] = useState(CAPTURE_SECONDS);
   const [plannedFrames, setPlannedFrames] = useState(0);
@@ -281,9 +282,10 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
     if (!canvas) return;
     const item = reviewItemAtTime(sequenceRef.current, quantizeReviewTime(time, replayFpsRef.current, clipDuration));
     if (demoComposite) {
-      const image = item ? outputImagesRef.current.get(item.choice.candidate.id) : undefined;
       const uncertain = uncertainProfileAtTime(uncertainProfilesRef.current, time);
-      drawDemoFaceComposite(canvas, playbackVideoRef.current, image, uncertain ? null : item?.choice ?? null,
+      const motion = uncertain ? null : motionChoiceAtTime(sequenceRef.current, time, replayFpsRef.current);
+      const image = motion ? outputImagesRef.current.get(motion.candidate.id) : undefined;
+      drawDemoFaceComposite(canvas, playbackVideoRef.current, image, motion,
         { time, fps: replayFpsRef.current, sourceAspectRatio, mirror, protectedFrame: uncertain?.protectedFrame });
     } else if (item) {
       const image = outputImagesRef.current.get(item.choice.candidate.id);
@@ -363,7 +365,7 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
         const landmarks = result.faceLandmarks[0];
         if (landmarks && result.faceBlendshapes.length) {
           const geometry = faceGeometryFromLandmarks(landmarks, sourceWidth / sourceHeight);
-          if (geometry) detectedFrames.push({ time, feature: featureFromResult(result), geometry });
+          if (geometry) detectedFrames.push({ time, feature: featureFromResult(result), geometry, compensateRoll: true });
         }
         setProgress({ done: index + 1, total: frameCount, label: `Face Mesh ${index + 1} / ${frameCount}` }); await nextPaint();
       }

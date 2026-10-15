@@ -2,6 +2,10 @@ export type MeshPoint = { x: number; y: number; z?: number };
 export type NumericVector = number[] | Float32Array;
 
 export type FaceGeometry = {
+  /** Clockwise screen-space eye-axis angle in radians; optional for old catalogs. */
+  roll?: number;
+  /** Conservative source-space bounds used only for an interpolated privacy mask. */
+  protectionLayout?: [number, number, number, number];
   /** Expression-stable face proportions used only to discourage identity jumps. */
   structure: NumericVector;
   /** Canonical 3D Face Mesh surface used for the actual frame-to-image match. */
@@ -12,6 +16,8 @@ export type FaceGeometry = {
 };
 
 export type SequenceFrame = {
+  /** Only renderers that rotate photos may ignore catalog roll when ranking. */
+  compensateRoll?: boolean;
   time: number;
   feature: number[];
   geometry: FaceGeometry;
@@ -171,6 +177,7 @@ export function faceGeometryFromLandmarks(
     structure,
     surface,
     projection,
+    roll: Math.atan2(eyeDy, eyeDx),
     layout: [
       (minX + maxX) / 2,
       (minY + maxY) / 2,

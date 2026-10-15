@@ -64,4 +64,8 @@ try{
  assert.equal(errors.length,0,errors.join('\n'));
  await fs.writeFile(`${output}/report.json`,JSON.stringify({passed:true,sample:vm,sampleHash:meta.sha256,sampleUsesInference:false,phoneAndLandscapeControls:true,retiredAssetsUnavailable:true,userUploadPassed:verification.passed,cameraModeNavigation:true,pageErrors:errors},null,2));
  console.log('PRODUCT_QA_PASS');
+ }catch(error){
+ await page.screenshot({path:`${output}/failure.png`}).catch(()=>{});
+ const state=await page.evaluate(()=>{const v=document.querySelector('[data-testid="processed-sample-video"]');const r=document.querySelector('[data-testid="sample-seek"]');return {video:v?{time:v.currentTime,ready:v.readyState,seeking:v.seeking,error:v.error?.message}:null,range:r?{value:r.value,disabled:r.disabled}:null,body:document.body.innerText};}).catch(()=>null);
+ console.log('QA_FAILURE_STATE',JSON.stringify(state));throw error;
 }finally{await browser.close();}

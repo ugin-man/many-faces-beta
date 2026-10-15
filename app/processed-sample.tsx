@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import CallStage, { type StudioClientProps } from "./call-stage";
 import { Icon } from "./studio-icons";
 import { timeLabel } from "./studio-controls";
@@ -16,18 +16,22 @@ export default function ProcessedSample({ onBack, onModeChange }: StudioClientPr
   const [ready, setReady] = useState(false);
   const [mirror, setMirror] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    const video = videoRef.current;
+  const mediaCleanup = useRef<() => void>(() => {});
+  const bindVideo = useCallback((video: HTMLVideoElement | null) => {
+    mediaCleanup.current();
+    videoRef.current = video;
     if (!video) return;
     const sync = () => {
       if (Number.isFinite(video.duration) && video.duration > 0) setDuration(video.duration);
       setReady(video.readyState >= 1 && !video.error);
+      setTime(video.currentTime);
+      setPlaying(!video.paused);
     };
-    const events = ["loadedmetadata", "loadeddata", "canplay", "progress"];
+    const events = ["loadedmetadata", "loadeddata", "canplay", "progress", "timeupdate", "play", "pause", "seeked"];
     for (const event of events) video.addEventListener(event, sync);
-    // A cached resource may already have loaded before React attaches handlers.
+    // The nested video may mount after this component's effects, or load from cache.
     sync();
-    return () => { for (const event of events) video.removeEventListener(event, sync); };
+    mediaCleanup.current = () => { for (const event of events) video.removeEventListener(event, sync); };
   }, []);
   const toggle = async () => {
     const video = videoRef.current;
@@ -68,12 +72,12 @@ export default function ProcessedSample({ onBack, onModeChange }: StudioClientPr
     status={!ready && !error ? "サンプルを読み込み中" : undefined}
     timeline={<><time>{timeLabel(time)}</time><input type="range" min="0" max={duration}
       step={1 / 30} value={time} disabled={!ready} aria-label="再生位置" data-testid="sample-seek"
-      onChange={event => seek(Number(event.target.value))} /><time>{timeLabel(duration)}</time></>}
+      onInput={event => seek(Number(event.currentTarget.value))} /><time>{timeLabel(duration)}</time></>}
     controls={<>
       <button className={styles.tool} disabled={!ready} onClick={saveImage} data-testid="sample-save-image"><Icon name="sample" /><span>画像保存</span></button>
       <button className={styles.tool} onClick={saveVideo} data-testid="sample-save-video"><Icon name="video" /><span>動画保存</span></button>
       <button className={styles.tool} disabled={!ready} onClick={() => seek(time - 1 / 30)} aria-label="1フレーム戻る"><Icon name="previous" /><span>1コマ戻る</span></button>
-      <button className={`${styles.tool} ${styles.primary}`} disabled={Boolean(error)} onClick={() => void toggle()}
+      <button className={`${styles.tool} ${styles.primary}`} onClick={() => void toggle()}
         aria-label={playing ? "一時停止" : "再生"} data-testid="sample-play-pause"><Icon name={playing ? "pause" : "play"} /><span>{playing ? "一時停止" : "再生"}</span></button>
       <button className={styles.tool} disabled={!ready} onClick={() => seek(time + 1 / 30)} aria-label="1フレーム進む"><Icon name="next" /><span>1コマ進む</span></button>
       <button className={styles.tool} onClick={onBack}><Icon name="upload" /><span>自分の動画へ</span></button>
@@ -83,7 +87,7 @@ export default function ProcessedSample({ onBack, onModeChange }: StudioClientPr
       <label className={styles.settingRow}><span>鏡表示（再生・画像保存）</span><input type="checkbox" checked={mirror} onChange={event => setMirror(event.target.checked)} /></label>
     </>}
     details={<p>Many Facesの合成サンプル<br />{duration.toFixed(1)}秒・30fps・768 × 768<br />顔を差し替えた動画のみを再生します。</p>}>
-    <video ref={videoRef} src={PROCESSED_SAMPLE_URL} poster="/demo/poster.webp" muted playsInline loop
+    <video ref={bindVideo} src={PROCESSED_SAMPLE_URL} poster="/demo/poster.webp" muted playsInline loop
       preload="auto" className={mirror ? styles.mirror : undefined} data-testid="processed-sample-video"
       aria-label="顔を差し替えたMany Facesのサンプル動画"
       onLoadedMetadata={event => { setDuration(event.currentTarget.duration); setReady(true); }} onLoadedData={() => setReady(true)}

@@ -1,0 +1,48 @@
+name: Render protected 30fps sample
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths: ['scripts/render-processed-sample.mjs', '.github/workflows/render-processed-sample.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - name: Prepare renderer
+        run: |
+          mkdir -p work/processed-sample public/mediapipe/wasm public/models
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1
+          cp -a node_modules/@mediapipe/tasks-vision/wasm/. public/mediapipe/wasm/
+          curl -fL --retry 3 --max-time 90 -o public/models/face_landmarker.task https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
+          echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
+      - name: Build current compositor
+        run: npm run build > work/render-build.log 2>&1
+      - name: Start application
+        run: |
+          PORT=4173 HOST=127.0.0.1 nohup npm start > work/render-server.log 2>&1 &
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:4173/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Render every composite frame at 30fps
+        run: node scripts/render-processed-sample.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: protected-sample-30fps-${{ github.run_id }}
+          path: work/processed-sample/
+          retention-days: 7

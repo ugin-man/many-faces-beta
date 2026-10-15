@@ -13,6 +13,7 @@ on:
       - 'app/live/demo-client.tsx'
       - 'app/demo-face-composite.ts'
       - 'scripts/verify-demo-composite.mjs'
+      - 'scripts/audit-fixed-video-direction.mjs'
       - 'tests/demo-face-composite.test.mjs'
   workflow_dispatch:
 permissions:
@@ -40,6 +41,8 @@ jobs:
           cp -a node_modules/@mediapipe/tasks-vision/wasm/. public/mediapipe/wasm/
           curl -fL --retry 3 --max-time 90 -o public/models/face_landmarker.task https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
           echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
+      - name: Prepare fixed-video direction probe
+        run: node scripts/audit-fixed-video-direction.mjs --prepare
       - name: Build production application
         run: npm run build > work/demo-evidence/build.log 2>&1
       - name: Start full production runtime
@@ -50,6 +53,8 @@ jobs:
             sleep 1
           done
           exit 1
+      - name: Inspect actual fixed-video detection at 20 fps
+        run: node scripts/audit-fixed-video-direction.mjs
       - name: Verify normal video entry, phone controls, image save and recorded video
         run: node scripts/verify-demo-composite.mjs
       - name: Reject full-frame black flashes in recorded composite

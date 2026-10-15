@@ -1,0 +1,93 @@
+name: Video speed final acceptance
+on:
+  push:
+    branches: [astra/video-speed]
+    paths: ['scripts/verify-video-cancellation.mjs', '.github/workflows/video-speed-acceptance.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: video-speed-acceptance-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 37154910278
+          name: video-speed-37154910278
+          path: work/video-speed-original
+      - name: Verify recorded measurements belong to identical application source
+        run: |
+          mkdir -p work/video-speed-final
+          git fetch --depth=1 origin 5440432d6521249a75c27cf41e8b53e6532aa1f7
+          git diff --exit-code 5440432d6521249a75c27cf41e8b53e6532aa1f7 HEAD -- app worker build public package.json package-lock.json vite.config.ts .openai
+          test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1
+          echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          npm run build > work/video-speed-final/build.log 2>&1 || { cat work/video-speed-final/build.log; exit 1; }
+          node --experimental-strip-types --test tests/*.test.mjs > work/video-speed-final/unit.log 2>&1 || { cat work/video-speed-final/unit.log; exit 1; }
+          tail -n 12 work/video-speed-final/unit.log
+          npm run lint > work/video-speed-final/lint.log 2>&1 || { cat work/video-speed-final/lint.log; exit 1; }
+      - name: Start exact production source
+        run: |
+          PORT=4183 HOST=127.0.0.1 nohup npm start > work/video-speed-final/server.log 2>&1 &
+          for attempt in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:4183/api/runtime > work/video-speed-final/identity.json; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Retry only the incomplete UI-cancellation check with client-readiness evidence
+        env:
+          VIDEO_SPEED_REPORT_DIR: work/video-speed-final
+        run: node scripts/verify-video-cancellation.mjs
+      - name: Assemble a factual receipt without relabelling the previous failed run
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          original=json.loads(Path('work/video-speed-original/report.json').read_text())
+          identity=json.loads(Path('work/video-speed-final/identity.json').read_text())
+          cancellation=json.loads(Path('work/video-speed-final/cancellation.json').read_text())
+          assert original['commit']=='5440432d6521249a75c27cf41e8b53e6532aa1f7'
+          assert original['passed'] is False and 'Timeout 240000ms' in original['error']
+          assert [t['variant'] for t in original['trials']]==['before','after','after','before']
+          assert len(original['sameFrameReplay'])==2
+          assert 'same acquired frames: every selected ID, score, error field and sequence decision exactly equal' in original['checks']
+          assert 'identical loaded bytes, files, decoded records, frame count and candidate peak' in original['checks']
+          assert all(t['passed'] and t['plannedFrames']==466 and t['imageFailures']==0 for t in original['trials'])
+          assert len({t['choiceHash'] for t in original['trials']}|{t['choiceHash'] for t in original['sameFrameReplay']})==1
+          assert all(t['identity']['build']==identity['build'] for t in original['trials'] if t['variant']=='after')
+          assert cancellation['passed']
+          receipt={'commit':os.environ['GITHUB_SHA'],'measuredApplicationCommit':original['commit'],'sourceIdenticalToMeasuredApplication':True,'identity':identity,'measurementRun':37154910278,'originalRunPassed':False,'originalFailure':original['error'],'finalAcceptanceRun':os.environ['GITHUB_RUN_ID'],'trials':original['trials'],'sameFrameReplay':original['sameFrameReplay'],'checks':original['checks'],'cancellation':cancellation,'catalogFaces':70000,'densityFps':20,'durationSeconds':23.3,'fixtureSha256':original['fixtureSha256'],'hostedSiteVerified':False,'passed':True}
+          for variant in ['before','after']:
+              trials=[t for t in original['trials'] if t['variant']==variant]
+              receipt[variant+'Mean']={key:sum(t[key] for t in trials)/len(trials) for key in ['wallMs','processingMs']}
+              receipt[variant+'Mean']['phaseTimingsMs']={key:sum(t['phaseTimingsMs'][key] for t in trials)/len(trials) for key in trials[0]['phaseTimingsMs']}
+          receipt['wallReductionPercent']=(1-receipt['afterMean']['wallMs']/receipt['beforeMean']['wallMs'])*100
+          receipt['searchReductionPercent']=(1-receipt['afterMean']['phaseTimingsMs']['candidateSearch']/receipt['beforeMean']['phaseTimingsMs']['candidateSearch'])*100
+          Path('work/video-speed-final/receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          print('VIDEO_SPEED_ACCEPTED '+json.dumps(receipt))
+          PY
+      - name: Verify original assets and source remain untouched
+        if: always()
+        run: git diff --exit-code -- app worker scripts tests build public
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: video-speed-accepted-${{ github.run_id }}
+          path: work/video-speed-final
+          retention-days: 14

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "kind": "protected-composite",
+  "fps": 30,
+  "frames": 1061,
+  "durationSeconds": 35.36666666666667,
+  "width": 768,
+  "height": 768,
+  "audio": false,
+  "sourceVideoIncluded": false,
+  "sourceFacePixelsIncluded": false,
+  "sha256": "78751af233f949f0559f315f2c6efd001cb5981a294e081c7530ccf68f3dac26",
+  "bytes": 4514590,
+  "analysisFps": 30,
+  "catalogFaces": 70000,
+  "renderMethod": "sequential-decoded-frames-v1",
+  "sampleVersion": "2026-10-15",
+  "opticalFlowRecoveredFrames": 72,
+  "fullFrameHolds": 0,
+  "consecutiveIdenticalFrames": 0
+}

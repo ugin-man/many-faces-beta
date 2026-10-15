@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "recordedDateJst": "2026-09-24",
+  "repository": "ugin-man/many-faces-beta",
+  "branch": "astra/realtime-hardening",
+  "testedApplicationCommit": "99548fe830adfa81d0dc6d01947684926ed2dd77",
+  "previouslyPackagedCommit": "8eb47b7d188644e91ed883ba5757980d3b4e7f0d",
+  "visibleBuildMarker": "INPUT RECOVERY V1",
+  "realtimeRoute": "/live/astra",
+  "fixedVideoRoute": "/live",
+  "catalogFaces": 70000,
+  "catalogAssetsModified": false,
+  "physicalCameraVerified": false,
+  "userHostedSiteVerified": false,
+  "safariVerified": false,
+  "privateUserVideoUsed": false,
+  "newApplicationPackageCreated": false,
+  "hostedSiteDeployed": false,
+  "baseOrMainMerged": false,
+  "completedRuns": [
+    {
+      "name": "Repository CI",
+      "runId": 35918680767,
+      "conclusion": "success",
+      "url": "https://github.com/ugin-man/many-faces-beta/actions/runs/35918680767"
+    },
+    {
+      "name": "Astra realtime hardening",
+      "runId": 35918676286,
+      "conclusion": "success",
+      "includes": "Build, targeted tests, lint, full-catalog browser lifecycle, 390x844 viewport and source-integrity checks",
+      "url": "https://github.com/ugin-man/many-faces-beta/actions/runs/35918676286"
+    },
+    {
+      "name": "Astra input regressions",
+      "runId": 35918676518,
+      "conclusion": "success",
+      "includes": "13 input/source invariants, real-photo pose, all 9 File-equivalent pixel cases, injected live-camera API failures, native permission/policy denial, paired mirrors, stop/restart and actual fixed-video 12/20/30-fps analysis screens",
+      "url": "https://github.com/ugin-man/many-faces-beta/actions/runs/35918676518"
+    }
+  ],
+  "finalInputEvidence": {
+    "artifactId": 10776336950,
+    "name": "astra-input-evidence-35918676518",
+    "bytes": 1596804,
+    "sha256": "a00436aa25bd43241bf7299bbb765f198c9080622777cabe52d543349a412069",
+    "url": "https://github.com/ugin-man/many-faces-beta/actions/runs/35918676518/artifacts/10776336950"
+  },
+  "yawProbe": {
+    "description": "18 actual public catalog photographs, actual MediaPipe; convention agreement with stored yaw, not independent human-motion matching accuracy",
+    "baselineSignAgreement": "0/18",
+    "correctedSignAgreement": "18/18",
+    "baselineYawMaeDegrees": 37.9015964807553,
+    "correctedYawMaeDegrees": 2.6650161532678425
+  },
+  "fixedVideoGate": [
+    {"analysisDensityFps": 12, "planned": 60, "faceDetected": 60, "sequence": 60, "imageFailures": 0, "nonBlankCanvas": true},
+    {"analysisDensityFps": 20, "planned": 100, "faceDetected": 100, "sequence": 100, "imageFailures": 0, "nonBlankCanvas": true},
+    {"analysisDensityFps": 30, "planned": 150, "faceDetected": 150, "sequence": 150, "imageFailures": 0, "nonBlankCanvas": true}
+  ],
+  "limitations": [
+    "Camera tests use a native virtual device and controlled API incompatibility injection, not the user's physical hardware.",
+    "Fixed-video stimulus is a five-second public-photo MP4; sampling density is not processing speed.",
+    "The old source ZIP and a previously built Site must be updated/rebuilt explicitly.",
+    "This record covers the listed completed functional checks, not a performance-improvement claim or a zero-warning claim."
+  ]
+}

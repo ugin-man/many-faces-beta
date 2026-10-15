@@ -1,0 +1,91 @@
+name: Side-facing catalog reversal investigation
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths: ['.github/workflows/side-yaw-investigation.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  yaw:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [0, 1, 2, 3]
+    env:
+      AUDIT_PART: ${{ matrix.part }}
+      AUDIT_PARTS: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare all side-facing exact published photographs
+        run: |
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1 esbuild@0.25.12
+          pip install Pillow==11.1.0
+          mkdir -p work/catalog-quality
+          node --experimental-strip-types scripts/prepare-quality-yaw.mjs
+          node - <<'NODE'
+          const esbuild=require('./.browser-tools/node_modules/esbuild');
+          esbuild.buildSync({entryPoints:['scripts/quality-yaw-probe.ts'],bundle:true,format:'esm',platform:'browser',outfile:'public/__quality_yaw/probe.js'});
+          require('fs').writeFileSync('public/__quality_yaw/index.html','<!doctype html><script type="module">import {auditYaw} from "./probe.js";window.auditYaw=auditYaw;</script>');
+          NODE
+          echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
+      - name: Recompute yaw from the final exact image pixels
+        run: |
+          npm run build
+          PORT=4187 HOST=127.0.0.1 nohup npm start > /tmp/side-yaw.log 2>&1 &
+          for i in $(seq 1 90); do curl -fsS http://127.0.0.1:4187/__quality_yaw/index.html >/dev/null && break; sleep 1; done
+          node --experimental-strip-types scripts/run-quality-yaw.mjs
+      - name: Make contradiction review sheets with exact image evidence
+        run: |
+          python - <<'PY'
+          import json,os,io,hashlib
+          from pathlib import Path
+          from PIL import Image,ImageDraw
+          part=os.environ['AUDIT_PART']
+          base=Path('public/__quality_yaw')
+          samples={str(x['id']):x for x in json.loads((base/'samples.json').read_text())}
+          report=json.loads(Path(f'work/catalog-quality/yaw-{part}.json').read_text())
+          out=Path(f'work/catalog-quality/side-review-{part}')
+          out.mkdir(exist_ok=True,parents=True)
+          rows=report['contradictions']
+          evidence=[]
+          for i,row in enumerate(rows):
+            sample=samples[str(row['id'])]
+            b=(base/sample['file']).read_bytes()
+            sha=hashlib.sha256(b).hexdigest()
+            (out/f'face-{i:04d}.webp').write_bytes(b)
+            evidence.append({**row,'sha256':sha,'photo':f'face-{i:04d}.webp'})
+          (out/'suspects.json').write_text(json.dumps(evidence,indent=2,ensure_ascii=False))
+          for start in range(0,len(evidence),30):
+            canvas=Image.new('RGB',(1200,1080),'#222222')
+            d=ImageDraw.Draw(canvas)
+            for j,item in enumerate(evidence[start:start+30]):
+              with Image.open(out/item['photo']) as im:
+                im=im.convert('RGB');im.thumbnail((190,135))
+              x=(j%5)*240;y=(j//5)*180
+              canvas.paste(im,(x+(240-im.width)//2,y))
+              d.text((x+5,y+141),f"{start+j}: {item['storedYaw']:.0f} => {item['freshYaw']:.0f}",fill='white')
+            canvas.save(out/f'sheet-{start//30+1:02d}.jpg',quality=83)
+          print('SIDE_YAW_REVIEW',json.dumps({'part':part,'scanned':report['samples'],'suspects':len(rows),'sheets':(len(rows)+29)//30}))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: side-yaw-${{ matrix.part }}-${{ github.run_id }}
+          path: |
+            work/catalog-quality/yaw-${{ matrix.part }}.json
+            work/catalog-quality/side-review-${{ matrix.part }}/
+          retention-days: 14

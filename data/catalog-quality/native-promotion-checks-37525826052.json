@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "workflowRunId": 37525826052,
+  "workflowRunAttempt": 1,
+  "requestCommit": "18107088c40850212f3dc0d4f4d5a6c3f892ebab",
+  "testedCodeCommit": "18107088c40850212f3dc0d4f4d5a6c3f892ebab",
+  "testedTreeSha": "d01867637fe96c9fd2d533bf6458022a980f6cef",
+  "promotedCommit": "ba8c746246879221db41fe3ee1270c811d6b29cb",
+  "pushed": true,
+  "outcomes": {
+    "request": "success",
+    "validation_dependencies": "success",
+    "verify": "success",
+    "install": "success",
+    "test": "success",
+    "lint": "success",
+    "build": "success",
+    "python": "success",
+    "structure": "success",
+    "wink": "success",
+    "commit": "success"
+  },
+  "passed": true,
+  "testsRanBeforeCommitOnExactStagedTree": true,
+  "normalPushCiAutomaticallyTriggered": false,
+  "sitePublished": false,
+  "physicalCameraVerified": false
+}

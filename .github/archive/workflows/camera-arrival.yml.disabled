@@ -1,0 +1,77 @@
+name: Camera arrival regression
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths: ['app/live/frame-arrival.ts', 'app/live/media-input.ts', 'app/live/astra/client.tsx', 'app/runtime-identity.ts', 'tests/astra-frame-arrival.test.mjs', 'scripts/verify-camera-arrival.mjs', '.github/workflows/camera-arrival.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: camera-arrival-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - name: Prepare original full catalog and native camera fixture
+        run: |
+          mkdir -p work/camera-arrival
+          git fetch --depth=1 origin de063df626617178c6296f660eb3931d73feb3c8
+          git rev-parse HEAD > work/camera-arrival/tested-commit.txt
+          test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1
+          bash scripts/prepare-astra-fixtures.sh > work/camera-arrival/fixture.log 2>&1
+          cp work/astra-evidence/fixture-provenance.json work/camera-arrival/
+          echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+      - name: Build and test exact current source
+        run: |
+          npm run build > work/camera-arrival/build.log 2>&1 || { cat work/camera-arrival/build.log; exit 1; }
+          node --experimental-strip-types --test tests/*.test.mjs > work/camera-arrival/unit.log 2>&1 || { cat work/camera-arrival/unit.log; exit 1; }
+          tail -n 12 work/camera-arrival/unit.log
+          npm run lint > work/camera-arrival/lint.log 2>&1 || { cat work/camera-arrival/lint.log; exit 1; }
+      - name: Build exact prior revision without application patches
+        run: |
+          mkdir -p /tmp/mf-camera-baseline
+          git archive de063df626617178c6296f660eb3931d73feb3c8 | tar -x -C /tmp/mf-camera-baseline
+          ln -s "$PWD/node_modules" /tmp/mf-camera-baseline/node_modules
+          (cd /tmp/mf-camera-baseline && npm run build) > work/camera-arrival/baseline-build.log 2>&1 || { cat work/camera-arrival/baseline-build.log; exit 1; }
+          PORT=4185 HOST=127.0.0.1 nohup bash -c 'cd /tmp/mf-camera-baseline && npm start' > work/camera-arrival/baseline-server.log 2>&1 &
+          PORT=4183 HOST=127.0.0.1 nohup npm start > work/camera-arrival/server.log 2>&1 &
+          for port in 4183 4185; do
+            for attempt in $(seq 1 90); do
+              if curl -fsS "http://127.0.0.1:$port/live/astra" >/dev/null; then break; fi
+              sleep 1
+            done
+            curl -fsS "http://127.0.0.1:$port/live/astra" >/dev/null
+          done
+      - name: Reproduce eight-second false stall and verify real-frame recovery
+        run: node scripts/verify-camera-arrival.mjs
+      - name: Read existing Site identity without changing it
+        if: always()
+        run: |
+          curl -L --max-time 20 -sS -D work/camera-arrival/hosted-headers.txt \
+            -o work/camera-arrival/hosted-runtime.txt \
+            https://many-faces-prototype.uginn-poppo.chatgpt.site/api/runtime || true
+          echo '--- hosted runtime response ---'
+          cat work/camera-arrival/hosted-runtime.txt || true
+      - name: Verify the working video path and catalog were not modified
+        if: always()
+        run: |
+          git diff --exit-code -- app scripts tests public/seed-catalog public/test-fixtures
+          git diff --exit-code de063df626617178c6296f660eb3931d73feb3c8 HEAD -- app/live/review-client-lite.tsx app/live/review-search.ts app/live/review-search.worker.ts app/live/video-frame.ts public/seed-catalog public/test-fixtures
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: camera-arrival-${{ github.run_id }}
+          path: work/camera-arrival
+          retention-days: 14

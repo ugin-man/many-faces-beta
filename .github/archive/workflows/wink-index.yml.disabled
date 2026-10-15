@@ -1,0 +1,55 @@
+name: Wink index acceptance
+on:
+  push:
+    branches: [astra/wink-coverage]
+    paths: ['app/**', 'scripts/evaluate-wink-index.mjs', 'scripts/verify-wink-index*', 'scripts/wink-index*', 'tests/wink-*', '.github/workflows/wink-index.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: wink-index-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: Validate immutable originals and independent photo holdouts
+        run: |
+          mkdir -p work/wink-index
+          test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
+          node --experimental-strip-types scripts/evaluate-wink-index.mjs
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1 esbuild@0.25.12
+          echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          npm run lint > work/wink-index/lint.log 2>&1
+          node scripts/verify-wink-heldout.mjs --prepare
+          npm run build > work/wink-index/build.log 2>&1
+          node --experimental-strip-types --test tests/*.test.mjs > work/wink-index/tests.log 2>&1
+          tail -n 12 work/wink-index/tests.log
+      - name: Fresh model check of actual selected pixels
+        run: |
+          mkdir -p work/wink-heldout
+          PORT=4183 HOST=127.0.0.1 nohup npm start > work/wink-index/server.log 2>&1 &
+          for attempt in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:4183/__wink_eval/index.html > /dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/verify-wink-heldout.mjs
+          cp work/wink-heldout/fresh-winners.json work/wink-index/
+      - name: Preserve source and original assets
+        if: always()
+        run: git diff --exit-code -- app scripts tests data public
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wink-index-${{ github.run_id }}
+          path: work/wink-index
+          retention-days: 14

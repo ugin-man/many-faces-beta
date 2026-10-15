@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-selection-visibility-review",
+  "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+  "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+  "reviewer": "assistant-visual-review",
+  "humanVerified": false,
+  "reviewedOn": "2026-10-06",
+  "mode": "deny-only",
+  "previousReviewSha256": null,
+  "scope": "Exact delivered image bytes reviewed before selection. These decisions may reject candidates but may not admit, rewrite, or override any failed or unresolved inference record. Ordinary transparent glasses and face paint remain permitted. Rejected slots must be replenished before generating the final 70000-image catalog.",
+  "reviews": [
+    {
+      "encodedSha256": "1170028fac6f4457520cda4daceecebf4cfc65bc597834bcb927bbf3ec236761",
+      "decision": "deny",
+      "reason": "Heavy blocky compression and loss of facial detail make the eyes and lip contour unsuitable for fine expression comparison.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-360000-4ec44a0b365b05a7258e2221",
+      "evidence": {
+        "category": "insufficient-face-detail",
+        "sampleId": "mouthFrown-031",
+        "reviewMethod": "Assistant visual inspection of the complete original encoded photograph",
+        "imageSha256": "1170028fac6f4457520cda4daceecebf4cfc65bc597834bcb927bbf3ec236761",
+        "imageByteLength": 4260,
+        "sourceCommit": "8f209747dbf5edfd627707734ad01a19be43e897",
+        "pixelChangesApplied": false,
+        "exploratoryReinferenceWasUsedForSamplingOnly": true
+      }
+    },
+    {
+      "encodedSha256": "125f44803f7ab7aaf2b065169f84ccd43d8d14743945439f0bae59e5551ca251",
+      "decision": "deny",
+      "reason": "A curved pipe or tube crosses the lower lip and obscures part of the mouth contour. Face paint itself is permitted and is not the exclusion reason.",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-5755",
+      "evidence": {
+        "category": "mouth-obstruction",
+        "sampleId": "mouthFrown-051",
+        "reviewMethod": "Assistant visual inspection of the complete original encoded photograph",
+        "imageSha256": "125f44803f7ab7aaf2b065169f84ccd43d8d14743945439f0bae59e5551ca251",
+        "imageByteLength": 7484,
+        "sourceCommit": "9d10fb37a825a5f90e5a3671a9564a1f1e9bef53",
+        "pixelChangesApplied": false,
+        "exploratoryReinferenceWasUsedForSamplingOnly": true
+      }
+    },
+    {
+      "encodedSha256": "24cd5fc7f8882c5f428425f1dac24ca1ec802a85805c9f3d0b0c482ef6076dc9",
+      "decision": "deny",
+      "reason": "A solid object overlaps and hides the far eye and eyelid; exclusion concerns facial-expression visibility.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-480000-f4d12c6d3f2be4214fde2667",
+      "evidence": {
+        "category": "eye-obstruction",
+        "sampleId": "mouthWide-039",
+        "reviewMethod": "Assistant visual inspection of the complete original encoded photograph",
+        "imageSha256": "24cd5fc7f8882c5f428425f1dac24ca1ec802a85805c9f3d0b0c482ef6076dc9",
+        "imageByteLength": 8322,
+        "sourceCommit": "8f209747dbf5edfd627707734ad01a19be43e897",
+        "pixelChangesApplied": false,
+        "exploratoryReinferenceWasUsedForSamplingOnly": true
+      }
+    },
+    {
+      "encodedSha256": "44c2e4fd96ae0ef47eac58bc5b3b7ce30988129914de27dc9374d8f81f0a4410",
+      "decision": "deny",
+      "reason": "The primary face is strongly blurred in the delivered photograph; eye and mouth detail are not clear enough for fine expression comparison.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-925c699475552e0e65f48afa",
+      "evidence": {
+        "category": "insufficient-face-detail",
+        "sampleId": "mouthFrown-027",
+        "reviewMethod": "Assistant visual inspection of the complete original encoded photograph",
+        "imageSha256": "44c2e4fd96ae0ef47eac58bc5b3b7ce30988129914de27dc9374d8f81f0a4410",
+        "imageByteLength": 3396,
+        "sourceCommit": "8f209747dbf5edfd627707734ad01a19be43e897",
+        "pixelChangesApplied": false,
+        "exploratoryReinferenceWasUsedForSamplingOnly": true
+      }
+    },
+    {
+      "encodedSha256": "4c6cbf783c0f1780eda42a1b0f9f106d1f9c251c3c50da7578b1d690a6cdd00b",
+      "decision": "deny",
+      "reason": "A smoking pipe is held between the lips and teeth, obstructing the mouth needed for expression matching.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-360000-c27d95851026b360384a0d8f",
+      "evidence": {
+        "category": "mouth-obstruction",
+        "sampleId": "mouthFrown-053",
+        "reviewMethod": "Assistant visual inspection of the complete original encoded photograph",
+        "imageSha256": "4c6cbf783c0f1780eda42a1b0f9f106d1f9c251c3c50da7578b1d690a6cdd00b",
+        "imageByteLength": 6550,
+        "sourceCommit": "8f209747dbf5edfd627707734ad01a19be43e897",
+        "pixelChangesApplied": false,
+        "exploratoryReinferenceWasUsedForSamplingOnly": true
+      }
+    },
+    {
+      "encodedSha256": "709d161f1fb080a330e19497c5b872f5d336262686d522ad8ad68dc2b10b8193",
+      "decision": "deny",
+      "reason": "Severe blur and compression smear the eyes and mouth in the delivered photograph, preventing reliable fine expression comparison.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-079dbd4fb5ca7e0170606963",
+      "evidence": {
+        "category": "insufficient-face-detail",
+        "sampleId": "mouthFrown-013",
+        "reviewMethod": "Assistant visual inspection of the complete original encoded photograph",
+        "imageSha256": "709d161f1fb080a330e19497c5b872f5d336262686d522ad8ad68dc2b10b8193",
+        "imageByteLength": 3104,
+        "sourceCommit": "8f209747dbf5edfd627707734ad01a19be43e897",
+        "pixelChangesApplied": false,
+        "exploratoryReinferenceWasUsedForSamplingOnly": true
+      }
+    },
+    {
+      "encodedSha256": "94fc04f4fc29b5f910ff84f2e1c210cdbfe4fcef811cd55c57e69d8738f093d6",
+      "decision": "deny",
+      "reason": "The eyes and eyelids cannot be read through the combined dark lenses or deep shadow in the delivered pixels. This is not a blanket exclusion of transparent eyeglasses, nor a confirmed sunglasses label.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-4a7e429cf66681b940fafb18",
+      "evidence": {
+        "category": "insufficient-eye-visibility",
+        "sampleId": "mouthWide-002",
+        "reviewMethod": "Assistant visual inspection of the complete original encoded photograph",
+        "imageSha256": "94fc04f4fc29b5f910ff84f2e1c210cdbfe4fcef811cd55c57e69d8738f093d6",
+        "imageByteLength": 6306,
+        "sourceCommit": "8f209747dbf5edfd627707734ad01a19be43e897",
+        "pixelChangesApplied": false,
+        "exploratoryReinferenceWasUsedForSamplingOnly": true
+      }
+    },
+    {
+      "encodedSha256": "9d5624cf1a458df8e5e98902ad65ed7157b1e9e6ec9bdd3ae91399319b0ed8ba",
+      "decision": "deny",
+      "reason": "A finger presses against and partly covers the lower lip and mouth corner, obstructing the contour needed for expression comparison.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-859a369f2083e328e55aa043",
+      "evidence": {
+        "category": "mouth-obstruction",
+        "sampleId": "mouthWide-049",
+        "reviewMethod": "Assistant visual inspection of the complete original encoded photograph",
+        "imageSha256": "9d5624cf1a458df8e5e98902ad65ed7157b1e9e6ec9bdd3ae91399319b0ed8ba",
+        "imageByteLength": 6458,
+        "sourceCommit": "8f209747dbf5edfd627707734ad01a19be43e897",
+        "pixelChangesApplied": false,
+        "exploratoryReinferenceWasUsedForSamplingOnly": true
+      }
+    },
+    {
+      "encodedSha256": "b92d9a6a56a67b31e52d76737cd0b2fe000c1bf8bc6012c2bcc6f6a32b6be44d",
+      "decision": "deny",
+      "reason": "Strong blur and compression in the delivered photograph obscure fine eyelid and lip detail.",
+      "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-73baf3c1476dd7baba05af70",
+      "evidence": {
+        "category": "insufficient-face-detail",
+        "sampleId": "mouthWide-051",
+        "reviewMethod": "Assistant visual inspection of the complete original encoded photograph",
+        "imageSha256": "b92d9a6a56a67b31e52d76737cd0b2fe000c1bf8bc6012c2bcc6f6a32b6be44d",
+        "imageByteLength": 2922,
+        "sourceCommit": "8f209747dbf5edfd627707734ad01a19be43e897",
+        "pixelChangesApplied": false,
+        "exploratoryReinferenceWasUsedForSamplingOnly": true
+      }
+    }
+  ]
+}

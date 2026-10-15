@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "mobile output covers the entire viewport",
+    "no mobile horizontal overflow",
+    "no old navigation or tabs"
+  ],
+  "pageErrors": [],
+  "video": null,
+  "camera": null,
+  "physicalCameraVerified": false,
+  "hostedSiteVerified": false,
+  "error": "page.waitForFunction: Timeout 240000ms exceeded.\n    at /home/runner/work/many-faces-beta/many-faces-beta/scripts/verify-fullscreen-ui.mjs:33:13"
+}

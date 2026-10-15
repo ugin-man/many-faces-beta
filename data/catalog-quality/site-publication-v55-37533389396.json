@@ -1,0 +1,633 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "many-faces-clean70k-site-publication",
+  "repository": "ugin-man/many-faces-beta",
+  "branch": "astra/realtime-hardening",
+  "catalog": {
+    "promotedCommit": "ba8c746246879221db41fe3ee1270c811d6b29cb",
+    "catalogTree": "afcb8f68a8db87424fe5169896be0fd0a57dbf65",
+    "manifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+    "totalFaces": 70000,
+    "poseCells": 775,
+    "runtimeExclusionOverlayRequired": false,
+    "catalogId": "many-faces-clean-core-v5-28e6092363ed981f-pose-local-v1",
+    "allPhysicalImagesAndPassAdmissionsVerified": true,
+    "uniqueExcludedImageHashes": 257,
+    "exclusionScope": "Known unsuitable and uncertain/quarantined images removed before admission, with qualified candidate refill.",
+    "winks": {
+      "total": 71,
+      "left": 31,
+      "right": 40,
+      "addedPhotographs": 0,
+      "originalReviewBoundToImageBytes": true
+    },
+    "finalRefillReview": {
+      "comparisonBase": "fixed c92 candidate",
+      "retained": 69941,
+      "removed": 59,
+      "added": 59,
+      "allAddedOriginalReviewsPassed": true,
+      "directOriginalReviewsReusedByExactImageAndRecordHash": 58,
+      "newDirectOriginalReviews": 1
+    },
+    "independentHoldout": {
+      "sampleSize": 360,
+      "passed": 301,
+      "denied": 27,
+      "uncertain": 32,
+      "originalResult": "failed",
+      "knownDeniedAndUncertainImagesAbsentFromFinal": true,
+      "newIndependentHoldoutPerformed": false
+    }
+  },
+  "site": {
+    "projectId": "appgprj_6a7c245e19888191ba979d0f327bc5b5",
+    "versionId": "appgprj_6a7c245e19888191ba979d0f327bc5b5~appgver_20fdc4f7c13c81918c29603ac6f8188b",
+    "versionNumber": 55,
+    "sourceCommit": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+    "deploymentId": "appgdep_6ac55eb25f448191913c7135425b43b2",
+    "deploymentStatus": "succeeded",
+    "deploymentCompletedAt": "2026-10-06T20:49:09.464182+00:00",
+    "publicUrl": "https://many-faces-prototype.uginn-poppo.chatgpt.site",
+    "verifiedBrowserUrl": "https://many-faces-prototype.uginn-poppo.chatgpt.site/",
+    "build": "8b57a414f760f03f",
+    "audience": "public",
+    "archive": {
+      "bytes": 32311955,
+      "sha256": "77e69b940d452afe3c78d275ac3cc8db631bec13dc463f2067725465f9bf873e"
+    },
+    "duplicatePackAndShardSourcePayloadOmitted": true,
+    "payloadServing": "Existing worker API with pinned catalog tree, exact bytes/SHA validation and Git/R2 fallback"
+  },
+  "nativeQa": {
+    "runId": 37521402519,
+    "passed": true,
+    "comparisonFps": 20,
+    "fixtureSeconds": 23.3,
+    "physicalCameraVerified": false,
+    "qaCommit": "fe100ea6d3b30672f51871bf6a2ea8e908ae3fe4",
+    "baselineCommit": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e",
+    "plannedFrames": 466,
+    "faceFrames": 410,
+    "inputDescriptorsAndTimesExact": true,
+    "comparison": {
+      "commonFreshPoseFrames": 408,
+      "baselineYawErrorDegrees": 3.6077595034190675,
+      "candidateYawErrorDegrees": 3.526220594641333,
+      "baselinePitchErrorDegrees": 3.612341109853401,
+      "candidatePitchErrorDegrees": 2.723574226521984,
+      "mouthFrames": 410,
+      "baselineStoredMouthError": 0.11857268669741274,
+      "candidateStoredMouthError": 0.12062601042557337,
+      "baselineTrialWallSeconds": 96.714,
+      "candidateTrialWallSeconds": 103.963,
+      "repeatedOrAbbaBenchmark": false
+    },
+    "preservation": {
+      "facePositionAndScaleTracking": true,
+      "faceOnlySelectionInvariance": true,
+      "pairedMirror": true,
+      "twoModes": true,
+      "fullscreenAndTopRightPip": true,
+      "pausedFrameStep": true
+    },
+    "overlayRequests": 0,
+    "imageFailures": 0,
+    "pageErrors": 0
+  },
+  "promotion": {
+    "runId": 37525826052,
+    "passed": true,
+    "nodeTests": {
+      "passed": 304,
+      "skipped": 0,
+      "failed": 0
+    },
+    "pythonTests": {
+      "passed": 238
+    }
+  },
+  "normalCi": {
+    "runId": 37533410554,
+    "commit": "a7ef22238d62ce42c20962856097193417125d32",
+    "passed": true,
+    "nodeTests": {
+      "passed": 303,
+      "skipped": 1,
+      "failed": 0
+    },
+    "pythonTests": {
+      "passed": 238
+    },
+    "compileallPassed": true,
+    "lint": {
+      "errors": 0,
+      "warnings": 15
+    },
+    "skipReason": "Existing sparse CI excludes full catalog payload; promotion ran the full 304 tests with no skip"
+  },
+  "cloudBrowserObservation": {
+    "browser": "CUA Chrome",
+    "observedAt": "2026-10-06T20:59:07Z",
+    "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+    "build": "8b57a414f760f03f",
+    "runtimeBuildMatchesPage": true,
+    "catalogTotal": 70000,
+    "fixture": "reference-face-motion.mp4",
+    "fixtureSeconds": 23.3,
+    "fps": 20,
+    "plannedFrames": 466,
+    "faceFrames": 0,
+    "outputChanges": 0,
+    "selectedImages": 0,
+    "analysisStatus": "failed-webgl-initialization-before-candidate-search",
+    "error": "Cannot read properties of undefined (reading 'activeTexture')",
+    "consoleContext": "Creating a context with WebGL 2 failed; fall back on WebGL 1",
+    "defaultFaceTracking": true,
+    "displayModes": 2,
+    "physicalCameraVerified": false,
+    "screenshot": {
+      "filename": "many-faces-v55-cloud-diagnostics-1791320347931.jpg",
+      "bytes": 41068,
+      "sha256": "ac99d3dd143b854310463af70b6973f94139263dc3c8b757da007b4dde481dc0"
+    },
+    "reloadRecovery": {
+      "attempts": 1,
+      "completedAt": "2026-10-06T21:09:12.165Z",
+      "result": "same WebGL initialization failure before photo search"
+    },
+    "cuaAnalysisPassed": false
+  },
+  "publicNativeBrowserQa": {
+    "status": "completed",
+    "firstRun": {
+      "runId": 37531609637,
+      "headSha": "1107dceaf2fdbb1a407509808d27069becb35018",
+      "conclusion": "failure",
+      "analysisWaitLimitMs": 240000,
+      "reason": "Harness timed out while catalog/search preparation was displayed",
+      "observedProgress": {
+        "files": 373,
+        "displayedMiB": 343.1,
+        "completedFrames": 37,
+        "totalFrames": 244
+      },
+      "videoCompleted": false,
+      "virtualCameraReached": false,
+      "prePinsPassed": true,
+      "postPinsPassed": true,
+      "artifact": {
+        "id": 11444557858,
+        "bytes": 3476359,
+        "sha256": "50f29ebbca2ef0528f1072427f0374c5c6c5d64e30baf05bafe4a263bdba5b5f"
+      },
+      "rawReportSha256": "93072dda2e867b07d1013f25217391f3920f2aa3bce69f4cbdafc04271f1714e",
+      "failureScreenshotSha256": "1e79ae541a9fac6d6f95692566c34f0e6bf365bd28ae722453f4190fd26fd007",
+      "reportPath": "data/catalog-quality/published-site-native-report-37531609637.json"
+    },
+    "retry": {
+      "runId": 37533389396,
+      "headSha": "a7ef22238d62ce42c20962856097193417125d32",
+      "analysisWaitLimitMs": 720000,
+      "progressObservationEveryMs": 30000,
+      "diagnosticReadDeadlineMs": 5000,
+      "sourceOrDataChanged": false,
+      "existingLocalHarnessUnchanged": true,
+      "originalCorrectnessAssertionsUnchanged": true,
+      "status": "completed",
+      "conclusion": "success",
+      "workflowUrl": "https://github.com/ugin-man/many-faces-beta/actions/runs/37533389396",
+      "jobId": 112508127070,
+      "artifact": {
+        "id": 11444989446,
+        "bytes": 6202251,
+        "sha256": "a5e493b3278fcff1310352756921f073b3d73ad4adac67f2b6d37104ee73c87c",
+        "regularFiles": 36,
+        "expandedBytes": 8956241
+      },
+      "report": {
+        "path": "data/catalog-quality/published-site-native-report-37533389396.json",
+        "bytes": 10767,
+        "sha256": "41d1e7ba0ded8a8af48f68ce3de58d0c1be65d806a52d62cb68e7430b040e540"
+      },
+      "actualProductionReceipt": {
+        "bytes": 7517,
+        "sha256": "f0b8699307fb1e93fe127166477bb7f1b72418d30948a3f6c4476b730f946bd7"
+      },
+      "nativeLog": {
+        "bytes": 48773,
+        "sha256": "c4ce434a83d403ab6b0ff0785cf082cb378cb7ecf8c4322719e70a5fcfda2121"
+      },
+      "initialUrl": "https://many-faces-prototype.uginn-poppo.chatgpt.site/",
+      "finalUrl": "https://many-faces-prototype.uginn-poppo.chatgpt.site/",
+      "correctnessChecks": [
+        "mobile output covers the entire viewport",
+        "no mobile horizontal overflow",
+        "no old navigation or tabs",
+        "bundled real recorded video completes actual analysis with nonblank output",
+        "the full existing reference recording is retained, not truncated to five seconds",
+        "source is a small top-right picture-in-picture",
+        "source and result continue past five seconds through the analyzed recording",
+        "frame stepping pauses the original",
+        "video mirror setting is paired",
+        "desktop also uses the complete output surface",
+        "actual MediaPipe virtual-camera pipeline produces result images",
+        "all 70,000 source images remain available",
+        "edge-swipe back stops the camera",
+        "switching mode stops and releases every camera track",
+        "cancel returns cleanly without a false successful report",
+        "no uncaught page errors"
+      ],
+      "video": {
+        "sourceName": "reference-face-motion.mp4",
+        "plannedFrames": 279,
+        "faceFrames": 244,
+        "sequenceFrames": 244,
+        "selectedImages": 102,
+        "imageFailures": 0,
+        "outputChanges": 110,
+        "uniqueFaces": 102,
+        "processingMs": 303664.19999999995,
+        "phaseTimingsMs": {
+          "preparation": 0.2,
+          "faceMesh": 29208.7,
+          "candidateSearch": 259323.4,
+          "pathOptimization": 1316.3,
+          "imagePreload": 13268
+        },
+        "sequenceFingerprint": "e09e3ee9",
+        "canvasNonBlank": true,
+        "faceCoverage": 0.8745519713261649,
+        "passed": true,
+        "reasons": [],
+        "frameEvidence": {
+          "presentationCallbacks": 173,
+          "decodedPausedReadbacks": 106
+        },
+        "inputBuild": "camera-arrival-v3",
+        "build": "8b57a414f760f03f",
+        "searchTraffic": {
+          "bytes": 496786726,
+          "files": 720,
+          "decoded": 68017
+        },
+        "matching": {
+          "meanYawErrorDegrees": 3.364612514905986,
+          "meanPitchErrorDegrees": 3.023879028832444,
+          "meanMouthError": 0.1317193378048839,
+          "meanEyeError": 0.025025693740293196,
+          "meanProjectionError": 0.14978813455379889
+        }
+      },
+      "camera": {
+        "phase": "running",
+        "message": "動きに合わせて検索中。入力と結果は同じ向きで表示します。",
+        "delegate": "CPU",
+        "source": "camera",
+        "frames": 71,
+        "faceFrames": 48,
+        "outputChanges": 2,
+        "detectionFps": 20,
+        "outputFps": 0,
+        "latencyP95Ms": 74,
+        "inferenceMs": 22,
+        "searchMs": 1,
+        "candidates": 2792,
+        "shards": 22,
+        "readyImages": 13,
+        "pendingImages": 3,
+        "imageBytes": 3407872,
+        "imageFailures": 0,
+        "inFlight": 0,
+        "maxInFlight": 1,
+        "busyDrops": 3,
+        "staleResults": 0,
+        "catalogTotal": 70000,
+        "firstOutputMs": 705,
+        "face": true,
+        "currentName": "2005- Berg- Wozzeck",
+        "currentSource": "Open Images V7",
+        "catalogError": null,
+        "stage": "running",
+        "errorCode": null,
+        "frameClock": "video-callback",
+        "videoWidth": 480,
+        "videoHeight": 480,
+        "videoReadyState": 4,
+        "videoPaused": false,
+        "trackState": "live",
+        "trackMuted": false,
+        "environment": {
+          "secure": true,
+          "available": true,
+          "embedded": false,
+          "cameraAllowed": true
+        },
+        "mirrorPresentation": true,
+        "build": "8b57a414f760f03f",
+        "version": "camera-arrival-v3",
+        "receivedBytes": 20963558,
+        "workerStage": "catalog",
+        "workerBuild": "8b57a414f760f03f",
+        "imageRequests": 38
+      },
+      "pageErrors": [],
+      "progressSamples": [
+        {
+          "recordedAt": "2026-10-06T21:23:02.711Z",
+          "elapsedMs": 3,
+          "runtime": {
+            "version": "camera-arrival-v3",
+            "build": "8b57a414f760f03f",
+            "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+            "phase": "waiting",
+            "label": "固定動画を読み込み中",
+            "updatedAt": 1791321782697,
+            "stalled": false
+          },
+          "observationStatus": "read"
+        },
+        {
+          "recordedAt": "2026-10-06T21:23:32.715Z",
+          "elapsedMs": 30007,
+          "runtime": {
+            "phase": "searching",
+            "label": "照合データを受信中 · 0ファイル / 0.1 MB · 0/244コマ",
+            "updatedAt": 1791321812615,
+            "stalled": false,
+            "version": "camera-arrival-v3",
+            "build": "8b57a414f760f03f",
+            "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+            "receivedBytes": 66331,
+            "loadedFiles": 0,
+            "decodedCandidates": 0,
+            "completedFrames": 0
+          },
+          "observationStatus": "read"
+        },
+        {
+          "recordedAt": "2026-10-06T21:24:02.719Z",
+          "elapsedMs": 60011,
+          "runtime": {
+            "phase": "searching",
+            "label": "照合データを準備中 · 184ファイル / 213.7 MB · 13/244コマ",
+            "updatedAt": 1791321842697,
+            "stalled": false,
+            "version": "camera-arrival-v3",
+            "build": "8b57a414f760f03f",
+            "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+            "receivedBytes": 224052565,
+            "loadedFiles": 184,
+            "decodedCandidates": 30575,
+            "completedFrames": 13
+          },
+          "observationStatus": "read"
+        },
+        {
+          "recordedAt": "2026-10-06T21:24:32.713Z",
+          "elapsedMs": 90005,
+          "runtime": {
+            "phase": "searching",
+            "label": "照合データを準備中 · 314ファイル / 292.1 MB · 36/244コマ",
+            "updatedAt": 1791321872364,
+            "stalled": false,
+            "version": "camera-arrival-v3",
+            "build": "8b57a414f760f03f",
+            "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+            "receivedBytes": 306306903,
+            "loadedFiles": 314,
+            "decodedCandidates": 41915,
+            "completedFrames": 36
+          },
+          "observationStatus": "read"
+        },
+        {
+          "recordedAt": "2026-10-06T21:25:02.714Z",
+          "elapsedMs": 120006,
+          "runtime": {
+            "phase": "searching",
+            "label": "照合データを準備中 · 420ファイル / 363.5 MB · 38/244コマ",
+            "updatedAt": 1791321901831,
+            "stalled": false,
+            "version": "camera-arrival-v3",
+            "build": "8b57a414f760f03f",
+            "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+            "receivedBytes": 381169666,
+            "loadedFiles": 420,
+            "decodedCandidates": 52173,
+            "completedFrames": 38
+          },
+          "observationStatus": "read"
+        },
+        {
+          "recordedAt": "2026-10-06T21:25:32.713Z",
+          "elapsedMs": 150005,
+          "runtime": {
+            "phase": "searching",
+            "label": "照合データを準備中 · 472ファイル / 380.9 MB · 57/244コマ",
+            "updatedAt": 1791321932505,
+            "stalled": false,
+            "version": "camera-arrival-v3",
+            "build": "8b57a414f760f03f",
+            "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+            "receivedBytes": 399426404,
+            "loadedFiles": 472,
+            "decodedCandidates": 54675,
+            "completedFrames": 57
+          },
+          "observationStatus": "read"
+        },
+        {
+          "recordedAt": "2026-10-06T21:26:02.713Z",
+          "elapsedMs": 180005,
+          "runtime": {
+            "phase": "searching",
+            "label": "照合データを準備中 · 529ファイル / 399.3 MB · 65/244コマ",
+            "updatedAt": 1791321962637,
+            "stalled": false,
+            "version": "camera-arrival-v3",
+            "build": "8b57a414f760f03f",
+            "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+            "receivedBytes": 418692354,
+            "loadedFiles": 529,
+            "decodedCandidates": 57316,
+            "completedFrames": 65
+          },
+          "observationStatus": "read"
+        },
+        {
+          "recordedAt": "2026-10-06T21:26:32.715Z",
+          "elapsedMs": 210007,
+          "runtime": {
+            "phase": "searching",
+            "label": "照合データを準備中 · 576ファイル / 423.4 MB · 91/244コマ",
+            "updatedAt": 1791321992452,
+            "stalled": false,
+            "version": "camera-arrival-v3",
+            "build": "8b57a414f760f03f",
+            "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+            "receivedBytes": 444004310,
+            "loadedFiles": 576,
+            "decodedCandidates": 60786,
+            "completedFrames": 91
+          },
+          "observationStatus": "read"
+        },
+        {
+          "recordedAt": "2026-10-06T21:27:02.714Z",
+          "elapsedMs": 240006,
+          "runtime": {
+            "phase": "searching",
+            "label": "顔を照合中 · 639ファイル / 438.9 MB · 177/244コマ",
+            "updatedAt": 1791322022206,
+            "stalled": false,
+            "version": "camera-arrival-v3",
+            "build": "8b57a414f760f03f",
+            "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+            "receivedBytes": 460271788,
+            "loadedFiles": 639,
+            "decodedCandidates": 63014,
+            "completedFrames": 177
+          },
+          "observationStatus": "read"
+        },
+        {
+          "recordedAt": "2026-10-06T21:27:32.714Z",
+          "elapsedMs": 270006,
+          "runtime": {
+            "phase": "searching",
+            "label": "照合データを準備中 · 696ファイル / 464.5 MB · 190/244コマ",
+            "updatedAt": 1791322051937,
+            "stalled": false,
+            "version": "camera-arrival-v3",
+            "build": "8b57a414f760f03f",
+            "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+            "receivedBytes": 487113761,
+            "loadedFiles": 696,
+            "decodedCandidates": 66692,
+            "completedFrames": 190
+          },
+          "observationStatus": "read"
+        },
+        {
+          "recordedAt": "2026-10-06T21:28:02.714Z",
+          "elapsedMs": 300006,
+          "runtime": {
+            "phase": "preloading",
+            "label": "採用画像を準備中 73 / 102",
+            "updatedAt": 1791322082491,
+            "stalled": false,
+            "version": "camera-arrival-v3",
+            "build": "8b57a414f760f03f",
+            "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+            "receivedBytes": 496786726,
+            "loadedFiles": 720,
+            "decodedCandidates": 68017,
+            "completedFrames": 244
+          },
+          "observationStatus": "read"
+        },
+        {
+          "recordedAt": "2026-10-06T21:28:06.729Z",
+          "elapsedMs": 304021,
+          "runtime": {
+            "phase": "review",
+            "label": "レビューできます",
+            "updatedAt": 1791322086708,
+            "stalled": false,
+            "version": "camera-arrival-v3",
+            "build": "8b57a414f760f03f",
+            "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+            "receivedBytes": 496786726,
+            "loadedFiles": 720,
+            "decodedCandidates": 68017,
+            "completedFrames": 244
+          },
+          "observationStatus": "read"
+        }
+      ],
+      "prePinsPassed": true,
+      "postPinsPassed": true,
+      "sourceRuntimeAndManifestUnchanged": true,
+      "rawHarnessHostedSiteVerified": false,
+      "actualProductionRegressionVerified": true,
+      "sourceArtifactIntegrity": {
+        "verified": true,
+        "verifiedBy": "verification_plan",
+        "rootArchiveAll36MemberBytesCrcAndShaVerified": true,
+        "rootNativeWholeLogAndExactRawReportVerified": true,
+        "sourceFileCount": 6,
+        "responseCount": 20,
+        "exactImageRangeChecks": 6
+      }
+    },
+    "scope": "12fps whole reference video and virtual camera on exact public v55. Strict20fps comparative QA completed separately.",
+    "passed": true,
+    "limitations": [
+      "The first public run failed its 240-second wait; its raw result remains unchanged.",
+      "The source and dataset were not changed for the successful retry. Only the test wait bound and progress observations changed.",
+      "The 12fps full recording completed in 303.6642 seconds of app processing. This is separate from the 20fps CI trial wall time of 103.963 seconds.",
+      "Candidate search time includes remote delivery, decoding and matching. No separate network-only or cache-hit attribution was established.",
+      "Preflight reads may warm assets; this is not a cold-start or repeated timing benchmark.",
+      "One complete ordinary shard and three image ranges were byte-verified before and after the run. This is not a second physical 70000-image validation over the public URL.",
+      "Original harness hostedSiteVerified:false remains unchanged; the separate actual receipt proves the exact public origin and source pins.",
+      "The camera test used a video-backed virtual device. Its snapshot outputFps was 0; no sustained FPS improvement or physical camera verification is claimed.",
+      "The fixed recording contains no right-wink input, so it does not validate right-wink response.",
+      "A CUA Chrome session separately failed WebGL initialization before candidate search, including one reload retry."
+    ]
+  },
+  "sitePublished": true,
+  "hostedVideoAndCameraVerified": true,
+  "physicalCameraVerified": false,
+  "independentFinalHoldoutPassed": false,
+  "all70000HumanReviewed": false,
+  "recordedAt": "2026-10-06T21:44:16Z",
+  "evidenceParentCommit": "a7ef22238d62ce42c20962856097193417125d32",
+  "astraCi": {
+    "runId": 37533389228,
+    "commit": "a7ef22238d62ce42c20962856097193417125d32",
+    "passed": true,
+    "focusedNodeTests": {
+      "passed": 67,
+      "failed": 0
+    },
+    "physicalCameraVerified": false
+  },
+  "hostedVideoAndCameraVerificationScope": "Native GitHub Actions Chrome against the exact public URL, full 12fps reference video and a virtual camera; CUA and physical camera remain unverified.",
+  "rootVisualObservations": {
+    "reviewedPublicOutputScreenshots": 6,
+    "clearOrdinaryGlassesPreserved": {
+      "screenshot": "harness/video-motion-50.png",
+      "sha256": "bccbee2fab0b6a173df147b7777d0695f5bc7b594fc1f4ec50bd9ba5084388c8"
+    },
+    "correspondingWinkObserved": {
+      "screenshot": "harness/video-motion-94.png",
+      "sha256": "d0f53ca815bdf227ec407bc91ba73240eee473225c906dfe76bd2208e9896981"
+    },
+    "fullImageSetReviewed": false
+  },
+  "sourceEvidence": [
+    {
+      "path": "data/catalog-quality/clean-core-generation-37519882295.json",
+      "sha256": "a542754ced659526c3c4c87a02f8d57bfc102c23b2a98662fcafe1faea243f34",
+      "bytes": 49615
+    },
+    {
+      "path": "data/catalog-quality/native-qa-receipt-37521402519.json",
+      "sha256": "b60c64edd7c5b714219d44758928ed5f2c1ce9bc6dd51eec00021de2f39bc5ba",
+      "bytes": 21457
+    },
+    {
+      "path": "data/catalog-quality/clean-core-promotion-37525826052.json",
+      "sha256": "fa704e1b5963a0485d8b4b133c123ac0f0294b5d6a1a0023640a7e4bdf81b6a8",
+      "bytes": 24974
+    }
+  ],
+  "evidenceStorage": {
+    "publicationAndBothRawReportsStoredInRepository": true,
+    "rawReportsRecoveredFromNativeWholeLogsWithExactArtifactBytesAndSha": true,
+    "nativeArtifactRetentionEndsAt": "2026-10-20T21:28:27Z",
+    "workspaceConnectionInterruptedDuringFinalEvidenceSave": true,
+    "appOrDatasetChangedForEvidenceSave": false
+  }
+}

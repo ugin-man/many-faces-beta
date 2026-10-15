@@ -1,0 +1,600 @@
+{
+  "commit": "816f0d2dc08a41bcf33d3a7ab0174d05e3d25c01",
+  "catalogFaces": 70000,
+  "categoryCounts": {
+    "browsUp": 22449,
+    "lookDown": 27455,
+    "pucker": 4999,
+    "smile": 15103,
+    "winkLeft": 2438,
+    "lookUp": 12257,
+    "neutral": 14720,
+    "mouthOpen": 1188,
+    "winkRight": 1449,
+    "blink": 2950,
+    "eyesWide": 283
+  },
+  "labels": {
+    "unlabelled": 70000
+  },
+  "sourceCounts": {
+    "Open Images V7": 63634,
+    "FFHQ / Flickr": 6362,
+    "Wikimedia Commons": 4
+  },
+  "thresholdCounts": {
+    "left": {
+      "loose": 1698,
+      "strong": 439,
+      "frontalStrong": 49,
+      "veryStrong": 28
+    },
+    "right": {
+      "loose": 1250,
+      "strong": 336,
+      "frontalStrong": 24,
+      "veryStrong": 15
+    }
+  },
+  "windows": [
+    {
+      "yaw": -30,
+      "pitch": -15,
+      "files": 99,
+      "faces": 8600,
+      "left": 66,
+      "right": 2
+    },
+    {
+      "yaw": -30,
+      "pitch": 0,
+      "files": 99,
+      "faces": 10641,
+      "left": 97,
+      "right": 3
+    },
+    {
+      "yaw": -30,
+      "pitch": 15,
+      "files": 99,
+      "faces": 9198,
+      "left": 202,
+      "right": 3
+    },
+    {
+      "yaw": -15,
+      "pitch": -15,
+      "files": 99,
+      "faces": 10844,
+      "left": 29,
+      "right": 3
+    },
+    {
+      "yaw": -15,
+      "pitch": 0,
+      "files": 99,
+      "faces": 13031,
+      "left": 21,
+      "right": 4
+    },
+    {
+      "yaw": -15,
+      "pitch": 15,
+      "files": 99,
+      "faces": 11586,
+      "left": 60,
+      "right": 4
+    },
+    {
+      "yaw": 0,
+      "pitch": -15,
+      "files": 99,
+      "faces": 11942,
+      "left": 14,
+      "right": 2
+    },
+    {
+      "yaw": 0,
+      "pitch": 0,
+      "files": 99,
+      "faces": 15440,
+      "left": 9,
+      "right": 3
+    },
+    {
+      "yaw": 0,
+      "pitch": 15,
+      "files": 99,
+      "faces": 14060,
+      "left": 13,
+      "right": 2
+    },
+    {
+      "yaw": 15,
+      "pitch": -15,
+      "files": 99,
+      "faces": 10710,
+      "left": 13,
+      "right": 9
+    },
+    {
+      "yaw": 15,
+      "pitch": 0,
+      "files": 99,
+      "faces": 13304,
+      "left": 4,
+      "right": 12
+    },
+    {
+      "yaw": 15,
+      "pitch": 15,
+      "files": 99,
+      "faces": 12099,
+      "left": 2,
+      "right": 43
+    },
+    {
+      "yaw": 30,
+      "pitch": -15,
+      "files": 99,
+      "faces": 8384,
+      "left": 5,
+      "right": 40
+    },
+    {
+      "yaw": 30,
+      "pitch": 0,
+      "files": 99,
+      "faces": 10247,
+      "left": 3,
+      "right": 91
+    },
+    {
+      "yaw": 30,
+      "pitch": 15,
+      "files": 99,
+      "faces": 9041,
+      "left": 2,
+      "right": 174
+    }
+  ],
+  "examples": [
+    {
+      "side": "left",
+      "id": "clean-v3-clean-v3-source-train-400000-7af40cb91a79737041791155",
+      "file": "clean_v3_yaw_n021_pitch_n024_000.json",
+      "cell": "-21:-24",
+      "leftBlink": 0.80318,
+      "rightBlink": 0.17871,
+      "eyeRatios": [
+        0.1927587215536136,
+        0.08561442817878002
+      ],
+      "yaw": -21,
+      "pitch": -24,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/naturalearthtones/3737527417",
+      "license": "CC BY 2.0",
+      "creator": "Linda"
+    },
+    {
+      "side": "left",
+      "id": "clean-v3-clean-v3-source-test-000000--7c41c68b4a7492a05af0d789",
+      "file": "clean_v3_yaw_n021_pitch_p024_000.json",
+      "cell": "-21:24",
+      "leftBlink": 0.62399,
+      "rightBlink": 0.01919,
+      "eyeRatios": [
+        0.42863007368752554,
+        0.1328768226591831
+      ],
+      "yaw": -21,
+      "pitch": 24,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/13041030@N06/1996721775",
+      "license": "CC BY 2.0",
+      "creator": "Taeng Do Jing"
+    },
+    {
+      "side": "left",
+      "id": "clean-v3-clean-v3-source-test-000000--52a119e8795b55c47a349e58",
+      "file": "clean_v3_yaw_n024_pitch_p024_000.json",
+      "cell": "-24:24",
+      "leftBlink": 0.62225,
+      "rightBlink": 0.02751,
+      "eyeRatios": [
+        0.2972707791756605,
+        0.20741354849709304
+      ],
+      "yaw": -24,
+      "pitch": 24,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/kaverkev/8403446268",
+      "license": "CC BY 2.0",
+      "creator": "Kevin Gallaway"
+    },
+    {
+      "side": "left",
+      "id": "clean-v3-clean-v3-source-train-120000-2d217ec7bffb76c05a5e7d81",
+      "file": "clean_v3_yaw_n021_pitch_p021_000.json",
+      "cell": "-21:21",
+      "leftBlink": 0.73926,
+      "rightBlink": 0.16244,
+      "eyeRatios": [
+        0.19252717003202674,
+        0.06846466775968336
+      ],
+      "yaw": -21,
+      "pitch": 21,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/fibonacciblue/4399472104",
+      "license": "CC BY 2.0",
+      "creator": "Fibonacci Blue"
+    },
+    {
+      "side": "left",
+      "id": "clean-v3-clean-v3-source-train-160000-c9799bc97345ad12100d1fc0",
+      "file": "clean_v3_yaw_p009_pitch_p000_000.json",
+      "cell": "9:0",
+      "leftBlink": 0.85931,
+      "rightBlink": 0.29451,
+      "eyeRatios": [
+        0.2922422340774158,
+        0.33403306023552837
+      ],
+      "yaw": 9,
+      "pitch": 0,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/x1brett/2717358003",
+      "license": "CC BY 2.0",
+      "creator": "brett jordan"
+    },
+    {
+      "side": "left",
+      "id": "clean-v3-clean-v3-source-train-160000-dd2bbb7b597551023f87ba27",
+      "file": "clean_v3_yaw_n024_pitch_p021_000.json",
+      "cell": "-24:21",
+      "leftBlink": 0.6093,
+      "rightBlink": 0.05991,
+      "eyeRatios": [
+        0.29878017329418544,
+        0.13283807868399122
+      ],
+      "yaw": -24,
+      "pitch": 21,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/88941558@N00/11677235045",
+      "license": "CC BY 2.0",
+      "creator": "Alex"
+    },
+    {
+      "side": "left",
+      "id": "clean-v3-clean-v3-source-train-360000-c2695545044c0fd85a088ec7",
+      "file": "clean_v3_yaw_n024_pitch_n009_000.json",
+      "cell": "-24:-9",
+      "leftBlink": 0.5688,
+      "rightBlink": 0.0246,
+      "eyeRatios": [
+        0.6633088213297331,
+        0.31764791254137353
+      ],
+      "yaw": -24,
+      "pitch": -9,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/mdng/4526435144",
+      "license": "CC BY 2.0",
+      "creator": "Maryland National Guard"
+    },
+    {
+      "side": "left",
+      "id": "clean-v3-clean-v3-source-train-160000-ca0284e4e0f3c05d13a7e474",
+      "file": "clean_v3_yaw_n024_pitch_p021_000.json",
+      "cell": "-24:21",
+      "leftBlink": 0.65609,
+      "rightBlink": 0.11704,
+      "eyeRatios": [
+        0.2464468416758447,
+        0.026076361094241645
+      ],
+      "yaw": -24,
+      "pitch": 21,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/paulkehrer/3609352080",
+      "license": "CC BY 2.0",
+      "creator": "Paul Kehrer"
+    },
+    {
+      "side": "left",
+      "id": "clean-v3-clean-v3-source-train-080000-6cccce0bafd0eb0b5e3a7ccb",
+      "file": "clean_v3_yaw_n018_pitch_n015_000.json",
+      "cell": "-18:-15",
+      "leftBlink": 0.75611,
+      "rightBlink": 0.21806,
+      "eyeRatios": [
+        0.19675018760197402,
+        0.10141376763772253
+      ],
+      "yaw": -18,
+      "pitch": -15,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/rickmccharles/11128975804",
+      "license": "CC BY 2.0",
+      "creator": "Rick McCharles"
+    },
+    {
+      "side": "left",
+      "id": "clean-v3-clean-v3-source-train-200000-f3db8c5f2eb9d4b130a0a58d",
+      "file": "clean_v3_yaw_p012_pitch_n021_000.json",
+      "cell": "12:-21",
+      "leftBlink": 0.57838,
+      "rightBlink": 0.05,
+      "eyeRatios": [
+        0.24943868499145877,
+        0.23590476969752894
+      ],
+      "yaw": 12,
+      "pitch": -21,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/edenpictures/4104415224",
+      "license": "CC BY 2.0",
+      "creator": "Eden, Janine and Jim"
+    },
+    {
+      "side": "left",
+      "id": "clean-v3-clean-v3-source-validation-0-4398f8fa818e98ca43597b7e",
+      "file": "clean_v3_yaw_p003_pitch_n018_000.json",
+      "cell": "3:-18",
+      "leftBlink": 0.58,
+      "rightBlink": 0.0958,
+      "eyeRatios": [
+        0.26674998753594836,
+        0.221443050227441
+      ],
+      "yaw": 3,
+      "pitch": -18,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/melissaadret/5595240750",
+      "license": "CC BY 2.0",
+      "creator": "Melissa Adret (Model)"
+    },
+    {
+      "side": "left",
+      "id": "clean-v3-clean-v3-source-train-280000-2fc36c0415b46581a98beef7",
+      "file": "clean_v3_yaw_n018_pitch_p021_000.json",
+      "cell": "-18:21",
+      "leftBlink": 0.75894,
+      "rightBlink": 0.2821,
+      "eyeRatios": [
+        0.16204993705663948,
+        0.029704658586520424
+      ],
+      "yaw": -18,
+      "pitch": 21,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/emmanueldyan/3417911440",
+      "license": "CC BY 2.0",
+      "creator": "Emmanuel DYAN"
+    },
+    {
+      "side": "right",
+      "id": "clean-v3-clean-v3-source-train-000000-105e950c85b940090c551dc5",
+      "file": "clean_v3_yaw_n024_pitch_p009_000.json",
+      "cell": "-24:9",
+      "leftBlink": 0.014,
+      "rightBlink": 0.64971,
+      "eyeRatios": [
+        0.4909807075805241,
+        0.3522174963398525
+      ],
+      "yaw": -24,
+      "pitch": 9,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/cruster/2934394456",
+      "license": "CC BY 2.0",
+      "creator": "Ján Sokoly"
+    },
+    {
+      "side": "right",
+      "id": "clean-v3-clean-v3-source-train-400000-c351db22784ab40e9a8af8d4",
+      "file": "clean_v3_yaw_n012_pitch_n012_000.json",
+      "cell": "-12:-12",
+      "leftBlink": 0.2181,
+      "rightBlink": 0.68937,
+      "eyeRatios": [
+        0.14052141355375067,
+        0.1375992229840389
+      ],
+      "yaw": -12,
+      "pitch": -12,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/shauser/3707858642",
+      "license": "CC BY 2.0",
+      "creator": "Shannon Hauser"
+    },
+    {
+      "side": "right",
+      "id": "clean-v3-clean-v3-source-train-320000-8af6ad0feae3d49e2cafef40",
+      "file": "clean_v3_yaw_p024_pitch_n003_000.json",
+      "cell": "24:-3",
+      "leftBlink": 0.12611,
+      "rightBlink": 0.59545,
+      "eyeRatios": [
+        0.1489990801247183,
+        0.17961224255144556
+      ],
+      "yaw": 24,
+      "pitch": -3,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/enixii/5223053145",
+      "license": "CC BY 2.0",
+      "creator": "chia ying Yang"
+    },
+    {
+      "side": "right",
+      "id": "clean-v3-clean-v3-source-train-320000-c9730da872f62e765426828b",
+      "file": "clean_v3_yaw_p024_pitch_n015_000.json",
+      "cell": "24:-15",
+      "leftBlink": 0.17822,
+      "rightBlink": 0.64184,
+      "eyeRatios": [
+        0.032361144065316975,
+        0.13534606058441104
+      ],
+      "yaw": 24,
+      "pitch": -15,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/dawn-pinkchick/10221003303",
+      "license": "CC BY 2.0",
+      "creator": "Dawn"
+    },
+    {
+      "side": "right",
+      "id": "clean-v3-clean-v3-source-train-280000-d4e30488b9efb8aa2d4eabff",
+      "file": "clean_v3_yaw_n024_pitch_n021_000.json",
+      "cell": "-24:-21",
+      "leftBlink": 0.25617,
+      "rightBlink": 0.71332,
+      "eyeRatios": [
+        0.3301509918515975,
+        0.18152911296152308
+      ],
+      "yaw": -24,
+      "pitch": -21,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/lafoodie/10323223324",
+      "license": "CC BY 2.0",
+      "creator": "L.A. Foodie"
+    },
+    {
+      "side": "right",
+      "id": "clean-v3-clean-v3-source-train-360000-959db7b2c601d3e9136cb327",
+      "file": "clean_v3_yaw_p021_pitch_p009_000.json",
+      "cell": "21:9",
+      "leftBlink": 0.11626,
+      "rightBlink": 0.56955,
+      "eyeRatios": [
+        0.0945515983085854,
+        0.23591281997495234
+      ],
+      "yaw": 21,
+      "pitch": 9,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/mceoin/5604608178",
+      "license": "CC BY 2.0",
+      "creator": "Eoin McMillan"
+    },
+    {
+      "side": "right",
+      "id": "clean-v3-clean-v3-source-train-160000-bc3e3d57876a63fc339e65c3",
+      "file": "clean_v3_yaw_p024_pitch_p021_000.json",
+      "cell": "24:21",
+      "leftBlink": 0.1332,
+      "rightBlink": 0.58319,
+      "eyeRatios": [
+        0.15917506167605092,
+        0.3167015035871384
+      ],
+      "yaw": 24,
+      "pitch": 21,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/rodrigogalindez/251861684",
+      "license": "CC BY 2.0",
+      "creator": "Rodrigo Galindez"
+    },
+    {
+      "side": "right",
+      "id": "clean-v3-clean-v3-source-train-000000-5557d9a4f70bb7b06acb61db",
+      "file": "clean_v3_yaw_p018_pitch_n012_000.json",
+      "cell": "18:-12",
+      "leftBlink": 0.18451,
+      "rightBlink": 0.6256,
+      "eyeRatios": [
+        0.19797660589579227,
+        0.4000280945130981
+      ],
+      "yaw": 18,
+      "pitch": -12,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/bethscupham/14016104368",
+      "license": "CC BY 2.0",
+      "creator": "Beth Scupham"
+    },
+    {
+      "side": "right",
+      "id": "clean-v3-clean-v3-source-train-120000-bb3c5dbcf3875ccb582ca2a9",
+      "file": "clean_v3_yaw_p024_pitch_p006_000.json",
+      "cell": "24:6",
+      "leftBlink": 0.15765,
+      "rightBlink": 0.59541,
+      "eyeRatios": [
+        0.10022800159884182,
+        0.2700078133117904
+      ],
+      "yaw": 24,
+      "pitch": 6,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/bradleypjohnson/13084329183",
+      "license": "CC BY 2.0",
+      "creator": "bradleypjohnson"
+    },
+    {
+      "side": "right",
+      "id": "clean-v3-clean-v3-source-train-360000-6f5f9780dfcc4184468c8d76",
+      "file": "clean_v3_yaw_p024_pitch_p021_000.json",
+      "cell": "24:21",
+      "leftBlink": 0.16881,
+      "rightBlink": 0.60432,
+      "eyeRatios": [
+        0.033201993909510064,
+        0.2910244655959856
+      ],
+      "yaw": 24,
+      "pitch": 21,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/xarkonnen/17297222701",
+      "license": "CC BY 2.0",
+      "creator": "sergej xarkonnen"
+    },
+    {
+      "side": "right",
+      "id": "clean-v3-clean-v3-source-train-160000-87e36ccd5136d85c174a6b3b",
+      "file": "clean_v3_yaw_p021_pitch_p006_000.json",
+      "cell": "21:6",
+      "leftBlink": 0.13619,
+      "rightBlink": 0.55868,
+      "eyeRatios": [
+        0.11044981166593731,
+        0.18467741998721085
+      ],
+      "yaw": 21,
+      "pitch": 6,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/pouchie153/79282710",
+      "license": "CC BY 2.0",
+      "creator": "racky salzman"
+    },
+    {
+      "side": "right",
+      "id": "clean-v3-clean-v3-source-train-160000-bd097e1cade0c9eab2acf91c",
+      "file": "clean_v3_yaw_p015_pitch_p018_000.json",
+      "cell": "15:18",
+      "leftBlink": 0.25393,
+      "rightBlink": 0.66513,
+      "eyeRatios": [
+        0.09175729452348542,
+        0.163342675145687
+      ],
+      "yaw": 15,
+      "pitch": 18,
+      "sourceName": "Open Images V7",
+      "sourceUrl": "https://www.flickr.com/photos/bigswift/14038306965",
+      "license": "CC BY 2.0",
+      "creator": "big swift"
+    }
+  ],
+  "identityConfound": "All counts below are automatic descriptor thresholds, not visual labels or independent ground truth.",
+  "protectedHashes": {
+    "manifest": "6391efaa2d2b2d38443e337f2cc7926347f7722796ff3b12e27e4499675608d1",
+    "reference": "d470cf5a8aeb847f9c127ed8f0d567fcadd99e83c185ef60b7a8c9c6236a005b"
+  }
+}

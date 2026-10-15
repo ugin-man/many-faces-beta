@@ -1,0 +1,1249 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-10-09T03:44:17.511Z",
+  "commit": "c9aa5b5f1c30f8d71e107cbe7c3ecb7cf625b6fa",
+  "baselineCommit": "04a41b80469980454758feba9a31ac48b92c11fd",
+  "fixtureSha256": "d470cf5a8aeb847f9c127ed8f0d567fcadd99e83c185ef60b7a8c9c6236a005b",
+  "catalogManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+  "catalogTree": "afcb8f68a8db87424fe5169896be0fd0a57dbf65",
+  "densityFps": 20,
+  "options": [
+    {
+      "weight": 0.001,
+      "windowSeconds": 2,
+      "halfLifeSeconds": 0.75,
+      "historiesPerCandidate": 2
+    },
+    {
+      "weight": 0.003,
+      "windowSeconds": 2,
+      "halfLifeSeconds": 0.75,
+      "historiesPerCandidate": 2
+    },
+    {
+      "weight": 0.01,
+      "windowSeconds": 2,
+      "halfLifeSeconds": 0.75,
+      "historiesPerCandidate": 2
+    },
+    {
+      "weight": 0.03,
+      "windowSeconds": 2,
+      "halfLifeSeconds": 0.75,
+      "historiesPerCandidate": 2
+    }
+  ],
+  "qualityBudget": {
+    "meanRelative": 0.0025,
+    "p95Relative": 0.005,
+    "maximumFrameErrorIncrease": 0.003,
+    "maximumLocalErrorIncrease": 0.003,
+    "maximumPoseIncreaseDegrees": 0.5,
+    "motionMeanRelative": 0.005,
+    "motionP95Relative": 0.01
+  },
+  "speedBudget": {
+    "guardedSelectorRatio": 2.25,
+    "guardedSelectorSlackMs": 25,
+    "endToEndRatio": 1.1
+  },
+  "variants": [
+    {
+      "options": {
+        "weight": 0.001,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 2
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances",
+        "all-reappearances",
+        "switch-count",
+        "short-completed-runs",
+        "single-sample-runs",
+        "error-mean",
+        "worstLocal-mean",
+        "mouth-mean",
+        "wink-mean",
+        "poseMotionResidual-mean",
+        "per-frame-error",
+        "per-frame-local-error",
+        "per-frame-pose"
+      ],
+      "before": {
+        "frames": 410,
+        "uniqueImages": 134,
+        "runs": 153,
+        "switches": 152,
+        "reappearances": 19,
+        "recentReappearances": 14,
+        "shortCompletedRuns": 88,
+        "singleSampleRuns": 92,
+        "error": {
+          "mean": 0.1427788639564288,
+          "p95": 0.4335826975840034,
+          "max": 1.1614797664967236
+        },
+        "worstLocal": {
+          "mean": 0.1646323256446155,
+          "p95": 0.5554125084201308,
+          "max": 1.6129606171862634
+        },
+        "mouth": {
+          "mean": 0.12062601042557337,
+          "p95": 0.3890150583297632,
+          "max": 1.4025744497271857
+        },
+        "eyes": {
+          "mean": 0.024453342246644826,
+          "p95": 0.05374422585329778,
+          "max": 0.12389137708044537
+        },
+        "brows": {
+          "mean": 0.09315347251890226,
+          "p95": 0.3012571022689495,
+          "max": 0.6026620868196543
+        },
+        "wink": {
+          "mean": 0.06789541804947231,
+          "p95": 0.18533652275800705,
+          "max": 0.6245997827500105
+        },
+        "poseDegrees": {
+          "mean": 5.390750269909492,
+          "p95": 12.73211772134925,
+          "max": 24.85113363826677
+        },
+        "yawDegrees": {
+          "mean": 3.5281040672904447,
+          "p95": 8.592890249444151,
+          "max": 12.439424625601706
+        },
+        "pitchDegrees": {
+          "mean": 2.7197428237110257,
+          "p95": 9.554113646195654,
+          "max": 16.877051069490616
+        },
+        "accepted": 14,
+        "continuity": {
+          "mean": 0.05874292704809147,
+          "p95": 0.2005480918828789,
+          "max": 0.7365885025676269
+        },
+        "expressionMotion": {
+          "mean": 0.029329654660999117,
+          "p95": 0.08942089571044229,
+          "max": 0.4711500980655823
+        },
+        "poseMotionResidual": {
+          "mean": 4.089751829668437,
+          "p95": 12.845356880696759,
+          "max": 70.88638495611819
+        },
+        "objectiveWithoutHistory": {
+          "mean": 0.5665612804565698,
+          "p95": 1.8468563363820905,
+          "max": 7.834813982909222
+        }
+      },
+      "after": {
+        "frames": 410,
+        "uniqueImages": 137,
+        "runs": 157,
+        "switches": 156,
+        "reappearances": 20,
+        "recentReappearances": 15,
+        "shortCompletedRuns": 92,
+        "singleSampleRuns": 96,
+        "error": {
+          "mean": 0.14461047319802187,
+          "p95": 0.4335826975840034,
+          "max": 1.1614797664967236
+        },
+        "worstLocal": {
+          "mean": 0.16823240509693987,
+          "p95": 0.5554125084201308,
+          "max": 1.6129606171862634
+        },
+        "mouth": {
+          "mean": 0.12412786653597889,
+          "p95": 0.3890150583297632,
+          "max": 1.4025744497271857
+        },
+        "eyes": {
+          "mean": 0.024106232759916146,
+          "p95": 0.05374422585329778,
+          "max": 0.12389137708044537
+        },
+        "brows": {
+          "mean": 0.0927386501404212,
+          "p95": 0.3012571022689495,
+          "max": 0.6026620868196543
+        },
+        "wink": {
+          "mean": 0.06817845641578571,
+          "p95": 0.18432265520095825,
+          "max": 0.6245997827500105
+        },
+        "poseDegrees": {
+          "mean": 5.328542174092252,
+          "p95": 12.596655514845727,
+          "max": 24.85113363826677
+        },
+        "yawDegrees": {
+          "mean": 3.4666257260943665,
+          "p95": 8.347364399698716,
+          "max": 11.939041559742579
+        },
+        "pitchDegrees": {
+          "mean": 2.7343529955949846,
+          "p95": 9.554113646195654,
+          "max": 16.877051069490616
+        },
+        "accepted": 14,
+        "continuity": {
+          "mean": 0.05890152057438199,
+          "p95": 0.2005480918828789,
+          "max": 0.7365885025676269
+        },
+        "expressionMotion": {
+          "mean": 0.029209727124842367,
+          "p95": 0.08942089571044229,
+          "max": 0.4711500980655823
+        },
+        "poseMotionResidual": {
+          "mean": 4.125434285451533,
+          "p95": 12.845356880696759,
+          "max": 70.88638495611819
+        },
+        "objectiveWithoutHistory": {
+          "mean": 0.5669837368757724,
+          "p95": 1.8468563363820905,
+          "max": 7.834813982909222
+        }
+      },
+      "maximumFrameErrorIncrease": 0.060968453704682374,
+      "maximumLocalErrorIncrease": 0.17143245413899422,
+      "maximumPoseIncreaseDegrees": 10.201196498694893,
+      "choicesSha256": "9fcc5f1af1dbfa530ae979c2642ac33fe3d72159b3a9106f4b35dc80b8f5fa64",
+      "screeningTiming": [
+        {
+          "index": 0,
+          "variant": "baseline",
+          "elapsedMs": 670.0995929999917
+        },
+        {
+          "index": 1,
+          "variant": "raw",
+          "elapsedMs": 785.1195479999878
+        },
+        {
+          "index": 2,
+          "variant": "guarded",
+          "elapsedMs": 1467.4347010000056
+        },
+        {
+          "index": 3,
+          "variant": "guarded",
+          "elapsedMs": 1604.6966220000031
+        },
+        {
+          "index": 4,
+          "variant": "raw",
+          "elapsedMs": 764.9988460000022
+        },
+        {
+          "index": 5,
+          "variant": "baseline",
+          "elapsedMs": 835.4697090000118
+        },
+        {
+          "index": 6,
+          "variant": "baseline",
+          "elapsedMs": 833.398960999999
+        },
+        {
+          "index": 7,
+          "variant": "guarded",
+          "elapsedMs": 1608.0959520000033
+        },
+        {
+          "index": 8,
+          "variant": "raw",
+          "elapsedMs": 767.8113040000026
+        }
+      ],
+      "screeningMedianMs": {
+        "baseline": 833.398960999999,
+        "raw": 767.8113040000026,
+        "guarded": 1604.6966220000031
+      }
+    },
+    {
+      "options": {
+        "weight": 0.003,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 2
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances",
+        "all-reappearances",
+        "switch-count",
+        "short-completed-runs",
+        "single-sample-runs",
+        "error-mean",
+        "worstLocal-mean",
+        "mouth-mean",
+        "wink-mean",
+        "poseMotionResidual-mean",
+        "per-frame-error",
+        "per-frame-local-error",
+        "per-frame-pose"
+      ],
+      "before": {
+        "frames": 410,
+        "uniqueImages": 134,
+        "runs": 153,
+        "switches": 152,
+        "reappearances": 19,
+        "recentReappearances": 14,
+        "shortCompletedRuns": 88,
+        "singleSampleRuns": 92,
+        "error": {
+          "mean": 0.1427788639564288,
+          "p95": 0.4335826975840034,
+          "max": 1.1614797664967236
+        },
+        "worstLocal": {
+          "mean": 0.1646323256446155,
+          "p95": 0.5554125084201308,
+          "max": 1.6129606171862634
+        },
+        "mouth": {
+          "mean": 0.12062601042557337,
+          "p95": 0.3890150583297632,
+          "max": 1.4025744497271857
+        },
+        "eyes": {
+          "mean": 0.024453342246644826,
+          "p95": 0.05374422585329778,
+          "max": 0.12389137708044537
+        },
+        "brows": {
+          "mean": 0.09315347251890226,
+          "p95": 0.3012571022689495,
+          "max": 0.6026620868196543
+        },
+        "wink": {
+          "mean": 0.06789541804947231,
+          "p95": 0.18533652275800705,
+          "max": 0.6245997827500105
+        },
+        "poseDegrees": {
+          "mean": 5.390750269909492,
+          "p95": 12.73211772134925,
+          "max": 24.85113363826677
+        },
+        "yawDegrees": {
+          "mean": 3.5281040672904447,
+          "p95": 8.592890249444151,
+          "max": 12.439424625601706
+        },
+        "pitchDegrees": {
+          "mean": 2.7197428237110257,
+          "p95": 9.554113646195654,
+          "max": 16.877051069490616
+        },
+        "accepted": 14,
+        "continuity": {
+          "mean": 0.05874292704809147,
+          "p95": 0.2005480918828789,
+          "max": 0.7365885025676269
+        },
+        "expressionMotion": {
+          "mean": 0.029329654660999117,
+          "p95": 0.08942089571044229,
+          "max": 0.4711500980655823
+        },
+        "poseMotionResidual": {
+          "mean": 4.089751829668437,
+          "p95": 12.845356880696759,
+          "max": 70.88638495611819
+        },
+        "objectiveWithoutHistory": {
+          "mean": 0.5665612804565698,
+          "p95": 1.8468563363820905,
+          "max": 7.834813982909222
+        }
+      },
+      "after": {
+        "frames": 410,
+        "uniqueImages": 137,
+        "runs": 157,
+        "switches": 156,
+        "reappearances": 20,
+        "recentReappearances": 15,
+        "shortCompletedRuns": 92,
+        "singleSampleRuns": 96,
+        "error": {
+          "mean": 0.14461047319802187,
+          "p95": 0.4335826975840034,
+          "max": 1.1614797664967236
+        },
+        "worstLocal": {
+          "mean": 0.16823240509693987,
+          "p95": 0.5554125084201308,
+          "max": 1.6129606171862634
+        },
+        "mouth": {
+          "mean": 0.12412786653597889,
+          "p95": 0.3890150583297632,
+          "max": 1.4025744497271857
+        },
+        "eyes": {
+          "mean": 0.024106232759916146,
+          "p95": 0.05374422585329778,
+          "max": 0.12389137708044537
+        },
+        "brows": {
+          "mean": 0.0927386501404212,
+          "p95": 0.3012571022689495,
+          "max": 0.6026620868196543
+        },
+        "wink": {
+          "mean": 0.06817845641578571,
+          "p95": 0.18432265520095825,
+          "max": 0.6245997827500105
+        },
+        "poseDegrees": {
+          "mean": 5.328542174092252,
+          "p95": 12.596655514845727,
+          "max": 24.85113363826677
+        },
+        "yawDegrees": {
+          "mean": 3.4666257260943665,
+          "p95": 8.347364399698716,
+          "max": 11.939041559742579
+        },
+        "pitchDegrees": {
+          "mean": 2.7343529955949846,
+          "p95": 9.554113646195654,
+          "max": 16.877051069490616
+        },
+        "accepted": 14,
+        "continuity": {
+          "mean": 0.05890152057438199,
+          "p95": 0.2005480918828789,
+          "max": 0.7365885025676269
+        },
+        "expressionMotion": {
+          "mean": 0.029209727124842367,
+          "p95": 0.08942089571044229,
+          "max": 0.4711500980655823
+        },
+        "poseMotionResidual": {
+          "mean": 4.125434285451533,
+          "p95": 12.845356880696759,
+          "max": 70.88638495611819
+        },
+        "objectiveWithoutHistory": {
+          "mean": 0.5669837368757724,
+          "p95": 1.8468563363820905,
+          "max": 7.834813982909222
+        }
+      },
+      "maximumFrameErrorIncrease": 0.060968453704682374,
+      "maximumLocalErrorIncrease": 0.17143245413899422,
+      "maximumPoseIncreaseDegrees": 10.201196498694893,
+      "choicesSha256": "9fcc5f1af1dbfa530ae979c2642ac33fe3d72159b3a9106f4b35dc80b8f5fa64",
+      "screeningTiming": [
+        {
+          "index": 0,
+          "variant": "baseline",
+          "elapsedMs": 854.5491780000011
+        },
+        {
+          "index": 1,
+          "variant": "raw",
+          "elapsedMs": 770.6841819999972
+        },
+        {
+          "index": 2,
+          "variant": "guarded",
+          "elapsedMs": 1612.863280999998
+        },
+        {
+          "index": 3,
+          "variant": "guarded",
+          "elapsedMs": 1812.854084999999
+        },
+        {
+          "index": 4,
+          "variant": "raw",
+          "elapsedMs": 968.8971820000006
+        },
+        {
+          "index": 5,
+          "variant": "baseline",
+          "elapsedMs": 843.165651999996
+        },
+        {
+          "index": 6,
+          "variant": "baseline",
+          "elapsedMs": 832.1973449999932
+        },
+        {
+          "index": 7,
+          "variant": "guarded",
+          "elapsedMs": 1790.5427279999858
+        },
+        {
+          "index": 8,
+          "variant": "raw",
+          "elapsedMs": 952.3316740000009
+        }
+      ],
+      "screeningMedianMs": {
+        "baseline": 843.165651999996,
+        "raw": 952.3316740000009,
+        "guarded": 1790.5427279999858
+      }
+    },
+    {
+      "options": {
+        "weight": 0.01,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 2
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances"
+      ],
+      "before": {
+        "frames": 410,
+        "uniqueImages": 134,
+        "runs": 153,
+        "switches": 152,
+        "reappearances": 19,
+        "recentReappearances": 14,
+        "shortCompletedRuns": 88,
+        "singleSampleRuns": 92,
+        "error": {
+          "mean": 0.1427788639564288,
+          "p95": 0.4335826975840034,
+          "max": 1.1614797664967236
+        },
+        "worstLocal": {
+          "mean": 0.1646323256446155,
+          "p95": 0.5554125084201308,
+          "max": 1.6129606171862634
+        },
+        "mouth": {
+          "mean": 0.12062601042557337,
+          "p95": 0.3890150583297632,
+          "max": 1.4025744497271857
+        },
+        "eyes": {
+          "mean": 0.024453342246644826,
+          "p95": 0.05374422585329778,
+          "max": 0.12389137708044537
+        },
+        "brows": {
+          "mean": 0.09315347251890226,
+          "p95": 0.3012571022689495,
+          "max": 0.6026620868196543
+        },
+        "wink": {
+          "mean": 0.06789541804947231,
+          "p95": 0.18533652275800705,
+          "max": 0.6245997827500105
+        },
+        "poseDegrees": {
+          "mean": 5.390750269909492,
+          "p95": 12.73211772134925,
+          "max": 24.85113363826677
+        },
+        "yawDegrees": {
+          "mean": 3.5281040672904447,
+          "p95": 8.592890249444151,
+          "max": 12.439424625601706
+        },
+        "pitchDegrees": {
+          "mean": 2.7197428237110257,
+          "p95": 9.554113646195654,
+          "max": 16.877051069490616
+        },
+        "accepted": 14,
+        "continuity": {
+          "mean": 0.05874292704809147,
+          "p95": 0.2005480918828789,
+          "max": 0.7365885025676269
+        },
+        "expressionMotion": {
+          "mean": 0.029329654660999117,
+          "p95": 0.08942089571044229,
+          "max": 0.4711500980655823
+        },
+        "poseMotionResidual": {
+          "mean": 4.089751829668437,
+          "p95": 12.845356880696759,
+          "max": 70.88638495611819
+        },
+        "objectiveWithoutHistory": {
+          "mean": 0.5665612804565698,
+          "p95": 1.8468563363820905,
+          "max": 7.834813982909222
+        }
+      },
+      "after": {
+        "frames": 410,
+        "uniqueImages": 134,
+        "runs": 153,
+        "switches": 152,
+        "reappearances": 19,
+        "recentReappearances": 14,
+        "shortCompletedRuns": 88,
+        "singleSampleRuns": 92,
+        "error": {
+          "mean": 0.1427788639564288,
+          "p95": 0.4335826975840034,
+          "max": 1.1614797664967236
+        },
+        "worstLocal": {
+          "mean": 0.1646323256446155,
+          "p95": 0.5554125084201308,
+          "max": 1.6129606171862634
+        },
+        "mouth": {
+          "mean": 0.12062601042557337,
+          "p95": 0.3890150583297632,
+          "max": 1.4025744497271857
+        },
+        "eyes": {
+          "mean": 0.024453342246644826,
+          "p95": 0.05374422585329778,
+          "max": 0.12389137708044537
+        },
+        "brows": {
+          "mean": 0.09315347251890226,
+          "p95": 0.3012571022689495,
+          "max": 0.6026620868196543
+        },
+        "wink": {
+          "mean": 0.06789541804947231,
+          "p95": 0.18533652275800705,
+          "max": 0.6245997827500105
+        },
+        "poseDegrees": {
+          "mean": 5.390750269909492,
+          "p95": 12.73211772134925,
+          "max": 24.85113363826677
+        },
+        "yawDegrees": {
+          "mean": 3.5281040672904447,
+          "p95": 8.592890249444151,
+          "max": 12.439424625601706
+        },
+        "pitchDegrees": {
+          "mean": 2.7197428237110257,
+          "p95": 9.554113646195654,
+          "max": 16.877051069490616
+        },
+        "accepted": 14,
+        "continuity": {
+          "mean": 0.05874292704809147,
+          "p95": 0.2005480918828789,
+          "max": 0.7365885025676269
+        },
+        "expressionMotion": {
+          "mean": 0.029329654660999117,
+          "p95": 0.08942089571044229,
+          "max": 0.4711500980655823
+        },
+        "poseMotionResidual": {
+          "mean": 4.089751829668437,
+          "p95": 12.845356880696759,
+          "max": 70.88638495611819
+        },
+        "objectiveWithoutHistory": {
+          "mean": 0.5665612804565698,
+          "p95": 1.8468563363820905,
+          "max": 7.834813982909222
+        }
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0,
+      "maximumPoseIncreaseDegrees": 0,
+      "choicesSha256": "fb7d00b6531f0cff7a54ce56ea68f8fbd41044bafa8108b461b6f2970731b46f",
+      "screeningTiming": [
+        {
+          "index": 0,
+          "variant": "baseline",
+          "elapsedMs": 853.3900929999945
+        },
+        {
+          "index": 1,
+          "variant": "raw",
+          "elapsedMs": 960.2816630000016
+        },
+        {
+          "index": 2,
+          "variant": "guarded",
+          "elapsedMs": 1818.537289999993
+        },
+        {
+          "index": 3,
+          "variant": "guarded",
+          "elapsedMs": 1823.5678009999974
+        },
+        {
+          "index": 4,
+          "variant": "raw",
+          "elapsedMs": 961.978415000005
+        },
+        {
+          "index": 5,
+          "variant": "baseline",
+          "elapsedMs": 870.8516609999933
+        },
+        {
+          "index": 6,
+          "variant": "baseline",
+          "elapsedMs": 884.2482069999969
+        },
+        {
+          "index": 7,
+          "variant": "guarded",
+          "elapsedMs": 1844.394547999982
+        },
+        {
+          "index": 8,
+          "variant": "raw",
+          "elapsedMs": 969.9054299999843
+        }
+      ],
+      "screeningMedianMs": {
+        "baseline": 870.8516609999933,
+        "raw": 961.978415000005,
+        "guarded": 1823.5678009999974
+      }
+    },
+    {
+      "options": {
+        "weight": 0.03,
+        "windowSeconds": 2,
+        "halfLifeSeconds": 0.75,
+        "historiesPerCandidate": 2
+      },
+      "accepted": false,
+      "reasons": [
+        "recent-reappearances",
+        "all-reappearances",
+        "per-frame-local-error",
+        "per-frame-pose"
+      ],
+      "before": {
+        "frames": 410,
+        "uniqueImages": 134,
+        "runs": 153,
+        "switches": 152,
+        "reappearances": 19,
+        "recentReappearances": 14,
+        "shortCompletedRuns": 88,
+        "singleSampleRuns": 92,
+        "error": {
+          "mean": 0.1427788639564288,
+          "p95": 0.4335826975840034,
+          "max": 1.1614797664967236
+        },
+        "worstLocal": {
+          "mean": 0.1646323256446155,
+          "p95": 0.5554125084201308,
+          "max": 1.6129606171862634
+        },
+        "mouth": {
+          "mean": 0.12062601042557337,
+          "p95": 0.3890150583297632,
+          "max": 1.4025744497271857
+        },
+        "eyes": {
+          "mean": 0.024453342246644826,
+          "p95": 0.05374422585329778,
+          "max": 0.12389137708044537
+        },
+        "brows": {
+          "mean": 0.09315347251890226,
+          "p95": 0.3012571022689495,
+          "max": 0.6026620868196543
+        },
+        "wink": {
+          "mean": 0.06789541804947231,
+          "p95": 0.18533652275800705,
+          "max": 0.6245997827500105
+        },
+        "poseDegrees": {
+          "mean": 5.390750269909492,
+          "p95": 12.73211772134925,
+          "max": 24.85113363826677
+        },
+        "yawDegrees": {
+          "mean": 3.5281040672904447,
+          "p95": 8.592890249444151,
+          "max": 12.439424625601706
+        },
+        "pitchDegrees": {
+          "mean": 2.7197428237110257,
+          "p95": 9.554113646195654,
+          "max": 16.877051069490616
+        },
+        "accepted": 14,
+        "continuity": {
+          "mean": 0.05874292704809147,
+          "p95": 0.2005480918828789,
+          "max": 0.7365885025676269
+        },
+        "expressionMotion": {
+          "mean": 0.029329654660999117,
+          "p95": 0.08942089571044229,
+          "max": 0.4711500980655823
+        },
+        "poseMotionResidual": {
+          "mean": 4.089751829668437,
+          "p95": 12.845356880696759,
+          "max": 70.88638495611819
+        },
+        "objectiveWithoutHistory": {
+          "mean": 0.5665612804565698,
+          "p95": 1.8468563363820905,
+          "max": 7.834813982909222
+        }
+      },
+      "after": {
+        "frames": 410,
+        "uniqueImages": 133,
+        "runs": 153,
+        "switches": 152,
+        "reappearances": 20,
+        "recentReappearances": 14,
+        "shortCompletedRuns": 87,
+        "singleSampleRuns": 91,
+        "error": {
+          "mean": 0.14273369679503975,
+          "p95": 0.4335826975840034,
+          "max": 1.1614797664967236
+        },
+        "worstLocal": {
+          "mean": 0.16465767103157422,
+          "p95": 0.5554125084201308,
+          "max": 1.6129606171862634
+        },
+        "mouth": {
+          "mean": 0.12062018505446666,
+          "p95": 0.3890150583297632,
+          "max": 1.4025744497271857
+        },
+        "eyes": {
+          "mean": 0.02440675066022963,
+          "p95": 0.05374422585329778,
+          "max": 0.12389137708044537
+        },
+        "brows": {
+          "mean": 0.0933822661014688,
+          "p95": 0.3012571022689495,
+          "max": 0.6026620868196543
+        },
+        "wink": {
+          "mean": 0.06762369884598274,
+          "p95": 0.18533652275800705,
+          "max": 0.6245997827500105
+        },
+        "poseDegrees": {
+          "mean": 5.380035520606926,
+          "p95": 12.73211772134925,
+          "max": 24.85113363826677
+        },
+        "yawDegrees": {
+          "mean": 3.5380752788753784,
+          "p95": 8.592890249444151,
+          "max": 12.439424625601706
+        },
+        "pitchDegrees": {
+          "mean": 2.6992490504820625,
+          "p95": 9.554113646195654,
+          "max": 16.877051069490616
+        },
+        "accepted": 14,
+        "continuity": {
+          "mean": 0.05864024974908686,
+          "p95": 0.2005480918828789,
+          "max": 0.7365885025676269
+        },
+        "expressionMotion": {
+          "mean": 0.02935581710515228,
+          "p95": 0.08942089571044229,
+          "max": 0.4711500980655823
+        },
+        "poseMotionResidual": {
+          "mean": 4.062695601687763,
+          "p95": 12.668572883356363,
+          "max": 70.88638495611819
+        },
+        "objectiveWithoutHistory": {
+          "mean": 0.5666799748943874,
+          "p95": 1.8468563363820905,
+          "max": 7.834813982909222
+        }
+      },
+      "maximumFrameErrorIncrease": 0,
+      "maximumLocalErrorIncrease": 0.07157431396632954,
+      "maximumPoseIncreaseDegrees": 2.2257824917811466,
+      "choicesSha256": "2d26c4cd02ac613d763db5901150546054e25643da992ab8d1fdc6eef0a0bdd8",
+      "screeningTiming": [
+        {
+          "index": 0,
+          "variant": "baseline",
+          "elapsedMs": 845.058698000008
+        },
+        {
+          "index": 1,
+          "variant": "raw",
+          "elapsedMs": 957.112575999985
+        },
+        {
+          "index": 2,
+          "variant": "guarded",
+          "elapsedMs": 1821.4448290000146
+        },
+        {
+          "index": 3,
+          "variant": "guarded",
+          "elapsedMs": 1828.203795999987
+        },
+        {
+          "index": 4,
+          "variant": "raw",
+          "elapsedMs": 962.1733990000212
+        },
+        {
+          "index": 5,
+          "variant": "baseline",
+          "elapsedMs": 853.7353809999768
+        },
+        {
+          "index": 6,
+          "variant": "baseline",
+          "elapsedMs": 849.095003000024
+        },
+        {
+          "index": 7,
+          "variant": "guarded",
+          "elapsedMs": 1888.359735999984
+        },
+        {
+          "index": 8,
+          "variant": "raw",
+          "elapsedMs": 990.5177700000058
+        }
+      ],
+      "screeningMedianMs": {
+        "baseline": 849.095003000024,
+        "raw": 962.1733990000212,
+        "guarded": 1828.203795999987
+      }
+    }
+  ],
+  "selectorTiming": [],
+  "trials": [],
+  "checks": [
+    "same captured frames/ranked beams; exact baseline UI/Node replay and zero-weight equality"
+  ],
+  "experimentCompleted": true,
+  "adoptionAccepted": false,
+  "physicalCameraVerified": false,
+  "hostedSiteVerified": false,
+  "catalogId": "many-faces-clean-core-v5-28e6092363ed981f-pose-local-v1",
+  "originalWorkerSha256": "5652d5e6a3ad88eb716b626a6cb2439ef4bf891a1f7df4759602347910245326",
+  "capture": {
+    "variant": "baseline",
+    "index": "capture",
+    "nativeWorker": false,
+    "diagnosticCapture": true,
+    "identity": {
+      "version": "camera-arrival-v3",
+      "build": "87b57e8f16cd44dd",
+      "revision": "source-snapshot"
+    },
+    "workerSha256": "62d32a5901d978a0043cc4f3697570fd1d9d4f6d028e2e684235a7d0e140b81d",
+    "wallMs": 71463.642388,
+    "framesSha256": "e14e8727696fc54a4be92a380436722d6a60b5d2f07632235f1cb412c2dd4fc1",
+    "sourceName": "reference-face-motion.mp4",
+    "plannedFrames": 466,
+    "faceFrames": 410,
+    "sequenceFrames": 410,
+    "selectedImages": 134,
+    "imageFailures": 0,
+    "outputChanges": 152,
+    "uniqueFaces": 134,
+    "processingMs": 71343.59999999998,
+    "phaseTimingsMs": {
+      "preparation": 185.2,
+      "faceMesh": 34787.6,
+      "candidateSearch": 34375.3,
+      "pathOptimization": 1201.7,
+      "imagePreload": 589.2
+    },
+    "sequenceFingerprint": "85c9b66e",
+    "canvasNonBlank": true,
+    "faceCoverage": 0.8798283261802575,
+    "passed": true,
+    "reasons": [],
+    "frameEvidence": {
+      "presentationCallbacks": 337,
+      "decodedPausedReadbacks": 129
+    },
+    "inputBuild": "camera-arrival-v3",
+    "build": "87b57e8f16cd44dd",
+    "searchTraffic": {
+      "bytes": 497852679,
+      "files": 722,
+      "decoded": 68163
+    },
+    "matching": {
+      "meanYawErrorDegrees": 3.5281040672904447,
+      "meanPitchErrorDegrees": 2.7197428237110257,
+      "meanMouthError": 0.12062601042557337,
+      "meanEyeError": 0.024453342246644826,
+      "meanProjectionError": 0.1427788639564288
+    },
+    "choicesSha256": "fb7d00b6531f0cff7a54ce56ea68f8fbd41044bafa8108b461b6f2970731b46f",
+    "workerMetrics": {
+      "implementation": "video-quality-overlay-v1",
+      "candidateLoadMs": 10629.000000000087,
+      "candidateRankMs": 23680.699999999866,
+      "candidateDecodeMs": 1631.0000000000873,
+      "yields": 1048,
+      "waitMs": 3484.500000000029,
+      "windowStats": {
+        "windows": 5,
+        "references": 98601,
+        "hits": 233,
+        "misses": 161
+      },
+      "rankStats": {
+        "queries": 410,
+        "coarseCandidates": 4730753,
+        "detailedCandidates": 405786,
+        "descriptorBuilds": 68163,
+        "descriptorHits": 4662590
+      },
+      "wink": {
+        "requestedFrames": 16,
+        "supportedFrames": 16,
+        "fallbackFrames": 0,
+        "indexedOriginals": 71,
+        "addedPhotos": 0,
+        "indexBytes": 550496,
+        "indexError": null
+      },
+      "qualityExcluded": 0
+    }
+  },
+  "baseline": {
+    "frames": 410,
+    "uniqueImages": 134,
+    "runs": 153,
+    "switches": 152,
+    "reappearances": 19,
+    "recentReappearances": 14,
+    "shortCompletedRuns": 88,
+    "singleSampleRuns": 92,
+    "reentryEvents": [
+      {
+        "index": 36,
+        "time": 2.85,
+        "id": "clean-v5-a1428dd3556fe48a64bff47d609b",
+        "gapSeconds": 1.8
+      },
+      {
+        "index": 107,
+        "time": 7.2,
+        "id": "clean-v5-2cccbfe046954c849e160cc5e4da",
+        "gapSeconds": 0.10000000000000053
+      },
+      {
+        "index": 117,
+        "time": 7.8,
+        "id": "clean-v5-15fe8d03e42c2ed13e075ab37dd4",
+        "gapSeconds": 0.09999999999999964
+      },
+      {
+        "index": 121,
+        "time": 8,
+        "id": "clean-v5-b666c1e485ea358e7b9bd0726bd3",
+        "gapSeconds": 1
+      },
+      {
+        "index": 124,
+        "time": 8.15,
+        "id": "clean-v5-3d784242af5812129948415cc0f5",
+        "gapSeconds": 1
+      },
+      {
+        "index": 133,
+        "time": 8.6,
+        "id": "clean-v5-5d96c8f7353583d71683430399ef",
+        "gapSeconds": 1.8999999999999995
+      },
+      {
+        "index": 147,
+        "time": 9.3,
+        "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+        "gapSeconds": 8.3
+      },
+      {
+        "index": 183,
+        "time": 11.1,
+        "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+        "gapSeconds": 1.5999999999999996
+      },
+      {
+        "index": 269,
+        "time": 15.4,
+        "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+        "gapSeconds": 13
+      },
+      {
+        "index": 275,
+        "time": 15.7,
+        "id": "clean-v5-a78c64a395c1b10c850360f1d61a",
+        "gapSeconds": 13.2
+      },
+      {
+        "index": 276,
+        "time": 15.75,
+        "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+        "gapSeconds": 0.05000000000000071
+      },
+      {
+        "index": 281,
+        "time": 16,
+        "id": "clean-v5-21512d55fa7a6953d64f893a7b19",
+        "gapSeconds": 0.1999999999999993
+      },
+      {
+        "index": 282,
+        "time": 16.05,
+        "id": "clean-v5-9a8d34bdd758e0c964e3e838c079",
+        "gapSeconds": 13.5
+      },
+      {
+        "index": 284,
+        "time": 16.15,
+        "id": "clean-v5-c2f6a875c80499562c0e3dec1290",
+        "gapSeconds": 0.6999999999999993
+      },
+      {
+        "index": 315,
+        "time": 18.55,
+        "id": "clean-v5-3d3feddab128615bf8dcb17ce81b",
+        "gapSeconds": 0.6500000000000021
+      },
+      {
+        "index": 333,
+        "time": 19.45,
+        "id": "clean-v5-9db9e768671c4dbbf63f8cb1ade8",
+        "gapSeconds": 0.05000000000000071
+      },
+      {
+        "index": 370,
+        "time": 21.3,
+        "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+        "gapSeconds": 12
+      },
+      {
+        "index": 402,
+        "time": 22.9,
+        "id": "clean-v5-1de60bff419893348adec23f00bf",
+        "gapSeconds": 0.3999999999999986
+      },
+      {
+        "index": 404,
+        "time": 23,
+        "id": "clean-v5-7b9025e316a978d87e6724dfb002",
+        "gapSeconds": 1.1999999999999993
+      }
+    ],
+    "error": {
+      "mean": 0.1427788639564288,
+      "p95": 0.4335826975840034,
+      "max": 1.1614797664967236
+    },
+    "worstLocal": {
+      "mean": 0.1646323256446155,
+      "p95": 0.5554125084201308,
+      "max": 1.6129606171862634
+    },
+    "mouth": {
+      "mean": 0.12062601042557337,
+      "p95": 0.3890150583297632,
+      "max": 1.4025744497271857
+    },
+    "eyes": {
+      "mean": 0.024453342246644826,
+      "p95": 0.05374422585329778,
+      "max": 0.12389137708044537
+    },
+    "brows": {
+      "mean": 0.09315347251890226,
+      "p95": 0.3012571022689495,
+      "max": 0.6026620868196543
+    },
+    "wink": {
+      "mean": 0.06789541804947231,
+      "p95": 0.18533652275800705,
+      "max": 0.6245997827500105
+    },
+    "poseDegrees": {
+      "mean": 5.390750269909492,
+      "p95": 12.73211772134925,
+      "max": 24.85113363826677
+    },
+    "yawDegrees": {
+      "mean": 3.5281040672904447,
+      "p95": 8.592890249444151,
+      "max": 12.439424625601706
+    },
+    "pitchDegrees": {
+      "mean": 2.7197428237110257,
+      "p95": 9.554113646195654,
+      "max": 16.877051069490616
+    },
+    "accepted": 14,
+    "continuity": {
+      "mean": 0.05874292704809147,
+      "p95": 0.2005480918828789,
+      "max": 0.7365885025676269
+    },
+    "expressionMotion": {
+      "mean": 0.029329654660999117,
+      "p95": 0.08942089571044229,
+      "max": 0.4711500980655823
+    },
+    "poseMotionResidual": {
+      "mean": 4.089751829668437,
+      "p95": 12.845356880696759,
+      "max": 70.88638495611819
+    },
+    "objectiveWithoutHistory": {
+      "mean": 0.5665612804565698,
+      "p95": 1.8468563363820905,
+      "max": 7.834813982909222
+    }
+  },
+  "recommended": null,
+  "finishedAt": "2026-10-09T03:46:48.022Z"
+}

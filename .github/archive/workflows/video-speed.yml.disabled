@@ -1,0 +1,126 @@
+name: Video speed and catalog comparison gate
+on:
+  push:
+    branches: [astra/video-speed, astra/realtime-hardening]
+    paths:
+      - 'app/live/review-search.worker.ts'
+      - 'app/live/review-work-cache.ts'
+      - 'app/live/review-ranking.ts'
+      - 'app/live/wink-support.ts'
+      - 'app/live/video-frame.ts'
+      - 'app/live/review-client-lite.tsx'
+      - 'public/seed-catalog/**'
+      - 'public/wink-support/**'
+      - 'scripts/verify-video-speed.mjs'
+      - 'scripts/verify-video-cancellation.mjs'
+      - 'scripts/verify-clean-catalog.mjs'
+      - 'scripts/verify-fullscreen-ui.mjs'
+      - 'scripts/run-video-validation.mjs'
+      - 'scripts/validate-review-presentation-change.mjs'
+      - 'tests/review-first-presentation.test.mjs'
+      - 'tests/review-presentation-source-guard.test.mjs'
+      - 'tests/video-speed.test.mjs'
+      - 'tests/video-capture-bitmap-fallback.test.mjs'
+      - 'tests/video-capture-speed.test.mjs'
+      - 'tests/wink-support*.test.mjs'
+      - '.github/workflows/video-speed.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: video-speed-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      VIDEO_BASELINE_COMMIT: 7b6f7f0d42c18e770379bd56577e9608ba2e9f9e
+      VIDEO_BASELINE_ROOT: /tmp/mf-video-baseline
+      VIDEO_VALIDATION_REPORT_DIR: work/video-validation
+      VIDEO_VALIDATION_TIMEOUT_MS: '2700000'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - name: Pin the accepted baseline and preserve immutable input, camera and presentation assets
+        id: assets
+        run: |
+          mkdir -p work/video-validation
+          git fetch --no-tags --depth=1 origin "$VIDEO_BASELINE_COMMIT"
+          # video-frame.ts has a reviewed fallback for rejected native bitmaps.
+          # Its acquisition behavior is guarded by focused tests and exact
+          # acquired-frame equivalence in the actual browser comparison below.
+          # The video client may differ only by the exact reviewed async initial-draw fix.
+          # All other client bytes and the independent camera/drawing math stay fixed.
+          node scripts/validate-review-presentation-change.mjs "$VIDEO_BASELINE_COMMIT" "$GITHUB_SHA" \
+            > work/video-validation/presentation-source-guard.json
+          git diff --exit-code "$VIDEO_BASELINE_COMMIT" HEAD -- app/live/astra app/live/media-input.ts app/live/frame-arrival.ts app/live/stable-landmarker.ts app/projection-matching.ts app/runtime-identity.ts app/face-presentation.ts app/offline-matching.ts app/call-stage.tsx app/studio.module.css app/studio-controls.ts app/live/review-timeline.ts worker build package.json package-lock.json vite.config.ts .openai
+          validation_mode="$(node --input-type=module - <<'JS'
+          import fs from 'node:fs';
+          import {ACCEPTED_BASELINE, validationMode} from './scripts/run-video-validation.mjs';
+          import assert from 'node:assert/strict';
+          assert.equal(process.env.VIDEO_BASELINE_COMMIT, ACCEPTED_BASELINE);
+          const manifest = JSON.parse(fs.readFileSync('public/seed-catalog/manifest.json'));
+          const mode = validationMode(manifest);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `mode=${mode}\n`);
+          fs.writeFileSync('work/video-validation/verification-mode.json', JSON.stringify({baselineCommit: ACCEPTED_BASELINE, mode, catalogId: manifest.catalogId, qualityAdmission: manifest.qualityAdmission ?? null}, null, 2) + '\n');
+          console.log(mode);
+          JS
+          )"
+          if [ "$validation_mode" = identical ]; then
+            git diff --exit-code "$VIDEO_BASELINE_COMMIT" HEAD -- public
+          else
+            # The v5 harness independently checks every physical catalog entry,
+            # the current bound wink index and all downloaded image/shard bytes.
+            # All other public assets, including models and the MP4, stay fixed.
+            git diff --exit-code "$VIDEO_BASELINE_COMMIT" HEAD -- public ':(exclude)public/seed-catalog/**' ':(exclude)public/wink-support/v1/catalog.json' ':(exclude)public/wink-support/v1/ATTRIBUTION.html' ':(exclude)public/wink-support/v1/audit.json' ':(exclude)public/wink-support/v1/images/**'
+            git diff --name-status --no-renames "$VIDEO_BASELINE_COMMIT" HEAD -- public/wink-support/v1/images > work/video-validation/legacy-wink-image-changes.tsv
+            node --input-type=module - <<'JS'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          const rows = fs.readFileSync('work/video-validation/legacy-wink-image-changes.tsv', 'utf8').trim().split('\n').filter(Boolean);
+          assert(rows.every(row => row.startsWith('D\t')), 'v5 may delete legacy wink images; it may not add or modify separate photo assets');
+          JS
+          fi
+          git rev-parse HEAD > work/video-validation/tested-commit.txt
+          sha256sum public/test-fixtures/reference-face-motion.mp4 > work/video-validation/fixed-video.sha256
+          git worktree add --detach "$VIDEO_BASELINE_ROOT" "$VIDEO_BASELINE_COMMIT"
+      - name: Install exact browser tools and supplementary virtual-camera dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-noto-cjk > work/video-validation/system-dependencies.log 2>&1
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1 esbuild@0.25.12
+          echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
+          ln -s "$PWD/node_modules" "$VIDEO_BASELINE_ROOT/node_modules"
+      - name: Build before integration tests; do not patch source during CI
+        run: |
+          npm run build > work/video-validation/build.log 2>&1 || { cat work/video-validation/build.log; exit 1; }
+          node --experimental-strip-types --test tests/*.test.mjs > work/video-validation/unit.log 2>&1 || { cat work/video-validation/unit.log; exit 1; }
+          tail -n 12 work/video-validation/unit.log
+          npm run lint > work/video-validation/lint.log 2>&1 || { cat work/video-validation/lint.log; exit 1; }
+          (cd "$VIDEO_BASELINE_ROOT" && npm run build) > work/video-validation/baseline-build.log 2>&1 || { cat work/video-validation/baseline-build.log; exit 1; }
+      - name: Serve and verify in one session; exact-output ABBA or admitted-catalog comparison, cancellation and both UI modes
+        env:
+          VIDEO_VALIDATION_MODE: ${{ steps.assets.outputs.mode }}
+        run: node scripts/run-video-validation.mjs
+      - name: Verify no runtime or original asset was rewritten
+        if: always()
+        run: |
+          git diff --exit-code -- app worker scripts tests build public package.json package-lock.json vite.config.ts .openai
+          if [ -f work/video-validation/fixed-video.sha256 ]; then sha256sum -c work/video-validation/fixed-video.sha256; fi
+          if [ -e "$VIDEO_BASELINE_ROOT/.git" ]; then git -C "$VIDEO_BASELINE_ROOT" diff --exit-code -- app worker scripts tests build public; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: video-speed-${{ github.run_id }}
+          path: |
+            work/video-validation
+            !work/video-validation/fixtures/**
+          retention-days: 14

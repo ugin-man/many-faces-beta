@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean70k-final-holdout-contact-sheet-review",
+  "reviewer": "assistant-visual-review",
+  "humanVerified": false,
+  "scope": "12 contact sheets (360 samples), visual triage only; exact original WebP review and fresh independent holdout remain necessary",
+  "sampleSourceRunId": 37755367013,
+  "sampleSourceArtifactId": 11539752510,
+  "sourceManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+  "all360VisuallyScreenedOnContactSheets": true,
+  "all360OriginalImagesIndividuallyOpened": false,
+  "reviewOutcome": "failed-needs-remediation",
+  "counts": {
+    "deny": 7,
+    "uncertain": 3,
+    "contactSheetOnlyUnflagged": 339,
+    "originalReviewedPass": 11
+  },
+  "unflaggedMeaning": "No obvious defect seen at contact-sheet resolution, not independently approved",
+  "decisions": [
+    {
+      "sample": "H035",
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
+    },
+    {
+      "sample": "H038",
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
+    },
+    {
+      "sample": "H039",
+      "decision": "deny",
+      "reason": "原画像を拡大確認しても眼部が強い影で読みにくい"
+    },
+    {
+      "sample": "H078",
+      "decision": "deny",
+      "reason": "原画像でも強いぼけがあり眼と口の形状が不明瞭"
+    },
+    {
+      "sample": "H085",
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
+    },
+    {
+      "sample": "H158",
+      "decision": "deny",
+      "reason": "原画像でも強いぼけで眼・口の形状が不明瞭"
+    },
+    {
+      "sample": "H161",
+      "decision": "deny",
+      "reason": "食べ物が口を覆っており口の形状を再現できない"
+    },
+    {
+      "sample": "H221",
+      "decision": "deny",
+      "reason": "カメラ機材が片目を隠している"
+    },
+    {
+      "sample": "H235",
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
+    },
+    {
+      "sample": "H249",
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
+    },
+    {
+      "sample": "H302",
+      "decision": "deny",
+      "reason": "原画像でも強いぼけで眼・口の細部が不明瞭"
+    },
+    {
+      "sample": "H024",
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
+    },
+    {
+      "sample": "H033",
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
+    },
+    {
+      "sample": "H061",
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
+    },
+    {
+      "sample": "H115",
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
+    },
+    {
+      "sample": "H143",
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
+    },
+    {
+      "sample": "H150",
+      "decision": "pass",
+      "reason": "拡大原画像で目・口の視認性が確認でき、当初の除外懸念は解消"
+    },
+    {
+      "sample": "H182",
+      "decision": "uncertain",
+      "reason": "原画像でも低解像度で表情の詳細が十分読めるか判定保留"
+    },
+    {
+      "sample": "H232",
+      "decision": "uncertain",
+      "reason": "原画像でも顔がぼけており目と口の細部の判定保留"
+    },
+    {
+      "sample": "H240",
+      "decision": "deny",
+      "reason": "原画像で顔の大部分が強くぼけている"
+    },
+    {
+      "sample": "H247",
+      "decision": "uncertain",
+      "reason": "原画像に動きぼけがあり、採用可能な視認性か判定保留"
+    }
+  ],
+  "allowancePolicy": "Clear ordinary glasses and readable face paint are not excluded by category",
+  "rebuildRequirement": "Exclude denied and unresolved uncertain original image SHA256 before candidate selection; refill to exactly 70,000, then repeat independent final holdout. Never use runtime-only overlay as completion.",
+  "originalReviewCorrection": "Original WebP bytes were displayed in enlarged 21-image contact sheets; prior thumbnail-only denials were re-evaluated. Several false positives were reversed, including clear glasses, visible mouths and normal closed eyes.",
+  "enlargedOriginalReviewCount": 21
+}

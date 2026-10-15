@@ -1,0 +1,340 @@
+{
+  "checks": [
+    "mobile output covers the entire viewport",
+    "no mobile horizontal overflow",
+    "no old navigation or tabs",
+    "bundled real recorded video completes actual analysis with nonblank output",
+    "the full existing reference recording is retained, not truncated to five seconds",
+    "source is a small top-right picture-in-picture",
+    "source and result continue past five seconds through the analyzed recording",
+    "frame stepping pauses the original",
+    "video mirror setting is paired",
+    "desktop also uses the complete output surface",
+    "actual MediaPipe virtual-camera pipeline produces result images",
+    "all 70,000 source images remain available",
+    "edge-swipe back stops the camera",
+    "switching mode stops and releases every camera track",
+    "cancel returns cleanly without a false successful report",
+    "no uncaught page errors"
+  ],
+  "pageErrors": [],
+  "video": {
+    "sourceName": "reference-face-motion.mp4",
+    "plannedFrames": 279,
+    "faceFrames": 244,
+    "sequenceFrames": 244,
+    "selectedImages": 102,
+    "imageFailures": 0,
+    "outputChanges": 110,
+    "uniqueFaces": 102,
+    "processingMs": 303664.19999999995,
+    "phaseTimingsMs": {
+      "preparation": 0.2,
+      "faceMesh": 29208.7,
+      "candidateSearch": 259323.4,
+      "pathOptimization": 1316.3,
+      "imagePreload": 13268
+    },
+    "sequenceFingerprint": "e09e3ee9",
+    "canvasNonBlank": true,
+    "faceCoverage": 0.8745519713261649,
+    "passed": true,
+    "reasons": [],
+    "frameEvidence": {
+      "presentationCallbacks": 173,
+      "decodedPausedReadbacks": 106
+    },
+    "inputBuild": "camera-arrival-v3",
+    "build": "8b57a414f760f03f",
+    "searchTraffic": {
+      "bytes": 496786726,
+      "files": 720,
+      "decoded": 68017
+    },
+    "matching": {
+      "meanYawErrorDegrees": 3.364612514905986,
+      "meanPitchErrorDegrees": 3.023879028832444,
+      "meanMouthError": 0.1317193378048839,
+      "meanEyeError": 0.025025693740293196,
+      "meanProjectionError": 0.14978813455379889
+    }
+  },
+  "camera": {
+    "phase": "running",
+    "message": "動きに合わせて検索中。入力と結果は同じ向きで表示します。",
+    "delegate": "CPU",
+    "source": "camera",
+    "frames": 71,
+    "faceFrames": 48,
+    "outputChanges": 2,
+    "detectionFps": 20,
+    "outputFps": 0,
+    "latencyP95Ms": 74,
+    "inferenceMs": 22,
+    "searchMs": 1,
+    "candidates": 2792,
+    "shards": 22,
+    "readyImages": 13,
+    "pendingImages": 3,
+    "imageBytes": 3407872,
+    "imageFailures": 0,
+    "inFlight": 0,
+    "maxInFlight": 1,
+    "busyDrops": 3,
+    "staleResults": 0,
+    "catalogTotal": 70000,
+    "firstOutputMs": 705,
+    "face": true,
+    "currentName": "2005- Berg- Wozzeck",
+    "currentSource": "Open Images V7",
+    "catalogError": null,
+    "stage": "running",
+    "errorCode": null,
+    "frameClock": "video-callback",
+    "videoWidth": 480,
+    "videoHeight": 480,
+    "videoReadyState": 4,
+    "videoPaused": false,
+    "trackState": "live",
+    "trackMuted": false,
+    "environment": {
+      "secure": true,
+      "available": true,
+      "embedded": false,
+      "cameraAllowed": true
+    },
+    "mirrorPresentation": true,
+    "build": "8b57a414f760f03f",
+    "version": "camera-arrival-v3",
+    "receivedBytes": 20963558,
+    "workerStage": "catalog",
+    "workerBuild": "8b57a414f760f03f",
+    "imageRequests": 38
+  },
+  "physicalCameraVerified": false,
+  "hostedSiteVerified": false,
+  "analysisWaitLimitMs": 720000,
+  "progressSamples": [
+    {
+      "recordedAt": "2026-10-06T21:23:02.711Z",
+      "elapsedMs": 3,
+      "runtime": {
+        "version": "camera-arrival-v3",
+        "build": "8b57a414f760f03f",
+        "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+        "phase": "waiting",
+        "label": "固定動画を読み込み中",
+        "updatedAt": 1791321782697,
+        "stalled": false
+      },
+      "observationStatus": "read"
+    },
+    {
+      "recordedAt": "2026-10-06T21:23:32.715Z",
+      "elapsedMs": 30007,
+      "runtime": {
+        "phase": "searching",
+        "label": "照合データを受信中 · 0ファイル / 0.1 MB · 0/244コマ",
+        "updatedAt": 1791321812615,
+        "stalled": false,
+        "version": "camera-arrival-v3",
+        "build": "8b57a414f760f03f",
+        "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+        "receivedBytes": 66331,
+        "loadedFiles": 0,
+        "decodedCandidates": 0,
+        "completedFrames": 0
+      },
+      "observationStatus": "read"
+    },
+    {
+      "recordedAt": "2026-10-06T21:24:02.719Z",
+      "elapsedMs": 60011,
+      "runtime": {
+        "phase": "searching",
+        "label": "照合データを準備中 · 184ファイル / 213.7 MB · 13/244コマ",
+        "updatedAt": 1791321842697,
+        "stalled": false,
+        "version": "camera-arrival-v3",
+        "build": "8b57a414f760f03f",
+        "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+        "receivedBytes": 224052565,
+        "loadedFiles": 184,
+        "decodedCandidates": 30575,
+        "completedFrames": 13
+      },
+      "observationStatus": "read"
+    },
+    {
+      "recordedAt": "2026-10-06T21:24:32.713Z",
+      "elapsedMs": 90005,
+      "runtime": {
+        "phase": "searching",
+        "label": "照合データを準備中 · 314ファイル / 292.1 MB · 36/244コマ",
+        "updatedAt": 1791321872364,
+        "stalled": false,
+        "version": "camera-arrival-v3",
+        "build": "8b57a414f760f03f",
+        "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+        "receivedBytes": 306306903,
+        "loadedFiles": 314,
+        "decodedCandidates": 41915,
+        "completedFrames": 36
+      },
+      "observationStatus": "read"
+    },
+    {
+      "recordedAt": "2026-10-06T21:25:02.714Z",
+      "elapsedMs": 120006,
+      "runtime": {
+        "phase": "searching",
+        "label": "照合データを準備中 · 420ファイル / 363.5 MB · 38/244コマ",
+        "updatedAt": 1791321901831,
+        "stalled": false,
+        "version": "camera-arrival-v3",
+        "build": "8b57a414f760f03f",
+        "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+        "receivedBytes": 381169666,
+        "loadedFiles": 420,
+        "decodedCandidates": 52173,
+        "completedFrames": 38
+      },
+      "observationStatus": "read"
+    },
+    {
+      "recordedAt": "2026-10-06T21:25:32.713Z",
+      "elapsedMs": 150005,
+      "runtime": {
+        "phase": "searching",
+        "label": "照合データを準備中 · 472ファイル / 380.9 MB · 57/244コマ",
+        "updatedAt": 1791321932505,
+        "stalled": false,
+        "version": "camera-arrival-v3",
+        "build": "8b57a414f760f03f",
+        "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+        "receivedBytes": 399426404,
+        "loadedFiles": 472,
+        "decodedCandidates": 54675,
+        "completedFrames": 57
+      },
+      "observationStatus": "read"
+    },
+    {
+      "recordedAt": "2026-10-06T21:26:02.713Z",
+      "elapsedMs": 180005,
+      "runtime": {
+        "phase": "searching",
+        "label": "照合データを準備中 · 529ファイル / 399.3 MB · 65/244コマ",
+        "updatedAt": 1791321962637,
+        "stalled": false,
+        "version": "camera-arrival-v3",
+        "build": "8b57a414f760f03f",
+        "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+        "receivedBytes": 418692354,
+        "loadedFiles": 529,
+        "decodedCandidates": 57316,
+        "completedFrames": 65
+      },
+      "observationStatus": "read"
+    },
+    {
+      "recordedAt": "2026-10-06T21:26:32.715Z",
+      "elapsedMs": 210007,
+      "runtime": {
+        "phase": "searching",
+        "label": "照合データを準備中 · 576ファイル / 423.4 MB · 91/244コマ",
+        "updatedAt": 1791321992452,
+        "stalled": false,
+        "version": "camera-arrival-v3",
+        "build": "8b57a414f760f03f",
+        "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+        "receivedBytes": 444004310,
+        "loadedFiles": 576,
+        "decodedCandidates": 60786,
+        "completedFrames": 91
+      },
+      "observationStatus": "read"
+    },
+    {
+      "recordedAt": "2026-10-06T21:27:02.714Z",
+      "elapsedMs": 240006,
+      "runtime": {
+        "phase": "searching",
+        "label": "顔を照合中 · 639ファイル / 438.9 MB · 177/244コマ",
+        "updatedAt": 1791322022206,
+        "stalled": false,
+        "version": "camera-arrival-v3",
+        "build": "8b57a414f760f03f",
+        "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+        "receivedBytes": 460271788,
+        "loadedFiles": 639,
+        "decodedCandidates": 63014,
+        "completedFrames": 177
+      },
+      "observationStatus": "read"
+    },
+    {
+      "recordedAt": "2026-10-06T21:27:32.714Z",
+      "elapsedMs": 270006,
+      "runtime": {
+        "phase": "searching",
+        "label": "照合データを準備中 · 696ファイル / 464.5 MB · 190/244コマ",
+        "updatedAt": 1791322051937,
+        "stalled": false,
+        "version": "camera-arrival-v3",
+        "build": "8b57a414f760f03f",
+        "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+        "receivedBytes": 487113761,
+        "loadedFiles": 696,
+        "decodedCandidates": 66692,
+        "completedFrames": 190
+      },
+      "observationStatus": "read"
+    },
+    {
+      "recordedAt": "2026-10-06T21:28:02.714Z",
+      "elapsedMs": 300006,
+      "runtime": {
+        "phase": "preloading",
+        "label": "採用画像を準備中 73 / 102",
+        "updatedAt": 1791322082491,
+        "stalled": false,
+        "version": "camera-arrival-v3",
+        "build": "8b57a414f760f03f",
+        "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+        "receivedBytes": 496786726,
+        "loadedFiles": 720,
+        "decodedCandidates": 68017,
+        "completedFrames": 244
+      },
+      "observationStatus": "read"
+    },
+    {
+      "recordedAt": "2026-10-06T21:28:06.729Z",
+      "elapsedMs": 304021,
+      "runtime": {
+        "phase": "review",
+        "label": "レビューできます",
+        "updatedAt": 1791322086708,
+        "stalled": false,
+        "version": "camera-arrival-v3",
+        "build": "8b57a414f760f03f",
+        "revision": "da44953c7b671d2826d3ff4b1645a508545b22d6",
+        "receivedBytes": 496786726,
+        "loadedFiles": 720,
+        "decodedCandidates": 68017,
+        "completedFrames": 244
+      },
+      "observationStatus": "read"
+    }
+  ],
+  "initialUrl": "https://many-faces-prototype.uginn-poppo.chatgpt.site/",
+  "reviewPositions": [
+    5.833333,
+    11.666666,
+    17.5,
+    21.916666
+  ],
+  "passed": true,
+  "finalUrl": "https://many-faces-prototype.uginn-poppo.chatgpt.site/"
+}

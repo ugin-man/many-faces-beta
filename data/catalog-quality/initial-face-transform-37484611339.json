@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "review-initial-presentation-cause-evidence",
+  "qaRunId": 37484611339,
+  "fixture": {
+    "path": "public/test-fixtures/reference-face-motion.mp4",
+    "bytes": 14042765,
+    "sha256": "d470cf5a8aeb847f9c127ed8f0d567fcadd99e83c185ef60b7a8c9c6236a005b",
+    "videoWidth": 512,
+    "videoHeight": 910,
+    "sourceAspectRatio": 0.5626373626373626
+  },
+  "canvas": {
+    "width": 768,
+    "height": 768,
+    "stageWidth": 390,
+    "stageHeight": 844,
+    "objectFit": "cover"
+  },
+  "choices": {
+    "baseline": {
+      "id": "clean-v3-clean-v3-source-train-000000-f7a1d5dcab4eb43ebb91830d",
+      "time": 0,
+      "url": "http://127.0.0.1:4185/api/catalog/image?pack=live_yaw_p003_pitch_p006.bin&offset=392804&length=10936&source=seed&catalog=many-faces-clean-core-v3-pose-local-v1",
+      "candidateLayout": [
+        0.477324,
+        0.479168,
+        0.676041,
+        0.696244
+      ],
+      "inputLayout": [
+        0.43637673556804657,
+        0.4636842757463455,
+        0.4445714056491852,
+        0.31805619597435
+      ]
+    },
+    "candidate": {
+      "id": "clean-v5-092c6e39f976ef3ba391a82ee1ff",
+      "time": 0,
+      "url": "http://127.0.0.1:4183/api/catalog/image?pack=live_yaw_p003_pitch_p006.bin&offset=537824&length=10936&source=seed&catalog=many-faces-clean-core-v5-bf7344c7780447e0-pose-local-v1",
+      "candidateLayout": [
+        0.47750353068113327,
+        0.48007645457983017,
+        0.6713885217905045,
+        0.6937031298875809
+      ],
+      "inputLayout": [
+        0.43637673556804657,
+        0.4636842757463455,
+        0.4445714056491852,
+        0.31805619597435
+      ]
+    }
+  },
+  "baselineRecordedCanvas": {
+    "id": "clean-v3-clean-v3-source-train-000000-f7a1d5dcab4eb43ebb91830d",
+    "time": 0,
+    "expected": {
+      "scale": 0.7656278048187918,
+      "x": -0.046261888329882525,
+      "y": -0.04859596709897112
+    },
+    "width": 768,
+    "height": 768,
+    "pixelHash": "d436286eaf913a7395ce3d8feb40dd1dfb59121de4ac397735fff25f02b741ee",
+    "drawCount": 2,
+    "lastDraw": {
+      "matrix": [
+        0.7656278014183044,
+        0,
+        0,
+        0.7656278014183044,
+        348.4708557128906,
+        346.67828369140625
+      ],
+      "args": [
+        -384,
+        -384
+      ],
+      "at": 117091.09999999998
+    },
+    "videoTime": 0
+  },
+  "candidateActualMatrixWasRecorded": false,
+  "calculatedTransforms": {
+    "baselineCorrect": {
+      "sourceAspectRatio": 0.5626373626373626,
+      "scale": 0.7656278048187918,
+      "x": -0.046261888329882525,
+      "y": -0.04859596709897112,
+      "matrix": [
+        0.7656278048187918,
+        0,
+        0,
+        0.7656278048187918,
+        348.4708697626502,
+        346.67829726799016
+      ],
+      "stageTopPixels": 57.89007013493824
+    },
+    "candidateCorrect": {
+      "sourceAspectRatio": 0.5626373626373626,
+      "scale": 0.7690766166455458,
+      "x": -0.046321755921729074,
+      "y": -0.049222792625628134,
+      "matrix": [
+        0.7690766166455458,
+        0,
+        0,
+        0.7690766166455458,
+        348.4248914521121,
+        346.1968952635176
+      ],
+      "stageTopPixels": 55.90563079954953
+    },
+    "candidateStaleSquareAspect": {
+      "sourceAspectRatio": 1,
+      "scale": 0.519593386995635,
+      "x": -0.05193424774312008,
+      "y": -0.02596358180782707,
+      "matrix": [
+        0.519593386995635,
+        0,
+        0,
+        0.519593386995635,
+        344.11449773328377,
+        364.0599691715888
+      ],
+      "stageTopPixels": 180.81832764203597
+    }
+  },
+  "screenshots": [
+    {
+      "path": "work/clean-v5-qa-37484611339/reports/browser/admitted-catalog/baseline-motion-0.png",
+      "bytes": 261766,
+      "sha256": "1572878dac87fe5e47f1859ffb65fef90561f801e46c2ac53ab022d97d7c4ac7",
+      "width": 390,
+      "height": 844,
+      "pixelColumn": 140,
+      "observedEdgeY": 58,
+      "previousPixel": {
+        "y": 57,
+        "rgb": [
+          10,
+          12,
+          16
+        ]
+      },
+      "edgePixel": {
+        "y": 58,
+        "rgb": [
+          134,
+          102,
+          90
+        ]
+      }
+    },
+    {
+      "path": "work/clean-v5-qa-37484611339/reports/browser/admitted-catalog/failure.png",
+      "bytes": 251989,
+      "sha256": "643d42251f9d4ec26dd813ecf0d06d10f0c1cbf11ca0e5d9d84af823d123654e",
+      "width": 390,
+      "height": 844,
+      "pixelColumn": 140,
+      "observedEdgeY": 181,
+      "previousPixel": {
+        "y": 180,
+        "rgb": [
+          10,
+          12,
+          16
+        ]
+      },
+      "edgePixel": {
+        "y": 181,
+        "rgb": [
+          120,
+          92,
+          82
+        ]
+      }
+    }
+  ],
+  "sources": [
+    {
+      "path": "work/clean-v5-qa-37484611339/reports/browser/admitted-catalog/report.json",
+      "bytes": 97752,
+      "sha256": "b9af028dee585c5403d26db595f2dad6807764bf1a504a43796342436361dfda"
+    },
+    {
+      "path": "work/clean-v5-qa-37484611339/reports/browser/admitted-catalog/baseline-choices.json",
+      "bytes": 1767087,
+      "sha256": "2099bb4d207349f850569d830b96acb9ac06c4f6eb2b7ce89f49ff2970d7baff"
+    },
+    {
+      "path": "work/clean-v5-qa-37484611339/reports/browser/admitted-catalog/candidate-choices.json",
+      "bytes": 2063990,
+      "sha256": "816b991fb87f2a9a470c13fbe17e9bfff6a5c9162f743100b29577daa0e23489"
+    }
+  ],
+  "interpretation": "The observed candidate photo edge agrees with the stale aspect=1 computation, not the fresh-layout portrait computation; code retains the old draw callback across metadata commits.",
+  "limits": [
+    "The failing candidate matrix was not saved by the old harness. Candidate matrices here are calculations, corroborated by saved screenshot pixels.",
+    "Baseline saved only its final draw, so relative passive-effect/async draw ordering is inferred from code and its correct result.",
+    "This diagnosis is separate from selected-photo quality holdout failures.",
+    "No post-fix native browser, physical-camera, Site or user-device verification has occurred."
+  ]
+}

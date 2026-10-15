@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "request": "Generate exactly 70000 admitted real photographs with preselection image denials and original-image-confirmed wink coverage",
+  "createdOn": "2026-10-06",
+  "baselineCommit": "7b6f7f0d42c18e770379bd56577e9608ba2e9f9e",
+  "ffhqSourceCommit": "9d10fb37a825a5f90e5a3671a9564a1f1e9bef53",
+  "sourceCandidateRows": 140105,
+  "targetTotal": 70000,
+  "visibilityMaxScore": 0.05,
+  "attributeModelSha256": "1bf7c6453bec2fb28e0830f3a76dceb9ffd020124f87b28da5355940a7bc6e48",
+  "existingAuditSha256": "7afa866b0ab02cbb45bfb4fcddce0b67fa4dcd695c3f154b677c576af2305b6b",
+  "visibilityReviewSha256": "98b4d86f0022ec13aa2ce03cc0644c5e558321ee9242e9058ac4af19d62fb0f8",
+  "candidateOnly": true,
+  "sitePublication": false,
+  "postSelectionVisualReview": "pending",
+  "fixedVideoVerification": "pending",
+  "attempt": 11,
+  "previousRun": 37519882295,
+  "previousRunStatus": "Published Site v55 with 70000 clean-v5 photos passed functional QA, but new independent post-publication 360-photo holdout failed with 7 confirmed and 3 quarantined photos; rebuild with all 10 exact image hashes excluded preselection.",
+  "nativeRuntimeDependency": [
+    "libgles2",
+    "libegl1"
+  ],
+  "nativeInferencePreflight": true,
+  "diagnosticOnly": false,
+  "lastVerifiedApplicationCommit": "b14837173da46d827d9cd3ae7f0596190c9181be",
+  "lastVerifiedApplicationCiRun": 37490985413,
+  "reuseAudit": {
+    "runId": 37464000479,
+    "runAttempt": 1,
+    "artifactId": 11415037663,
+    "artifactName": "clean-core-v5-failure-37464000479-1",
+    "archiveSizeBytes": 2519170981,
+    "archiveSha256": "0b8023f1c9e81676b499feab0cea82279909e7a8347cf73185076d35560a643b",
+    "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+    "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+    "inferenceCodeCommit": "8f209747dbf5edfd627707734ad01a19be43e897"
+  },
+  "selectionReview": {
+    "path": "data/catalog-selection-reviewed.json",
+    "sha256": "9ba0766d47d70ea9d1fa08a204a7e91e56d57b2e88befabb4347eb5b065c554e",
+    "previous": {
+      "path": "data/catalog-selection-reviewed-20261009-before-holdout.json",
+      "sha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed"
+    }
+  },
+  "previousDiagnosticRun": 37477676654,
+  "reason": "Exclude the ten SHA-bound independent final-holdout failures before catalog selection, replenish to exactly 70000 using original audited candidates and unchanged admission/pose/wink policy. Preserve Site v55 until candidate original-review census, native QA and new independent holdout pass. Never treat existing failed sample as a passing holdout.",
+  "winkReview": {
+    "path": "data/catalog-wink-expression-reviewed.json",
+    "sha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f"
+  },
+  "automaticWinkVisualReview": {
+    "path": "data/catalog-quality/all-wink-visual-review-37477676654.json",
+    "sha256": "a7fe171276293cae84ca322c20bdafa4dfe5c19563bb0057cb369bfad7d13563",
+    "images": 769
+  },
+  "failedSelectedPhotoHoldout": {
+    "path": "data/catalog-quality/holdout-visual-review-37494402324.json",
+    "sha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c",
+    "qaRunId": 37494402324,
+    "checkedPhotos": 360,
+    "confirmedDefects": 27,
+    "uncertainVisibilityOrReadability": 32
+  },
+  "qualityThresholdAssessment": {
+    "appliedAdditionalThreshold": false,
+    "reason": "The tested blanket full-frame and simple face-detail thresholds miss known defects while excluding visually readable ordinary glasses, face paint or other real faces. Preserve original inference policy; use exact reviewed exclusions and replenish all withheld slots.",
+    "evidence": [
+      {
+        "path": "data/catalog-quality/holdout-full-attribute-analysis-37484611339.json",
+        "sha256": "ed09ecec60fbc543cc741edad6bfc096fef7ca7bf72739549316f4d217d13e5a"
+      },
+      {
+        "path": "data/catalog-quality/holdout-face-detail-analysis-37484611339.json",
+        "sha256": "603d5af5edc6a99a9ccaeee22d4603ff3b01b2ffc87decf583862605b272b154"
+      }
+    ]
+  },
+  "initialFaceAlignmentFix": {
+    "codeCommit": "b14837173da46d827d9cd3ae7f0596190c9181be",
+    "ciRunId": 37490985413,
+    "evidence": {
+      "path": "data/catalog-quality/initial-face-transform-37484611339.json",
+      "sha256": "90686e1a9f37bdbd3b9475fda9384503a082c2f86c79a9d99e72ec70d48a7960"
+    },
+    "newCatalogBrowserVerification": "pending"
+  },
+  "additionalQualityDiagnostic": {
+    "status": "no-additional-automatic-gate-adopted",
+    "automaticallyAdoptedAsGate": false,
+    "photoType": {
+      "path": "data/catalog-quality/photo-type-diagnostic-20261006.json",
+      "sha256": "86940bca54588386bdd67efcece5bf3523ad5aa7b9cbc84179935bfd3a80c3ed"
+    },
+    "ofiq": {
+      "status": "completed-diagnostic-only",
+      "automaticallyAdoptedAsGate": false,
+      "path": "data/catalog-quality/ofiq-diagnostic-20261006.json",
+      "sha256": "606cf31ec800a29c0f23927a715c037caf80bcbb721e6a8b4d468e4ae2faced0"
+    },
+    "reason": "Existing admission, models, general quality thresholds and expression/pose classification remain unchanged. Diagnostic scores are not reliable enough to justify another automatic rejection gate. Apply the exact reviewed denials before selection and review every actual replenishment image."
+  },
+  "visualVerificationPlan": {
+    "mode": "remediation-of-evaluated-candidate",
+    "evaluatedCandidateRunId": 37491677036,
+    "evaluatedManifestSha256": "d8265b8077187e7c08e5e4b4a6c39d5999155f1ff0c02bff2160842b97cb5785",
+    "originalFailedHoldout": {
+      "path": "data/catalog-quality/holdout-visual-review-37494402324.json",
+      "sha256": "2d495d4ab7592936919fa770867714049d67a49168d0ad779d6c075b4f063d3c",
+      "qaRunId": 37494402324,
+      "checkedPhotos": 360,
+      "confirmedDefects": 27,
+      "uncertainVisibilityOrReadability": 32
+    },
+    "generalAdmissionPolicyMustRemainUnchanged": true,
+    "allAddedEncodedImagesRequireOriginalQualityReview": true,
+    "independentFinalHoldoutClaim": false,
+    "status": "pending-refill-generation-and-complete-added-image-review",
+    "latestFailedReplenishmentReview": {
+      "path": "data/catalog-quality/remediation-original-review-37515456441.json",
+      "sha256": "05215ddee6108b5d004f8755af4b1b97db908aaea997e6b0e680c880cf3813a5",
+      "qaRunId": 37515456441,
+      "candidateRunId": 37513093051,
+      "remediationIndex": {
+        "path": "data/catalog-quality/remediation-index-37515456441.json",
+        "sha256": "43c3e9aa4ed2079c7aa3b96a41e0fb250ba2ab0bf527ce3a46d9ac685a38c637"
+      },
+      "checkedOriginalPhotos": 59,
+      "counts": {
+        "pass": 58,
+        "deny": 0,
+        "uncertain": 1
+      },
+      "reusedDirectOriginalPasses": 49,
+      "newOriginalPhotosActuallyViewed": 10,
+      "confirmedDefects": 0,
+      "uncertainVisibilityOrReadability": 1,
+      "status": "failed-requires-preselection-remediation",
+      "independentHoldoutPassed": false,
+      "nativeAutomatedChecksPassed": true,
+      "nativeQaReceiptSha256": "30ae7accf81c5ce1e5c240bd5de92e9b4b9dba6b86b74b8008eee648edfab376",
+      "adjudication": {
+        "path": "data/catalog-quality/remediation-H009-adjudication-37515456441.json",
+        "sha256": "cae766ef82058ed788d12e54556b7ae3447e68c3bc5d4634c51098a5fa1e0a89"
+      }
+    }
+  },
+  "failedReplenishmentOriginalReview": {
+    "path": "data/catalog-quality/remediation-original-review-37515456441.json",
+    "sha256": "05215ddee6108b5d004f8755af4b1b97db908aaea997e6b0e680c880cf3813a5",
+    "qaRunId": 37515456441,
+    "candidateRunId": 37513093051,
+    "remediationIndex": {
+      "path": "data/catalog-quality/remediation-index-37515456441.json",
+      "sha256": "43c3e9aa4ed2079c7aa3b96a41e0fb250ba2ab0bf527ce3a46d9ac685a38c637"
+    },
+    "checkedOriginalPhotos": 59,
+    "counts": {
+      "pass": 58,
+      "deny": 0,
+      "uncertain": 1
+    },
+    "reusedDirectOriginalPasses": 49,
+    "newOriginalPhotosActuallyViewed": 10,
+    "confirmedDefects": 0,
+    "uncertainVisibilityOrReadability": 1,
+    "status": "failed-requires-preselection-remediation",
+    "independentHoldoutPassed": false,
+    "nativeAutomatedChecksPassed": true,
+    "nativeQaReceiptSha256": "30ae7accf81c5ce1e5c240bd5de92e9b4b9dba6b86b74b8008eee648edfab376",
+    "adjudication": {
+      "path": "data/catalog-quality/remediation-H009-adjudication-37515456441.json",
+      "sha256": "cae766ef82058ed788d12e54556b7ae3447e68c3bc5d4634c51098a5fa1e0a89"
+    }
+  }
+}

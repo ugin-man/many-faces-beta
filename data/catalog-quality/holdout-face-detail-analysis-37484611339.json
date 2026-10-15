@@ -1,0 +1,113 @@
+{
+  "documentKind": "face-detail-diagnostic-conclusion",
+  "status": "investigation-only-no-new-gate",
+  "humanVerified": false,
+  "wholePoolReinferred": false,
+  "diagnosticImages": 360,
+  "unchangedAuditModelConfirmed": true,
+  "faceModelSha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+  "measurementsSha256": "3b61b75e998e8cde243b0fb3d18cecd5562e8a68bd816eff5ad782f658eb9e57",
+  "scriptSha256": "03aa8c471e0aa59a96c7ea2063851d2892a4699404d43ae8ea73be4492a5cfaa",
+  "diagnosticPoseMaximumDeltaDegrees": 0.008977240650509088,
+  "conclusion": "Inner-face measurements reveal background-driven quality inflation but no safe automatic scalar exclusion threshold was established. Do not apply the illustrative cutoffs to admissions.",
+  "illustrativeThresholdNotPolicy": {
+    "description": "The greatest inner-face Laplacian variance of the two already reviewed severe-blur examples. This is an exploratory operating-point illustration, not calibration.",
+    "maximumInclusive": 17.129650115966797,
+    "selectedCount": 13,
+    "decisions": {
+      "pass": 8,
+      "deny": 4,
+      "uncertain": 1
+    },
+    "selectedSamples": [
+      "H011",
+      "H050",
+      "H127",
+      "H132",
+      "H136",
+      "H142",
+      "H149",
+      "H152",
+      "H163",
+      "H197",
+      "H205",
+      "H212",
+      "H224"
+    ],
+    "passCounterexamples": [
+      "H011",
+      "H050",
+      "H127",
+      "H149",
+      "H163",
+      "H205",
+      "H212",
+      "H224"
+    ]
+  },
+  "originalsViewedForThisInvestigation": [
+    {
+      "sample": "H136",
+      "encodedSha256": "7a56cf363976e7efc2a0955e6966344028b2aef005c6411fd9e7d20e89288ebf",
+      "viewedOriginal": true
+    },
+    {
+      "sample": "H152",
+      "encodedSha256": "40c08d4963800d8010821f3337e257a4aa495b282e447ac45e1740852b4d51dd",
+      "viewedOriginal": true
+    },
+    {
+      "sample": "H131",
+      "encodedSha256": "96f90c350404b8286857f69da7aab869bc0a24a015dbcd7218355c6d4613009e",
+      "viewedOriginal": true
+    },
+    {
+      "sample": "H011",
+      "encodedSha256": "1a3c138cd6563bc0d08d126715fdccdd78c95c2f51873b56b5a9b4a6e95d48bd",
+      "viewedOriginal": true
+    },
+    {
+      "sample": "H050",
+      "encodedSha256": "a7ca238384a5d476f212fa6ecf93c992c61068b9e123a5fd18e7d2ef2545880c",
+      "viewedOriginal": true
+    },
+    {
+      "sample": "H149",
+      "encodedSha256": "98e0d10ef8dd25d9ce9a5bcb539d8079ab810ff54be1fa6b2defc0c94a34d08b",
+      "viewedOriginal": true
+    },
+    {
+      "sample": "H205",
+      "encodedSha256": "17f4c7f23b6d327af14f43a6c57f672daf67bf12806a99b62a472d823d7c7209",
+      "viewedOriginal": true
+    },
+    {
+      "sample": "H163",
+      "encodedSha256": "3fd2c7a00142dca389a262234874c1fb116df9feba2d69d0410c4486d330d770",
+      "viewedOriginal": true
+    },
+    {
+      "sample": "H212",
+      "encodedSha256": "a4dce8c96f8074716fdff4873ee035d47b07e8598e36d0a27afec271d6bb98a1",
+      "viewedOriginal": true
+    },
+    {
+      "sample": "H224",
+      "encodedSha256": "76fc76c5f80fd0d40dcc03f56dc0254fa68cf7230fe2abaac1e19acfccad7ca3",
+      "viewedOriginal": true
+    },
+    {
+      "sample": "H127",
+      "encodedSha256": "4069b15c3a97a71c4e0e59f611d41a00d04d3eff2928027f5db59697b0ad1ae6",
+      "viewedOriginal": true
+    }
+  ],
+  "admissionChanges": false,
+  "controlChanges": false,
+  "modelChanges": false,
+  "knownSevereBlurExamples": [
+    "H136",
+    "H152"
+  ],
+  "restoredGeneratedTrackedFile": "tools/__pycache__/build_face_catalog.cpython-312.pyc"
+}

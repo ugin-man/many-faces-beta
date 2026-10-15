@@ -1,0 +1,79 @@
+name: Catalog quality audit
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths:
+      - '.github/workflows/catalog-quality-audit.yml'
+      - 'scripts/audit-catalog-occlusion.py'
+      - 'scripts/prepare-quality-yaw.mjs'
+      - 'scripts/quality-yaw-probe.ts'
+      - 'scripts/run-quality-yaw.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  occlusion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --disable-pip-version-check numpy pillow opencv-python-headless onnxruntime
+      - name: Download face attribute model
+        run: |
+          mkdir -p work/catalog-quality
+          curl -fL --retry 3 -o work/catalog-quality/face_attrib_net.onnx https://github.com/yakhyo/face-attribute/releases/download/weights/face_attrib_net.onnx
+      - name: Audit all 70k exact packed photographs
+        run: python scripts/audit-catalog-occlusion.py --model work/catalog-quality/face_attrib_net.onnx --out work/catalog-quality/occlusion.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: catalog-occlusion-${{ github.run_id }}
+          path: work/catalog-quality/occlusion.json
+          retention-days: 14
+  yaw:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [0, 1, 2, 3]
+    env:
+      AUDIT_PART: ${{ matrix.part }}
+      AUDIT_PARTS: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - run: |
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1 esbuild@0.25.12
+          echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+      - name: Prepare exact side-pose photographs
+        run: |
+          node --experimental-strip-types scripts/prepare-quality-yaw.mjs
+          node - <<'NODE'
+          const esbuild=require('./.browser-tools/node_modules/esbuild');
+          esbuild.buildSync({entryPoints:['scripts/quality-yaw-probe.ts'],bundle:true,format:'esm',platform:'browser',outfile:'public/__quality_yaw/probe.js'});
+          require('fs').writeFileSync('public/__quality_yaw/index.html','<!doctype html><script type="module">import {auditYaw} from "./probe.js";window.auditYaw=auditYaw;</script>');
+          NODE
+      - run: |
+          npm run build
+          PORT=4187 HOST=127.0.0.1 nohup npm start > /tmp/quality-server.log 2>&1 &
+          for i in $(seq 1 90); do curl -fsS http://127.0.0.1:4187/__quality_yaw/index.html >/dev/null && break; sleep 1; done
+          node --experimental-strip-types scripts/run-quality-yaw.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: catalog-yaw-${{ matrix.part }}-${{ github.run_id }}
+          path: work/catalog-quality/yaw-${{ matrix.part }}.json
+          retention-days: 14

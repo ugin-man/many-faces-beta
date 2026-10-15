@@ -1,0 +1,83 @@
+name: Astra adversarial audit
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths:
+      - 'app/live/astra/**'
+      - 'app/live-matching.ts'
+      - 'tests/astra-*.test.mjs'
+      - 'tests/helpers/astra-*.mjs'
+      - 'scripts/audit-astra-*.mjs'
+      - 'scripts/compare-astra-*.mjs'
+      - '.github/workflows/astra-adversarial-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: astra-adversarial-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  paired-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      ASTRA_BASELINE_DIR: /tmp/many-faces-astra-baseline
+      ASTRA_BASELINE_COMMIT: a2b9bcde2d2be2c6b84e0ee88a6845ce37f86d77
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - name: Prepare exact baseline and current dependencies
+        run: |
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1
+          git fetch --depth=1 origin "$ASTRA_BASELINE_COMMIT"
+          git worktree add --detach "$ASTRA_BASELINE_DIR" "$ASTRA_BASELINE_COMMIT"
+          (cd "$ASTRA_BASELINE_DIR" && npm ci)
+          mkdir -p work/astra-resource-audit work/astra-evidence public/mediapipe/wasm public/models
+          cp -a node_modules/@mediapipe/tasks-vision/wasm/. public/mediapipe/wasm/
+          curl --fail --location --retry 3 --max-time 180 -o public/models/face_landmarker.task https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
+          mkdir -p "$ASTRA_BASELINE_DIR/public/mediapipe" "$ASTRA_BASELINE_DIR/public/models"
+          cp -a public/mediapipe/. "$ASTRA_BASELINE_DIR/public/mediapipe/"
+          cp -a public/models/. "$ASTRA_BASELINE_DIR/public/models/"
+          echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
+      - name: Execute all Astra invariants including exact top-k and cache pressure
+        run: node --experimental-strip-types --test tests/astra-*.test.mjs
+      - name: Stress exact ranking across all 70000 records and replay fixed-budget cache demand
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: node --experimental-strip-types scripts/audit-astra-resource-cache.mjs
+      - name: Prepare unchanged public-photo stimulus
+        timeout-minutes: 3
+        run: bash scripts/prepare-astra-fixtures.sh 2>&1 | tee work/astra-resource-audit/fixture-build.log
+      - name: Build both exact source revisions
+        run: |
+          npm run build > work/astra-resource-audit/current-build.log 2>&1
+          (cd "$ASTRA_BASELINE_DIR" && npm run build) > work/astra-resource-audit/baseline-build.log 2>&1
+      - name: Start production servers for paired comparison
+        run: |
+          PORT=4173 HOST=127.0.0.1 nohup npm start > work/astra-resource-audit/current-server.log 2>&1 &
+          (cd "$ASTRA_BASELINE_DIR" && PORT=4175 HOST=127.0.0.1 nohup npm start > "$GITHUB_WORKSPACE/work/astra-resource-audit/baseline-server.log" 2>&1) &
+          for attempt in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:4173/live/astra >/dev/null && curl -fsS http://127.0.0.1:4175/live/astra >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: ABBA browser comparison with actual resource timing and cache-hit accounting
+        run: node scripts/compare-astra-resources.mjs
+      - name: Verify catalog and tracked source remained unchanged by execution
+        if: always()
+        run: |
+          git diff --exit-code -- app scripts tests tools public/seed-catalog
+          test "$(git rev-parse HEAD:public/seed-catalog)" = "$(git -C "$ASTRA_BASELINE_DIR" rev-parse HEAD:public/seed-catalog)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: astra-resource-audit-${{ github.run_id }}
+          path: work/astra-resource-audit
+          retention-days: 14

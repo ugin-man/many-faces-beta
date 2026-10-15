@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-remediation-image-review",
+  "scope": "full-original-image-quality",
+  "remediationIndexSha256": "41fabd829cfe49bf07378f641a3d01ca151298b6ec92f2617565c7da0075afff",
+  "finalManifestSha256": "43d7731b9fda6d94a381425b2722fd289adcdc9fe5258504ab3bedf517cf9a76",
+  "reviewer": "assistant-visual-review",
+  "humanVerified": false,
+  "reviewedOriginalPhotos": 20,
+  "counts": {
+    "pass": 15,
+    "deny": 4,
+    "uncertain": 1
+  },
+  "reviews": [
+    {
+      "sample": "H001",
+      "encodedSha256": "01aac77d8faed956e0c345f5fcfd5c84777c535fbe8f171b64c5af6e49a5dcc7",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-19153",
+      "decision": "pass",
+      "reason": "やや柔らかい描写だが、両目・眉・口角と歯の輪郭を原画で判別できる。髪は顔の側方で、表情領域を覆っていない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H002",
+      "encodedSha256": "099c9040fc7fd74ba2abf2ba4b817fc3293e03c890384bef869bc2c7bc3fc9b7",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-29379",
+      "decision": "pass",
+      "reason": "両目・眉・鼻・唇の輪郭が読める実写真。顔を隠す物体はなく、明るい額でも表情の形は保たれている。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H003",
+      "encodedSha256": "0adfc73bf8253d225938866e0af0618bf99dabb672544433f8f5b40e689de6af",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-48094",
+      "decision": "pass",
+      "reason": "透明眼鏡の内側の両目が見え、眉と口の形も判別できる。頭の帽子は目や口を覆っておらず、顔全体の情報を読める。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H004",
+      "encodedSha256": "0eda352ff4d96c6c29459360a3f4e2dea8e39a6c7d3a75e10864778f517b2dc9",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-34217",
+      "decision": "pass",
+      "reason": "軽い柔らかさはあるが、主顔の目・眉・唇が判別できる。髪飾りは顔外にあり、画像端の別の顔も主顔を覆っていない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H005",
+      "encodedSha256": "169b46718360db7c5028e284099ee61521c0d16ba6fc119eeb41a6a8c23d15e1",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-66783",
+      "decision": "pass",
+      "reason": "帽子と布は額上部・顔の外側にあり、両目・眉・口の形を隠していない。口をすぼめた形も原画で読める。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H006",
+      "encodedSha256": "18df9f380a96e48db5faa0d145f12d7bcc3337c93326c3eff2ecef58d778a940",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-2728",
+      "decision": "pass",
+      "reason": "頭の布は顔の周囲にあり、目・眉・口を覆っていない。強い光沢と色味はあるが、目の輪郭と開いた口・歯を判別できる。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H007",
+      "encodedSha256": "1d9bd4e884ecd42364629b1522947423036241cdad27e1a190bce3860649c1c4",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-17436",
+      "decision": "deny",
+      "reason": "前髪が両眉の大部分に重なり、眉の輪郭と動きを読むための領域が隠れている。目と笑った口が見えることとは別に、眉の遮蔽を確認した。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H008",
+      "encodedSha256": "1f5b4c8ab818e14dafccf47f45e6b7b2a28eed4b9d949b136b644389f6de7db2",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-39800",
+      "decision": "deny",
+      "reason": "斜めの前髪が画像左側の眉の大部分を覆い、眉形状を追えない。髪型そのものではなく表情領域への実際の重なりが理由。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H009",
+      "encodedSha256": "239e60706615e289aa3b2e0cfd94a0656f2cdaa91a9a64cb25365b3af201ace3",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-59042",
+      "decision": "deny",
+      "reason": "黄色いウィッグの束が眉付近から画像右側の目の内側へ重なり、目と眉の一部を隠している。頬の線など顔ペイント自体は除外理由ではない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H010",
+      "encodedSha256": "2727aac827966dfe9b23b7998a5b43ab0310047d219b7aebf13e4ea7ffb473f7",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-13461",
+      "decision": "pass",
+      "reason": "顔の片側に影があるが、両目の輪郭・眉・閉じた唇と口角を判別できる。物体による表情領域の遮蔽はない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H011",
+      "encodedSha256": "2acb78e756541a1a18e21e8bc9d1a91c6d66242fac4bf0cc62f81f5163e279f9",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-26065",
+      "decision": "deny",
+      "reason": "頭頂の画像左側に暗いレンズとフレームのサングラスが載っている。顔自体は読めるが、頭上を含むサングラス写真の禁止方針に該当する。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H012",
+      "encodedSha256": "32641ba537d5d1103317d40e4a5a37245f14c18ea24d8b2f0b714b47ea8434a3",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-40426",
+      "decision": "pass",
+      "reason": "濃い目元の化粧があるが、両目の開閉輪郭・眉・口角・歯が明瞭に読める。髪は目や口に重なっていない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H013",
+      "encodedSha256": "371c45582e8e34f748400f64724ec7610eb89ae1a212f54a8eb86c26fe5948d4",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-62314",
+      "decision": "pass",
+      "reason": "髪が顔の側方へ分かれ、両目・眉・唇が見える。少し柔らかい描写でも表情の輪郭は判別できる。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H014",
+      "encodedSha256": "39c0ac7659f7e01589240b86de87a71088df706bf9ebaa9f4b755c000b047b90",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-50834",
+      "decision": "pass",
+      "reason": "白塗りと赤い顔ペイントがあるが、目の開閉・眉・大きく笑った口と歯の輪郭を読める実写真。ペイントや頭のウィッグだけを理由に除外しない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H015",
+      "encodedSha256": "42cb51124a9495920a7a0b3c9159b2721febc34e96b5066d3f54dfc088b3c669",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-26082",
+      "decision": "pass",
+      "reason": "黒いフレームの透明眼鏡で、レンズ越しの両目と眉・笑った口を判別できる。反射はあるが目全体を隠していない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H016",
+      "encodedSha256": "44d1f04b59ed3aef48472907b539a49bda84b7bbaf6fbd6fc2e97750c7e284d4",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-26792",
+      "decision": "pass",
+      "reason": "主顔の目・眉・口角・歯が明瞭。頭の後ろの指や画像左端の別人物は主顔の表情領域に重なっていない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H017",
+      "encodedSha256": "475830bffdafb827e94f1f4ce0712cf8678d8db862b35e5795dddfc5a59c4dcb",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-14844",
+      "decision": "pass",
+      "reason": "鼻に明るい光が当たっているが、両目・眉・開いた口と周囲の輪郭を判別できる。髪や物体による表情の遮蔽はない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H018",
+      "encodedSha256": "4949f081e1b9b9610aa36f4e642e353f2d3ea7ae6af23ddb40ff58961f079f72",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-16307",
+      "decision": "uncertain",
+      "reason": "目の周囲が深い影になり、両目の細かな輪郭・開閉状態を確実に読めるか判断しきれない。物体やサングラスの存在は断定せず、可読性の不確かさとして保留する。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H019",
+      "encodedSha256": "4bfa600da734d1fbf378ae41f88bac2e3f50a219a956efdf00f49469178faf5c",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-18502",
+      "decision": "pass",
+      "reason": "頬と首は強く明るいが、両目・眉・唇と口角の輪郭を判別できる。表情領域に重い白飛びや物体の重なりは見られない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    },
+    {
+      "sample": "H020",
+      "encodedSha256": "55ab16cd61b2250ccff5b0e8e8b281e7bde49248c2d2245960de1730bf2a7f00",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-16329",
+      "decision": "pass",
+      "reason": "横向きの実写真で、両目・眉・鼻・唇の輪郭が読める。化粧や頬の小さな模様は表情を隠しておらず、重いぼけもない。",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    }
+  ]
+}

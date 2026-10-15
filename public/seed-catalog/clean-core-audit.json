@@ -1,230 +1,572 @@
 {
-  "policyVersion": "clean-single-factor-v3",
-  "inputEntries": 318067,
-  "inputCatalogs": {
-    "many-faces-clean-core-v3": 66977,
-    "clean-v3-source-test-000000-025000-32559210408": 4623,
-    "clean-v3-source-train-000000-040000-32559210408": 20238,
-    "clean-v3-source-train-040000-080000-32559210408": 20155,
-    "clean-v3-source-train-080000-120000-32559210408": 20065,
-    "clean-v3-source-train-120000-160000-32559210408": 19860,
-    "clean-v3-source-train-160000-200000-32559210408": 20197,
-    "clean-v3-source-train-200000-240000-32559210408": 20067,
-    "clean-v3-source-train-240000-280000-32559210408": 20146,
-    "clean-v3-source-train-280000-320000-32559210408": 20153,
-    "clean-v3-source-train-320000-360000-32559210408": 20065,
-    "clean-v3-source-train-360000-400000-32559210408": 19935,
-    "clean-v3-source-train-400000-440000-32559210408": 20090,
-    "clean-v3-source-train-440000-480000-32559210408": 20262,
-    "clean-v3-source-train-480000-520000-32559210408": 3670,
-    "clean-v3-source-validation-000000-010000-32559210408": 1564
+  "policyVersion": "clean-isolated-observed-mouth-reviewed-winks-v5",
+  "inputEntries": 140105,
+  "selectionIdentity": {
+    "schemaVersion": 1,
+    "policyVersion": "clean-isolated-observed-mouth-reviewed-winks-v5",
+    "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+    "selectionCodeSha256": {
+      "clean_core_policy_v2.py": "b75bbefc0cc5de576d26d265d285458f06bb871dec925613fbad9dc3ff7dbe0d",
+      "clean_core_policy_v3.py": "0f24e9a769a421e2dec3ac43d1eac30b59096d9e18dbf5b611c1b8cd53d508ba",
+      "build_clean_core_v3.py": "145435b8f75d73d19b25654d56c5cfbbf85c6b7cb555bd9f4fd56c07893cbe49",
+      "run_build_clean_core_v3_real_only.py": "25e0b3d04d06fcea30412fb8beae95a6eea16e2b397b687d7f43d1dfb7ee7f9b",
+      "run_build_clean_core_v3_repair.py": "a96c1d947ee9740a74bcd5fb71fc4c6cc015e87f69704684a8712140045b66e2",
+      "clean_core_selection_review.py": "a503fff2a6b3227dc2b4a3c92fc2c3b0d6d82b7d5c7e37abd396713180fa7abd"
+    },
+    "targetTotal": 70000,
+    "preselectMultiplier": 6,
+    "profileEvidenceTiers": {
+      "winkLeft": [
+        "strict",
+        "observed"
+      ],
+      "winkRight": [
+        "strict",
+        "observed"
+      ],
+      "blink": [
+        "strict"
+      ],
+      "eyesWide": [
+        "strict"
+      ],
+      "gazeUp": [
+        "strict"
+      ],
+      "gazeDown": [
+        "strict"
+      ],
+      "gazeLeft": [
+        "strict"
+      ],
+      "gazeRight": [
+        "strict"
+      ],
+      "browsUp": [
+        "strict"
+      ],
+      "browsDown": [
+        "strict"
+      ],
+      "noseSneer": [
+        "strict"
+      ],
+      "mouthRound": [
+        "strict"
+      ],
+      "mouthPucker": [
+        "strict"
+      ],
+      "mouthSlightOpen": [
+        "strict"
+      ],
+      "mouthOpen": [
+        "strict"
+      ],
+      "smileClosed": [
+        "strict"
+      ],
+      "smileOpen": [
+        "strict"
+      ],
+      "mouthWide": [
+        "strict",
+        "observed"
+      ],
+      "mouthPress": [
+        "strict"
+      ],
+      "mouthRoll": [
+        "strict"
+      ],
+      "mouthLeft": [
+        "strict"
+      ],
+      "mouthRight": [
+        "strict"
+      ],
+      "mouthFrown": [
+        "strict",
+        "observed"
+      ],
+      "mouthShrug": [
+        "strict"
+      ],
+      "mouthUpperUp": [
+        "strict"
+      ],
+      "mouthLowerDown": [
+        "strict"
+      ],
+      "neutral": [
+        "strict"
+      ],
+      "backgroundNeutral": [
+        "background"
+      ],
+      "backgroundMouth": [
+        "background"
+      ],
+      "backgroundEyes": [
+        "background"
+      ],
+      "backgroundBrows": [
+        "background"
+      ],
+      "backgroundNose": [
+        "background"
+      ]
+    },
+    "profileMinimums": {
+      "neutral": 0,
+      "winkLeft": 4,
+      "winkRight": 4,
+      "blink": 200,
+      "eyesWide": 1,
+      "gazeUp": 100,
+      "gazeDown": 100,
+      "gazeLeft": 100,
+      "gazeRight": 100,
+      "browsUp": 100,
+      "browsDown": 100,
+      "noseSneer": 0,
+      "mouthSlightOpen": 5,
+      "mouthOpen": 20,
+      "smileClosed": 400,
+      "smileOpen": 20,
+      "mouthRound": 1,
+      "mouthPucker": 150,
+      "mouthWide": 20,
+      "mouthPress": 150,
+      "mouthRoll": 20,
+      "mouthLeft": 1,
+      "mouthRight": 1,
+      "mouthFrown": 8,
+      "mouthShrug": 80,
+      "mouthUpperUp": 20,
+      "mouthLowerDown": 20
+    },
+    "profilePoseCellMinimums": {
+      "neutral": 0,
+      "winkLeft": 2,
+      "winkRight": 2,
+      "blink": 20,
+      "eyesWide": 1,
+      "gazeUp": 25,
+      "gazeDown": 25,
+      "gazeLeft": 25,
+      "gazeRight": 25,
+      "browsUp": 18,
+      "browsDown": 18,
+      "noseSneer": 0,
+      "mouthSlightOpen": 3,
+      "mouthOpen": 15,
+      "smileClosed": 60,
+      "smileOpen": 18,
+      "mouthRound": 1,
+      "mouthPucker": 25,
+      "mouthWide": 10,
+      "mouthPress": 25,
+      "mouthRoll": 10,
+      "mouthLeft": 1,
+      "mouthRight": 1,
+      "mouthFrown": 4,
+      "mouthShrug": 12,
+      "mouthUpperUp": 8,
+      "mouthLowerDown": 8
+    },
+    "backgroundMinimums": {
+      "backgroundNeutral": 15000
+    },
+    "backgroundPoseCellMinimums": {
+      "backgroundNeutral": 650
+    },
+    "profileCellLimits": {
+      "neutral": 86,
+      "winkLeft": 14,
+      "winkRight": 14,
+      "blink": 18,
+      "eyesWide": 64,
+      "gazeUp": 18,
+      "gazeDown": 18,
+      "gazeLeft": 18,
+      "gazeRight": 18,
+      "browsUp": 20,
+      "browsDown": 20,
+      "noseSneer": 32,
+      "mouthSlightOpen": 64,
+      "mouthOpen": 26,
+      "smileClosed": 48,
+      "smileOpen": 30,
+      "mouthRound": 40,
+      "mouthPucker": 28,
+      "mouthWide": 48,
+      "mouthPress": 24,
+      "mouthRoll": 22,
+      "mouthLeft": 18,
+      "mouthRight": 18,
+      "mouthFrown": 40,
+      "mouthShrug": 20,
+      "mouthUpperUp": 18,
+      "mouthLowerDown": 18,
+      "backgroundNeutral": 120,
+      "backgroundEyes": 38,
+      "backgroundBrows": 30,
+      "backgroundNose": 24,
+      "backgroundMouth": 54
+    },
+    "additionalSelectionExclusionsSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+    "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f"
   },
-  "classifiedCandidates": 316711,
+  "selectionIdentitySha256": "28e6092363ed981f622773c00356fd42790c75bdc894d756abceb95d99b33029",
+  "selectionReview": {
+    "schemaVersion": 1,
+    "documentKind": "clean-core-selection-visibility-review",
+    "mode": "deny-only",
+    "reviewPath": "selection-review.json",
+    "reviewSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+    "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+    "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+    "excludedEncodedImages": 257,
+    "previousReviewSha256": "252fc52fd41e9e8cd097c9e9c58d7ac3374fc710c59d1a595c4cc2fc66112bff",
+    "previousReviewPath": "selection-review-previous.json",
+    "reviewer": "assistant-visual-review",
+    "humanVerified": false,
+    "reviewedOn": "2026-10-06"
+  },
+  "selectionReviewSha256": "e6f915aa9f478ada5efc29d2774e20e19551ea6c3553050d6e215a6e864e1fed",
+  "selectionReviewedCandidatesExcluded": 267,
+  "allSelectedPhotosAbsentFromSelectionExclusions": true,
+  "winkExpressionReview": {
+    "schemaVersion": 1,
+    "documentKind": "clean-core-wink-expression-review",
+    "mode": "confirmed-side-only",
+    "reviewPath": "wink-expression-review.json",
+    "reviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+    "candidateAuditSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+    "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+    "reviewedEncodedImages": 769,
+    "confirmedEncodedImages": 71,
+    "confirmedSides": {
+      "left": 31,
+      "right": 40
+    },
+    "reviewer": "assistant-visual-review",
+    "humanVerified": false,
+    "reviewedOn": "2026-10-06"
+  },
+  "winkExpressionReviewSha256": "fb6e6845a84118daa64eb06d163077063934d2126a3621a04884ef850d45103f",
+  "allSelectedWinkProfilesHaveReviewedEvidence": true,
+  "inputCatalogs": {
+    "many-faces-clean-core-v3-pose-local-v1": 70000,
+    "seed-ffhq-70224-actions-v4": 70099,
+    "wink-exact-source-6906a3d3fe85088b": 6
+  },
+  "classifiedCandidates": 97760,
   "classifiedProfiles": {
-    "backgroundBrows": 32383,
-    "backgroundEyes": 41239,
-    "backgroundMouth": 105249,
-    "backgroundNeutral": 110153,
-    "blink": 1612,
-    "browsDown": 759,
-    "browsUp": 2758,
-    "eyesWide": 7,
-    "gazeDown": 3005,
-    "gazeLeft": 6195,
-    "gazeRight": 4367,
-    "gazeUp": 1696,
-    "mouthFrown": 36,
-    "mouthLeft": 34,
-    "mouthLowerDown": 104,
-    "mouthOpen": 80,
-    "mouthPress": 632,
-    "mouthPucker": 900,
-    "mouthRight": 15,
-    "mouthRoll": 173,
-    "mouthRound": 8,
-    "mouthShrug": 547,
-    "mouthSlightOpen": 175,
-    "mouthUpperUp": 60,
-    "mouthWide": 65,
-    "neutral": 1709,
-    "smileClosed": 2589,
-    "smileOpen": 135,
-    "winkLeft": 13,
-    "winkRight": 13
+    "backgroundBrows": 9897,
+    "backgroundEyes": 13100,
+    "backgroundMouth": 31057,
+    "backgroundNeutral": 30096,
+    "blink": 677,
+    "browsDown": 291,
+    "browsUp": 1359,
+    "eyesWide": 14,
+    "gazeDown": 805,
+    "gazeLeft": 2575,
+    "gazeRight": 1749,
+    "gazeUp": 873,
+    "mouthFrown": 601,
+    "mouthLeft": 10,
+    "mouthLowerDown": 66,
+    "mouthOpen": 29,
+    "mouthPress": 293,
+    "mouthPucker": 345,
+    "mouthRight": 2,
+    "mouthRoll": 62,
+    "mouthRound": 2,
+    "mouthShrug": 174,
+    "mouthSlightOpen": 71,
+    "mouthUpperUp": 28,
+    "mouthWide": 1394,
+    "neutral": 847,
+    "smileClosed": 1217,
+    "smileOpen": 55,
+    "winkLeft": 31,
+    "winkRight": 40
   },
   "selectedFaces": 70000,
   "targetFaces": 70000,
   "selectedProfiles": {
-    "winkLeft": 6,
-    "winkRight": 6,
-    "blink": 804,
-    "eyesWide": 5,
-    "gazeUp": 946,
-    "gazeDown": 1466,
-    "gazeLeft": 3146,
-    "gazeRight": 2260,
-    "browsUp": 1515,
-    "browsDown": 401,
+    "winkLeft": 31,
+    "winkRight": 40,
+    "blink": 567,
+    "eyesWide": 10,
+    "gazeUp": 661,
+    "gazeDown": 689,
+    "gazeLeft": 2101,
+    "gazeRight": 1420,
+    "browsUp": 1033,
+    "browsDown": 230,
     "noseSneer": 0,
-    "mouthRound": 4,
-    "mouthPucker": 461,
-    "mouthSlightOpen": 93,
-    "mouthOpen": 43,
-    "smileClosed": 1442,
-    "smileOpen": 73,
-    "mouthWide": 36,
-    "mouthPress": 351,
-    "mouthRoll": 91,
-    "mouthLeft": 18,
-    "mouthRight": 7,
-    "mouthFrown": 18,
-    "mouthShrug": 280,
-    "mouthUpperUp": 33,
-    "mouthLowerDown": 60,
-    "neutral": 928,
-    "backgroundNeutral": 16805,
-    "backgroundMouth": 13567,
-    "backgroundEyes": 13405,
-    "backgroundBrows": 11730,
+    "mouthRound": 2,
+    "mouthPucker": 268,
+    "mouthSlightOpen": 53,
+    "mouthOpen": 21,
+    "smileClosed": 916,
+    "smileOpen": 42,
+    "mouthWide": 1301,
+    "mouthPress": 226,
+    "mouthRoll": 51,
+    "mouthLeft": 8,
+    "mouthRight": 2,
+    "mouthFrown": 551,
+    "mouthShrug": 138,
+    "mouthUpperUp": 20,
+    "mouthLowerDown": 51,
+    "neutral": 656,
+    "backgroundNeutral": 22434,
+    "backgroundMouth": 16049,
+    "backgroundEyes": 11843,
+    "backgroundBrows": 8586,
     "backgroundNose": 0
   },
   "selectedProfilePoseCells": {
-    "winkLeft": 6,
-    "winkRight": 6,
-    "blink": 326,
-    "eyesWide": 5,
-    "gazeUp": 339,
-    "gazeDown": 374,
-    "gazeLeft": 540,
-    "gazeRight": 496,
-    "browsUp": 409,
-    "browsDown": 197,
+    "winkLeft": 30,
+    "winkRight": 35,
+    "blink": 263,
+    "eyesWide": 10,
+    "gazeUp": 260,
+    "gazeDown": 267,
+    "gazeLeft": 481,
+    "gazeRight": 420,
+    "browsUp": 344,
+    "browsDown": 143,
     "noseSneer": 0,
-    "mouthRound": 4,
-    "mouthPucker": 160,
-    "mouthSlightOpen": 68,
-    "mouthOpen": 35,
-    "smileClosed": 247,
-    "smileOpen": 44,
-    "mouthWide": 35,
-    "mouthPress": 165,
-    "mouthRoll": 64,
-    "mouthLeft": 18,
-    "mouthRight": 7,
-    "mouthFrown": 17,
-    "mouthShrug": 149,
-    "mouthUpperUp": 27,
-    "mouthLowerDown": 58,
-    "neutral": 306,
+    "mouthRound": 2,
+    "mouthPucker": 116,
+    "mouthSlightOpen": 43,
+    "mouthOpen": 18,
+    "smileClosed": 186,
+    "smileOpen": 31,
+    "mouthWide": 536,
+    "mouthPress": 127,
+    "mouthRoll": 36,
+    "mouthLeft": 8,
+    "mouthRight": 2,
+    "mouthFrown": 337,
+    "mouthShrug": 89,
+    "mouthUpperUp": 17,
+    "mouthLowerDown": 46,
+    "neutral": 242,
     "backgroundNeutral": 775,
-    "backgroundMouth": 771,
-    "backgroundEyes": 775,
-    "backgroundBrows": 766,
+    "backgroundMouth": 769,
+    "backgroundEyes": 764,
+    "backgroundBrows": 758,
     "backgroundNose": 0
   },
   "strictProfiles": {
-    "winkLeft": 6,
-    "winkRight": 6,
-    "blink": 804,
-    "eyesWide": 5,
-    "gazeUp": 946,
-    "gazeDown": 1466,
-    "gazeLeft": 3146,
-    "gazeRight": 2260,
-    "browsUp": 1515,
-    "browsDown": 401,
+    "winkLeft": 0,
+    "winkRight": 0,
+    "blink": 567,
+    "eyesWide": 10,
+    "gazeUp": 661,
+    "gazeDown": 689,
+    "gazeLeft": 2101,
+    "gazeRight": 1420,
+    "browsUp": 1033,
+    "browsDown": 230,
     "noseSneer": 0,
-    "mouthRound": 4,
-    "mouthPucker": 461,
-    "mouthSlightOpen": 93,
-    "mouthOpen": 43,
-    "smileClosed": 1442,
-    "smileOpen": 73,
-    "mouthWide": 36,
-    "mouthPress": 351,
-    "mouthRoll": 91,
-    "mouthLeft": 18,
-    "mouthRight": 7,
-    "mouthFrown": 18,
-    "mouthShrug": 280,
-    "mouthUpperUp": 33,
-    "mouthLowerDown": 60,
-    "neutral": 928
+    "mouthRound": 2,
+    "mouthPucker": 268,
+    "mouthSlightOpen": 53,
+    "mouthOpen": 21,
+    "smileClosed": 916,
+    "smileOpen": 42,
+    "mouthWide": 13,
+    "mouthPress": 226,
+    "mouthRoll": 51,
+    "mouthLeft": 8,
+    "mouthRight": 2,
+    "mouthFrown": 5,
+    "mouthShrug": 138,
+    "mouthUpperUp": 20,
+    "mouthLowerDown": 51,
+    "neutral": 656
   },
   "strictProfilePoseCells": {
-    "winkLeft": 6,
-    "winkRight": 6,
-    "blink": 326,
-    "eyesWide": 5,
-    "gazeUp": 339,
-    "gazeDown": 374,
-    "gazeLeft": 540,
-    "gazeRight": 496,
-    "browsUp": 409,
-    "browsDown": 197,
+    "winkLeft": 0,
+    "winkRight": 0,
+    "blink": 263,
+    "eyesWide": 10,
+    "gazeUp": 260,
+    "gazeDown": 267,
+    "gazeLeft": 481,
+    "gazeRight": 420,
+    "browsUp": 344,
+    "browsDown": 143,
     "noseSneer": 0,
-    "mouthRound": 4,
-    "mouthPucker": 160,
-    "mouthSlightOpen": 68,
-    "mouthOpen": 35,
-    "smileClosed": 247,
-    "smileOpen": 44,
-    "mouthWide": 35,
-    "mouthPress": 165,
-    "mouthRoll": 64,
-    "mouthLeft": 18,
-    "mouthRight": 7,
-    "mouthFrown": 17,
-    "mouthShrug": 149,
-    "mouthUpperUp": 27,
-    "mouthLowerDown": 58,
-    "neutral": 306
+    "mouthRound": 2,
+    "mouthPucker": 116,
+    "mouthSlightOpen": 43,
+    "mouthOpen": 18,
+    "smileClosed": 186,
+    "smileOpen": 31,
+    "mouthWide": 13,
+    "mouthPress": 127,
+    "mouthRoll": 36,
+    "mouthLeft": 8,
+    "mouthRight": 2,
+    "mouthFrown": 5,
+    "mouthShrug": 89,
+    "mouthUpperUp": 17,
+    "mouthLowerDown": 46,
+    "neutral": 242
+  },
+  "observedProfiles": {
+    "winkLeft": 31,
+    "winkRight": 40,
+    "mouthWide": 1288,
+    "mouthFrown": 546
+  },
+  "observedProfilePoseCells": {
+    "winkLeft": 30,
+    "winkRight": 35,
+    "mouthWide": 533,
+    "mouthFrown": 336
+  },
+  "profileEvidenceTiers": {
+    "winkLeft": [
+      "strict",
+      "observed"
+    ],
+    "winkRight": [
+      "strict",
+      "observed"
+    ],
+    "blink": [
+      "strict"
+    ],
+    "eyesWide": [
+      "strict"
+    ],
+    "gazeUp": [
+      "strict"
+    ],
+    "gazeDown": [
+      "strict"
+    ],
+    "gazeLeft": [
+      "strict"
+    ],
+    "gazeRight": [
+      "strict"
+    ],
+    "browsUp": [
+      "strict"
+    ],
+    "browsDown": [
+      "strict"
+    ],
+    "noseSneer": [
+      "strict"
+    ],
+    "mouthRound": [
+      "strict"
+    ],
+    "mouthPucker": [
+      "strict"
+    ],
+    "mouthSlightOpen": [
+      "strict"
+    ],
+    "mouthOpen": [
+      "strict"
+    ],
+    "smileClosed": [
+      "strict"
+    ],
+    "smileOpen": [
+      "strict"
+    ],
+    "mouthWide": [
+      "strict",
+      "observed"
+    ],
+    "mouthPress": [
+      "strict"
+    ],
+    "mouthRoll": [
+      "strict"
+    ],
+    "mouthLeft": [
+      "strict"
+    ],
+    "mouthRight": [
+      "strict"
+    ],
+    "mouthFrown": [
+      "strict",
+      "observed"
+    ],
+    "mouthShrug": [
+      "strict"
+    ],
+    "mouthUpperUp": [
+      "strict"
+    ],
+    "mouthLowerDown": [
+      "strict"
+    ],
+    "neutral": [
+      "strict"
+    ],
+    "backgroundNeutral": [
+      "background"
+    ],
+    "backgroundMouth": [
+      "background"
+    ],
+    "backgroundEyes": [
+      "background"
+    ],
+    "backgroundBrows": [
+      "background"
+    ],
+    "backgroundNose": [
+      "background"
+    ]
   },
   "backgroundProfiles": {
-    "backgroundNeutral": 16805,
-    "backgroundMouth": 13567,
-    "backgroundEyes": 13405,
-    "backgroundBrows": 11730,
+    "backgroundNeutral": 22434,
+    "backgroundMouth": 16049,
+    "backgroundEyes": 11843,
+    "backgroundBrows": 8586,
     "backgroundNose": 0
   },
   "backgroundProfilePoseCells": {
     "backgroundNeutral": 775,
-    "backgroundMouth": 771,
-    "backgroundEyes": 775,
-    "backgroundBrows": 766,
+    "backgroundMouth": 769,
+    "backgroundEyes": 764,
+    "backgroundBrows": 758,
     "backgroundNose": 0
   },
   "selectedTiers": {
-    "background": 55507,
-    "strict": 14493
+    "background": 58912,
+    "observed": 1905,
+    "strict": 9183
   },
   "selectedSources": {
-    "clean-v3-source-test-000000-025000-32559210408": 1289,
-    "clean-v3-source-train-000000-040000-32559210408": 4988,
-    "clean-v3-source-train-040000-080000-32559210408": 5033,
-    "clean-v3-source-train-080000-120000-32559210408": 5087,
-    "clean-v3-source-train-120000-160000-32559210408": 5004,
-    "clean-v3-source-train-160000-200000-32559210408": 5090,
-    "clean-v3-source-train-200000-240000-32559210408": 5085,
-    "clean-v3-source-train-240000-280000-32559210408": 5098,
-    "clean-v3-source-train-280000-320000-32559210408": 5085,
-    "clean-v3-source-train-320000-360000-32559210408": 5063,
-    "clean-v3-source-train-360000-400000-32559210408": 5156,
-    "clean-v3-source-train-400000-440000-32559210408": 5156,
-    "clean-v3-source-train-440000-480000-32559210408": 5105,
-    "clean-v3-source-train-480000-520000-32559210408": 934,
-    "clean-v3-source-validation-000000-010000-32559210408": 461,
-    "many-faces-clean-core-v3": 6366
+    "many-faces-clean-core-v3-pose-local-v1": 47234,
+    "seed-ffhq-70224-actions-v4": 22762,
+    "wink-exact-source-6906a3d3fe85088b": 4
   },
   "rejections": {
-    "blur": 18933,
-    "brightness": 374,
-    "clipping": 153,
-    "exact_image_duplicate": 60587,
-    "low_colorfulness": 161,
-    "low_contrast": 468,
-    "mixed_or_unsupported_state": 1347,
-    "mouth_occlusion_title": 9
+    "candidate_admission_not_passed": 25809,
+    "exact_image_duplicate": 5527,
+    "likely_artwork": 9,
+    "mixed_or_unsupported_state": 16260,
+    "selection_review_exact_image_exclusion": 267
   },
   "limits": {
     "neutral": 86,
@@ -326,10 +668,20 @@
   },
   "gatePassed": true,
   "gateFailures": [],
-  "runtimeImagePolicy": "real-photo-only-v1",
-  "knownSyntheticCandidatesExcluded": {
-    "verified_synthetic_facs": 3023
+  "qualityAdmission": {
+    "schemaVersion": 2,
+    "status": "complete",
+    "policyId": "exact-pixel-clean-core-admission-v1",
+    "policySha256": "2f820a6dff8f4d0fcd595623042d3397abfbd6efa8ca57c45aac9f68c3462481",
+    "receiptSha256": "531cda8f177fbdb973ddf70c164a737d14a28eba49a14b8df7f51e1cd901a436",
+    "recordsSha256": "3abd7f470d7d553025704c7b0e6ec697d795e0b3fdf420ce9e8c230d28ffc852",
+    "attributeModelSha256": "1bf7c6453bec2fb28e0830f3a76dceb9ffd020124f87b28da5355940a7bc6e48",
+    "faceModelSha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+    "selectedCount": 70000,
+    "runtimeExclusionOverlayRequired": false
   },
+  "runtimeImagePolicy": "real-photo-only-v1",
+  "knownSyntheticCandidatesExcluded": {},
   "realOnlyProfileMinimums": {
     "blink": 200,
     "browsDown": 100,

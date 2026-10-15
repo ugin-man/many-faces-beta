@@ -1,50 +1,29 @@
 import assert from "node:assert/strict";
-import { readFile, stat } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import test from "node:test";
+import { isRetiredAsset, retiredAssetResponse } from "../worker/retired-assets.ts";
 
-const fixtureUrl = new URL(
-  "../public/test-fixtures/reference-face-motion.mp4",
-  import.meta.url,
-);
-const analysisUrl = new URL(
-  "../public/test-fixtures/reference-face-motion-analysis.json",
-  import.meta.url,
-);
-const rankingsUrl = new URL(
-  "../public/test-fixtures/reference-face-motion-rankings.json",
-  import.meta.url,
-);
-const manifestUrl = new URL("../public/seed-catalog/manifest.json", import.meta.url);
+test("the distributed sample is the reviewed 1061-frame composite", async () => {
+  const base = new URL("../public/demo/", import.meta.url);
+  const bytes = await readFile(new URL("many-faces-sample-30fps.mp4", base));
+  const meta = JSON.parse(await readFile(new URL("sample.json", base), "utf8"));
+  assert.equal(bytes.subarray(4, 8).toString("ascii"), "ftyp");
+  assert.equal(createHash("sha256").update(bytes).digest("hex"), meta.sha256);
+  assert.equal(bytes.length, meta.bytes);
+  assert.equal(meta.fps,30); assert.equal(meta.frames,1061);
+  assert.equal(meta.durationSeconds,meta.frames/meta.fps);
+  assert.equal(meta.fullFrameHolds,0);
+  assert.equal(meta.consecutiveIdenticalFrames,0);
+  assert.equal(meta.renderMethod,"sequential-decoded-frames-v1");
+  assert.equal(meta.sourceVideoIncluded,false); assert.equal(meta.audio,false);
+  const fixtures = await readdir(new URL("../public/test-fixtures/",import.meta.url)).catch(e => e.code === "ENOENT" ? [] : Promise.reject(e));
+  assert.deepEqual(fixtures,[],"private fixture directory must stay empty");
+});
 
-test("bundles the reusable face-motion verification video", async () => {
-  const [metadata, analysisMetadata, rankingsMetadata, header, source, analysis, rankings, manifest] = await Promise.all([
-    stat(fixtureUrl),
-    stat(analysisUrl),
-    stat(rankingsUrl),
-    readFile(fixtureUrl).then((bytes) => bytes.subarray(0, 12)),
-    readFile(new URL("../app/offline-video-lab.tsx", import.meta.url), "utf8"),
-    readFile(analysisUrl, "utf8").then(JSON.parse),
-    readFile(rankingsUrl, "utf8").then(JSON.parse),
-    readFile(manifestUrl, "utf8").then(JSON.parse),
-  ]);
-  assert.ok(metadata.size > 1_000_000);
-  assert.ok(analysisMetadata.size > 1_000_000);
-  assert.ok(rankingsMetadata.size > 100_000);
-  assert.equal(header.subarray(4, 8).toString("ascii"), "ftyp");
-  assert.match(source, /\/test-fixtures\/reference-face-motion\.mp4/);
-  assert.match(source, /固定検証動画を開く（解析済み）/);
-  assert.ok(analysis.frames.length >= 600);
-  assert.ok(analysis.frames.every((frame) => frame.feature.length === 55));
-  assert.equal(rankings.frameTimes.length, analysis.frames.length);
-  assert.ok(
-    rankings.catalogId === manifest.catalogId || manifest.totalFaces >= 70_000,
-    "ranking cache must match the bundled catalog or trigger the full-catalog fallback",
-  );
-  assert.equal(rankings.schemaVersion, 2);
-  assert.equal(rankings.indexBytes, 4);
-  assert.ok(Object.values(rankings.beams).every((frames) => frames.length === analysis.frames.length));
-  assert.equal(
-    Buffer.from(rankings.sequences.strict, "base64").byteLength / rankings.indexBytes,
-    analysis.frames.length,
-  );
+test("retired video and geometry URLs cannot be fetched directly or through image optimization", () => {
+  for (const path of ["/test-fixtures/reference-face-motion.mp4", "/test-fixtures/reference-face-motion-analysis.json", "/test-fixtures/reference-face-motion-rankings.json", "/%74est-fixtures/reference-face-motion.mp4", "/IMG_3665.mp4"]) assert.equal(isRetiredAsset(path),true);
+  for (const path of ["/demo/many-faces-sample-30fps.mp4", "/demo/poster.webp", "/seed-catalog/manifest.json"]) assert.equal(isRetiredAsset(path),false);
+  assert.equal(retiredAssetResponse().status,410);
+  assert.equal(retiredAssetResponse().headers.get("cache-control"),"no-store");
 });

@@ -2,6 +2,10 @@ export type MeshPoint = { x: number; y: number; z?: number };
 export type NumericVector = number[] | Float32Array;
 
 export type FaceGeometry = {
+  /** Clockwise screen-space eye-axis angle in radians; optional for old catalogs. */
+  roll?: number;
+  /** Conservative source-space bounds used only for an interpolated privacy mask. */
+  protectionLayout?: [number, number, number, number];
   /** Expression-stable face proportions used only to discourage identity jumps. */
   structure: NumericVector;
   /** Canonical 3D Face Mesh surface used for the actual frame-to-image match. */
@@ -12,6 +16,8 @@ export type FaceGeometry = {
 };
 
 export type SequenceFrame = {
+  /** Only renderers that rotate photos may ignore catalog roll when ranking. */
+  compensateRoll?: boolean;
   time: number;
   feature: number[];
   geometry: FaceGeometry;
@@ -171,6 +177,7 @@ export function faceGeometryFromLandmarks(
     structure,
     surface,
     projection,
+    roll: Math.atan2(eyeDy, eyeDx),
     layout: [
       (minX + maxX) / 2,
       (minY + maxY) / 2,
@@ -457,12 +464,13 @@ export function objectFitCoverLayout(
 export function alignmentTransform(
   geometry: FaceGeometry,
   target: FaceGeometry["layout"],
+  minimumScale = 0.5,
 ) {
   const [centerX, centerY, width, height] = geometry.layout;
   const scaleFromHeight = target[3] / Math.max(0.01, height);
   const scaleFromWidth = target[2] / Math.max(0.01, width);
   // One global crop transform only; facial parts are never warped independently.
-  const scale = Math.max(0.5, Math.min(2.5, (scaleFromHeight * 0.7 + scaleFromWidth * 0.3)));
+  const scale = Math.max(minimumScale, Math.min(2.5, (scaleFromHeight * 0.7 + scaleFromWidth * 0.3)));
   const scaledCenterX = 0.5 + (centerX - 0.5) * scale;
   const scaledCenterY = 0.5 + (centerY - 0.5) * scale;
   return {

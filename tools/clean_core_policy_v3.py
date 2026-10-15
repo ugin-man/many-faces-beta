@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
-"""Honest single-factor policy for Many Faces Clean Core v3.
+"""Isolated profiles plus explicit observed expression evidence for Clean Core.
 
-Strict profiles are the advertised, review-gated states. Background profiles
-are a separate, explicitly labelled pool used only to supply identity and pose
-diversity after every strict profile minimum has been satisfied. A background
-face may have mild activity in one anatomical family, but strong cross-family
-combinations (for example wink + open mouth) are rejected.
+Strict profiles retain the isolated v2 criteria. A separately labelled observed
+wink may include natural mouth/brow coexpression, but requires exact-image
+visual confirmation and the same raw blink and normalized eyelid evidence as
+the live wink-support classifier. Strict winks require that confirmation too.
+Observed mouth stretch/frown retains direct mouth constraints while allowing
+natural eye, gaze and brow coexpression. These observations never claim purity.
+Background profiles supply identity and pose density; they do not establish
+the required expression coverage. Image admission is a separate mandatory gate.
 """
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
@@ -19,11 +23,14 @@ from clean_core_policy_v2 import (
     BLEND_KEYS,
     CleanProfile,
     metrics_from_feature,
+    decode_projection,
+    nose_neutral,
+    jaw_translation_neutral,
     classify_clean_profile as classify_strict_profile_v2,
     quantized_pose_cell,
 )
 
-POLICY_VERSION = "clean-single-factor-v3"
+POLICY_VERSION = "clean-isolated-observed-mouth-reviewed-winks-v5"
 
 STRICT_PROFILE_PRIORITY = (
     "winkLeft", "winkRight", "blink", "eyesWide",
@@ -112,6 +119,110 @@ BACKGROUND_PRIORITY = (
 
 BACKGROUND_MINIMUMS = {"backgroundNeutral": 15_000}
 BACKGROUND_POSE_CELL_MINIMUMS = {"backgroundNeutral": 650}
+
+OBSERVED_PROFILE_PRIORITY = ("winkLeft", "winkRight", "mouthWide", "mouthFrown")
+# These declarations state which evidence can satisfy each profile's existing
+# count/pose minimum. Observed coexpressions never enter isolated-only totals.
+PROFILE_EVIDENCE_TIERS = {
+    **{name: ("strict", "observed") if name in OBSERVED_PROFILE_PRIORITY else ("strict",)
+       for name in STRICT_PROFILE_PRIORITY},
+    **{name: ("background",) for name in BACKGROUND_PRIORITY},
+}
+
+
+def observed_wink_evidence(feature: Sequence[float], projection: str | Sequence[float] | None) -> dict[str, Any] | None:
+    """Match app/live/wink-evidence.ts without changing any measured value.
+
+    Sides are anatomical. The distance/eye-width ratios remain valid under
+    image roll and are not the old image-axis vertical aperture measurement.
+    These automatic measurements provide corroboration, not proof of a true
+    wink or face visibility. Exact-image visual confirmation and completed
+    pixel admission remain mandatory for final wink coverage.
+    """
+    if len(feature) < FEATURE_LENGTH:
+        return None
+    try:
+        if not all(math.isfinite(float(value)) for value in feature):
+            return None
+        points = decode_projection(projection)
+        if points is None or len(points) < 936 or not all(math.isfinite(value) for value in points):
+            return None
+        left = float(feature[FEATURE_INDEX["eyeBlinkLeft"]])
+        right = float(feature[FEATURE_INDEX["eyeBlinkRight"]])
+        if abs(float(feature[0]) * 90) > 30 or abs(float(feature[1]) * 90) > 30:
+            return None
+        if max(left, right) < .35 or min(left, right) > .40 or abs(left - right) < .18:
+            return None
+
+        def distance(first: int, second: int) -> float:
+            return math.hypot(points[first * 2] - points[second * 2],
+                              points[first * 2 + 1] - points[second * 2 + 1])
+
+        left_width, right_width = distance(362, 263), distance(33, 133)
+        if min(left_width, right_width) < .04:
+            return None
+        left_aperture = distance(386, 374) / left_width
+        right_aperture = distance(159, 145) / right_width
+        side = "left" if left > right else "right"
+        closed, opened = (left_aperture, right_aperture) if side == "left" else (right_aperture, left_aperture)
+        if closed > .15 or opened < .18 or closed > opened * .65:
+            return None
+    except (TypeError, ValueError, IndexError, OverflowError):
+        return None
+    return {"side": side, "leftBlink": left, "rightBlink": right,
+            "leftAperture": left_aperture, "rightAperture": right_aperture}
+
+
+def classify_observed_wink_profile(feature: Sequence[float], projection: str | Sequence[float] | None = None) -> CleanProfile | None:
+    evidence = observed_wink_evidence(feature, projection)
+    if evidence is None:
+        return None
+    metrics = metrics_from_feature(feature, projection)
+    coactivation = max(float(metrics[name]) for name in (
+        "jawOpen", "smile", "frown", "funnel", "pucker", "stretch", "press", "roll", "shrug",
+        "mouthLeft", "mouthRight", "upperUp", "lowerDown", "cheekPuff", "browUp", "browDown",
+        "sneer", "gazeUp", "gazeDown", "gazeLeft", "gazeRight"))
+    return CleanProfile(
+        name="winkLeft" if evidence["side"] == "left" else "winkRight", group="eyes",
+        strength=abs(evidence["leftBlink"] - evidence["rightBlink"]),
+        leakage=coactivation, purity=0.0,
+        yaw=float(metrics["yaw"]), pitch=float(metrics["pitch"]), roll=float(metrics["rollPose"]),
+    )
+
+
+def classify_observed_mouth_profile(feature: Sequence[float], projection: str | Sequence[float] | None = None) -> CleanProfile | None:
+    """Observe mouth stretch or lowered corners without inventing isolation.
+
+    Fresh real-photo measurements and inspected original pixels establish that
+    natural brow/gaze/squint activity can accompany these mouth shapes. Keep the
+    v2 direct mouth conditions and effective target-strength floors, plus its
+    nose and jaw-translation constraints. All original pixel admission and
+    additional reviewed exclusions remain independent mandatory gates.
+    """
+    try:
+        if len(feature) != FEATURE_LENGTH or not all(math.isfinite(float(value)) for value in feature):
+            return None
+        points = decode_projection(projection)
+        if points is None or len(points) < 936 or not all(math.isfinite(value) for value in points):
+            return None
+        m = metrics_from_feature(feature, projection)
+        if not (nose_neutral(m) and jaw_translation_neutral(m)):
+            return None
+        stretch, smile, frown = float(m["stretch"]), float(m["smile"]), float(m["frown"])
+        funnel, pucker, jaw_open = float(m["funnel"]), float(m["pucker"]), float(m["jawOpen"])
+        if stretch >= .23 and smile <= .27 and max(funnel, pucker) <= .23 and frown <= .19:
+            name, strength = "mouthWide", stretch
+        elif frown >= .20 and jaw_open <= .24 and smile <= .21 and pucker <= .23 and stretch <= .23:
+            name, strength = "mouthFrown", frown
+        else:
+            return None
+        coactivation = max(float(m[key]) for key in (
+            "blinkLeft", "blinkRight", "squint", "eyeWide", "gazeUp", "gazeDown",
+            "gazeLeft", "gazeRight", "browUp", "browDown", "press", "roll", "shrug"))
+        return CleanProfile(name=name, group="mouth", strength=strength, leakage=coactivation,
+                            purity=0.0, yaw=float(m["yaw"]), pitch=float(m["pitch"]), roll=float(m["rollPose"]))
+    except (TypeError, ValueError, IndexError, OverflowError):
+        return None
 
 
 def _profile(name: str, strength: float, leakage: float, m: Mapping[str, float | None]) -> CleanProfile:
@@ -215,10 +326,26 @@ def classify_background_profile(feature: Sequence[float], projection: str | Sequ
         "nose": "backgroundNose",
     }[family], values[family], leakage, m)
 
-def classify_assignment(feature: Sequence[float], projection: str | Sequence[float] | None = None) -> tuple[CleanProfile, str] | None:
+def classify_assignment(feature: Sequence[float], projection: str | Sequence[float] | None = None,
+                        *, allow_observed_wink: str | None = None) -> tuple[CleanProfile, str] | None:
+    """Assign wink coverage only with reviewed same-side pixel evidence.
+
+    The caller resolves the exact image digest against its bound review. The
+    unchanged automatic helpers remain separately available for diagnostics.
+    Missing, uncertain or opposite-side confirmation never authorizes a wink.
+    """
     strict = classify_strict_profile(feature, projection)
-    if strict is not None:
+    wink_names = {"winkLeft": "left", "winkRight": "right"}
+    if strict is not None and strict.name not in wink_names:
         return strict, "strict"
+    observed = classify_observed_wink_profile(feature, projection)
+    if observed is not None and allow_observed_wink == wink_names[observed.name]:
+        if strict is not None and strict.name == observed.name:
+            return strict, "strict"
+        return observed, "observed"
+    observed_mouth = classify_observed_mouth_profile(feature, projection)
+    if observed_mouth is not None:
+        return observed_mouth, "observed"
     background = classify_background_profile(feature, projection)
     if background is not None:
         return background, "background"

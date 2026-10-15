@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-remediation-image-review",
+  "scope": "full-original-image-quality",
+  "remediationIndexSha256": "f13aff1392da62804f5096f17608baf4570ef58a9a4db60e6bf5a0fd8206d01c",
+  "finalManifestSha256": "fe90b250e37093bcf1ecb46b820cec98ece91e5bf2319681e0d3a3933767b03a",
+  "reviewer": "assistant-visual-review",
+  "reviewerTask": "/root",
+  "humanVerified": false,
+  "reviews": [
+    {
+      "sample": "H001",
+      "encodedSha256": "0075ff7b95529b42bca9151e8b8ed06b2a7a375a258b1abc49413741d0fe2c97",
+      "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+      "sourceId": "seed-ffhq-12215",
+      "recordSha256": "36d9cb878fea0813c5301abcac2a927cdb9c5be74c4682aec2f77141bb4bdc24",
+      "decision": "pass",
+      "reason": "The hat brim is above both visible eyebrows and eyes. Both eyebrow contours, narrowed eyelid openings, nose, lips, mouth corners and smiling teeth are readable. Some softness and strong lighting remain, but the expression-defining boundaries are discernible. No sunglasses, face mask or expression-covering object is visible.",
+      "viewedOriginal": true,
+      "pixelChangesApplied": false
+    }
+  ],
+  "counts": {
+    "pass": 1,
+    "deny": 0,
+    "uncertain": 0
+  },
+  "passed": true,
+  "reviewedSubset": "The single genuinely new original; the other 58 additions require their separately bound direct prior reviews."
+}

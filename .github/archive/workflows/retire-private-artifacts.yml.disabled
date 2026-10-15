@@ -1,0 +1,26 @@
+name: Retire audited private-video artifacts
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths: ['.github/workflows/retire-private-artifacts.yml']
+permissions:
+  contents: read
+  actions: write
+jobs:
+  retire:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Delete only audited private-video artifact families
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/retire-private-artifacts.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: private-artifact-retirement-${{ github.run_id }}
+          path: work/private-artifact-retirement.json
+          retention-days: 30

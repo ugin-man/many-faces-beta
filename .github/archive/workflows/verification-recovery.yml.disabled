@@ -1,0 +1,77 @@
+name: Verification recovery
+on:
+  push:
+    branches: [astra/realtime-hardening]
+    paths: ['app/**', 'worker/**', 'build/**', 'vite.config.ts', 'tests/verification-recovery.test.mjs', 'scripts/verify-recovery-network.mjs', '.github/workflows/verification-recovery.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: verification-recovery-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  slow-site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - name: Prepare full unchanged assets and native browser
+        run: |
+          mkdir -p work/recovery-evidence work/recovery-fixtures
+          git rev-parse HEAD > work/recovery-evidence/tested-commit.txt
+          test "$(git rev-parse HEAD:public/seed-catalog)" = "559f7f39e3a8eed452ef7eb6a3355a318235c307"
+          sha256sum public/test-fixtures/reference-face-motion.mp4 > work/recovery-evidence/fixture.sha256
+          npm ci
+          npm install --prefix .browser-tools --no-save --package-lock=false playwright@1.56.1
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg fonts-noto-cjk > work/recovery-evidence/system.log 2>&1
+          echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          ffmpeg -hide_banner -loglevel error -y -i public/test-fixtures/reference-face-motion.mp4 -t 1 -an work/recovery-fixtures/one-second.mp4
+          ffmpeg -hide_banner -loglevel error -y -i public/test-fixtures/reference-face-motion.mp4 -t 8 -vf 'scale=480:480:force_original_aspect_ratio=decrease,pad=480:480:(ow-iw)/2:(oh-ih)/2,fps=30' -pix_fmt yuv420p work/recovery-fixtures/moving.y4m
+      - name: Build and check exact current source
+        run: |
+          npm run build > work/recovery-evidence/build.log 2>&1
+          node --experimental-strip-types --test tests/*.test.mjs > work/recovery-evidence/unit.log 2>&1
+          npm run lint > work/recovery-evidence/lint.log 2>&1
+      - name: Build original failing implementation without edits
+        run: |
+          git fetch --depth=1 origin d9cbc1966a7c38847b231bdc963a0f9c7a0c13b1
+          mkdir -p /tmp/mf-recovery-baseline
+          git archive d9cbc1966a7c38847b231bdc963a0f9c7a0c13b1 | tar -x -C /tmp/mf-recovery-baseline
+          ln -s "$PWD/node_modules" /tmp/mf-recovery-baseline/node_modules
+          (cd /tmp/mf-recovery-baseline && npm run build) > work/recovery-evidence/baseline-build.log 2>&1
+          PORT=4175 HOST=127.0.0.1 nohup bash -c 'cd /tmp/mf-recovery-baseline && npm start' > work/recovery-evidence/baseline-server.log 2>&1 &
+          PORT=4173 HOST=127.0.0.1 nohup npm start > work/recovery-evidence/server.log 2>&1 &
+          for port in 4173 4175; do
+            for attempt in $(seq 1 90); do
+              if curl -fsS "http://127.0.0.1:$port/live" >/dev/null; then break; fi
+              sleep 1
+            done
+            curl -fsS "http://127.0.0.1:$port/live" > /dev/null
+          done
+      - name: Reproduce 90-second failure and verify byte-progress recovery and warmed camera
+        run: node scripts/verify-recovery-network.mjs
+      - name: Check previously used Site without changing it
+        if: always()
+        run: |
+          curl -L --max-time 20 -sS -D work/recovery-evidence/hosted-headers.txt \
+            -o work/recovery-evidence/hosted-runtime.txt \
+            https://many-faces-prototype.uginn-poppo.chatgpt.site/api/runtime || true
+      - name: Verify no source or 70k asset was rewritten
+        if: always()
+        run: |
+          git diff --exit-code -- app worker build scripts tests public/seed-catalog public/test-fixtures
+          sha256sum -c work/recovery-evidence/fixture.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification-recovery-${{ github.run_id }}
+          path: work/recovery-evidence
+          retention-days: 14

@@ -1,0 +1,6 @@
+# Versions used for the 2026-10-06 exact-pixel admission calibration.
+mediapipe==0.10.35
+numpy==2.3.5
+Pillow==12.3.0
+onnxruntime==1.30.0
+opencv-contrib-python==5.0.0.93

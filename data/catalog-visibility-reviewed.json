@@ -1,0 +1,1180 @@
+{
+  "schemaVersion": 1,
+  "reviewer": "assistant visual inspection",
+  "humanVerified": false,
+  "reviewedOn": "2026-10-06",
+  "scope": "Visibility decisions on exact encoded images only. Allow never waives face, pose, geometry, or detail gates.",
+  "sampling": "187 stratified/challenge/control photographs viewed in six contact sheets; not an overall error-rate estimate.",
+  "reviews": [
+    {
+      "encodedSha256": "9ec982c224d3c0962493cf14915578991b9198d11ca105c8bcdf3e4b21dea098",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q001",
+      "sourceId": "clean-v3-clean-v3-source-train-440000-e34d1511b845766df803e07a"
+    },
+    {
+      "encodedSha256": "59f0cf42c02a081e07f79f328796e2f68d193b81f8886bdefd24389199f69203",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q002",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-596ba29b9bd0975c2889d21c"
+    },
+    {
+      "encodedSha256": "ba5e012e48e9d7d7e3e598af8a9c515acd2ec0dec6cb62cfae563b3b6629c800",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q003",
+      "sourceId": "clean-v3-clean-v3-source-train-200000-f9ffd31a8e36304d2a1c544f"
+    },
+    {
+      "encodedSha256": "41985fb7a8a9e1141800856060a56871acabe0ae4f057541a59e4fddfb051b37",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q004",
+      "sourceId": "clean-v3-clean-v3-source-train-480000-ba9723dcbd1b7d97e1d4ebf7"
+    },
+    {
+      "encodedSha256": "983c9f0643b0e2e1eae92894a0b420fd058ea6a7ee6b4bff6f1fc092e47a7bf1",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q005",
+      "sourceId": "clean-v3-clean-v3-source-train-160000-8213806a0436d9d97a2361a0"
+    },
+    {
+      "encodedSha256": "a4b48cddcc235d4d8ca9e8493822ff8e152fa7f2e23825c905e08c5c9f71b50d",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q006",
+      "sourceId": "clean-v3-many-faces-clean-core-v3-clean-v3-seed-ffhq-70224-actions-v4-seed-ffhq-4899"
+    },
+    {
+      "encodedSha256": "30787885bfc75b5dcdfe84de96eb8c6d4600a1bf546db6704e3eccc3cbf03893",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q007",
+      "sourceId": "clean-v3-clean-v3-source-train-160000-dcb0a8accd648408ff6b74c0"
+    },
+    {
+      "encodedSha256": "65282831c3227ccccc33b59907bd5553776ced807a97c49306bf1a59d71c6c5e",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q008",
+      "sourceId": "clean-v3-many-faces-clean-core-v3-clean-v3-seed-ffhq-70224-actions-v4-seed-ffhq-19047"
+    },
+    {
+      "encodedSha256": "b878dd9c4d51cb2e26c5b2112512910243027ab6b7f02113980836b4d441f40b",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q009",
+      "sourceId": "clean-v3-many-faces-clean-core-v3-clean-v3-seed-ffhq-70224-actions-v4-seed-ffhq-29146"
+    },
+    {
+      "encodedSha256": "69c2c3788986c850f5b39101b6720edce04a68afd5ff1fccced596ef2e9f0682",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q010",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-76937a4d27bc27ddddae4e8d"
+    },
+    {
+      "encodedSha256": "81d18a90cb8b809b9c6d26bd70eb106924659f963762ac33dc31b3348fa74e9e",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q011",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-3e67cc8edf1a65950d20583f"
+    },
+    {
+      "encodedSha256": "e881e85fdbe93b95725900049213a7e519c7b81509d8decf601a9f8a353f7051",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q012",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-2001d336de1cf27347750b12"
+    },
+    {
+      "encodedSha256": "b71edd4656e72e1b18970d6240d37da8a7f54d6629ebb0ca2586a1bcc3566375",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q013",
+      "sourceId": "clean-v3-clean-v3-source-train-200000-0be419d180c8ac15d8af1d21"
+    },
+    {
+      "encodedSha256": "92fbbb9f97ad4bf4402af4f895a9e9b68cc100b4469c7283e13a04f27c1e300b",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q014",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-438feba4b3d61353c4fa9c7f"
+    },
+    {
+      "encodedSha256": "d00caf6e386dbea189b8c304047d8ac18089b4d2cebae0999b38b2c6dcaede81",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q015",
+      "sourceId": "clean-v3-clean-v3-source-train-200000-726fe12243bbade7a0532e59"
+    },
+    {
+      "encodedSha256": "e1dde7c57d9c5bb12612fdac22ee1bfb37176065183b9f98e1012ff2df7a25da",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q017",
+      "sourceId": "clean-v3-clean-v3-source-train-400000-6c747cff318d6e80a7cb5bd7"
+    },
+    {
+      "encodedSha256": "d77e3850cdb07221b7dd018d7c74521714307baf73ec9b87733809c5468327db",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q018",
+      "sourceId": "clean-v3-clean-v3-source-train-360000-0cfc3aa17d0313f9c5a37d36"
+    },
+    {
+      "encodedSha256": "24210a061eff79b14e987634fa0c6f298fa321977bdcd4fb0261fb80f82be18e",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q019",
+      "sourceId": "clean-v3-clean-v3-source-train-200000-1eb4e01232e17fb011061712"
+    },
+    {
+      "encodedSha256": "008e6acd9d56fe3938e7eadb252730615b28ba422e99216687930d2ab15d6e27",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q020",
+      "sourceId": "clean-v3-clean-v3-source-test-000000--70e4b21cd5e9a995a72b3ba3"
+    },
+    {
+      "encodedSha256": "fefd78deaf5af5caad561fa2dc4ec6a1433ad99f40877c04523fe95ac4c87afb",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q021",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-c46c9662bb8714c2fa16d6fe"
+    },
+    {
+      "encodedSha256": "a3134d9ebaa4bad9eeca848abfffed28dbf4fa69eac592f34613c1b9ab44936c",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q022",
+      "sourceId": "clean-v3-clean-v3-source-train-120000-c8c0c4b4ac296fb0ae1ef71a"
+    },
+    {
+      "encodedSha256": "7444f8cff135f69f6cac1704fa9d14b20315b5b1a68289aa37cc74368d7bd42b",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q023",
+      "sourceId": "clean-v3-clean-v3-source-train-480000-78cb1f127361d1e48783cd0d"
+    },
+    {
+      "encodedSha256": "59cd3655da7ad86c2b5ee3a8fb3e16eb453833c8fe7887d8acc4ca79d68d93dc",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q024",
+      "sourceId": "clean-v3-clean-v3-source-train-120000-25094e26fcd829c05c2924f1"
+    },
+    {
+      "encodedSha256": "b12ca65449666da48f5b569f4e4afd92fd8afcfd51e1e27d5aee212df4da0ade",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q025",
+      "sourceId": "clean-v3-clean-v3-source-train-160000-ffe12fb0bb089880578585cb"
+    },
+    {
+      "encodedSha256": "d83ea3dd27b05e22b4cda45c06f67a70bf4dd8acb2a801003a576604610d096a",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q026",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-f8d63b01477cadbe5231ceaf"
+    },
+    {
+      "encodedSha256": "696dbeac119486dd5257710580605ac7c942935fcbe2b40c19945f1b3476369a",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q027",
+      "sourceId": "clean-v3-clean-v3-source-train-120000-d5e0612353d68d4d5e136932"
+    },
+    {
+      "encodedSha256": "9c09d5b33b4d3fb8dacf22735fa7ff0cff091998cfb5970c06636b1479820c17",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q028",
+      "sourceId": "clean-v3-clean-v3-source-train-440000-1b52ec193185779120c1704d"
+    },
+    {
+      "encodedSha256": "c126a1dabafa0fa52071bdce1e6adbeb785ab7d26a42d8af13777e4903efe461",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q029",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-23034f06d07e41ab93b4d7d7"
+    },
+    {
+      "encodedSha256": "e4a04f17afddd9aa9ce83bd96bc84d9c52d2846ef9f5aa1a32009b133d877f2e",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q030",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-886b01857647726110f1f83d"
+    },
+    {
+      "encodedSha256": "a0bd2d29f0760d27c3d928908c81f62265514923fee756ed06d92aee3cba7e15",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q032",
+      "sourceId": "clean-v3-clean-v3-source-train-400000-9de2ab1909e46892de16124f"
+    },
+    {
+      "encodedSha256": "7634828c2a0b8c41ecc574acdd2f3d16f66388ae3ba5c370ffada8d071376680",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q033",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-87a1e41e4ccf9bde09512535"
+    },
+    {
+      "encodedSha256": "89fb6ba6597155f39265aeb13758e3d3b8e433ff2d93e05b243543ed014b7322",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q034",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-233e2edcbbb3ba0975fecb34"
+    },
+    {
+      "encodedSha256": "88a34185ef7b88266d15b4e16aa8e93152920cf71731fb5b0cfb132a54dc4897",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q035",
+      "sourceId": "clean-v3-many-faces-clean-core-v3-clean-v3-seed-ffhq-70224-actions-v4-seed-ffhq-35243"
+    },
+    {
+      "encodedSha256": "dc2be658bc7726556f25d84d8644d7f61cf75751d295de81e1a92079d8ac1fbb",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q036",
+      "sourceId": "clean-v3-clean-v3-source-train-120000-4bb9acadb3c1394f3655febb"
+    },
+    {
+      "encodedSha256": "918e4a8a8a3f474a6fbeff4f84be3deb2676a1859b98e66b672c3ad54862da4f",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q037",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-4ab8f3daadcb533c9cfbc9e2"
+    },
+    {
+      "encodedSha256": "dafe2a62b40fd778e81aaada2acc74b5f3271eef29d9e4722a46287ac05cf7b6",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q038",
+      "sourceId": "clean-v3-clean-v3-source-train-160000-dc0080970e8bc542efd6a9c5"
+    },
+    {
+      "encodedSha256": "557ca3266648403af63f32df9ae6a7d5d39ec6c4d8ce21f00ec635474286db3b",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q039",
+      "sourceId": "clean-v3-clean-v3-source-train-240000-3407ee565dde8f828c7fc27a"
+    },
+    {
+      "encodedSha256": "195f840bd8704324f9472757c93818ad5e82d6fd8f965ad16e48b9d485b37844",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q040",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-a76caeff2b4010bdcae2db73"
+    },
+    {
+      "encodedSha256": "18b3b60c28e02edb5a15892bd6352251e3d431a4575ab6d4eb76bc2ae666427e",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q041",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-c502bb113f907d4d0ed0f9fa"
+    },
+    {
+      "encodedSha256": "2f10d80406d7e4fb96e6ce2a7b844eb65a75c2faaa92e2b3afcc22e8396e5d3d",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q042",
+      "sourceId": "clean-v3-clean-v3-source-train-480000-b7be7c207d8806544ac1750f"
+    },
+    {
+      "encodedSha256": "c692729ff36a082efb7ac26d1f5cb8301a9fafc46139e6011dadb8bace29ef33",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q043",
+      "sourceId": "clean-v3-clean-v3-source-train-160000-6e0abd502d17650623a4188d"
+    },
+    {
+      "encodedSha256": "b8ce31779a91a19b886e632cc5d486d62e40e11c13053281cfbbd83994c5b620",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q044",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-a653921d7eab560824ef4fa0"
+    },
+    {
+      "encodedSha256": "85765d9b40d48987d1ecb7cb1a5f397a0c6269d629905ad5c1e401e66cc743db",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q045",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-3eb95810e9f4386c9f85b079"
+    },
+    {
+      "encodedSha256": "9f9d7abd44edc9ed9f7ce15433e3d90f52509299fec38b0582ddad7d00261f34",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q046",
+      "sourceId": "clean-v3-clean-v3-source-train-240000-806f6e0667a186062dfda91d"
+    },
+    {
+      "encodedSha256": "d7466ce2aac7eaf8f3acaae622b59fb807fb0e87b1a8f0d6b105ed1fc21517f3",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q047",
+      "sourceId": "clean-v3-clean-v3-source-train-440000-aa9922bb26459d665600bada"
+    },
+    {
+      "encodedSha256": "42553b6d2505d87afa6a41a4642b581d5bd96a5c603403434d5e616b44322ee0",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q048",
+      "sourceId": "clean-v3-clean-v3-source-train-240000-53825da978ba96ee64796a06"
+    },
+    {
+      "encodedSha256": "5ef2854f1bc5e2cc2d2a7760029dd24aa26aab97ad5f9c9757bd985bf8dc2408",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q049",
+      "sourceId": "clean-v3-clean-v3-source-test-000000--11cfd01599eefb24c7f9c491"
+    },
+    {
+      "encodedSha256": "064543a4bc7554f47be18254c244a43847c2576f57a5be39b92930eae52eb49b",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q051",
+      "sourceId": "clean-v3-clean-v3-source-train-400000-0dcace95cd1244d7f96ac4c3"
+    },
+    {
+      "encodedSha256": "95e2dedb0de5eca1f101f68ae87994ca3f4382cad2a17ac53eeabb0096f4cb10",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q054",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-f9aa03f360d4e26be3c78e4b"
+    },
+    {
+      "encodedSha256": "5677e32368e88f572d834fefdb3721514ade4d194a81ee1ca435e2b9f99fd35b",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q055",
+      "sourceId": "clean-v3-many-faces-clean-core-v3-clean-v3-seed-ffhq-70224-actions-v4-seed-ffhq-291"
+    },
+    {
+      "encodedSha256": "dd828acc280a3bf84446b4d623ec8a4397f5c103c0e119c83254d386638192f6",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q056",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-2cef0b4c6a4e37979c7f64f0"
+    },
+    {
+      "encodedSha256": "69d786013f4f0c5053f0b585d2f556d1d0c7af7bb3fc8ae02a935ea710d0d1c3",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q057",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-9a447c37394f94b82774ce11"
+    },
+    {
+      "encodedSha256": "e51c92dd5979977030c205f7731c4e8bc110b30eccd50a05235c46cbcf7d9fcb",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q058",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-4f7751586274ee200032c49d"
+    },
+    {
+      "encodedSha256": "3e0886f0f6b410f9f0c092dd9ea775261c17712620699fe72fdceea4ad6a272c",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q059",
+      "sourceId": "clean-v3-clean-v3-source-train-240000-2189d9cacb8083754ab48fb3"
+    },
+    {
+      "encodedSha256": "5830e3aa7dd276900b12408032eb17a5a8043e4f8c4ff45ed55ea5f4c619736e",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q060",
+      "sourceId": "clean-v3-clean-v3-source-train-280000-71427bcb97069d34480e67c9"
+    },
+    {
+      "encodedSha256": "ce0016f64cea80bccc79789ab695f72ed4f5127d3f4ef473e994e2d5052d4e81",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q061",
+      "sourceId": "clean-v3-clean-v3-source-train-480000-02d891322c6c76b94d4380f5"
+    },
+    {
+      "encodedSha256": "bb9ee30791dbd860d024329918eb737db7644fee68b08f72499c4b47cdc5583b",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q062",
+      "sourceId": "clean-v3-clean-v3-source-train-440000-59f553b6d0828cd42f7639e1"
+    },
+    {
+      "encodedSha256": "23faaa38f8dcccbca5abb44fb737fe5944d46e6a12f4e73cf181e7142b50f325",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q065",
+      "sourceId": "clean-v3-clean-v3-source-train-320000-06b984ae37a3023fe232ca26"
+    },
+    {
+      "encodedSha256": "c118fcf0b0e82cdabb9ffa5cac104e7a6695a1c240d5ad1124f7f6f53f3fed75",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q066",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-5b927573e777b4a462c45369"
+    },
+    {
+      "encodedSha256": "28383344435c803630a374f67d6efc9833b3eba98cb498838e739b41bcc518ef",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q067",
+      "sourceId": "clean-v3-clean-v3-source-train-480000-791496756f9d6cf26dee6c8d"
+    },
+    {
+      "encodedSha256": "4fddbdf6fc57df854788b8fdbf167a2881e1a472757366706ca7bf9e448639cf",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q068",
+      "sourceId": "clean-v3-clean-v3-source-train-280000-8de731299e8a98de84f33a3a"
+    },
+    {
+      "encodedSha256": "443a8843ae133f1f541a2f7f4f1143faa9df32ef883edaf0402f0a88d11d9715",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q069",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-8cd81940a065f1964654359e"
+    },
+    {
+      "encodedSha256": "3b090f4be0553f069b0e0e7cba4cadd9b794a398ce5470daec8e8a6cc2c6bc77",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q072",
+      "sourceId": "clean-v3-clean-v3-source-train-400000-d6aee29871c12e4c19ae1876"
+    },
+    {
+      "encodedSha256": "6da10bcee6587be895f9aa10be36470b9f358435cb9702ffdee9b0d0d137585b",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q073",
+      "sourceId": "clean-v3-clean-v3-source-train-160000-0952eafcd802757c05272038"
+    },
+    {
+      "encodedSha256": "6addcac5bde39b9894052afbfd6594370d2ab5baa9f79180241bf4bd46305e77",
+      "decision": "deny",
+      "reason": "Nonphotographic portrait rather than a usable real face photograph.",
+      "sample": "Q074",
+      "sourceId": "clean-v3-clean-v3-source-train-440000-31a4510a8077fa8769ed03f6"
+    },
+    {
+      "encodedSha256": "0114059b00c55a9547f82f97fe82f99b3eaf2cd20c271d00b1b0104afb4ab93c",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q075",
+      "sourceId": "clean-v3-clean-v3-source-train-120000-33547281fa4e5db46265253e"
+    },
+    {
+      "encodedSha256": "1772e93f3abc17febd80871345d1b322efc450ca5ea9bd1a3b2d4a7dfb569b5e",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q076",
+      "sourceId": "clean-v3-many-faces-clean-core-v3-clean-v3-seed-ffhq-70224-actions-v4-seed-ffhq-51969"
+    },
+    {
+      "encodedSha256": "1279fd66aede4acc311d7dbc82e7f4aa380dc107b846b1d031156146de22f193",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q078",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-ae637f09318a5a003c07497e"
+    },
+    {
+      "encodedSha256": "f8977b8bff82df67a9a7cfb73c0cdb4c45ff4ba6d37b51a9bb96811ee5fd4f73",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q079",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-337776fe8c1063d016a821f8"
+    },
+    {
+      "encodedSha256": "3032e116a35577393894541823782efd70c7049847237f9bd88775717a55b400",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q080",
+      "sourceId": "clean-v3-clean-v3-source-train-400000-70e81092c295ed79c933154b"
+    },
+    {
+      "encodedSha256": "259fb58467318da743397fa34499a8c7ba2ce84884979eb377ce74a16fbcb4ee",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q081",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-83e8ed1cddc889d0736a9d0f"
+    },
+    {
+      "encodedSha256": "fd3879aabaf1dad8d46fd3fc3098ef2876019095186a8fa0fb4408a1b9d43755",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q082",
+      "sourceId": "clean-v3-clean-v3-source-validation-0-77c7b522f9c87c01507fa2fe"
+    },
+    {
+      "encodedSha256": "21c0fbb05d211be3daed19252cad811655e935cf85042efb92ca543c47f06411",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q083",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-53a889f3dcf27f3ed45ee9f9"
+    },
+    {
+      "encodedSha256": "fc51bef7227715ef2fe1ccf44916768bb4b0fba1228e285836b80f8bb2c369aa",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q085",
+      "sourceId": "clean-v3-clean-v3-source-train-200000-3c36fd1b3bd49661e504ff6f"
+    },
+    {
+      "encodedSha256": "b978107dc0d899dee5c29ee4fb3cb8af552333e422d63065ea9dcad96ca8132f",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q086",
+      "sourceId": "clean-v3-clean-v3-source-train-440000-1fddaf299b747e39180d4b66"
+    },
+    {
+      "encodedSha256": "59e4207a297f9baf277e1fe123fd41eee77231510fd1bc7e7ffb288d85e5b488",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q087",
+      "sourceId": "clean-v3-clean-v3-source-train-280000-06756605733566ecd41a9888"
+    },
+    {
+      "encodedSha256": "1c83da97e2c895f8e4703c139ab7ba2cdf5006343190bec225ee322d1f4d167e",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q088",
+      "sourceId": "clean-v3-clean-v3-source-train-120000-39c9b7a0959e8bf624c5135f"
+    },
+    {
+      "encodedSha256": "27c2a238a503c398e004bfc846c763424a73dee6c4ed436f285d3bdf78c6790d",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q089",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-89f64daae01856896f118be4"
+    },
+    {
+      "encodedSha256": "3ff10d014eb8b03e66d1461465af62f33220d17131f9b22f3bfe381c37c925e1",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q090",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-93ac34ef53b494beac855dc4"
+    },
+    {
+      "encodedSha256": "3837e772b66ec15c1ddaf73e01e1e9f1cd5ca06707c12622fd40b22ca68518b2",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q091",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-6ffb40412eb86fbd67aa20f2"
+    },
+    {
+      "encodedSha256": "11d1567a420680a50b758c139e91a110d7d53a8df4f96235ea96d2345e45ce1c",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q092",
+      "sourceId": "clean-v3-clean-v3-source-train-400000-307e99e0beb0a7e96273ecd7"
+    },
+    {
+      "encodedSha256": "435d5452ae77730e7c22d73c4130439b4332dc3da1507ce4e6cf61802ea12daa",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q093",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-87ed159cc4f81608541ea59c"
+    },
+    {
+      "encodedSha256": "e5416baaff0a19b9902bdd63e0283e91ced00e4b8bfa37c3d25cee67e4b11253",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q094",
+      "sourceId": "clean-v3-clean-v3-source-train-400000-c32912159d47649943edf2e9"
+    },
+    {
+      "encodedSha256": "6271627dcb40cc6c9af00d389d2fe957fd87022c8f413b07a04a43fe53ee8d44",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q095",
+      "sourceId": "clean-v3-clean-v3-source-train-160000-0919487b0bd26f8be064a1c6"
+    },
+    {
+      "encodedSha256": "c5c69b599f88e0f85e0f6fa81896cc4ec49285c65f1fb28e71679e1800965d5e",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q096",
+      "sourceId": "clean-v3-clean-v3-source-train-160000-fcd1b6a8fd97ebc0b237d738"
+    },
+    {
+      "encodedSha256": "b957f8df3cbf8c0a64c2fe0a9e07d863d2235b1b3a981d76ab3100c8038edbbe",
+      "decision": "allow",
+      "reason": "Face paint is visible; eyes and mouth remain readable. Paint itself is allowed.",
+      "sample": "Q098",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-555ff341a84bb8ca052c96b5"
+    },
+    {
+      "encodedSha256": "605b194939c50ce7c49034dea1655aa606cf012fa2db642062a78fe4299ba7ba",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q099",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-e4e722aeeecdbe549a2cd7e4"
+    },
+    {
+      "encodedSha256": "aa03b8de178757873492a2989a4102a46dbbc86dbec92106eb5e9db1c73cb1cb",
+      "decision": "allow",
+      "reason": "Face paint is visible; eyes and mouth remain readable. Paint itself is allowed.",
+      "sample": "Q100",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-339f5b75b68212a84d950f00"
+    },
+    {
+      "encodedSha256": "09a0d163396220e80696ed3b52d7c8333b1d7916089406288ca90db62281d44c",
+      "decision": "allow",
+      "reason": "Face paint is visible; eyes and mouth remain readable. Paint itself is allowed.",
+      "sample": "Q101",
+      "sourceId": "clean-v3-clean-v3-source-train-320000-3b51a04eea296648b0a932b3"
+    },
+    {
+      "encodedSha256": "c6ab652a2c274c89818e64d94afeff8827a023ae27a820130d09ea466a7237f8",
+      "decision": "allow",
+      "reason": "Face paint is visible; eyes and mouth remain readable. Paint itself is allowed.",
+      "sample": "Q102",
+      "sourceId": "clean-v3-clean-v3-source-train-360000-f75f8ed1820106245885e2c2"
+    },
+    {
+      "encodedSha256": "23329bba952982d7ef87434df1aee71f42ad126b6afb3c957da238aefbba8921",
+      "decision": "allow",
+      "reason": "Face paint is visible; eyes and mouth remain readable. Paint itself is allowed.",
+      "sample": "Q103",
+      "sourceId": "clean-v3-clean-v3-source-train-400000-f2fb98f040161c8093d3e206"
+    },
+    {
+      "encodedSha256": "b8a5a5bd9b14deb0426687b8c262fed88c217f6a56e9fdc74eabd870e8459748",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q104",
+      "sourceId": "clean-v3-clean-v3-source-train-240000-fcac5dcabeb0e7de4233a350"
+    },
+    {
+      "encodedSha256": "8a6ea05bb8a4105394742006f918348c80e7c7216f2c8347092636b7235baa21",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q105",
+      "sourceId": "clean-v3-clean-v3-source-train-120000-baaf6e33d6bf9e582ea1c3aa"
+    },
+    {
+      "encodedSha256": "480fc4abea9c9622e7ca05e5f0084d01448851a900f67631c4e0bfd986e7dd52",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q106",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-44c9f39a31a86a72bdd74bf6"
+    },
+    {
+      "encodedSha256": "8101023859caa5d1268cf3789cb2c91f5ff4fd5c52083681c6c6fd1987220d34",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q107",
+      "sourceId": "clean-v3-clean-v3-source-train-440000-bc2a4ba45c3fad8c3fb260d6"
+    },
+    {
+      "encodedSha256": "d4f341766fa3736445e0308c71ee4f4c8318a30ffad6a821f7c84b1bcf678fa1",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q108",
+      "sourceId": "clean-v3-clean-v3-source-train-200000-8a2a830cb69140c0920695e3"
+    },
+    {
+      "encodedSha256": "78379756bae6f0961ba437aedcd2f9921f634de54d99bc30c625a9d92a2f22bf",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q109",
+      "sourceId": "clean-v3-clean-v3-source-train-240000-538679e659e3141309fca926"
+    },
+    {
+      "encodedSha256": "bc94273afcba67d89039ba864d774558b319c56631f6c1b5bd0002006961f47d",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q110",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-32eba140854a0664440a379e"
+    },
+    {
+      "encodedSha256": "1d7fc07b5a0f10b4ad78a2d0e16e9cc146594d75b0ed8b69d1842765eff1ea13",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q111",
+      "sourceId": "clean-v3-clean-v3-source-train-160000-e098464ae93dcec0d574cdb4"
+    },
+    {
+      "encodedSha256": "3deca69209126d6acf2d0e46f6f4425509b762d31e68e38133b1bcf6e72c623b",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q112",
+      "sourceId": "clean-v3-clean-v3-source-train-320000-e2e8bb3e056d01d3b3ac7daf"
+    },
+    {
+      "encodedSha256": "077fe86fa3af16088a9dd62a24e85c003b59c78c0531ccb254de125e6ecd9a33",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q113",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-d462cdaadd3a8345f50920f3"
+    },
+    {
+      "encodedSha256": "03edc69531ca1ff9db861e1d2a84de03a164f3aec9c78dc2071b94f6929a35d6",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q114",
+      "sourceId": "clean-v3-clean-v3-source-test-000000--d361697696916b925d46921c"
+    },
+    {
+      "encodedSha256": "d48a5239e078f6e6c3b7e0ba1280c2727373e47439ac659c75e1c5748985f109",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q116",
+      "sourceId": "clean-v3-clean-v3-source-train-280000-1902b595b72ee38b1b66fe3d"
+    },
+    {
+      "encodedSha256": "327e2ed6e3a0bd81be4a8cb4814e035715cae42db3adba4b5c16715b82fcc726",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q117",
+      "sourceId": "clean-v3-clean-v3-source-train-200000-01cc79465ac6f153bd46c0ad"
+    },
+    {
+      "encodedSha256": "2c8bd513c113067ce930e617b26b7111ce399c021c500eabab3a54cce80e4bc7",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q118",
+      "sourceId": "clean-v3-clean-v3-source-train-400000-c21d7d7ee6d5f074eca0e626"
+    },
+    {
+      "encodedSha256": "d6580f3ff464fc0b3eae1fb28bcdafa878c038996a52352f80ca934e5d35c23d",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q122",
+      "sourceId": "clean-v3-clean-v3-source-train-120000-d6be5d19c266696230c6e4fa"
+    },
+    {
+      "encodedSha256": "63cd7bab70e38cc0aacf7650f3673f4cb1ba0cbc63d4518b1977e45c394a3b99",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q124",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-db3d610b6b46d940a2cf6eb3"
+    },
+    {
+      "encodedSha256": "244013103fd978fceab79811be60be0a4d0cf46835b95a7db492d7cd604981d2",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q125",
+      "sourceId": "clean-v3-clean-v3-source-train-360000-f2de1d63335f44446360efac"
+    },
+    {
+      "encodedSha256": "5edc8df38e5199e461d8f4bf910531fe19739b571fda641ca81864b4ce0c1a64",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q126",
+      "sourceId": "clean-v3-clean-v3-source-train-320000-535ccc75bbb5cd753103acb4"
+    },
+    {
+      "encodedSha256": "da6ffbc60a7535bdb882a4b0813c128324a2ae52bb6c8894ee6de6534f49a678",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q127",
+      "sourceId": "clean-v3-clean-v3-source-train-360000-654822fc18128367d0d7f8fe"
+    },
+    {
+      "encodedSha256": "610224f405cc01e9e73bbe0924c4f0663ba3d11bcdb7834bbf4a370bb7dcb1cf",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q128",
+      "sourceId": "clean-v3-clean-v3-source-train-120000-444e3de7d8c8d8011f27f7fd"
+    },
+    {
+      "encodedSha256": "b86b3c303f098090fca0e633930755f55f25619a6e3760cb4cd4d53fa71f684b",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q129",
+      "sourceId": "clean-v3-clean-v3-source-train-320000-101e1194cb9747bdbe34c9c1"
+    },
+    {
+      "encodedSha256": "4494415b3a05d6b93612843e475dccf64bf2f2b1226e3b587c4d47cc5532a45f",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q130",
+      "sourceId": "clean-v3-clean-v3-source-train-440000-53a35d2afa88fdc92468ed69"
+    },
+    {
+      "encodedSha256": "f16ee914a9507264eb08c618e36b59c5f96042b34ff1fd15dc24fbd8cd124d59",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q133",
+      "sourceId": "clean-v3-clean-v3-source-train-280000-1fced690495e4a2bcec0b8e0"
+    },
+    {
+      "encodedSha256": "3164f112a64ab0bbed96db57eb583dfa90a07e017852bcc61f33def6ec89201b",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q134",
+      "sourceId": "clean-v3-clean-v3-source-train-320000-a02d87d2d46c727b26a0bce0"
+    },
+    {
+      "encodedSha256": "3b463eab0e1686a455c1f06f8ffaf8fc5ed4547ad74a382ca51c6d3241de5cf0",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q135",
+      "sourceId": "clean-v3-clean-v3-source-train-280000-4b03e5563b9ef629ab1c08ea"
+    },
+    {
+      "encodedSha256": "89415a49fba283543b19d94444a3020d185f105845078ddeb65e7341bf16e699",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q139",
+      "sourceId": "clean-v3-clean-v3-source-train-360000-4e66ff30dcb36329c7cc5649"
+    },
+    {
+      "encodedSha256": "ba5a31ec850175a0b5bfabb99687ab2d5f70980aecf6b9b88f9b99fb6d41df70",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q140",
+      "sourceId": "clean-v3-clean-v3-source-train-200000-2847a2287cadf6b47b27b41a"
+    },
+    {
+      "encodedSha256": "b1e81edb5b5f4aca63c3266420830e16d02412909c8b4e7f216c9d8123230acc",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q141",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-8d81f17f3d00de180d95aa54"
+    },
+    {
+      "encodedSha256": "136e2173667b631091501ae5895be9ad9e5da5e5d527c6c81ebd93649f594944",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q142",
+      "sourceId": "clean-v3-many-faces-clean-core-v3-clean-v3-seed-ffhq-70224-actions-v4-seed-ffhq-57855"
+    },
+    {
+      "encodedSha256": "f120e5580258d797aef40c4e5a4a87d0ed02af593f6e7faaeb6bb242c246800c",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q144",
+      "sourceId": "clean-v3-clean-v3-source-train-160000-27c11cb9c794af77e3763d03"
+    },
+    {
+      "encodedSha256": "2f030c34cd705b6aa07e94b56b62d08f817acec4b9fbeb246bc38cda5e78d7ef",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q145",
+      "sourceId": "clean-v3-clean-v3-source-train-440000-06d99697acca417164caa293"
+    },
+    {
+      "encodedSha256": "6453ee389624f7c68f06a1df7d95ad96f5dbba315ef78b01d1f2fb26a1740606",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q146",
+      "sourceId": "clean-v3-clean-v3-source-train-240000-09e82fe50a7d608dc012175b"
+    },
+    {
+      "encodedSha256": "310ec36fefaa0c37e6accc7351d2baac8f0a98195020280752eebe374cc7427d",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q147",
+      "sourceId": "clean-v3-clean-v3-source-train-000000-b2930060dbf5c357a0737b5e"
+    },
+    {
+      "encodedSha256": "8fffc3f9f513198d0b45c12f6e074526036a6752c0ad30be4b1d4d0d11396f01",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q148",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-fca791956728194cb807b4d9"
+    },
+    {
+      "encodedSha256": "a4e3a0873fa66e0ad6a8070cc38d5b56dd42f52e8548db1fc8781731bf12c2a0",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q149",
+      "sourceId": "clean-v3-clean-v3-source-train-240000-8148783179e1a0bb37e7a426"
+    },
+    {
+      "encodedSha256": "fe196c78f7267b2748b87c6195c8ba1ad95d48a9a2eea10abf804fecb1b41a08",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q150",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-16ab04b7e958a8c00d879b0e"
+    },
+    {
+      "encodedSha256": "a1de29bd38136e1020f55e6ccea7ed5aac04809897c3cac016f91800221cc9ad",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q151",
+      "sourceId": "clean-v3-clean-v3-source-train-320000-8f9c3e32cc81428ad11f211b"
+    },
+    {
+      "encodedSha256": "15005f60df2340514e91611156bb76ff6f950f52e5c62f5f0003732143ab51c1",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q152",
+      "sourceId": "clean-v3-clean-v3-source-train-280000-979e4e5167f897cb24d53895"
+    },
+    {
+      "encodedSha256": "a867b99bc38896c6be805750eec540c6d40b31395e04d1da5815b4d2cbb2ab4c",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q153",
+      "sourceId": "clean-v3-clean-v3-source-train-240000-f27fd5961454f7340b72801b"
+    },
+    {
+      "encodedSha256": "726115a30c1129f5a0b98f1e1ddf83a00110e2b9bc1bee79edc0d9b51c0c34ae",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q154",
+      "sourceId": "clean-v3-clean-v3-source-train-440000-4989c53151cab53a659554e0"
+    },
+    {
+      "encodedSha256": "5824b9578369041c4392bd924b278123b5f656a265f37d4899750d3bac02cf7b",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q155",
+      "sourceId": "clean-v3-clean-v3-source-train-320000-9475d181ad62b94e8d5c3a12"
+    },
+    {
+      "encodedSha256": "8209f8d3f74ff264c32d1912d8996c7ef876950ab155209bf49b889470ff7cbe",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q157",
+      "sourceId": "clean-v3-many-faces-clean-core-v3-clean-v3-seed-ffhq-70224-actions-v4-seed-ffhq-1791"
+    },
+    {
+      "encodedSha256": "6408655b4b942aa5d2886866f9f22125eb1ad1712fd44ce67327acabb35eedd4",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q158",
+      "sourceId": "clean-v3-clean-v3-source-train-360000-1e6a5f08c6533c1b2fd4d90e"
+    },
+    {
+      "encodedSha256": "d208623be4dc892b601ca2e6c9af3b91b7343258c89c9af05cf32c9ffebaca46",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q159",
+      "sourceId": "clean-v3-clean-v3-source-train-200000-80861ba98c0f7b8f0582b280"
+    },
+    {
+      "encodedSha256": "346f3143ddd21e75b1ecf4ed2e5f8b19be78513e34c2415207ccfd34e2c5445c",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q160",
+      "sourceId": "clean-v3-clean-v3-source-train-400000-dcbfc0c02a1a0afa2ed9dc46"
+    },
+    {
+      "encodedSha256": "c03cdcd11582e804123279248e15562a74b25fba27674b462bd31a31194cfa3d",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q161",
+      "sourceId": "clean-v3-many-faces-clean-core-v3-clean-v3-seed-ffhq-70224-actions-v4-seed-ffhq-21265"
+    },
+    {
+      "encodedSha256": "b0504ea77b39d270746e95b576214deb99c16265692377ad8f8254b2c67fdd85",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q162",
+      "sourceId": "clean-v3-clean-v3-source-train-120000-d1c08aacf1e4b6aab14a9705"
+    },
+    {
+      "encodedSha256": "671d17fcd12418aba9801888a3c623bc3a441000a2de4bc90c4b074b8435e989",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q163",
+      "sourceId": "clean-v3-clean-v3-source-train-320000-478870b7f1ee7ad480cf3952"
+    },
+    {
+      "encodedSha256": "b36c4da263cb3c14e473b41d6e9884ea46af4429c6e01884f3c143c77b765259",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q164",
+      "sourceId": "clean-v3-clean-v3-source-train-440000-f4e8a20e6ac05f78ce41d9f3"
+    },
+    {
+      "encodedSha256": "f560c1f48327fd47d6b7fd92302ba558ccf6f17bf94755509e6a2e292563d1b4",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q165",
+      "sourceId": "clean-v3-clean-v3-source-train-240000-8313ce1ce61b38b2142a4e1d"
+    },
+    {
+      "encodedSha256": "e586985b2c8b31b539fa6b9218f0167f433c7ec9b86aa2ed92e4df23547b56b3",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q166",
+      "sourceId": "clean-v3-clean-v3-source-train-200000-e475a917931a2d3082851456"
+    },
+    {
+      "encodedSha256": "0cb51dacf36561541bea5a7f6c1b3f72ce64756bf2e28aa82207bc6d77253b53",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q167",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-618af82f97ff03c6d39bc00c"
+    },
+    {
+      "encodedSha256": "b67e102cb9bdc885da1708b0aea4b414ceb91316e01ad57be9e02ead5c2c3615",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q168",
+      "sourceId": "clean-v3-clean-v3-source-train-240000-0bd636746eb032da3594a112"
+    },
+    {
+      "encodedSha256": "9faf7e616c06c585419fbdf760aca28b4f7bd6384e31ccb45291b25adea21933",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q169",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-aa41942b7c32f0893f40a568"
+    },
+    {
+      "encodedSha256": "25ca25e475dcc58da671fff79626cf94e423131e8470d8506e48d4ffb4a8a428",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q170",
+      "sourceId": "clean-v3-clean-v3-source-train-240000-9c6e2a01f4e0dc1f91645012"
+    },
+    {
+      "encodedSha256": "8933219bb21e7f67a008b510597d438b13e34454e91bf8b12db2b476b49a9050",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q171",
+      "sourceId": "clean-v3-clean-v3-source-test-000000--c497edb0fc7a11fa3c934b31"
+    },
+    {
+      "encodedSha256": "f1bfef2091e64c1c7cf810b40258d10f0dfa5a96108ab76f64b6cfef689d33fa",
+      "decision": "deny",
+      "reason": "Visible eye or mouth obstruction: dark lenses, covering, hand, object, microphone, or foreground person.",
+      "sample": "Q172",
+      "sourceId": "clean-v3-many-faces-clean-core-v3-clean-v3-seed-ffhq-70224-actions-v4-seed-ffhq-25259"
+    },
+    {
+      "encodedSha256": "458d733a6b7ec26697d37a8ffeec4ee31107abc0340c5a066bb4a5d5d99a145a",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q173",
+      "sourceId": "clean-v3-clean-v3-source-train-240000-c52e0a3f07b25ea36262a92e"
+    },
+    {
+      "encodedSha256": "e7e62fda0c3fb5c1d55966cc4ed7ce2fee3bb6852714cf7999850dfa1157143f",
+      "decision": "allow",
+      "reason": "Face paint is visible; eyes and mouth remain readable. Paint itself is allowed.",
+      "sample": "Q174",
+      "sourceId": "clean-v3-clean-v3-source-test-000000--591e7eb4428ab503c2c057c0"
+    },
+    {
+      "encodedSha256": "4c6e9b0795eb061a3f400ad3c871bfd31115811a2e5368f4e94adc32eedbc4c3",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q175",
+      "sourceId": "clean-v3-clean-v3-source-train-240000-388059dec5d1801c4fbb6323"
+    },
+    {
+      "encodedSha256": "31af382b83bf31daca69763f696ad80728133d84244e14dada8b76bf2a96a9fa",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q176",
+      "sourceId": "clean-v3-clean-v3-source-train-040000-f38e8fece121521a09726b10"
+    },
+    {
+      "encodedSha256": "7e8a486a4a2b9eff112b757d475f48496950da6346da143875ece1958e9703fe",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q177",
+      "sourceId": "clean-v3-clean-v3-source-train-280000-b3a2bd82aea2e3897d8018b5"
+    },
+    {
+      "encodedSha256": "5995de9895eec13f41c5fa8d6de41417513a7b17a8660dbd249d71803433bb0b",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q178",
+      "sourceId": "clean-v3-clean-v3-source-train-200000-fc83aa272f7a3293311fea67"
+    },
+    {
+      "encodedSha256": "541bd28a0a4850e4e9647e4bfc79865e8d0e1745fcc57207a6bea3e9873cfaed",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q180",
+      "sourceId": "clean-v3-clean-v3-source-train-160000-d15800a7495d5630f5a746f1"
+    },
+    {
+      "encodedSha256": "655697fd129e87c8c9d0e0462b8d73bbcadb0f66fac92d2e93c93114ba11576a",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q181",
+      "sourceId": "clean-v3-clean-v3-source-train-360000-e07b24ba59b2c78fd01ad8e4"
+    },
+    {
+      "encodedSha256": "aaa02bb07a8494f52acfdff200cb1142e7b404a542f0f8baaa4f140acf394468",
+      "decision": "allow",
+      "reason": "Transparent eyeglasses with visible eyes and mouth; eyewear itself is allowed.",
+      "sample": "Q182",
+      "sourceId": "clean-v3-clean-v3-source-train-320000-a7a008975cd8440def6a85c0"
+    },
+    {
+      "encodedSha256": "bf9954239cdbe8965176400a9b54eea1827a870904bf93c8d730881ebe6f4422",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q184",
+      "sourceId": "clean-v3-clean-v3-source-train-360000-96b2eca2dd8aa6b20f477cf9"
+    },
+    {
+      "encodedSha256": "24d2c7037943e6cde403340318c8bea2a73bf17fe29100d54210c8458a37362a",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q185",
+      "sourceId": "clean-v3-clean-v3-source-train-400000-15afb81f52396bf79fbd2ead"
+    },
+    {
+      "encodedSha256": "bda32d59dcd4f97327a6616229cba9ac8184b5337e806dd0688e7ef3f81802ca",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q186",
+      "sourceId": "clean-v3-clean-v3-source-train-080000-02b75a839f0958fd423a4ad2"
+    },
+    {
+      "encodedSha256": "91812f87ffb90d4db40c88f3f6544364a6c9404b6def4df06606a22c913bce57",
+      "decision": "allow",
+      "reason": "Eyes and mouth are visually exposed in the exact sampled image; other quality checks still apply.",
+      "sample": "Q187",
+      "sourceId": "clean-v3-clean-v3-source-train-160000-271dec5207b213ead1d9c935"
+    },
+    {
+      "encodedSha256": "51437ea6acf51fc2d646bcb402ef444f5d8abfdf9cd17ed40d82e9df848701ec",
+      "decision": "allow",
+      "reason": "Visible natural wink and mouth; no object covers the eyes, nose, or mouth.",
+      "sample": "WINK01",
+      "sourceId": "wink-extra-51437ea6acf51fc2d646bcb4"
+    },
+    {
+      "encodedSha256": "4f24a6bfb7a11643dfea342c8083f6aaa0054f28ad427fd99fcdbb56fcba8494",
+      "decision": "allow",
+      "reason": "Visible natural wink and pursed mouth; no object covers expression regions.",
+      "sample": "WINK02",
+      "sourceId": "wink-extra-4f24a6bfb7a11643dfea342c"
+    },
+    {
+      "encodedSha256": "7249bc95c6d79d908564bb974732b73cc4a3bfaf877ad46392882caa7026d545",
+      "decision": "allow",
+      "reason": "Visible natural wink and tongue-out smile; the cap stays above the brows.",
+      "sample": "WINK03",
+      "sourceId": "wink-extra-7249bc95c6d79d908564bb97"
+    },
+    {
+      "encodedSha256": "a8286fcb1fb111a161fc949e903ce7bd37b104421edff13fa73d6afcd31f3143",
+      "decision": "allow",
+      "reason": "Visible natural wink and closed-mouth smile with unobstructed expression regions.",
+      "sample": "WINK04",
+      "sourceId": "wink-extra-a8286fcb1fb111a161fc949e"
+    },
+    {
+      "encodedSha256": "550ed2e191ac80d8f8fb620b81c212050b7c82b070b8c2b59103a8ce20a15d7c",
+      "decision": "deny",
+      "reason": "A hand covers and presses the cheek beside the nose and mouth, obscuring expression detail.",
+      "sample": "WINK05",
+      "sourceId": "wink-extra-550ed2e191ac80d8f8fb620b"
+    },
+    {
+      "encodedSha256": "fa482b1e7be4d4391b2e11414e4d21aded033932853b8f9f33c3310eeea4929d",
+      "decision": "allow",
+      "reason": "Visible natural wink and teeth; eyewear rests above the forehead and does not cover either eye.",
+      "sample": "WINK06",
+      "sourceId": "wink-extra-fa482b1e7be4d4391b2e1141"
+    }
+  ],
+  "additionalReview": "An independent visual check left Q063 (hands at mouth corners), Q136 (grain/print/photo ambiguity), and Q121 (lens tint ambiguity) unresolved; no manual override applies. Six original wink-support photographs were inspected individually: five unobstructed faces allowed and one hand-obscured face denied; all are bound to their original encoded image digest."
+}

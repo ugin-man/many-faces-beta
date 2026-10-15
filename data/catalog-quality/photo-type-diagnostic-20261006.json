@@ -1,0 +1,3664 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "clean-core-photo-type-diagnostic",
+  "status": "completed-not-adopted-as-automatic-gate",
+  "evaluatedOn": "2026-10-06",
+  "reviewer": "assistant-diagnostic-evaluation",
+  "humanVerified": false,
+  "scoredUniqueImages": 791,
+  "generalAdmissionPolicyChanged": false,
+  "productionThreshold": null,
+  "modelClassifierLabelsAreNotGroundTruth": true,
+  "secondGroupWasCompletelyUnseen": false,
+  "decision": "Retain the existing admission policy. The single fixed CLIP representation-minus-photograph margin does not separate the known nonphotographic faces from all real photographs. This diagnostic neither admits nor excludes any image.",
+  "finding": {
+    "development": {
+      "images": 360,
+      "knownNonphotos": 2,
+      "nonphotosDetected": 2,
+      "photoFalseAlarms": 5
+    },
+    "fixedSecondGroup": {
+      "images": 360,
+      "knownNonphotos": 1,
+      "nonphotosDetected": 1,
+      "photoFalseAlarms": 5
+    },
+    "confirmedWinkControls": {
+      "images": 71,
+      "photoFalseAlarms": 0
+    },
+    "diagnosticCutoffSelectedOnDevelopment": 0.019006192684173584
+  },
+  "limitations": [
+    "Only three images are explicitly established as nonphotographic representations; results do not estimate detection for all artwork types or the entire 70000-image catalog.",
+    "Some second-group scores were seen during the initial smoke check; the group is a fixed second reference group, not a completely unseen validation holdout.",
+    "The 720-image scoring file completed and was verified, but the final informational stdout path rendering exited with ValueError; the unchanged runner succeeded with an absolute output path for the 71-image run.",
+    "Original visibility decisions and uncertainty remain unchanged; being a blurry real photograph is distinct from being an artwork."
+  ],
+  "scores": {
+    "path": "data/catalog-quality/photo-type-scores-20261006.jsonl",
+    "sha256": "22acec595655168f45730849bc7aef33b585b60928f1e404eee170a800359795",
+    "bytes": 1409413
+  },
+  "sourceReadySha256": "6a40074f2c56474363771a03fee64cad54c0d2f9bf0a9b26569be9cbf712ac77",
+  "sourceReady": {
+    "schemaVersion": 1,
+    "documentKind": "many-faces-photo-type-diagnostic-ready",
+    "status": "diagnostic-complete",
+    "scoredUniqueImages": 791,
+    "promptsFrozen": true,
+    "modelCheckpointSha256": "40d365715913c9da98579312b702a82c18be219cc2a73407c4526f58eba950af",
+    "promptsSha256": "18e23661c677484328773cba205eaa341fd5fb872ba61e48af767df631209979",
+    "runnerSha256": "3847bdda08bc3d2aa849311c82bbfbdb24e18ef209e2446180a55c12221373cb",
+    "activeGateChanged": false,
+    "productionThreshold": null,
+    "viewedExactOriginals": 18,
+    "secondGroupIsCompletelyUnseen": false,
+    "files": [
+      {
+        "path": "REPORT.md",
+        "sha256": "04288409168f95a7c67624ebe1d821dc40c6ad06eca2046968352ad71467f04f",
+        "bytes": 11420
+      },
+      {
+        "path": "all-791-scores.jsonl",
+        "sha256": "22acec595655168f45730849bc7aef33b585b60928f1e404eee170a800359795",
+        "bytes": 1409413
+      },
+      {
+        "path": "analysis-plan.json",
+        "sha256": "679be4326c9073e923a94d766aafd87a541b624b4f92f24b19689d6705a05781",
+        "bytes": 2683
+      },
+      {
+        "path": "analyze_clip_results.py",
+        "sha256": "017a145eb12dd2c20abe0819654861dc076a6f061581b90e284f807fa943ece2",
+        "bytes": 11015
+      },
+      {
+        "path": "cutoff-tables.csv",
+        "sha256": "4b0abe334726aa87a20de1b4830565d496ae3a4d052a3f8033f10da127da57ee",
+        "bytes": 1942
+      },
+      {
+        "path": "development-frozen-cutoffs.json",
+        "sha256": "ceccc441815bb0894c8ae8c8c165970a2c76946946ade8ae95e4d1a51743f1d3",
+        "bytes": 10582
+      },
+      {
+        "path": "evaluation.json",
+        "sha256": "b38e5ecc172da21e0eb0632efceb89a9bbe338a93c4915f37b3b6b87c9ca0a04",
+        "bytes": 48100
+      },
+      {
+        "path": "execution-notes.json",
+        "sha256": "1b727c5c534c04fce51125362aa4eeb6538897aff4f1ec9a57c5996a041783c5",
+        "bytes": 1721
+      },
+      {
+        "path": "fixed-samples.json",
+        "sha256": "0fce971bc6166bee5f47fb3b77fbba33ac5a14516b37084cd8c15f2f6dfe0009",
+        "bytes": 579637
+      },
+      {
+        "path": "full-720-results.json",
+        "sha256": "c010c8dae0b3e4f9315c662e9d37eae923bbf40abc05fc580bc81ad28d963803",
+        "bytes": 1038422
+      },
+      {
+        "path": "license-and-source-notes.json",
+        "sha256": "c0ace15f0468142e9759228e3d99e5eef764364c10c95b61d1d76ccf9da29988",
+        "bytes": 2692
+      },
+      {
+        "path": "model-provenance.json",
+        "sha256": "4f029750b2b0b4ff9d58848f26887c449fa8e55d9018352ab24d61c84c9e8890",
+        "bytes": 6360
+      },
+      {
+        "path": "official-code-commit.json",
+        "sha256": "ce1919c23491a0a904b8a3cc551538a59850379db09c7430e010f726141ca30b",
+        "bytes": 5611
+      },
+      {
+        "path": "original-reinspection.json",
+        "sha256": "d98f08335b638cdf47dbe6566c29441a52c72e1e4a086b815a6fdbdc19d6563f",
+        "bytes": 13422
+      },
+      {
+        "path": "prepare_fixed_samples.py",
+        "sha256": "d5ab7a2568604c0138cd67c1a8fff57049102a44195f24187a974457d0b49ff5",
+        "bytes": 5355
+      },
+      {
+        "path": "prepare_public_model.py",
+        "sha256": "6392d75c30198cc94e2b2053b5b018a6b63b7ff758e418f99afa3691c7dd7695",
+        "bytes": 4713
+      },
+      {
+        "path": "prepare_wink_controls.py",
+        "sha256": "226f5c8f71e59d5f386e49bc184e0e94977ecff80d21dab9833b788359b2808f",
+        "bytes": 4088
+      },
+      {
+        "path": "prompts.json",
+        "sha256": "18e23661c677484328773cba205eaa341fd5fb872ba61e48af767df631209979",
+        "bytes": 1755
+      },
+      {
+        "path": "protected-groups-and-distributions.json",
+        "sha256": "de6f637a6180ad974b9aa90fbe48b14d9e443722238ee51cfaee4d1568ae6151",
+        "bytes": 24109
+      },
+      {
+        "path": "record_reinspection_and_protection.py",
+        "sha256": "6ac8669850d941175af9500f9113756fe82ad928cb5ad35b63f805dd8270b12f",
+        "bytes": 9668
+      },
+      {
+        "path": "requirements-resolved.txt",
+        "sha256": "66afca4997cff0c592e811428efc95a2b9defb55a4f270a0ea084472b05eb45d",
+        "bytes": 309
+      },
+      {
+        "path": "run_clip_diagnostic.py",
+        "sha256": "3847bdda08bc3d2aa849311c82bbfbdb24e18ef209e2446180a55c12221373cb",
+        "bytes": 10151
+      },
+      {
+        "path": "smoke-results.json",
+        "sha256": "2b99ac3406e6bc4b80f2e2d02c04c726d9f2b1b6455cba26b657670dcbb1163a",
+        "bytes": 27148
+      },
+      {
+        "path": "smoke-samples.json",
+        "sha256": "2ebdcb16cb8fe3cc247588eec509f4a9d328be00f76179d05393eb2c90697041",
+        "bytes": 14104
+      },
+      {
+        "path": "wink-71-results.json",
+        "sha256": "c83460ef8d62cdd949d099af3c0d43a4abd22a48ae9c40230af7d24f38aadf37",
+        "bytes": 106195
+      },
+      {
+        "path": "wink-controls.json",
+        "sha256": "2649b44327acad2137a8af006803be19a712ca1361f4d6ed954b25f0e5df68ee",
+        "bytes": 84659
+      },
+      {
+        "path": "vendor/openai-clip/LICENSE",
+        "sha256": "987e63b32f6c89ff5160e429458a872ff048e6860b590a3912e938f9da8f14db",
+        "bytes": 1064
+      },
+      {
+        "path": "vendor/openai-clip/model-card.md",
+        "sha256": "7baf04f60c6234b301ec2c9ca39e67a3ca54b47c05e9509bddf732cbcbec8b7f",
+        "bytes": 7733
+      },
+      {
+        "path": "vendor/openai-clip/README.md",
+        "sha256": "f82c5c75e140532eb37a7d943921e1bdd57d740c6b40d0030985bc5b5d11d6f1",
+        "bytes": 7306
+      }
+    ]
+  },
+  "documents": {
+    "analysis-plan.json": {
+      "sha256": "679be4326c9073e923a94d766aafd87a541b624b4f92f24b19689d6705a05781",
+      "document": {
+        "schemaVersion": 1,
+        "documentKind": "many-faces-photo-type-diagnostic-analysis-plan",
+        "scope": "Diagnostic only; no active gate, dataset decision, or production threshold",
+        "promptPolicy": "Keep the exact eleven prompts from the first smoke run unchanged",
+        "fixedScore": "max fixed-representation cosine minus max photographic-face cosine",
+        "thresholdPredicateForTablesOnly": "score >= threshold",
+        "development": "Existing old 360; use only this group's full distribution to freeze candidate cutoff values",
+        "secondGroup": "Existing new 360; several scores were already observed in the smoke run, so this is not a completely unseen holdout",
+        "seenWinkControls": "71 earlier visually confirmed winks, kept as protective reference controls rather than unseen validation",
+        "referenceNonPhotoExamples": [
+          {
+            "key": "development-H232",
+            "encodedSha256": "1136386ec1e96d20e0d235dbf3714bb0028817682e9ef2fad1af61c58c03df47",
+            "reference": "doll"
+          },
+          {
+            "key": "development-H326",
+            "encodedSha256": "33d2d01eac25178859f7a85d3b9033a4f11211745ca55b9f5a0b78e4ef591492",
+            "reference": "painted portrait"
+          },
+          {
+            "key": "validation-H261",
+            "encodedSha256": "ba6f60f0b5bd709421d26c7532cc73e1df7d3e847c12376510b4b937f4986bc9",
+            "reference": "mosaic"
+          }
+        ],
+        "remainingReferenceImages": "Retain every remaining image, including visibility-denied and visibility-uncertain real photos, as photo-type negative controls; do not convert visibility failures into non-photo positives",
+        "candidateCutoffs": {
+          "fixedDiagnosticGrid": [
+            -0.01,
+            0.0,
+            0.01,
+            0.02,
+            0.03,
+            0.05,
+            0.075,
+            0.1
+          ],
+          "developmentRetainBothKnownPositives": "minimum score among the two known non-photo development examples",
+          "developmentNoObservedFalsePositives": "next representable float above the maximum development photo-type negative score"
+        },
+        "extraOutputs": [
+          "Complete raw eleven cosines, both group maxima, signed margin, status, and encoded SHA for every image",
+          "Separate tables for development, the pre-fixed second group, and protective winks",
+          "Score distributions and false-positive candidate IDs for each cutoff",
+          "Exact-original reinspection for leading false-positive candidates, preserving prior review decisions"
+        ],
+        "claimLimits": [
+          "Three explicit non-photo examples cannot establish recall over paintings, dolls, mosaics, and sculptures in general",
+          "Quality-challenge sample composition cannot estimate whole-catalog prevalence or production false-positive rates",
+          "Text-similarity outputs and names are not calibrated probabilities or verified image categories",
+          "No threshold or model is being adopted into the admission or selection gate"
+        ]
+      }
+    },
+    "model-provenance.json": {
+      "sha256": "4f029750b2b0b4ff9d58848f26887c449fa8e55d9018352ab24d61c84c9e8890",
+      "document": {
+        "schemaVersion": 1,
+        "documentKind": "many-faces-photo-type-diagnostic-model-provenance",
+        "retrievedAt": "2026-10-06T17:13:25.500062+00:00",
+        "model": "OpenAI CLIP ViT-B/32",
+        "modelDate": "January 2021",
+        "officialRepository": "https://github.com/openai/CLIP",
+        "codeCommit": "d05afc436d78f1c48dc0dbf8e5980a9d471f35f6",
+        "checkpointSha256": "40d365715913c9da98579312b702a82c18be219cc2a73407c4526f58eba950af",
+        "checkpointBytes": 353976522,
+        "license": "MIT",
+        "licenseSource": "https://github.com/openai/CLIP/blob/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/LICENSE",
+        "modelCardSource": "https://github.com/openai/CLIP/blob/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/model-card.md",
+        "officialWeightReference": "https://github.com/openai/CLIP/blob/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/clip.py",
+        "purpose": "Local non-deployed diagnosis of real photographic faces versus fixed artistic representations",
+        "notAPhotoTypeProbability": true,
+        "noIdentityOrDemographicClassification": true,
+        "adoptedInGate": false,
+        "files": [
+          {
+            "path": "models/ViT-B-32.pt",
+            "url": "https://openaipublic.azureedge.net/clip/models/40d365715913c9da98579312b702a82c18be219cc2a73407c4526f58eba950af/ViT-B-32.pt",
+            "finalUrl": "https://openaipublic.azureedge.net/clip/models/40d365715913c9da98579312b702a82c18be219cc2a73407c4526f58eba950af/ViT-B-32.pt",
+            "sha256": "40d365715913c9da98579312b702a82c18be219cc2a73407c4526f58eba950af",
+            "bytes": 353976522,
+            "downloadSeconds": 16.96222811199914,
+            "cached": false
+          },
+          {
+            "path": "vendor/openai-clip/LICENSE",
+            "url": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/LICENSE",
+            "finalUrl": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/LICENSE",
+            "sha256": "987e63b32f6c89ff5160e429458a872ff048e6860b590a3912e938f9da8f14db",
+            "bytes": 1064,
+            "downloadSeconds": 9.285052903996984,
+            "cached": false
+          },
+          {
+            "path": "vendor/openai-clip/README.md",
+            "url": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/README.md",
+            "finalUrl": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/README.md",
+            "sha256": "f82c5c75e140532eb37a7d943921e1bdd57d740c6b40d0030985bc5b5d11d6f1",
+            "bytes": 7306,
+            "downloadSeconds": 9.243162045000645,
+            "cached": false
+          },
+          {
+            "path": "vendor/openai-clip/model-card.md",
+            "url": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/model-card.md",
+            "finalUrl": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/model-card.md",
+            "sha256": "7baf04f60c6234b301ec2c9ca39e67a3ca54b47c05e9509bddf732cbcbec8b7f",
+            "bytes": 7733,
+            "downloadSeconds": 8.37617133599997,
+            "cached": false
+          },
+          {
+            "path": "vendor/openai-clip/requirements.txt",
+            "url": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/requirements.txt",
+            "finalUrl": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/requirements.txt",
+            "sha256": "5a4592a5a1dba0812188f42fff2ae4054d63c336699879cf184ed98fd02cb0a9",
+            "bytes": 44,
+            "downloadSeconds": 8.405448589997832,
+            "cached": false
+          },
+          {
+            "path": "vendor/openai-clip/setup.py",
+            "url": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/setup.py",
+            "finalUrl": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/setup.py",
+            "sha256": "6a913890284a988293f7b0b3ca017de29c65ce2bdce9fdd09cb481fc6bd5a636",
+            "bytes": 477,
+            "downloadSeconds": 8.289434207999875,
+            "cached": false
+          },
+          {
+            "path": "vendor/openai-clip/clip/__init__.py",
+            "url": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/__init__.py",
+            "finalUrl": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/__init__.py",
+            "sha256": "d7930eb290ebed432116795c91473200d098451a94c0aedd4ae0f934f97955e8",
+            "bytes": 20,
+            "downloadSeconds": 7.640397873001348,
+            "cached": false
+          },
+          {
+            "path": "vendor/openai-clip/clip/clip.py",
+            "url": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/clip.py",
+            "finalUrl": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/clip.py",
+            "sha256": "9540f200fbf8145479fa655382a56dab048d238cc698b9cbd8df3b6d86d3f1b6",
+            "bytes": 9644,
+            "downloadSeconds": 7.44001007100087,
+            "cached": false
+          },
+          {
+            "path": "vendor/openai-clip/clip/model.py",
+            "url": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/model.py",
+            "finalUrl": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/model.py",
+            "sha256": "9902cbe5ee90a1da2aa3e6f043e8a23dc1f8831193b963785c9af03d5c7bef2c",
+            "bytes": 17374,
+            "downloadSeconds": 10.551108542000293,
+            "cached": false
+          },
+          {
+            "path": "vendor/openai-clip/clip/simple_tokenizer.py",
+            "url": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/simple_tokenizer.py",
+            "finalUrl": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/simple_tokenizer.py",
+            "sha256": "d1b09f10ed3d1e2c343619cb98cbfacb92363dd8607526a43aa7fe2d60d15bad",
+            "bytes": 4632,
+            "downloadSeconds": 10.535431471002084,
+            "cached": false
+          },
+          {
+            "path": "vendor/openai-clip/clip/bpe_simple_vocab_16e6.txt.gz",
+            "url": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/bpe_simple_vocab_16e6.txt.gz",
+            "finalUrl": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/bpe_simple_vocab_16e6.txt.gz",
+            "sha256": "924691ac288e54409236115652ad4aa250f48203de50a9e4722a6ecd48d6804a",
+            "bytes": 1356917,
+            "downloadSeconds": 10.610366828001133,
+            "cached": false
+          }
+        ]
+      }
+    },
+    "prompts.json": {
+      "sha256": "18e23661c677484328773cba205eaa341fd5fb872ba61e48af767df631209979",
+      "document": {
+        "schemaVersion": 1,
+        "documentKind": "many-faces-photo-type-diagnostic-fixed-prompts",
+        "frozenBeforeFirstInference": true,
+        "scope": "Image representation only: photographed real faces versus fixed artistic or manufactured faces",
+        "model": "OpenAI CLIP ViT-B/32",
+        "textLanguage": "English",
+        "identityOrDemographicLabels": false,
+        "scoresAreProbabilities": false,
+        "productionThreshold": null,
+        "groupComparison": "maximum representation cosine minus maximum photographic-face cosine; diagnostic ranking only",
+        "prompts": [
+          {
+            "id": "photo_regular",
+            "group": "photographic_face",
+            "text": "a photograph of a real person's face."
+          },
+          {
+            "id": "photo_closeup",
+            "group": "photographic_face",
+            "text": "a close-up photograph of a real human face."
+          },
+          {
+            "id": "photo_clear_glasses",
+            "group": "photographic_face",
+            "text": "a photograph of a real person's face wearing transparent eyeglasses."
+          },
+          {
+            "id": "photo_face_paint",
+            "group": "photographic_face",
+            "text": "a photograph of a real person's face with face paint."
+          },
+          {
+            "id": "photo_profile",
+            "group": "photographic_face",
+            "text": "a photograph of a real person's face in profile."
+          },
+          {
+            "id": "painting",
+            "group": "fixed_representation",
+            "text": "a painting of a human face."
+          },
+          {
+            "id": "drawing",
+            "group": "fixed_representation",
+            "text": "a drawing of a human face."
+          },
+          {
+            "id": "mosaic",
+            "group": "fixed_representation",
+            "text": "a mosaic artwork depicting a human face."
+          },
+          {
+            "id": "sculpture",
+            "group": "fixed_representation",
+            "text": "a sculpture of a human face."
+          },
+          {
+            "id": "doll",
+            "group": "fixed_representation",
+            "text": "a photograph of a doll's face."
+          },
+          {
+            "id": "mannequin",
+            "group": "fixed_representation",
+            "text": "a photograph of a mannequin's face."
+          }
+        ]
+      }
+    },
+    "development-frozen-cutoffs.json": {
+      "sha256": "ceccc441815bb0894c8ae8c8c165970a2c76946946ade8ae95e4d1a51743f1d3",
+      "document": {
+        "schemaVersion": 1,
+        "documentKind": "many-faces-photo-type-diagnostic-cutoffs",
+        "frozenAt": "2026-10-06T17:21:12.561771+00:00",
+        "derivedFromSplitOnly": "development",
+        "secondGroupDistributionUsedToChooseCutoffs": false,
+        "secondGroupSomeSmokeScoresPreviouslyObserved": true,
+        "analysisPlanSha256": "679be4326c9073e923a94d766aafd87a541b624b4f92f24b19689d6705a05781",
+        "raw720ReportSha256": "c010c8dae0b3e4f9315c662e9d37eae923bbf40abc05fc580bc81ad28d963803",
+        "fixedInputsSha256": "0fce971bc6166bee5f47fb3b77fbba33ac5a14516b37084cd8c15f2f6dfe0009",
+        "promptsSha256": "18e23661c677484328773cba205eaa341fd5fb872ba61e48af767df631209979",
+        "runnerSha256": "3847bdda08bc3d2aa849311c82bbfbdb24e18ef209e2446180a55c12221373cb",
+        "productionThreshold": null,
+        "adoptedInGate": false,
+        "score": "maxRepresentationCosine - maxPhotographicCosine",
+        "predicate": ">=",
+        "developmentReferencePositives": [
+          "development-H232",
+          "development-H326"
+        ],
+        "developmentReferenceNegativeCount": 358,
+        "cutoffs": [
+          {
+            "id": "fixed-0",
+            "basis": "fixed diagnostic grid",
+            "threshold": -0.01
+          },
+          {
+            "id": "fixed-1",
+            "basis": "fixed diagnostic grid",
+            "threshold": 0.0
+          },
+          {
+            "id": "fixed-2",
+            "basis": "fixed diagnostic grid",
+            "threshold": 0.01
+          },
+          {
+            "id": "fixed-3",
+            "basis": "fixed diagnostic grid",
+            "threshold": 0.02
+          },
+          {
+            "id": "fixed-4",
+            "basis": "fixed diagnostic grid",
+            "threshold": 0.03
+          },
+          {
+            "id": "fixed-5",
+            "basis": "fixed diagnostic grid",
+            "threshold": 0.05
+          },
+          {
+            "id": "fixed-6",
+            "basis": "fixed diagnostic grid",
+            "threshold": 0.075
+          },
+          {
+            "id": "fixed-7",
+            "basis": "fixed diagnostic grid",
+            "threshold": 0.1
+          },
+          {
+            "id": "development-retain-both",
+            "basis": "minimum among the two development reference positives",
+            "threshold": 0.019006192684173584
+          },
+          {
+            "id": "development-zero-observed-fp",
+            "basis": "nextafter(maximum development reference negative, +infinity)",
+            "threshold": 0.039043635129928596
+          }
+        ],
+        "developmentTable": [
+          {
+            "id": "fixed-0",
+            "basis": "fixed diagnostic grid",
+            "threshold": -0.01,
+            "truePositives": 2,
+            "falseNegatives": 0,
+            "falsePositives": 59,
+            "trueNegatives": 299,
+            "referenceNonPhotos": 2,
+            "referencePhotoControls": 358,
+            "referenceRecall": 1.0,
+            "referenceFalsePositiveFraction": 0.164804469273743,
+            "detectedNonPhotoKeys": [
+              "development-H232",
+              "development-H326"
+            ],
+            "missedNonPhotoKeys": [],
+            "falsePositiveKeys": [
+              "development-H209",
+              "development-H273",
+              "development-H043",
+              "development-H219",
+              "development-H210",
+              "development-H231",
+              "development-H253",
+              "development-H227",
+              "development-H355",
+              "development-H351",
+              "development-H023",
+              "development-H157",
+              "development-H120",
+              "development-H044",
+              "development-H339",
+              "development-H266",
+              "development-H356",
+              "development-H051",
+              "development-H295",
+              "development-H267",
+              "development-H063",
+              "development-H185",
+              "development-H082",
+              "development-H134",
+              "development-H218",
+              "development-H030",
+              "development-H155",
+              "development-H252",
+              "development-H224",
+              "development-H287",
+              "development-H072",
+              "development-H084",
+              "development-H233",
+              "development-H278",
+              "development-H220",
+              "development-H061",
+              "development-H161",
+              "development-H066",
+              "development-H206",
+              "development-H279",
+              "development-H216",
+              "development-H052",
+              "development-H075",
+              "development-H214",
+              "development-H050",
+              "development-H235",
+              "development-H274",
+              "development-H238",
+              "development-H203",
+              "development-H047",
+              "development-H245",
+              "development-H143",
+              "development-H301",
+              "development-H183",
+              "development-H112",
+              "development-H028",
+              "development-H104",
+              "development-H332",
+              "development-H098"
+            ]
+          },
+          {
+            "id": "fixed-1",
+            "basis": "fixed diagnostic grid",
+            "threshold": 0.0,
+            "truePositives": 2,
+            "falseNegatives": 0,
+            "falsePositives": 26,
+            "trueNegatives": 332,
+            "referenceNonPhotos": 2,
+            "referencePhotoControls": 358,
+            "referenceRecall": 1.0,
+            "referenceFalsePositiveFraction": 0.07262569832402235,
+            "detectedNonPhotoKeys": [
+              "development-H232",
+              "development-H326"
+            ],
+            "missedNonPhotoKeys": [],
+            "falsePositiveKeys": [
+              "development-H209",
+              "development-H273",
+              "development-H043",
+              "development-H219",
+              "development-H210",
+              "development-H231",
+              "development-H253",
+              "development-H227",
+              "development-H355",
+              "development-H351",
+              "development-H023",
+              "development-H157",
+              "development-H120",
+              "development-H044",
+              "development-H339",
+              "development-H266",
+              "development-H356",
+              "development-H051",
+              "development-H295",
+              "development-H267",
+              "development-H063",
+              "development-H185",
+              "development-H082",
+              "development-H134",
+              "development-H218",
+              "development-H030"
+            ]
+          },
+          {
+            "id": "fixed-2",
+            "basis": "fixed diagnostic grid",
+            "threshold": 0.01,
+            "truePositives": 2,
+            "falseNegatives": 0,
+            "falsePositives": 11,
+            "trueNegatives": 347,
+            "referenceNonPhotos": 2,
+            "referencePhotoControls": 358,
+            "referenceRecall": 1.0,
+            "referenceFalsePositiveFraction": 0.030726256983240222,
+            "detectedNonPhotoKeys": [
+              "development-H232",
+              "development-H326"
+            ],
+            "missedNonPhotoKeys": [],
+            "falsePositiveKeys": [
+              "development-H209",
+              "development-H273",
+              "development-H043",
+              "development-H219",
+              "development-H210",
+              "development-H231",
+              "development-H253",
+              "development-H227",
+              "development-H355",
+              "development-H351",
+              "development-H023"
+            ]
+          },
+          {
+            "id": "fixed-3",
+            "basis": "fixed diagnostic grid",
+            "threshold": 0.02,
+            "truePositives": 1,
+            "falseNegatives": 1,
+            "falsePositives": 5,
+            "trueNegatives": 353,
+            "referenceNonPhotos": 2,
+            "referencePhotoControls": 358,
+            "referenceRecall": 0.5,
+            "referenceFalsePositiveFraction": 0.013966480446927373,
+            "detectedNonPhotoKeys": [
+              "development-H232"
+            ],
+            "missedNonPhotoKeys": [
+              "development-H326"
+            ],
+            "falsePositiveKeys": [
+              "development-H209",
+              "development-H273",
+              "development-H043",
+              "development-H219",
+              "development-H210"
+            ]
+          },
+          {
+            "id": "fixed-4",
+            "basis": "fixed diagnostic grid",
+            "threshold": 0.03,
+            "truePositives": 1,
+            "falseNegatives": 1,
+            "falsePositives": 1,
+            "trueNegatives": 357,
+            "referenceNonPhotos": 2,
+            "referencePhotoControls": 358,
+            "referenceRecall": 0.5,
+            "referenceFalsePositiveFraction": 0.002793296089385475,
+            "detectedNonPhotoKeys": [
+              "development-H232"
+            ],
+            "missedNonPhotoKeys": [
+              "development-H326"
+            ],
+            "falsePositiveKeys": [
+              "development-H209"
+            ]
+          },
+          {
+            "id": "fixed-5",
+            "basis": "fixed diagnostic grid",
+            "threshold": 0.05,
+            "truePositives": 0,
+            "falseNegatives": 2,
+            "falsePositives": 0,
+            "trueNegatives": 358,
+            "referenceNonPhotos": 2,
+            "referencePhotoControls": 358,
+            "referenceRecall": 0.0,
+            "referenceFalsePositiveFraction": 0.0,
+            "detectedNonPhotoKeys": [],
+            "missedNonPhotoKeys": [
+              "development-H232",
+              "development-H326"
+            ],
+            "falsePositiveKeys": []
+          },
+          {
+            "id": "fixed-6",
+            "basis": "fixed diagnostic grid",
+            "threshold": 0.075,
+            "truePositives": 0,
+            "falseNegatives": 2,
+            "falsePositives": 0,
+            "trueNegatives": 358,
+            "referenceNonPhotos": 2,
+            "referencePhotoControls": 358,
+            "referenceRecall": 0.0,
+            "referenceFalsePositiveFraction": 0.0,
+            "detectedNonPhotoKeys": [],
+            "missedNonPhotoKeys": [
+              "development-H232",
+              "development-H326"
+            ],
+            "falsePositiveKeys": []
+          },
+          {
+            "id": "fixed-7",
+            "basis": "fixed diagnostic grid",
+            "threshold": 0.1,
+            "truePositives": 0,
+            "falseNegatives": 2,
+            "falsePositives": 0,
+            "trueNegatives": 358,
+            "referenceNonPhotos": 2,
+            "referencePhotoControls": 358,
+            "referenceRecall": 0.0,
+            "referenceFalsePositiveFraction": 0.0,
+            "detectedNonPhotoKeys": [],
+            "missedNonPhotoKeys": [
+              "development-H232",
+              "development-H326"
+            ],
+            "falsePositiveKeys": []
+          },
+          {
+            "id": "development-retain-both",
+            "basis": "minimum among the two development reference positives",
+            "threshold": 0.019006192684173584,
+            "truePositives": 2,
+            "falseNegatives": 0,
+            "falsePositives": 5,
+            "trueNegatives": 353,
+            "referenceNonPhotos": 2,
+            "referencePhotoControls": 358,
+            "referenceRecall": 1.0,
+            "referenceFalsePositiveFraction": 0.013966480446927373,
+            "detectedNonPhotoKeys": [
+              "development-H232",
+              "development-H326"
+            ],
+            "missedNonPhotoKeys": [],
+            "falsePositiveKeys": [
+              "development-H209",
+              "development-H273",
+              "development-H043",
+              "development-H219",
+              "development-H210"
+            ]
+          },
+          {
+            "id": "development-zero-observed-fp",
+            "basis": "nextafter(maximum development reference negative, +infinity)",
+            "threshold": 0.039043635129928596,
+            "truePositives": 0,
+            "falseNegatives": 2,
+            "falsePositives": 0,
+            "trueNegatives": 358,
+            "referenceNonPhotos": 2,
+            "referencePhotoControls": 358,
+            "referenceRecall": 0.0,
+            "referenceFalsePositiveFraction": 0.0,
+            "detectedNonPhotoKeys": [],
+            "missedNonPhotoKeys": [
+              "development-H232",
+              "development-H326"
+            ],
+            "falsePositiveKeys": []
+          }
+        ]
+      }
+    },
+    "evaluation.json": {
+      "sha256": "b38e5ecc172da21e0eb0632efceb89a9bbe338a93c4915f37b3b6b87c9ca0a04",
+      "document": {
+        "schemaVersion": 1,
+        "documentKind": "many-faces-photo-type-diagnostic-evaluation",
+        "status": "complete",
+        "developmentFrozenCutoffsSha256": "ceccc441815bb0894c8ae8c8c165970a2c76946946ade8ae95e4d1a51743f1d3",
+        "analysisPlanSha256": "679be4326c9073e923a94d766aafd87a541b624b4f92f24b19689d6705a05781",
+        "raw720ReportSha256": "c010c8dae0b3e4f9315c662e9d37eae923bbf40abc05fc580bc81ad28d963803",
+        "raw71WinkReportSha256": "c83460ef8d62cdd949d099af3c0d43a4abd22a48ae9c40230af7d24f38aadf37",
+        "fixed720InputsSha256": "0fce971bc6166bee5f47fb3b77fbba33ac5a14516b37084cd8c15f2f6dfe0009",
+        "fixed71WinkInputsSha256": "2649b44327acad2137a8af006803be19a712ca1361f4d6ed954b25f0e5df68ee",
+        "raw791ScoresSha256": "22acec595655168f45730849bc7aef33b585b60928f1e404eee170a800359795",
+        "scoredImages": 791,
+        "uniqueEncodedImages": 791,
+        "referenceNonPhotoCount": 3,
+        "referencePhotoControlCount": 788,
+        "secondGroupIsCompletelyUnseen": false,
+        "productionThreshold": null,
+        "adoptedInGate": false,
+        "humanVerified": false,
+        "splits": [
+          {
+            "split": "development",
+            "count": 360,
+            "cutoffTable": [
+              {
+                "id": "fixed-0",
+                "basis": "fixed diagnostic grid",
+                "threshold": -0.01,
+                "truePositives": 2,
+                "falseNegatives": 0,
+                "falsePositives": 59,
+                "trueNegatives": 299,
+                "referenceNonPhotos": 2,
+                "referencePhotoControls": 358,
+                "referenceRecall": 1.0,
+                "referenceFalsePositiveFraction": 0.164804469273743,
+                "detectedNonPhotoKeys": [
+                  "development-H232",
+                  "development-H326"
+                ],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": [
+                  "development-H209",
+                  "development-H273",
+                  "development-H043",
+                  "development-H219",
+                  "development-H210",
+                  "development-H231",
+                  "development-H253",
+                  "development-H227",
+                  "development-H355",
+                  "development-H351",
+                  "development-H023",
+                  "development-H157",
+                  "development-H120",
+                  "development-H044",
+                  "development-H339",
+                  "development-H266",
+                  "development-H356",
+                  "development-H051",
+                  "development-H295",
+                  "development-H267",
+                  "development-H063",
+                  "development-H185",
+                  "development-H082",
+                  "development-H134",
+                  "development-H218",
+                  "development-H030",
+                  "development-H155",
+                  "development-H252",
+                  "development-H224",
+                  "development-H287",
+                  "development-H072",
+                  "development-H084",
+                  "development-H233",
+                  "development-H278",
+                  "development-H220",
+                  "development-H061",
+                  "development-H161",
+                  "development-H066",
+                  "development-H206",
+                  "development-H279",
+                  "development-H216",
+                  "development-H052",
+                  "development-H075",
+                  "development-H214",
+                  "development-H050",
+                  "development-H235",
+                  "development-H274",
+                  "development-H238",
+                  "development-H203",
+                  "development-H047",
+                  "development-H245",
+                  "development-H143",
+                  "development-H301",
+                  "development-H183",
+                  "development-H112",
+                  "development-H028",
+                  "development-H104",
+                  "development-H332",
+                  "development-H098"
+                ]
+              },
+              {
+                "id": "fixed-1",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.0,
+                "truePositives": 2,
+                "falseNegatives": 0,
+                "falsePositives": 26,
+                "trueNegatives": 332,
+                "referenceNonPhotos": 2,
+                "referencePhotoControls": 358,
+                "referenceRecall": 1.0,
+                "referenceFalsePositiveFraction": 0.07262569832402235,
+                "detectedNonPhotoKeys": [
+                  "development-H232",
+                  "development-H326"
+                ],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": [
+                  "development-H209",
+                  "development-H273",
+                  "development-H043",
+                  "development-H219",
+                  "development-H210",
+                  "development-H231",
+                  "development-H253",
+                  "development-H227",
+                  "development-H355",
+                  "development-H351",
+                  "development-H023",
+                  "development-H157",
+                  "development-H120",
+                  "development-H044",
+                  "development-H339",
+                  "development-H266",
+                  "development-H356",
+                  "development-H051",
+                  "development-H295",
+                  "development-H267",
+                  "development-H063",
+                  "development-H185",
+                  "development-H082",
+                  "development-H134",
+                  "development-H218",
+                  "development-H030"
+                ]
+              },
+              {
+                "id": "fixed-2",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.01,
+                "truePositives": 2,
+                "falseNegatives": 0,
+                "falsePositives": 11,
+                "trueNegatives": 347,
+                "referenceNonPhotos": 2,
+                "referencePhotoControls": 358,
+                "referenceRecall": 1.0,
+                "referenceFalsePositiveFraction": 0.030726256983240222,
+                "detectedNonPhotoKeys": [
+                  "development-H232",
+                  "development-H326"
+                ],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": [
+                  "development-H209",
+                  "development-H273",
+                  "development-H043",
+                  "development-H219",
+                  "development-H210",
+                  "development-H231",
+                  "development-H253",
+                  "development-H227",
+                  "development-H355",
+                  "development-H351",
+                  "development-H023"
+                ]
+              },
+              {
+                "id": "fixed-3",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.02,
+                "truePositives": 1,
+                "falseNegatives": 1,
+                "falsePositives": 5,
+                "trueNegatives": 353,
+                "referenceNonPhotos": 2,
+                "referencePhotoControls": 358,
+                "referenceRecall": 0.5,
+                "referenceFalsePositiveFraction": 0.013966480446927373,
+                "detectedNonPhotoKeys": [
+                  "development-H232"
+                ],
+                "missedNonPhotoKeys": [
+                  "development-H326"
+                ],
+                "falsePositiveKeys": [
+                  "development-H209",
+                  "development-H273",
+                  "development-H043",
+                  "development-H219",
+                  "development-H210"
+                ]
+              },
+              {
+                "id": "fixed-4",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.03,
+                "truePositives": 1,
+                "falseNegatives": 1,
+                "falsePositives": 1,
+                "trueNegatives": 357,
+                "referenceNonPhotos": 2,
+                "referencePhotoControls": 358,
+                "referenceRecall": 0.5,
+                "referenceFalsePositiveFraction": 0.002793296089385475,
+                "detectedNonPhotoKeys": [
+                  "development-H232"
+                ],
+                "missedNonPhotoKeys": [
+                  "development-H326"
+                ],
+                "falsePositiveKeys": [
+                  "development-H209"
+                ]
+              },
+              {
+                "id": "fixed-5",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.05,
+                "truePositives": 0,
+                "falseNegatives": 2,
+                "falsePositives": 0,
+                "trueNegatives": 358,
+                "referenceNonPhotos": 2,
+                "referencePhotoControls": 358,
+                "referenceRecall": 0.0,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [],
+                "missedNonPhotoKeys": [
+                  "development-H232",
+                  "development-H326"
+                ],
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-6",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.075,
+                "truePositives": 0,
+                "falseNegatives": 2,
+                "falsePositives": 0,
+                "trueNegatives": 358,
+                "referenceNonPhotos": 2,
+                "referencePhotoControls": 358,
+                "referenceRecall": 0.0,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [],
+                "missedNonPhotoKeys": [
+                  "development-H232",
+                  "development-H326"
+                ],
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-7",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.1,
+                "truePositives": 0,
+                "falseNegatives": 2,
+                "falsePositives": 0,
+                "trueNegatives": 358,
+                "referenceNonPhotos": 2,
+                "referencePhotoControls": 358,
+                "referenceRecall": 0.0,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [],
+                "missedNonPhotoKeys": [
+                  "development-H232",
+                  "development-H326"
+                ],
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-retain-both",
+                "basis": "minimum among the two development reference positives",
+                "threshold": 0.019006192684173584,
+                "truePositives": 2,
+                "falseNegatives": 0,
+                "falsePositives": 5,
+                "trueNegatives": 353,
+                "referenceNonPhotos": 2,
+                "referencePhotoControls": 358,
+                "referenceRecall": 1.0,
+                "referenceFalsePositiveFraction": 0.013966480446927373,
+                "detectedNonPhotoKeys": [
+                  "development-H232",
+                  "development-H326"
+                ],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": [
+                  "development-H209",
+                  "development-H273",
+                  "development-H043",
+                  "development-H219",
+                  "development-H210"
+                ]
+              },
+              {
+                "id": "development-zero-observed-fp",
+                "basis": "nextafter(maximum development reference negative, +infinity)",
+                "threshold": 0.039043635129928596,
+                "truePositives": 0,
+                "falseNegatives": 2,
+                "falsePositives": 0,
+                "trueNegatives": 358,
+                "referenceNonPhotos": 2,
+                "referencePhotoControls": 358,
+                "referenceRecall": 0.0,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [],
+                "missedNonPhotoKeys": [
+                  "development-H232",
+                  "development-H326"
+                ],
+                "falsePositiveKeys": []
+              }
+            ],
+            "knownNonPhotos": [
+              {
+                "key": "development-H232",
+                "encodedSha256": "1136386ec1e96d20e0d235dbf3714bb0028817682e9ef2fad1af61c58c03df47",
+                "topPrompt": "doll",
+                "margin": 0.03509575128555298
+              },
+              {
+                "key": "development-H326",
+                "encodedSha256": "33d2d01eac25178859f7a85d3b9033a4f11211745ca55b9f5a0b78e4ef591492",
+                "topPrompt": "doll",
+                "margin": 0.019006192684173584
+              }
+            ],
+            "leadingFalsePositiveCandidates": [
+              {
+                "key": "development-H209",
+                "encodedSha256": "12d9262b81dc17d4e2cfd0e284aa9cc5cc18808ba70172fb52a10768d111d50b",
+                "imagePath": "work/clean-v5-qa-37484611339/holdout-06/images/H209.webp",
+                "topPrompt": "doll",
+                "margin": 0.03904363512992859,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "Visible real photographic face with readable eye and mouth contours; no obvious forbidden covering or severe image-quality defect."
+              },
+              {
+                "key": "development-H273",
+                "encodedSha256": "27f45a6c0b62aa3db42322bc822676903fe9bb169d2d53b7ffdae2aebfdb0151",
+                "imagePath": "work/clean-v5-qa-37484611339/holdout-08/images/H273.webp",
+                "topPrompt": "doll",
+                "margin": 0.022190585732460022,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "Both eye openings and the open smile are clearly visible."
+              },
+              {
+                "key": "development-H043",
+                "encodedSha256": "e22195941b9dd7159b248cf76ba196c8bb170c1d9854162d55848a16462266f2",
+                "imagePath": "work/clean-v5-qa-37484611339/holdout-02/images/H043.webp",
+                "topPrompt": "doll",
+                "margin": 0.02218008041381836,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "原画像はやや軟調だが両眼の開きと唇を読める。帽子は眉・眼を隠さない。"
+              },
+              {
+                "key": "development-H219",
+                "encodedSha256": "70c5a47c7f4469b6f8bb88aa99757434c8e57a51c4d6618366b4f04d03b0d746",
+                "imagePath": "work/clean-v5-qa-37484611339/holdout-07/images/H219.webp",
+                "topPrompt": "doll",
+                "margin": 0.02124682068824768,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "Both eye openings and the mouth are clearly visible."
+              },
+              {
+                "key": "development-H210",
+                "encodedSha256": "85a053c2aa09e0d5e15228445b5c18b6a58b900f9fa7584514faef6032ba3f1c",
+                "imagePath": "work/clean-v5-qa-37484611339/holdout-06/images/H210.webp",
+                "topPrompt": "doll",
+                "margin": 0.02122589945793152,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "Visible real photographic face with readable eye and mouth contours; no obvious forbidden covering or severe image-quality defect."
+              },
+              {
+                "key": "development-H231",
+                "encodedSha256": "4da01a3c72b745e83b208027c0fac0cf895921e370545086c08ff59e868aa72d",
+                "imagePath": "work/clean-v5-qa-37484611339/holdout-07/images/H231.webp",
+                "topPrompt": "doll",
+                "margin": 0.01638701558113098,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "Makeup and colored-looking contact lenses leave real eyelids and lips readable; the hand rests below the cheek and does not cover the mouth."
+              },
+              {
+                "key": "development-H253",
+                "encodedSha256": "8a2cee9a6fb1ff5874e28d5a84dce761a3ca0b2d6481c8f4226988c578e8f837",
+                "imagePath": "work/clean-v5-qa-37484611339/holdout-08/images/H253.webp",
+                "topPrompt": "doll",
+                "margin": 0.015503883361816406,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "The eye openings, nose and frowning lips are uncovered and clear."
+              },
+              {
+                "key": "development-H227",
+                "encodedSha256": "aa344fe9cf9a6b6e002934e1756007eb0bf75e4ae9ff5c89bd4a0416cedc9003",
+                "imagePath": "work/clean-v5-qa-37484611339/holdout-07/images/H227.webp",
+                "topPrompt": "doll",
+                "margin": 0.014206141233444214,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "The arm is below the chin and does not cover the visible eyes, nose or lips."
+              },
+              {
+                "key": "development-H355",
+                "encodedSha256": "bc1d60ed2dae78810bde9a88e0894ab5ccb97a6307aca9818a7c077f1f0c3c11",
+                "imagePath": "work/clean-v5-qa-37484611339/holdout-10/images/H355.webp",
+                "topPrompt": "doll",
+                "margin": 0.013235002756118774,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "Visible real photographic face with readable eye and mouth contours; no obvious forbidden covering or severe image-quality defect."
+              },
+              {
+                "key": "development-H351",
+                "encodedSha256": "dfb35914b6c5fc4fbc1d581bc247cd62cd8c7b446260e4ef6109d32df8496c48",
+                "imagePath": "work/clean-v5-qa-37484611339/holdout-10/images/H351.webp",
+                "topPrompt": "doll",
+                "margin": 0.012124061584472656,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "Visible real photographic face with readable eye and mouth contours; no obvious forbidden covering or severe image-quality defect."
+              },
+              {
+                "key": "development-H023",
+                "encodedSha256": "67eea3f2768b5a28a4f8bfa090345c20eaaa441e1dc2042abbb2a4dd2b5742c8",
+                "imagePath": "work/clean-v5-qa-37484611339/holdout-01/images/H023.webp",
+                "topPrompt": "doll",
+                "margin": 0.011031925678253174,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "両眼・眉・開いた口が明瞭で遮蔽物なし。"
+              },
+              {
+                "key": "development-H157",
+                "encodedSha256": "4a8630738a5a9995cd7a84c67775e12ea580e9906400a9fa5597ab0dcc99dc6a",
+                "imagePath": "work/clean-v5-qa-37484611339/holdout-05/images/H157.webp",
+                "topPrompt": "doll",
+                "margin": 0.009473994374275208,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "Visible real photographic face with readable eye and mouth contours; no obvious forbidden covering or severe image-quality defect."
+              },
+              {
+                "key": "development-H120",
+                "encodedSha256": "b6c9ead25a44d01663d8903f560de60730a0b9f79e4a471893b779790ddaaa44",
+                "imagePath": "work/clean-v5-qa-37484611339/holdout-04/images/H120.webp",
+                "topPrompt": "doll",
+                "margin": 0.0092984139919281,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "Visible real photographic face with readable eye and mouth contours; no obvious forbidden covering or severe image-quality defect."
+              },
+              {
+                "key": "development-H044",
+                "encodedSha256": "678eec0dbf35ed92796629cda652275fad224f857e6630a403af4ddaf55586d0",
+                "imagePath": "work/clean-v5-qa-37484611339/holdout-02/images/H044.webp",
+                "topPrompt": "mannequin",
+                "margin": 0.00904853641986847,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "顔に近い髪はあるが両眼・眉・口の輪郭を読める。"
+              },
+              {
+                "key": "development-H339",
+                "encodedSha256": "221a622525acc2c43df18a5ab5449877ed6b460e18312ec4725f00885e8c7fe3",
+                "imagePath": "work/clean-v5-qa-37484611339/holdout-10/images/H339.webp",
+                "topPrompt": "doll",
+                "margin": 0.00884220004081726,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "Visible real photographic face with readable eye and mouth contours; no obvious forbidden covering or severe image-quality defect."
+              }
+            ]
+          },
+          {
+            "split": "validation",
+            "count": 360,
+            "cutoffTable": [
+              {
+                "id": "fixed-0",
+                "basis": "fixed diagnostic grid",
+                "threshold": -0.01,
+                "truePositives": 1,
+                "falseNegatives": 0,
+                "falsePositives": 39,
+                "trueNegatives": 320,
+                "referenceNonPhotos": 1,
+                "referencePhotoControls": 359,
+                "referenceRecall": 1.0,
+                "referenceFalsePositiveFraction": 0.10863509749303621,
+                "detectedNonPhotoKeys": [
+                  "validation-H261"
+                ],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": [
+                  "validation-H113",
+                  "validation-H065",
+                  "validation-H082",
+                  "validation-H234",
+                  "validation-H266",
+                  "validation-H035",
+                  "validation-H220",
+                  "validation-H012",
+                  "validation-H268",
+                  "validation-H203",
+                  "validation-H018",
+                  "validation-H034",
+                  "validation-H033",
+                  "validation-H171",
+                  "validation-H044",
+                  "validation-H008",
+                  "validation-H332",
+                  "validation-H039",
+                  "validation-H145",
+                  "validation-H068",
+                  "validation-H306",
+                  "validation-H275",
+                  "validation-H088",
+                  "validation-H254",
+                  "validation-H083",
+                  "validation-H273",
+                  "validation-H305",
+                  "validation-H282",
+                  "validation-H227",
+                  "validation-H094",
+                  "validation-H107",
+                  "validation-H359",
+                  "validation-H131",
+                  "validation-H179",
+                  "validation-H085",
+                  "validation-H330",
+                  "validation-H357",
+                  "validation-H036",
+                  "validation-H151"
+                ]
+              },
+              {
+                "id": "fixed-1",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.0,
+                "truePositives": 1,
+                "falseNegatives": 0,
+                "falsePositives": 24,
+                "trueNegatives": 335,
+                "referenceNonPhotos": 1,
+                "referencePhotoControls": 359,
+                "referenceRecall": 1.0,
+                "referenceFalsePositiveFraction": 0.06685236768802229,
+                "detectedNonPhotoKeys": [
+                  "validation-H261"
+                ],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": [
+                  "validation-H113",
+                  "validation-H065",
+                  "validation-H082",
+                  "validation-H234",
+                  "validation-H266",
+                  "validation-H035",
+                  "validation-H220",
+                  "validation-H012",
+                  "validation-H268",
+                  "validation-H203",
+                  "validation-H018",
+                  "validation-H034",
+                  "validation-H033",
+                  "validation-H171",
+                  "validation-H044",
+                  "validation-H008",
+                  "validation-H332",
+                  "validation-H039",
+                  "validation-H145",
+                  "validation-H068",
+                  "validation-H306",
+                  "validation-H275",
+                  "validation-H088",
+                  "validation-H254"
+                ]
+              },
+              {
+                "id": "fixed-2",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.01,
+                "truePositives": 1,
+                "falseNegatives": 0,
+                "falsePositives": 12,
+                "trueNegatives": 347,
+                "referenceNonPhotos": 1,
+                "referencePhotoControls": 359,
+                "referenceRecall": 1.0,
+                "referenceFalsePositiveFraction": 0.033426183844011144,
+                "detectedNonPhotoKeys": [
+                  "validation-H261"
+                ],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": [
+                  "validation-H113",
+                  "validation-H065",
+                  "validation-H082",
+                  "validation-H234",
+                  "validation-H266",
+                  "validation-H035",
+                  "validation-H220",
+                  "validation-H012",
+                  "validation-H268",
+                  "validation-H203",
+                  "validation-H018",
+                  "validation-H034"
+                ]
+              },
+              {
+                "id": "fixed-3",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.02,
+                "truePositives": 1,
+                "falseNegatives": 0,
+                "falsePositives": 4,
+                "trueNegatives": 355,
+                "referenceNonPhotos": 1,
+                "referencePhotoControls": 359,
+                "referenceRecall": 1.0,
+                "referenceFalsePositiveFraction": 0.011142061281337047,
+                "detectedNonPhotoKeys": [
+                  "validation-H261"
+                ],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": [
+                  "validation-H113",
+                  "validation-H065",
+                  "validation-H082",
+                  "validation-H234"
+                ]
+              },
+              {
+                "id": "fixed-4",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.03,
+                "truePositives": 1,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "trueNegatives": 359,
+                "referenceNonPhotos": 1,
+                "referencePhotoControls": 359,
+                "referenceRecall": 1.0,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [
+                  "validation-H261"
+                ],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-5",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.05,
+                "truePositives": 1,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "trueNegatives": 359,
+                "referenceNonPhotos": 1,
+                "referencePhotoControls": 359,
+                "referenceRecall": 1.0,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [
+                  "validation-H261"
+                ],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-6",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.075,
+                "truePositives": 1,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "trueNegatives": 359,
+                "referenceNonPhotos": 1,
+                "referencePhotoControls": 359,
+                "referenceRecall": 1.0,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [
+                  "validation-H261"
+                ],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-7",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.1,
+                "truePositives": 1,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "trueNegatives": 359,
+                "referenceNonPhotos": 1,
+                "referencePhotoControls": 359,
+                "referenceRecall": 1.0,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [
+                  "validation-H261"
+                ],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-retain-both",
+                "basis": "minimum among the two development reference positives",
+                "threshold": 0.019006192684173584,
+                "truePositives": 1,
+                "falseNegatives": 0,
+                "falsePositives": 5,
+                "trueNegatives": 354,
+                "referenceNonPhotos": 1,
+                "referencePhotoControls": 359,
+                "referenceRecall": 1.0,
+                "referenceFalsePositiveFraction": 0.013927576601671309,
+                "detectedNonPhotoKeys": [
+                  "validation-H261"
+                ],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": [
+                  "validation-H113",
+                  "validation-H065",
+                  "validation-H082",
+                  "validation-H234",
+                  "validation-H266"
+                ]
+              },
+              {
+                "id": "development-zero-observed-fp",
+                "basis": "nextafter(maximum development reference negative, +infinity)",
+                "threshold": 0.039043635129928596,
+                "truePositives": 1,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "trueNegatives": 359,
+                "referenceNonPhotos": 1,
+                "referencePhotoControls": 359,
+                "referenceRecall": 1.0,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [
+                  "validation-H261"
+                ],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": []
+              }
+            ],
+            "knownNonPhotos": [
+              {
+                "key": "validation-H261",
+                "encodedSha256": "ba6f60f0b5bd709421d26c7532cc73e1df7d3e847c12376510b4b937f4986bc9",
+                "topPrompt": "mosaic",
+                "margin": 0.1005445122718811
+              }
+            ],
+            "leadingFalsePositiveCandidates": [
+              {
+                "key": "validation-H113",
+                "encodedSha256": "a99c8bedd70e0c4f7a14d10014a15da096a8c316ed690be3f976cb1a17ab3123",
+                "imagePath": "work/clean-v5-qa-37494402324/holdout-04/images/H113.webp",
+                "topPrompt": "doll",
+                "margin": 0.029168516397476196,
+                "priorVisibilityDecision": "uncertain",
+                "priorVisibilityReason": "原画像の粒状感とぼけ・淡い階調により、幼児の眼瞼・眉・唇の細部を確定しづらい。"
+              },
+              {
+                "key": "validation-H065",
+                "encodedSha256": "739b4da0fda84edca7632fc77bdb70e1427b80861219958d75266cc6e4bcbff6",
+                "imagePath": "work/clean-v5-qa-37494402324/holdout-02/images/H065.webp",
+                "topPrompt": "doll",
+                "margin": 0.027080342173576355,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "原画像は少し柔らかいが、幼児の眼瞼・眉・唇の輪郭は読める。"
+              },
+              {
+                "key": "validation-H082",
+                "encodedSha256": "1d66104911d9fdc6fe5d6c9e91a997962d8fd3908f01b48be8d88c790e7b4f25",
+                "imagePath": "work/clean-v5-qa-37494402324/holdout-03/images/H082.webp",
+                "topPrompt": "doll",
+                "margin": 0.022180944681167603,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "幼児の両眼・眉・開いた口が見え、衣服は口より下。"
+              },
+              {
+                "key": "validation-H234",
+                "encodedSha256": "c1321026887ebae36b7e1fd718a22fbe90bf5c29dd477f14c21797c2d299a6e9",
+                "imagePath": "work/clean-v5-qa-37494402324/holdout-07/images/H234.webp",
+                "topPrompt": "doll",
+                "margin": 0.020265042781829834,
+                "priorVisibilityDecision": "deny",
+                "priorVisibilityReason": "The low-contrast blurred monochrome original loses the eye and eyelid detail needed to read the expression reliably."
+              },
+              {
+                "key": "validation-H266",
+                "encodedSha256": "9ab78b05f83d64640f3d6342e9b71110d5fca6d5d2cfbd7239b612b6c70659b7",
+                "imagePath": "work/clean-v5-qa-37494402324/holdout-08/images/H266.webp",
+                "topPrompt": "doll",
+                "margin": 0.01955828070640564,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "The eyes and open smiling mouth remain readable. The bonnet and ribbons stay outside these expression regions."
+              },
+              {
+                "key": "validation-H035",
+                "encodedSha256": "e6c6ad52d93aada71b29771eb9c03f278b7d6029af9ac125af05e4170bf5c771",
+                "imagePath": "work/clean-v5-qa-37494402324/holdout-01/images/H035.webp",
+                "topPrompt": "doll",
+                "margin": 0.0164014995098114,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "上を見る乳児の両眼・眉・口が読め、遮蔽物はない。"
+              },
+              {
+                "key": "validation-H220",
+                "encodedSha256": "910ea5ad96a84ca68bc6cd68551a823559fbe69f0157702d87320bc34a06407f",
+                "imagePath": "work/clean-v5-qa-37494402324/holdout-07/images/H220.webp",
+                "topPrompt": "doll",
+                "margin": 0.01530657708644867,
+                "priorVisibilityDecision": "deny",
+                "priorVisibilityReason": "A finger is inserted against the center of the lips and hides part of the mouth opening and lower-lip contour."
+              },
+              {
+                "key": "validation-H012",
+                "encodedSha256": "78e9597b72f5c32b3950579cfaab5afe7a17bde793d828d3b754d3cd057596e2",
+                "imagePath": "work/clean-v5-qa-37494402324/holdout-01/images/H012.webp",
+                "topPrompt": "doll",
+                "margin": 0.014264538884162903,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "原画像に粒状感はあるが、両眼・眉・口の輪郭を読み取れる。"
+              },
+              {
+                "key": "validation-H268",
+                "encodedSha256": "3295ce4e09cb891515d0a7c91c2ad06a26cfe688b4de30dfc3f379fa089fce8f",
+                "imagePath": "work/clean-v5-qa-37494402324/holdout-08/images/H268.webp",
+                "topPrompt": "doll",
+                "margin": 0.01410047709941864,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "Both eyes, the open mouth and extended tongue are visible without an external expression obstruction."
+              },
+              {
+                "key": "validation-H203",
+                "encodedSha256": "6aa1e786ae9de406beff9afc1aacc1d3215415087d0cb0befe5360cf135afa6e",
+                "imagePath": "work/clean-v5-qa-37494402324/holdout-06/images/H203.webp",
+                "topPrompt": "mannequin",
+                "margin": 0.012958019971847534,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "The upward gaze and lip opening are readable. Makeup does not hide those contours."
+              },
+              {
+                "key": "validation-H018",
+                "encodedSha256": "4c6db590c439ed07faa3f1d3a366a1a63d326cf6438a25f03b9dcabce1e04f8b",
+                "imagePath": "work/clean-v5-qa-37494402324/holdout-01/images/H018.webp",
+                "topPrompt": "doll",
+                "margin": 0.010867953300476074,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "下を向く幼児の閉じ気味の目と口が見える。髪による重い遮蔽はない。"
+              },
+              {
+                "key": "validation-H034",
+                "encodedSha256": "06337138622ecfb9b1e67e67e01e621aa452c177dfbf5803d0fbad2ec45a7700",
+                "imagePath": "work/clean-v5-qa-37494402324/holdout-01/images/H034.webp",
+                "topPrompt": "doll",
+                "margin": 0.010300129652023315,
+                "priorVisibilityDecision": "uncertain",
+                "priorVisibilityReason": "原画像全体に霞みとぼけがあり、眼瞼・眉・唇の細部を確認しきれない。"
+              },
+              {
+                "key": "validation-H033",
+                "encodedSha256": "62b8868a04ab46c4f5307dce21a77660613ffc875da5ea6487c679c652c6ce74",
+                "imagePath": "work/clean-v5-qa-37494402324/holdout-01/images/H033.webp",
+                "topPrompt": "doll",
+                "margin": 0.008753269910812378,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "原画像で新生児の閉じた眼瞼・眉周辺・唇を読める。手は顎の横で口を覆わない。"
+              },
+              {
+                "key": "validation-H171",
+                "encodedSha256": "43d23a1ea892ccf603c1ecf759d371b168a9a323fafce5845a669d0e46a7fa4b",
+                "imagePath": "work/clean-v5-qa-37494402324/holdout-05/images/H171.webp",
+                "topPrompt": "doll",
+                "margin": 0.008594021201133728,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "The visible eyes and open mouth are readable with no expression obstruction."
+              },
+              {
+                "key": "validation-H044",
+                "encodedSha256": "26e8bea3afa6fa36cd5ac319fcc5a0dcb3b278e3bae485767a72e8b5308d4cec",
+                "imagePath": "work/clean-v5-qa-37494402324/holdout-02/images/H044.webp",
+                "topPrompt": "doll",
+                "margin": 0.0075747668743133545,
+                "priorVisibilityDecision": "pass",
+                "priorVisibilityReason": "新生児の閉じた眼瞼と開いた口が見える。赤み自体は遮蔽ではない。"
+              }
+            ]
+          },
+          {
+            "split": "protected-seen-controls",
+            "count": 71,
+            "cutoffTable": [
+              {
+                "id": "fixed-0",
+                "basis": "fixed diagnostic grid",
+                "threshold": -0.01,
+                "truePositives": 0,
+                "falseNegatives": 0,
+                "falsePositives": 10,
+                "trueNegatives": 61,
+                "referenceNonPhotos": 0,
+                "referencePhotoControls": 71,
+                "referenceRecall": null,
+                "referenceFalsePositiveFraction": 0.14084507042253522,
+                "detectedNonPhotoKeys": [],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": [
+                  "confirmed-wink/WLA281",
+                  "confirmed-wink/WLA061",
+                  "confirmed-wink/WRA039",
+                  "confirmed-wink/WRA123",
+                  "confirmed-wink/WLA295",
+                  "confirmed-wink/WLA395",
+                  "confirmed-wink/WLA227",
+                  "confirmed-wink/WRA319",
+                  "confirmed-wink/WRA233",
+                  "confirmed-wink/WRA226"
+                ]
+              },
+              {
+                "id": "fixed-1",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.0,
+                "truePositives": 0,
+                "falseNegatives": 0,
+                "falsePositives": 3,
+                "trueNegatives": 68,
+                "referenceNonPhotos": 0,
+                "referencePhotoControls": 71,
+                "referenceRecall": null,
+                "referenceFalsePositiveFraction": 0.04225352112676056,
+                "detectedNonPhotoKeys": [],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": [
+                  "confirmed-wink/WLA281",
+                  "confirmed-wink/WLA061",
+                  "confirmed-wink/WRA039"
+                ]
+              },
+              {
+                "id": "fixed-2",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.01,
+                "truePositives": 0,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "trueNegatives": 71,
+                "referenceNonPhotos": 0,
+                "referencePhotoControls": 71,
+                "referenceRecall": null,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-3",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.02,
+                "truePositives": 0,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "trueNegatives": 71,
+                "referenceNonPhotos": 0,
+                "referencePhotoControls": 71,
+                "referenceRecall": null,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-4",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.03,
+                "truePositives": 0,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "trueNegatives": 71,
+                "referenceNonPhotos": 0,
+                "referencePhotoControls": 71,
+                "referenceRecall": null,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-5",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.05,
+                "truePositives": 0,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "trueNegatives": 71,
+                "referenceNonPhotos": 0,
+                "referencePhotoControls": 71,
+                "referenceRecall": null,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-6",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.075,
+                "truePositives": 0,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "trueNegatives": 71,
+                "referenceNonPhotos": 0,
+                "referencePhotoControls": 71,
+                "referenceRecall": null,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-7",
+                "basis": "fixed diagnostic grid",
+                "threshold": 0.1,
+                "truePositives": 0,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "trueNegatives": 71,
+                "referenceNonPhotos": 0,
+                "referencePhotoControls": 71,
+                "referenceRecall": null,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-retain-both",
+                "basis": "minimum among the two development reference positives",
+                "threshold": 0.019006192684173584,
+                "truePositives": 0,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "trueNegatives": 71,
+                "referenceNonPhotos": 0,
+                "referencePhotoControls": 71,
+                "referenceRecall": null,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-zero-observed-fp",
+                "basis": "nextafter(maximum development reference negative, +infinity)",
+                "threshold": 0.039043635129928596,
+                "truePositives": 0,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "trueNegatives": 71,
+                "referenceNonPhotos": 0,
+                "referencePhotoControls": 71,
+                "referenceRecall": null,
+                "referenceFalsePositiveFraction": 0.0,
+                "detectedNonPhotoKeys": [],
+                "missedNonPhotoKeys": [],
+                "falsePositiveKeys": []
+              }
+            ],
+            "knownNonPhotos": [],
+            "leadingFalsePositiveCandidates": [
+              {
+                "key": "confirmed-wink/WLA281",
+                "encodedSha256": "a979bf2aae2700e44aafb9638b526da4ad8de4b925943743fc7cb54513dfe635",
+                "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-01/wink-left-page-06/originals/WLA281.webp",
+                "topPrompt": "doll",
+                "margin": 0.0052224695682525635,
+                "priorVisibilityDecision": "prior-confirmed-wink",
+                "priorVisibilityReason": null
+              },
+              {
+                "key": "confirmed-wink/WLA061",
+                "encodedSha256": "1e43669fdbe2cb6a047761a4c6c767940686f7ccaffb829cf5e35365fd2b96ee",
+                "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-01/wink-left-page-02/originals/WLA061.webp",
+                "topPrompt": "doll",
+                "margin": 0.00452539324760437,
+                "priorVisibilityDecision": "prior-confirmed-wink",
+                "priorVisibilityReason": null
+              },
+              {
+                "key": "confirmed-wink/WRA039",
+                "encodedSha256": "1e09b59ad63a007e881473dad7ab63c49c15b88e7e30c14216227dc402da5df8",
+                "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-02/wink-right-page-01/originals/WRA039.webp",
+                "topPrompt": "doll",
+                "margin": 4.729628562927246e-05,
+                "priorVisibilityDecision": "prior-confirmed-wink",
+                "priorVisibilityReason": null
+              },
+              {
+                "key": "confirmed-wink/WRA123",
+                "encodedSha256": "58319fab9dcb907310e82763c00f7af5ddd3f9604f5edc6e2153c938a1a37e1a",
+                "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-02/wink-right-page-03/originals/WRA123.webp",
+                "topPrompt": "photo_face_paint",
+                "margin": -0.0034227371215820312,
+                "priorVisibilityDecision": "prior-confirmed-wink",
+                "priorVisibilityReason": null
+              },
+              {
+                "key": "confirmed-wink/WLA295",
+                "encodedSha256": "b26fbaf090a1e1c5d72ec8c08c0602626a955f065d08dc6d7b72a137f8ef0a78",
+                "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-02/wink-left-page-07/originals/WLA295.webp",
+                "topPrompt": "photo_regular",
+                "margin": -0.0040024518966674805,
+                "priorVisibilityDecision": "prior-confirmed-wink",
+                "priorVisibilityReason": null
+              },
+              {
+                "key": "confirmed-wink/WLA395",
+                "encodedSha256": "eb511f3c2abfc0e050031af6f9cabc13a563740a8c68e9e48c26174f9c4ef130",
+                "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-02/wink-left-page-09/originals/WLA395.webp",
+                "topPrompt": "photo_closeup",
+                "margin": -0.004035532474517822,
+                "priorVisibilityDecision": "prior-confirmed-wink",
+                "priorVisibilityReason": null
+              },
+              {
+                "key": "confirmed-wink/WLA227",
+                "encodedSha256": "8a1df12c4b0702c5a761ba48ad80823e9773b095b885e3af6f0f76b6f89833cc",
+                "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-01/wink-left-page-05/originals/WLA227.webp",
+                "topPrompt": "photo_regular",
+                "margin": -0.005536705255508423,
+                "priorVisibilityDecision": "prior-confirmed-wink",
+                "priorVisibilityReason": null
+              },
+              {
+                "key": "confirmed-wink/WRA319",
+                "encodedSha256": "ed4d1678e800c078e231bb478f6cab68671c06ba3f78841d7e1ad15d2c05b54e",
+                "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-03/wink-right-page-07/originals/WRA319.webp",
+                "topPrompt": "photo_closeup",
+                "margin": -0.006796598434448242,
+                "priorVisibilityDecision": "prior-confirmed-wink",
+                "priorVisibilityReason": null
+              },
+              {
+                "key": "confirmed-wink/WRA233",
+                "encodedSha256": "b0518ec6307e26863cf2469d4a61f5974ea92ddbd7254a9ceea4de0acbe5b1c4",
+                "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-03/wink-right-page-05/originals/WRA233.webp",
+                "topPrompt": "photo_regular",
+                "margin": -0.00681990385055542,
+                "priorVisibilityDecision": "prior-confirmed-wink",
+                "priorVisibilityReason": null
+              },
+              {
+                "key": "confirmed-wink/WRA226",
+                "encodedSha256": "aa6b8359bd689268ac72aed99e35325e68d5a41786fbe92fb3b40c7431e80d8d",
+                "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-03/wink-right-page-05/originals/WRA226.webp",
+                "topPrompt": "photo_regular",
+                "margin": -0.00751553475856781,
+                "priorVisibilityDecision": "prior-confirmed-wink",
+                "priorVisibilityReason": null
+              },
+              {
+                "key": "confirmed-wink/WRA314",
+                "encodedSha256": "e8653643a8be6c8ddbe09e7a3f7ab559e6aa447d4c2445a443b217dba9256e6f",
+                "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-03/wink-right-page-07/originals/WRA314.webp",
+                "topPrompt": "photo_clear_glasses",
+                "margin": -0.011945381760597229,
+                "priorVisibilityDecision": "prior-confirmed-wink",
+                "priorVisibilityReason": null
+              },
+              {
+                "key": "confirmed-wink/WRA220",
+                "encodedSha256": "a8286fcb1fb111a161fc949e903ce7bd37b104421edff13fa73d6afcd31f3143",
+                "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-03/wink-right-page-05/originals/WRA220.webp",
+                "topPrompt": "photo_regular",
+                "margin": -0.012281984090805054,
+                "priorVisibilityDecision": "prior-confirmed-wink",
+                "priorVisibilityReason": null
+              },
+              {
+                "key": "confirmed-wink/WLA137",
+                "encodedSha256": "513a06988149e7768d564973f284dfead22bace58d9da527cfb10965266a0f1b",
+                "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-01/wink-left-page-03/originals/WLA137.webp",
+                "topPrompt": "photo_clear_glasses",
+                "margin": -0.01286517083644867,
+                "priorVisibilityDecision": "prior-confirmed-wink",
+                "priorVisibilityReason": null
+              },
+              {
+                "key": "confirmed-wink/WLA331",
+                "encodedSha256": "cadbf5bbffbfc56109d89c1478f9e03a7e88116bdc10930b752ee646768a4ec1",
+                "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-02/wink-left-page-07/originals/WLA331.webp",
+                "topPrompt": "photo_regular",
+                "margin": -0.01524864137172699,
+                "priorVisibilityDecision": "prior-confirmed-wink",
+                "priorVisibilityReason": null
+              },
+              {
+                "key": "confirmed-wink/WLA385",
+                "encodedSha256": "e416275e52643939d6c310e9fffe25456bc4bee5e098184ab381cb5417d49d1d",
+                "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-02/wink-left-page-09/originals/WLA385.webp",
+                "topPrompt": "photo_regular",
+                "margin": -0.016024142503738403,
+                "priorVisibilityDecision": "prior-confirmed-wink",
+                "priorVisibilityReason": null
+              }
+            ]
+          }
+        ],
+        "limitations": [
+          "Three explicit non-photo examples cannot establish recall over paintings, dolls, mosaics, and sculptures in general",
+          "Quality-challenge sample composition cannot estimate whole-catalog prevalence or production false-positive rates",
+          "Text-similarity outputs and names are not calibrated probabilities or verified image categories",
+          "No threshold or model is being adopted into the admission or selection gate"
+        ]
+      }
+    },
+    "execution-notes.json": {
+      "sha256": "1b727c5c534c04fce51125362aa4eeb6538897aff4f1ec9a57c5996a041783c5",
+      "document": {
+        "schemaVersion": 1,
+        "documentKind": "many-faces-photo-type-diagnostic-execution-notes",
+        "fixedPromptsSha256": "18e23661c677484328773cba205eaa341fd5fb872ba61e48af767df631209979",
+        "unchangedRunnerSha256": "3847bdda08bc3d2aa849311c82bbfbdb24e18ef209e2446180a55c12221373cb",
+        "smokeExecution": {
+          "scoredPhotos": 17,
+          "processExitCode": 0
+        },
+        "full720Execution": {
+          "scoredPhotos": 720,
+          "allScoresAndReportWrittenBeforeError": true,
+          "processExitCode": 1,
+          "errorStage": "Final informational stdout path formatting after complete report.write_text",
+          "exception": "ValueError: 'work/photo-type-diagnostic/full-720-results.json' is not in the subpath of '/workspace/scratch/d3ea6516fdb8/many-faces-beta'",
+          "cause": "An explicitly relative --out was passed, while the informational print called Path.relative_to on the absolute repository root",
+          "rawReportSha256": "c010c8dae0b3e4f9315c662e9d37eae923bbf40abc05fc580bc81ad28d963803",
+          "postErrorVerification": "Complete status, exact720 unique image SHAs, all eleven finite cosines and score arithmetic verified; all187 smoke cosines match their full-set rows exactly",
+          "inferenceRerun": false,
+          "runnerPatched": false
+        },
+        "wink71Execution": {
+          "scoredPhotos": 71,
+          "processExitCode": 0,
+          "absoluteOutputPathUsed": true,
+          "rawReportSha256": "c83460ef8d62cdd949d099af3c0d43a4abd22a48ae9c40230af7d24f38aadf37"
+        },
+        "allIndependentImages": 791,
+        "rawInputsChanged": false,
+        "activeGateChanged": false,
+        "modelPromptsChangedAfterInference": false,
+        "gitChangedByThisDiagnostic": false,
+        "siteChanged": false,
+        "instructionsForRerun": "Pass an absolute --out path; no model or score implementation change is needed"
+      }
+    },
+    "original-reinspection.json": {
+      "sha256": "d98f08335b638cdf47dbe6566c29441a52c72e1e4a086b815a6fdbdc19d6563f",
+      "document": {
+        "schemaVersion": 1,
+        "documentKind": "many-faces-photo-type-diagnostic-original-reinspection",
+        "reviewer": "assistant-visual-review",
+        "humanVerified": false,
+        "recordedAt": "2026-10-06T17:23:18.843659+00:00",
+        "scope": "Ten high-score photo-type false positives, three zero-margin wink false positives, two near-boundary facepaint controls, and three known non-photo references",
+        "count": 18,
+        "rawReviewDecisionsChanged": false,
+        "modelPromptsChanged": false,
+        "activeGateChanged": false,
+        "identityOrDemographicClassification": false,
+        "fixed720InputsSha256": "0fce971bc6166bee5f47fb3b77fbba33ac5a14516b37084cd8c15f2f6dfe0009",
+        "fixed71WinkInputsSha256": "2649b44327acad2137a8af006803be19a712ca1361f4d6ed954b25f0e5df68ee",
+        "observations": [
+          {
+            "key": "development-H209",
+            "imagePath": "work/clean-v5-qa-37484611339/holdout-06/images/H209.webp",
+            "encodedSha256": "12d9262b81dc17d4e2cfd0e284aa9cc5cc18808ba70172fb52a10768d111d50b",
+            "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+            "sourceId": "seed-ffhq-6110",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "photographic_face",
+            "observation": "The original has natural facial skin, hair, eye reflections and cloth/background texture; it is a photographed face, not a doll depiction.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "pass"
+          },
+          {
+            "key": "development-H273",
+            "imagePath": "work/clean-v5-qa-37484611339/holdout-08/images/H273.webp",
+            "encodedSha256": "27f45a6c0b62aa3db42322bc822676903fe9bb169d2d53b7ffdae2aebfdb0151",
+            "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+            "sourceId": "clean-v3-many-faces-clean-core-v3-clean-v3-seed-ffhq-70224-actions-v4-seed-ffhq-35742",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "photographic_face",
+            "observation": "The original shows photographic facial texture and natural eye and mouth contours; no manufactured or painted fixed face is apparent.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "pass"
+          },
+          {
+            "key": "development-H043",
+            "imagePath": "work/clean-v5-qa-37484611339/holdout-02/images/H043.webp",
+            "encodedSha256": "e22195941b9dd7159b248cf76ba196c8bb170c1d9854162d55848a16462266f2",
+            "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+            "sourceId": "clean-v3-clean-v3-source-train-080000-967287ba42df12bc0882ec05",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "photographic_face",
+            "observation": "The soft original remains a photograph with natural skin and eye contours; softness does not make the face an artwork.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "pass"
+          },
+          {
+            "key": "development-H219",
+            "imagePath": "work/clean-v5-qa-37484611339/holdout-07/images/H219.webp",
+            "encodedSha256": "70c5a47c7f4469b6f8bb88aa99757434c8e57a51c4d6618366b4f04d03b0d746",
+            "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+            "sourceId": "clean-v3-clean-v3-source-train-200000-dc93ab1d89008c39b9e333e1",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "photographic_face",
+            "observation": "The flash-lit original has natural skin and mouth detail and photographed fabric; the doll prompt is a photo-type false match.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "pass"
+          },
+          {
+            "key": "development-H210",
+            "imagePath": "work/clean-v5-qa-37484611339/holdout-06/images/H210.webp",
+            "encodedSha256": "85a053c2aa09e0d5e15228445b5c18b6a58b900f9fa7584514faef6032ba3f1c",
+            "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+            "sourceId": "clean-v3-clean-v3-source-train-400000-fdd15836ee4086c109a6c86f",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "photographic_face",
+            "observation": "The original has natural hair, skin highlights and an open mouth with teeth; this is a photographed face.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "pass"
+          },
+          {
+            "key": "validation-H113",
+            "imagePath": "work/clean-v5-qa-37494402324/holdout-04/images/H113.webp",
+            "encodedSha256": "a99c8bedd70e0c4f7a14d10014a15da096a8c316ed690be3f976cb1a17ab3123",
+            "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+            "sourceId": "clean-v3-clean-v3-source-train-120000-a55d9623cf322caed269df81",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "photographic_face",
+            "observation": "The original is a grainy soft photograph. Its prior visibility uncertainty is separate from its photographic representation.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "uncertain"
+          },
+          {
+            "key": "validation-H065",
+            "imagePath": "work/clean-v5-qa-37494402324/holdout-02/images/H065.webp",
+            "encodedSha256": "739b4da0fda84edca7632fc77bdb70e1427b80861219958d75266cc6e4bcbff6",
+            "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+            "sourceId": "clean-v3-clean-v3-source-train-120000-2d2959ef3ff901de923a6d4c",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "photographic_face",
+            "observation": "Natural hair, skin shading and photographic background support a real photographed face; the doll label is not supported by visible fixed-art material.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "pass"
+          },
+          {
+            "key": "validation-H082",
+            "imagePath": "work/clean-v5-qa-37494402324/holdout-03/images/H082.webp",
+            "encodedSha256": "1d66104911d9fdc6fe5d6c9e91a997962d8fd3908f01b48be8d88c790e7b4f25",
+            "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+            "sourceId": "clean-v3-clean-v3-source-train-240000-834bb58a2e3a833175e00357",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "photographic_face",
+            "observation": "The original shows natural face, hair and surrounding clothing; it is a photograph despite the doll prompt ranking.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "pass"
+          },
+          {
+            "key": "validation-H234",
+            "imagePath": "work/clean-v5-qa-37494402324/holdout-07/images/H234.webp",
+            "encodedSha256": "c1321026887ebae36b7e1fd718a22fbe90bf5c29dd477f14c21797c2d299a6e9",
+            "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+            "sourceId": "clean-v3-clean-v3-source-train-320000-7283b71c0d82c21edd6f246e",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "photographic_face",
+            "observation": "This is a blurred monochrome photographic face. The existing blur denial remains separate; no mosaic, drawn or molded face is visible.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "deny"
+          },
+          {
+            "key": "validation-H266",
+            "imagePath": "work/clean-v5-qa-37494402324/holdout-08/images/H266.webp",
+            "encodedSha256": "9ab78b05f83d64640f3d6342e9b71110d5fca6d5d2cfbd7239b612b6c70659b7",
+            "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+            "sourceId": "clean-v3-clean-v3-source-train-000000-78348f25279f09f5d201edd3",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "photographic_face",
+            "observation": "The original has natural skin, open smiling mouth and sunlit cloth. No fixed manufactured face is apparent.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "pass"
+          },
+          {
+            "key": "confirmed-wink/WLA281",
+            "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-01/wink-left-page-06/originals/WLA281.webp",
+            "encodedSha256": "a979bf2aae2700e44aafb9638b526da4ad8de4b925943743fc7cb54513dfe635",
+            "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+            "sourceId": "seed-ffhq-55394",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "photographic_face",
+            "observation": "The previously reviewed wink control is a real photographed face, with natural hair, skin and teeth. Its wink review is not changed.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "prior-confirmed-wink"
+          },
+          {
+            "key": "confirmed-wink/WLA061",
+            "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-01/wink-left-page-02/originals/WLA061.webp",
+            "encodedSha256": "1e43669fdbe2cb6a047761a4c6c767940686f7ccaffb829cf5e35365fd2b96ee",
+            "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+            "sourceId": "clean-v3-clean-v3-source-train-360000-5784fa181bf79bbc1149909d",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "photographic_face",
+            "observation": "The previously reviewed wink control is a photograph with natural skin, mouth and surrounding hands/clothing. Its wink review is not changed.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "prior-confirmed-wink"
+          },
+          {
+            "key": "confirmed-wink/WRA039",
+            "imagePath": "work/all-wink-diagnostics-37477676654/parts/part-02/wink-right-page-01/originals/WRA039.webp",
+            "encodedSha256": "1e09b59ad63a007e881473dad7ab63c49c15b88e7e30c14216227dc402da5df8",
+            "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+            "sourceId": "mirror-wink-seed-ffhq-1619",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "photographic_face",
+            "observation": "The previously reviewed wink control shows a photographed face with hair and readable eyelid/lip contours. Cosmetics do not turn it into fixed artwork.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "prior-confirmed-wink"
+          },
+          {
+            "key": "development-H084",
+            "imagePath": "work/clean-v5-qa-37484611339/holdout-03/images/H084.webp",
+            "encodedSha256": "23647c41a3e801941b0a8aa3d15c630b9d4d30d88da858c5fd74c1b8245d3e30",
+            "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+            "sourceId": "clean-v3-clean-v3-source-train-080000-29b1598fb049e839e3ee2875",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "photographic_face",
+            "observation": "Gold-colored facial cosmetics and ornaments remain compatible with a real photographed face; eye openings and lips are readable. No basis to reverse the existing face-paint allowance was found.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "pass"
+          },
+          {
+            "key": "validation-H083",
+            "imagePath": "work/clean-v5-qa-37494402324/holdout-03/images/H083.webp",
+            "encodedSha256": "fce10e4028463c87883f996ae40009afe0cd5a70409da81ef48db138617fc5af",
+            "sourceCatalogId": "seed-ffhq-70224-actions-v4",
+            "sourceId": "seed-ffhq-15181",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "photographic_face",
+            "observation": "White face paint and colored facial cosmetics leave natural eyelid and lip shapes visible. The face-paint allowance remains intact.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "pass"
+          },
+          {
+            "key": "development-H232",
+            "imagePath": "work/clean-v5-qa-37484611339/holdout-07/images/H232.webp",
+            "encodedSha256": "1136386ec1e96d20e0d235dbf3714bb0028817682e9ef2fad1af61c58c03df47",
+            "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+            "sourceId": "clean-v3-clean-v3-source-train-160000-75a16f21e25a659e0a86ab09",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "fixed_representation",
+            "observation": "The original visibly depicts a doll with molded smooth surfaces and painted facial details, agreeing with the existing non-photo reference.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "deny"
+          },
+          {
+            "key": "development-H326",
+            "imagePath": "work/clean-v5-qa-37484611339/holdout-10/images/H326.webp",
+            "encodedSha256": "33d2d01eac25178859f7a85d3b9033a4f11211745ca55b9f5a0b78e4ef591492",
+            "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+            "sourceId": "clean-v3-clean-v3-source-train-240000-b4f9956d4596271230e85b98",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "fixed_representation",
+            "observation": "The stylized painted portrait and smooth painted tonal details agree with the existing painted-portrait reference; it is distinct from paint applied to a photographed face.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "deny"
+          },
+          {
+            "key": "validation-H261",
+            "imagePath": "work/clean-v5-qa-37494402324/holdout-08/images/H261.webp",
+            "encodedSha256": "ba6f60f0b5bd709421d26c7532cc73e1df7d3e847c12376510b4b937f4986bc9",
+            "sourceCatalogId": "many-faces-clean-core-v3-pose-local-v1",
+            "sourceId": "clean-v3-clean-v3-source-test-000000--a6fe557c602542d13bf7eb53",
+            "viewedExactOriginal": true,
+            "referencePhotoTypeAfterReinspection": "fixed_representation",
+            "observation": "Visible tile boundaries form the entire fixed facial depiction; this is a mosaic artwork, agreeing with the existing reference.",
+            "sourceReviewChanged": false,
+            "priorVisibilityDecision": "deny"
+          }
+        ]
+      }
+    },
+    "protected-groups-and-distributions.json": {
+      "sha256": "de6f637a6180ad974b9aa90fbe48b14d9e443722238ee51cfaee4d1568ae6151",
+      "document": {
+        "schemaVersion": 1,
+        "documentKind": "many-faces-photo-type-diagnostic-protected-groups",
+        "frozen791Sha256": "e69d0e071115192312db37be2169e43b1a72238f50622e193a3b8671d860a16b",
+        "raw791ScoresSha256": "22acec595655168f45730849bc7aef33b585b60928f1e404eee170a800359795",
+        "developmentFrozenCutoffsSha256": "ceccc441815bb0894c8ae8c8c165970a2c76946946ade8ae95e4d1a51743f1d3",
+        "groupAssignmentSource": "Existing frozen OFIQ input protectionGroups, unchanged; not inferred by CLIP",
+        "groupMembershipCanOverlap": true,
+        "groups": [
+          {
+            "split": "development",
+            "group": "reviewed-pass-eyeglasses",
+            "count": 56,
+            "minMargin": -0.08140005171298981,
+            "maxMargin": -0.020804807543754578,
+            "cutoffs": [
+              {
+                "id": "fixed-0",
+                "threshold": -0.01,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-1",
+                "threshold": 0.0,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-2",
+                "threshold": 0.01,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-3",
+                "threshold": 0.02,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-4",
+                "threshold": 0.03,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-5",
+                "threshold": 0.05,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-6",
+                "threshold": 0.075,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-7",
+                "threshold": 0.1,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-retain-both",
+                "threshold": 0.019006192684173584,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-zero-observed-fp",
+                "threshold": 0.039043635129928596,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              }
+            ]
+          },
+          {
+            "split": "development",
+            "group": "reviewed-pass-natural-eye-closure",
+            "count": 5,
+            "minMargin": -0.031949788331985474,
+            "maxMargin": 0.007068991661071777,
+            "cutoffs": [
+              {
+                "id": "fixed-0",
+                "threshold": -0.01,
+                "falsePositiveCount": 3,
+                "falsePositiveKeys": [
+                  "development-H143",
+                  "development-H214",
+                  "development-H356"
+                ]
+              },
+              {
+                "id": "fixed-1",
+                "threshold": 0.0,
+                "falsePositiveCount": 1,
+                "falsePositiveKeys": [
+                  "development-H356"
+                ]
+              },
+              {
+                "id": "fixed-2",
+                "threshold": 0.01,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-3",
+                "threshold": 0.02,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-4",
+                "threshold": 0.03,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-5",
+                "threshold": 0.05,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-6",
+                "threshold": 0.075,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-7",
+                "threshold": 0.1,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-retain-both",
+                "threshold": 0.019006192684173584,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-zero-observed-fp",
+                "threshold": 0.039043635129928596,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              }
+            ]
+          },
+          {
+            "split": "development",
+            "group": "reviewed-pass-paint",
+            "count": 5,
+            "minMargin": -0.06329716742038727,
+            "maxMargin": -0.01751604676246643,
+            "cutoffs": [
+              {
+                "id": "fixed-0",
+                "threshold": -0.01,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-1",
+                "threshold": 0.0,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-2",
+                "threshold": 0.01,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-3",
+                "threshold": 0.02,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-4",
+                "threshold": 0.03,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-5",
+                "threshold": 0.05,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-6",
+                "threshold": 0.075,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-7",
+                "threshold": 0.1,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-retain-both",
+                "threshold": 0.019006192684173584,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-zero-observed-fp",
+                "threshold": 0.039043635129928596,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              }
+            ]
+          },
+          {
+            "split": "development",
+            "group": "reviewed-pass-sidepose-abs-audit-yaw-ge24",
+            "count": 137,
+            "minMargin": -0.08140005171298981,
+            "maxMargin": 0.014206141233444214,
+            "cutoffs": [
+              {
+                "id": "fixed-0",
+                "threshold": -0.01,
+                "falsePositiveCount": 15,
+                "falsePositiveKeys": [
+                  "development-H047",
+                  "development-H051",
+                  "development-H134",
+                  "development-H143",
+                  "development-H155",
+                  "development-H157",
+                  "development-H161",
+                  "development-H183",
+                  "development-H185",
+                  "development-H203",
+                  "development-H227",
+                  "development-H233",
+                  "development-H235",
+                  "development-H245",
+                  "development-H252"
+                ]
+              },
+              {
+                "id": "fixed-1",
+                "threshold": 0.0,
+                "falsePositiveCount": 5,
+                "falsePositiveKeys": [
+                  "development-H051",
+                  "development-H134",
+                  "development-H157",
+                  "development-H185",
+                  "development-H227"
+                ]
+              },
+              {
+                "id": "fixed-2",
+                "threshold": 0.01,
+                "falsePositiveCount": 1,
+                "falsePositiveKeys": [
+                  "development-H227"
+                ]
+              },
+              {
+                "id": "fixed-3",
+                "threshold": 0.02,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-4",
+                "threshold": 0.03,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-5",
+                "threshold": 0.05,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-6",
+                "threshold": 0.075,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-7",
+                "threshold": 0.1,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-retain-both",
+                "threshold": 0.019006192684173584,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-zero-observed-fp",
+                "threshold": 0.039043635129928596,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              }
+            ]
+          },
+          {
+            "split": "validation",
+            "group": "reviewed-pass-eyeglasses",
+            "count": 54,
+            "minMargin": -0.08454623818397522,
+            "maxMargin": -0.029881909489631653,
+            "cutoffs": [
+              {
+                "id": "fixed-0",
+                "threshold": -0.01,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-1",
+                "threshold": 0.0,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-2",
+                "threshold": 0.01,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-3",
+                "threshold": 0.02,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-4",
+                "threshold": 0.03,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-5",
+                "threshold": 0.05,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-6",
+                "threshold": 0.075,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-7",
+                "threshold": 0.1,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-retain-both",
+                "threshold": 0.019006192684173584,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-zero-observed-fp",
+                "threshold": 0.039043635129928596,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              }
+            ]
+          },
+          {
+            "split": "validation",
+            "group": "reviewed-pass-natural-eye-closure",
+            "count": 5,
+            "minMargin": -0.07315392792224884,
+            "maxMargin": 0.0010619163513183594,
+            "cutoffs": [
+              {
+                "id": "fixed-0",
+                "threshold": -0.01,
+                "falsePositiveCount": 2,
+                "falsePositiveKeys": [
+                  "validation-H254",
+                  "validation-H359"
+                ]
+              },
+              {
+                "id": "fixed-1",
+                "threshold": 0.0,
+                "falsePositiveCount": 1,
+                "falsePositiveKeys": [
+                  "validation-H254"
+                ]
+              },
+              {
+                "id": "fixed-2",
+                "threshold": 0.01,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-3",
+                "threshold": 0.02,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-4",
+                "threshold": 0.03,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-5",
+                "threshold": 0.05,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-6",
+                "threshold": 0.075,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-7",
+                "threshold": 0.1,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-retain-both",
+                "threshold": 0.019006192684173584,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-zero-observed-fp",
+                "threshold": 0.039043635129928596,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              }
+            ]
+          },
+          {
+            "split": "validation",
+            "group": "reviewed-pass-paint",
+            "count": 6,
+            "minMargin": -0.049945324659347534,
+            "maxMargin": -0.00036913156509399414,
+            "cutoffs": [
+              {
+                "id": "fixed-0",
+                "threshold": -0.01,
+                "falsePositiveCount": 2,
+                "falsePositiveKeys": [
+                  "validation-H083",
+                  "validation-H151"
+                ]
+              },
+              {
+                "id": "fixed-1",
+                "threshold": 0.0,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-2",
+                "threshold": 0.01,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-3",
+                "threshold": 0.02,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-4",
+                "threshold": 0.03,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-5",
+                "threshold": 0.05,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-6",
+                "threshold": 0.075,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-7",
+                "threshold": 0.1,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-retain-both",
+                "threshold": 0.019006192684173584,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-zero-observed-fp",
+                "threshold": 0.039043635129928596,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              }
+            ]
+          },
+          {
+            "split": "validation",
+            "group": "reviewed-pass-sidepose-abs-audit-yaw-ge24",
+            "count": 138,
+            "minMargin": -0.07301512360572815,
+            "maxMargin": 0.0164014995098114,
+            "cutoffs": [
+              {
+                "id": "fixed-0",
+                "threshold": -0.01,
+                "falsePositiveCount": 10,
+                "falsePositiveKeys": [
+                  "validation-H018",
+                  "validation-H035",
+                  "validation-H068",
+                  "validation-H083",
+                  "validation-H131",
+                  "validation-H151",
+                  "validation-H171",
+                  "validation-H179",
+                  "validation-H203",
+                  "validation-H254"
+                ]
+              },
+              {
+                "id": "fixed-1",
+                "threshold": 0.0,
+                "falsePositiveCount": 6,
+                "falsePositiveKeys": [
+                  "validation-H018",
+                  "validation-H035",
+                  "validation-H068",
+                  "validation-H171",
+                  "validation-H203",
+                  "validation-H254"
+                ]
+              },
+              {
+                "id": "fixed-2",
+                "threshold": 0.01,
+                "falsePositiveCount": 3,
+                "falsePositiveKeys": [
+                  "validation-H018",
+                  "validation-H035",
+                  "validation-H203"
+                ]
+              },
+              {
+                "id": "fixed-3",
+                "threshold": 0.02,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-4",
+                "threshold": 0.03,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-5",
+                "threshold": 0.05,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-6",
+                "threshold": 0.075,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-7",
+                "threshold": 0.1,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-retain-both",
+                "threshold": 0.019006192684173584,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-zero-observed-fp",
+                "threshold": 0.039043635129928596,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              }
+            ]
+          },
+          {
+            "split": "protected-seen-controls",
+            "group": "confirmed-wink-left",
+            "count": 31,
+            "minMargin": -0.10582457482814789,
+            "maxMargin": 0.0052224695682525635,
+            "cutoffs": [
+              {
+                "id": "fixed-0",
+                "threshold": -0.01,
+                "falsePositiveCount": 5,
+                "falsePositiveKeys": [
+                  "confirmed-wink/WLA061",
+                  "confirmed-wink/WLA227",
+                  "confirmed-wink/WLA281",
+                  "confirmed-wink/WLA295",
+                  "confirmed-wink/WLA395"
+                ]
+              },
+              {
+                "id": "fixed-1",
+                "threshold": 0.0,
+                "falsePositiveCount": 2,
+                "falsePositiveKeys": [
+                  "confirmed-wink/WLA061",
+                  "confirmed-wink/WLA281"
+                ]
+              },
+              {
+                "id": "fixed-2",
+                "threshold": 0.01,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-3",
+                "threshold": 0.02,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-4",
+                "threshold": 0.03,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-5",
+                "threshold": 0.05,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-6",
+                "threshold": 0.075,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-7",
+                "threshold": 0.1,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-retain-both",
+                "threshold": 0.019006192684173584,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-zero-observed-fp",
+                "threshold": 0.039043635129928596,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              }
+            ]
+          },
+          {
+            "split": "protected-seen-controls",
+            "group": "confirmed-wink-right",
+            "count": 40,
+            "minMargin": -0.05299219489097595,
+            "maxMargin": 4.729628562927246e-05,
+            "cutoffs": [
+              {
+                "id": "fixed-0",
+                "threshold": -0.01,
+                "falsePositiveCount": 5,
+                "falsePositiveKeys": [
+                  "confirmed-wink/WRA039",
+                  "confirmed-wink/WRA123",
+                  "confirmed-wink/WRA226",
+                  "confirmed-wink/WRA233",
+                  "confirmed-wink/WRA319"
+                ]
+              },
+              {
+                "id": "fixed-1",
+                "threshold": 0.0,
+                "falsePositiveCount": 1,
+                "falsePositiveKeys": [
+                  "confirmed-wink/WRA039"
+                ]
+              },
+              {
+                "id": "fixed-2",
+                "threshold": 0.01,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-3",
+                "threshold": 0.02,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-4",
+                "threshold": 0.03,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-5",
+                "threshold": 0.05,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-6",
+                "threshold": 0.075,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-7",
+                "threshold": 0.1,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-retain-both",
+                "threshold": 0.019006192684173584,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-zero-observed-fp",
+                "threshold": 0.039043635129928596,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              }
+            ]
+          },
+          {
+            "split": "protected-seen-controls",
+            "group": "reviewed-confirmed-wink",
+            "count": 71,
+            "minMargin": -0.10582457482814789,
+            "maxMargin": 0.0052224695682525635,
+            "cutoffs": [
+              {
+                "id": "fixed-0",
+                "threshold": -0.01,
+                "falsePositiveCount": 10,
+                "falsePositiveKeys": [
+                  "confirmed-wink/WRA039",
+                  "confirmed-wink/WLA061",
+                  "confirmed-wink/WRA123",
+                  "confirmed-wink/WLA227",
+                  "confirmed-wink/WLA281",
+                  "confirmed-wink/WRA226",
+                  "confirmed-wink/WRA233",
+                  "confirmed-wink/WLA295",
+                  "confirmed-wink/WLA395",
+                  "confirmed-wink/WRA319"
+                ]
+              },
+              {
+                "id": "fixed-1",
+                "threshold": 0.0,
+                "falsePositiveCount": 3,
+                "falsePositiveKeys": [
+                  "confirmed-wink/WRA039",
+                  "confirmed-wink/WLA061",
+                  "confirmed-wink/WLA281"
+                ]
+              },
+              {
+                "id": "fixed-2",
+                "threshold": 0.01,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-3",
+                "threshold": 0.02,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-4",
+                "threshold": 0.03,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-5",
+                "threshold": 0.05,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-6",
+                "threshold": 0.075,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "fixed-7",
+                "threshold": 0.1,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-retain-both",
+                "threshold": 0.019006192684173584,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              },
+              {
+                "id": "development-zero-observed-fp",
+                "threshold": 0.039043635129928596,
+                "falsePositiveCount": 0,
+                "falsePositiveKeys": []
+              }
+            ]
+          }
+        ],
+        "distributions": [
+          {
+            "split": "development",
+            "referencePhotoType": "photographic_face",
+            "count": 358,
+            "min": -0.08140005171298981,
+            "p05": -0.06415193900465965,
+            "p50": -0.03164558857679367,
+            "p95": 0.005989815294742558,
+            "p99": 0.02123489558696747,
+            "max": 0.03904363512992859
+          },
+          {
+            "split": "development",
+            "referencePhotoType": "fixed_representation",
+            "count": 2,
+            "min": 0.019006192684173584,
+            "p05": 0.019810670614242555,
+            "p50": 0.02705097198486328,
+            "p95": 0.03429127335548401,
+            "p99": 0.034934855699539184,
+            "max": 0.03509575128555298
+          },
+          {
+            "split": "validation",
+            "referencePhotoType": "photographic_face",
+            "count": 359,
+            "min": -0.08454623818397522,
+            "p05": -0.06116734594106674,
+            "p50": -0.031608402729034424,
+            "p95": 0.003066003322601257,
+            "p99": 0.019855120778083813,
+            "max": 0.029168516397476196
+          },
+          {
+            "split": "validation",
+            "referencePhotoType": "fixed_representation",
+            "count": 1,
+            "min": 0.1005445122718811,
+            "p05": 0.1005445122718811,
+            "p50": 0.1005445122718811,
+            "p95": 0.1005445122718811,
+            "p99": 0.1005445122718811,
+            "max": 0.1005445122718811
+          },
+          {
+            "split": "protected-seen-controls",
+            "referencePhotoType": "photographic_face",
+            "count": 71,
+            "min": -0.10582457482814789,
+            "p05": -0.052211277186870575,
+            "p50": -0.02854517102241516,
+            "p95": -0.003712594509124756,
+            "p99": 0.004734516143798826,
+            "max": 0.0052224695682525635
+          }
+        ],
+        "adoptedInGate": false
+      }
+    },
+    "license-and-source-notes.json": {
+      "sha256": "c0ace15f0468142e9759228e3d99e5eef764364c10c95b61d1d76ccf9da29988",
+      "document": {
+        "schemaVersion": 1,
+        "documentKind": "many-faces-photo-type-diagnostic-license-and-source-notes",
+        "officialRepository": "https://github.com/openai/CLIP",
+        "codeCommit": "d05afc436d78f1c48dc0dbf8e5980a9d471f35f6",
+        "commitDateFromOfficialApi": "2026-03-25T18:46:40Z",
+        "commitMessage": "Pin GitHub Actions workflow references (#537)",
+        "officialCommitApiReceiptPath": "official-code-commit.json",
+        "officialCommitApiReceiptSha256": "ce1919c23491a0a904b8a3cc551538a59850379db09c7430e010f726141ca30b",
+        "modelFamilyDateFromOfficialModelCard": "January 2021",
+        "model": "ViT-B/32",
+        "repositoryLicenseVerified": "MIT",
+        "repositoryLicenseCopyright": "Copyright (c) 2021 OpenAI",
+        "repositoryLicenseLocalPath": "vendor/openai-clip/LICENSE",
+        "repositoryLicenseSha256": "987e63b32f6c89ff5160e429458a872ff048e6860b590a3912e938f9da8f14db",
+        "checkpointIsOfficiallyLinkedFromRepository": true,
+        "checkpointSha256Verified": "40d365715913c9da98579312b702a82c18be219cc2a73407c4526f58eba950af",
+        "checkpointBytesVerified": 353976522,
+        "licenseScopeQualification": "The MIT text was verified in the official repository. A separate checkpoint-specific license document or explicit maintainer clarification of external weight licensing was not established by this check; unrestricted deployment or redistribution permission is not claimed.",
+        "reviewedOfficialLicenseDiscussionPages": [
+          {
+            "url": "https://github.com/openai/CLIP/issues/203",
+            "commentCountFromOfficialApi": 1,
+            "ownerMemberOrCollaboratorCommentsObserved": 0
+          },
+          {
+            "url": "https://github.com/openai/CLIP/issues/241",
+            "commentCountFromOfficialApi": 1,
+            "ownerMemberOrCollaboratorCommentsObserved": 0
+          }
+        ],
+        "officialModelCardCautions": [
+          "The model card describes CLIP as a research output and does not claim suitability for general deployment.",
+          "It calls for fixed-taxonomy, task-specific in-domain testing and notes sensitivity to class design.",
+          "Fine-grained categories and class names must not be interpreted as verified facts about the image."
+        ],
+        "sources": [
+          "https://github.com/openai/CLIP/blob/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/LICENSE",
+          "https://github.com/openai/CLIP/blob/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/model-card.md",
+          "https://github.com/openai/CLIP/blob/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/clip.py",
+          "https://pytorch.org/get-started/previous-versions/"
+        ],
+        "runtime": "PyTorch2.9.1+cpu and TorchVision0.24.1+cpu from the official CPU wheel index, installed in a dedicated venv",
+        "purpose": "Bounded local non-deployed pixel diagnosis of image representation, with no identity or demographic classification",
+        "activeGateAdoption": false
+      }
+    }
+  },
+  "cutoffTable": [
+    {
+      "split": "development",
+      "id": "fixed-0",
+      "threshold": "-0.01",
+      "truePositives": "2",
+      "falseNegatives": "0",
+      "falsePositives": "59",
+      "trueNegatives": "299",
+      "referenceRecall": "1.0",
+      "referenceFalsePositiveFraction": "0.164804469273743"
+    },
+    {
+      "split": "development",
+      "id": "fixed-1",
+      "threshold": "0.0",
+      "truePositives": "2",
+      "falseNegatives": "0",
+      "falsePositives": "26",
+      "trueNegatives": "332",
+      "referenceRecall": "1.0",
+      "referenceFalsePositiveFraction": "0.07262569832402235"
+    },
+    {
+      "split": "development",
+      "id": "fixed-2",
+      "threshold": "0.01",
+      "truePositives": "2",
+      "falseNegatives": "0",
+      "falsePositives": "11",
+      "trueNegatives": "347",
+      "referenceRecall": "1.0",
+      "referenceFalsePositiveFraction": "0.030726256983240222"
+    },
+    {
+      "split": "development",
+      "id": "fixed-3",
+      "threshold": "0.02",
+      "truePositives": "1",
+      "falseNegatives": "1",
+      "falsePositives": "5",
+      "trueNegatives": "353",
+      "referenceRecall": "0.5",
+      "referenceFalsePositiveFraction": "0.013966480446927373"
+    },
+    {
+      "split": "development",
+      "id": "fixed-4",
+      "threshold": "0.03",
+      "truePositives": "1",
+      "falseNegatives": "1",
+      "falsePositives": "1",
+      "trueNegatives": "357",
+      "referenceRecall": "0.5",
+      "referenceFalsePositiveFraction": "0.002793296089385475"
+    },
+    {
+      "split": "development",
+      "id": "fixed-5",
+      "threshold": "0.05",
+      "truePositives": "0",
+      "falseNegatives": "2",
+      "falsePositives": "0",
+      "trueNegatives": "358",
+      "referenceRecall": "0.0",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "development",
+      "id": "fixed-6",
+      "threshold": "0.075",
+      "truePositives": "0",
+      "falseNegatives": "2",
+      "falsePositives": "0",
+      "trueNegatives": "358",
+      "referenceRecall": "0.0",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "development",
+      "id": "fixed-7",
+      "threshold": "0.1",
+      "truePositives": "0",
+      "falseNegatives": "2",
+      "falsePositives": "0",
+      "trueNegatives": "358",
+      "referenceRecall": "0.0",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "development",
+      "id": "development-retain-both",
+      "threshold": "0.019006192684173584",
+      "truePositives": "2",
+      "falseNegatives": "0",
+      "falsePositives": "5",
+      "trueNegatives": "353",
+      "referenceRecall": "1.0",
+      "referenceFalsePositiveFraction": "0.013966480446927373"
+    },
+    {
+      "split": "development",
+      "id": "development-zero-observed-fp",
+      "threshold": "0.039043635129928596",
+      "truePositives": "0",
+      "falseNegatives": "2",
+      "falsePositives": "0",
+      "trueNegatives": "358",
+      "referenceRecall": "0.0",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "validation",
+      "id": "fixed-0",
+      "threshold": "-0.01",
+      "truePositives": "1",
+      "falseNegatives": "0",
+      "falsePositives": "39",
+      "trueNegatives": "320",
+      "referenceRecall": "1.0",
+      "referenceFalsePositiveFraction": "0.10863509749303621"
+    },
+    {
+      "split": "validation",
+      "id": "fixed-1",
+      "threshold": "0.0",
+      "truePositives": "1",
+      "falseNegatives": "0",
+      "falsePositives": "24",
+      "trueNegatives": "335",
+      "referenceRecall": "1.0",
+      "referenceFalsePositiveFraction": "0.06685236768802229"
+    },
+    {
+      "split": "validation",
+      "id": "fixed-2",
+      "threshold": "0.01",
+      "truePositives": "1",
+      "falseNegatives": "0",
+      "falsePositives": "12",
+      "trueNegatives": "347",
+      "referenceRecall": "1.0",
+      "referenceFalsePositiveFraction": "0.033426183844011144"
+    },
+    {
+      "split": "validation",
+      "id": "fixed-3",
+      "threshold": "0.02",
+      "truePositives": "1",
+      "falseNegatives": "0",
+      "falsePositives": "4",
+      "trueNegatives": "355",
+      "referenceRecall": "1.0",
+      "referenceFalsePositiveFraction": "0.011142061281337047"
+    },
+    {
+      "split": "validation",
+      "id": "fixed-4",
+      "threshold": "0.03",
+      "truePositives": "1",
+      "falseNegatives": "0",
+      "falsePositives": "0",
+      "trueNegatives": "359",
+      "referenceRecall": "1.0",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "validation",
+      "id": "fixed-5",
+      "threshold": "0.05",
+      "truePositives": "1",
+      "falseNegatives": "0",
+      "falsePositives": "0",
+      "trueNegatives": "359",
+      "referenceRecall": "1.0",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "validation",
+      "id": "fixed-6",
+      "threshold": "0.075",
+      "truePositives": "1",
+      "falseNegatives": "0",
+      "falsePositives": "0",
+      "trueNegatives": "359",
+      "referenceRecall": "1.0",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "validation",
+      "id": "fixed-7",
+      "threshold": "0.1",
+      "truePositives": "1",
+      "falseNegatives": "0",
+      "falsePositives": "0",
+      "trueNegatives": "359",
+      "referenceRecall": "1.0",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "validation",
+      "id": "development-retain-both",
+      "threshold": "0.019006192684173584",
+      "truePositives": "1",
+      "falseNegatives": "0",
+      "falsePositives": "5",
+      "trueNegatives": "354",
+      "referenceRecall": "1.0",
+      "referenceFalsePositiveFraction": "0.013927576601671309"
+    },
+    {
+      "split": "validation",
+      "id": "development-zero-observed-fp",
+      "threshold": "0.039043635129928596",
+      "truePositives": "1",
+      "falseNegatives": "0",
+      "falsePositives": "0",
+      "trueNegatives": "359",
+      "referenceRecall": "1.0",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "protected-seen-controls",
+      "id": "fixed-0",
+      "threshold": "-0.01",
+      "truePositives": "0",
+      "falseNegatives": "0",
+      "falsePositives": "10",
+      "trueNegatives": "61",
+      "referenceRecall": "",
+      "referenceFalsePositiveFraction": "0.14084507042253522"
+    },
+    {
+      "split": "protected-seen-controls",
+      "id": "fixed-1",
+      "threshold": "0.0",
+      "truePositives": "0",
+      "falseNegatives": "0",
+      "falsePositives": "3",
+      "trueNegatives": "68",
+      "referenceRecall": "",
+      "referenceFalsePositiveFraction": "0.04225352112676056"
+    },
+    {
+      "split": "protected-seen-controls",
+      "id": "fixed-2",
+      "threshold": "0.01",
+      "truePositives": "0",
+      "falseNegatives": "0",
+      "falsePositives": "0",
+      "trueNegatives": "71",
+      "referenceRecall": "",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "protected-seen-controls",
+      "id": "fixed-3",
+      "threshold": "0.02",
+      "truePositives": "0",
+      "falseNegatives": "0",
+      "falsePositives": "0",
+      "trueNegatives": "71",
+      "referenceRecall": "",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "protected-seen-controls",
+      "id": "fixed-4",
+      "threshold": "0.03",
+      "truePositives": "0",
+      "falseNegatives": "0",
+      "falsePositives": "0",
+      "trueNegatives": "71",
+      "referenceRecall": "",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "protected-seen-controls",
+      "id": "fixed-5",
+      "threshold": "0.05",
+      "truePositives": "0",
+      "falseNegatives": "0",
+      "falsePositives": "0",
+      "trueNegatives": "71",
+      "referenceRecall": "",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "protected-seen-controls",
+      "id": "fixed-6",
+      "threshold": "0.075",
+      "truePositives": "0",
+      "falseNegatives": "0",
+      "falsePositives": "0",
+      "trueNegatives": "71",
+      "referenceRecall": "",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "protected-seen-controls",
+      "id": "fixed-7",
+      "threshold": "0.1",
+      "truePositives": "0",
+      "falseNegatives": "0",
+      "falsePositives": "0",
+      "trueNegatives": "71",
+      "referenceRecall": "",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "protected-seen-controls",
+      "id": "development-retain-both",
+      "threshold": "0.019006192684173584",
+      "truePositives": "0",
+      "falseNegatives": "0",
+      "falsePositives": "0",
+      "trueNegatives": "71",
+      "referenceRecall": "",
+      "referenceFalsePositiveFraction": "0.0"
+    },
+    {
+      "split": "protected-seen-controls",
+      "id": "development-zero-observed-fp",
+      "threshold": "0.039043635129928596",
+      "truePositives": "0",
+      "falseNegatives": "0",
+      "falsePositives": "0",
+      "trueNegatives": "71",
+      "referenceRecall": "",
+      "referenceFalsePositiveFraction": "0.0"
+    }
+  ],
+  "reportText": "# Many Faces: CLIPによる写真／作品タイプの独立診断\n\n## 結論\n\n**OpenAI CLIP ViT-B/32 は、この環境でローカルCPU診断に使用できた。ただし今回固定した11プロンプトと単一スコアでは、作品と実写真を安全に自動分離できなかった。** 既存の720枚に、既に目視確認済みのウィンク71枚を加えた791枚について、原画像を変更せず実測した。採用gate、既存レビュー、候補データ、アプリ、Git、Siteへの変更は行っていない。\n\n旧360枚で既知の非写真2枚をともに拾う最大境界は `0.019006192684173584` だった。この値では旧群の実写真5枚、固定した第2群の実写真5枚も該当した。計10枚の原画像を再確認し、いずれも写真であることを確認した。旧群で誤検出0になる境界まで上げると、旧群の既知非写真2枚を両方見逃す。**今回の診断は、CLIP単独の除外gateを採用する根拠にはならない。**\n\n## 1. モデル・入力・実行条件\n\n| 項目 | 固定値・確認結果 |\n|---|---|\n| 公開モデル | OpenAI CLIP ViT-B/32、公式model card上の初期モデル時期は2021年1月 |\n| 公式コードcommit | `d05afc436d78f1c48dc0dbf8e5980a9d471f35f6` |\n| 重み | 353,976,522 bytes、約337.58 MiB |\n| 重みSHA256 | `40d365715913c9da98579312b702a82c18be219cc2a73407c4526f58eba950af` |\n| ライセンス確認 | 公式repositoryのMIT原文を保存・照合。外部checkpoint独自のライセンス文書や再配布条件の明示は今回確認できず、別途の本番利用許諾を断定していない |\n| 推論環境 | 専用venv、PyTorch `2.9.1+cpu`、TorchVision `0.24.1+cpu`、Pillow `12.3.0`、CPU 2 threads |\n| 入力処理 | 公式の224×224変換、RGB化、正規化。原画像はすべて既存256×256のencoded bytesをSHA検証して読み取り |\n| プロンプト | 11文を最初の推論前に固定。素顔、透明眼鏡、フェイスペイント、横顔の写真側5文と、painting/drawing/mosaic/sculpture/doll/mannequin側6文 |\n| 属性分類 | 本人の識別、年齢、性別などの分類は行っていない |\n| 出力 | 各画像SHAごとの11 cosine、両group最大値、その差、status、参照ID。softmax確率には変換していない |\n\n公式コードのモデルURLに含まれるSHA256と、取得したcheckpoint全体のSHA256が一致した。モデルと公式コードの取得記録は `model-provenance.json`、MIT原文は `vendor/openai-clip/LICENSE`、ライセンス確認の範囲は `license-and-source-notes.json` に保存した。公式model cardは、用途固有の固定taxonomyでの検証が必要で、分類語の設計に結果が左右されると記載している。[1][2][3]\n\n## 2. 固定した評価集合\n\n| 集合 | 画像数 | 今回の役割 | 既知の非写真 |\n|---|---:|---|---:|\n| 旧QA `37484611339` | 360 | development。候補境界の導出はこの全分布だけを使用 | 2 |\n| 新QA `37494402324` | 360 | 事前に固定した第2群。複数画像のスコアをsmokeで既に見ており、完全に未見のholdoutとは呼ばない | 1 |\n| 既に確認済みのウィンク | 71 | 保護対照。左31・右40。未見validationではない | 0 |\n| 合計 | **791** | 相互にencoded SHAの重複なし | **3** |\n\n旧／新720枚のindex、原画像SHA、sourceCatalogId、sourceId、レビューとの対応を全件照合した。追加71枚は、OFIQ側の凍結入力 `work/ofiq-diagnostic/frozen-inputs.json`（SHA `e69d0e071115192312db37be2169e43b1a72238f50622e193a3b8671d860a16b`）と照合し、原画像、元レビュー、監査record、page indexのSHAも確認した。\n\n非写真の正例は、既存の目視記録で明示された3枚だけである。他のvisibilityのdeny／uncertainを作品ラベルへ変換せず、写真タイプのnegative対照として保持した。788枚のnegative対照には、ぼけや遮蔽のため素材品質としては不合格の写真も含まれる。この診断は写真の品質全体を判定するものではない。\n\n## 3. スコアと旧群で固定した境界\n\nスコアは `max(作品側6文のcosine) − max(写真側5文のcosine)`。表は便宜的に `score >= cutoff` を「作品候補」と数えた診断で、cutoffを本番gateへ設定していない。cosineの差は真の確率ではない。プロンプトやgroup構成を変えれば数値も変わる。\n\n旧群の2枚をともに拾う境界は、旧H232と旧H326の小さい方のスコアで固定した。旧群の誤検出0の境界は、旧群の写真側最大値より大きい次の浮動小数点値で固定した。この固定後、同じ値を第2群と71ウィンクへ適用した。\n\n| 診断用cutoff | 旧非写真検出 / 2 | 旧写真誤検出 / 358 | 第2群非写真検出 / 1 | 第2群写真誤検出 / 359 | ウィンク誤検出 / 71 |\n|---:|---:|---:|---:|---:|---:|\n| 0 | 2 | 26 | 1 | 24 | 3 |\n| 0.01 | 2 | 11 | 1 | 12 | 0 |\n| **0.0190061927**（旧の2例を保持） | **2** | **5** | **1** | **5** | **0** |\n| 0.02 | 1 | 5 | 1 | 4 | 0 |\n| 0.03 | 1 | 1 | 1 | 0 | 0 |\n| **0.03904363513より直上**（旧でFP0） | **0** | **0** | **1** | **0** | **0** |\n| 0.05 | 0 | 0 | 1 | 0 | 0 |\n| 0.10 | 0 | 0 | 1 | 0 | 0 |\n\n全10境界の正確値と各画像IDは `development-frozen-cutoffs.json`、3群の表は `evaluation.json` と `cutoff-tables.csv` にある。第2群だけを見ると高い境界でモザイクを拾えるが、旧群の人形／描画肖像を見逃す事実は残る。第2群の結果を使ってプロンプトや境界を追加調整していない。\n\n## 4. 3枚の非写真と実写真の重なり\n\n| 既存参照 | 内容 | margin | 最高スコアの文 |\n|---|---|---:|---|\n| 旧H232 | 人形 | +0.0350957513 | doll |\n| 旧H326 | 描かれた肖像 | +0.0190061927 | doll |\n| 新H261 | モザイク | +0.1005445123 | mosaic |\n\n旧H326で最高だった語は「painting」ではなく「doll」。このため最高スコアの語を事実ラベルとして保存・採用してはいけない。\n\n旧の2例を拾う境界で該当した写真側は、旧H209/H273/H043/H219/H210と、新H113/H065/H082/H234/H266だった。**全10枚のencoded SHA一致の原画像を再閲覧し、写真と確認した。** 新H113の既存uncertain、新H234の既存blur denyも、作品であることを意味しない。最も高い誤検出は旧H209の `+0.0390436351` で、既知の人形より高い。\n\nこれに加え、0境界で該当した既存ウィンクWLA281/WLA061/WRA039、僅差の顔ペイント旧H084／新H083、既知非写真3枚の原画像も確認した。計18件の診断確認を `original-reinspection.json` に記録した。元の目視レビュー／winkの採用判断は変更していない。\n\n## 5. 保護対照\n\n既存の凍結入力のprotectionGroupsをそのまま使った集計では、`0.0190061927` の境界で以下はすべて保持された。タグは重複し、単純合計は独立画像数にならない。\n\n| 既存の保護タグ | 旧 / 第2群 / 別対照の枚数 | 誤検出 |\n|---|---|---:|\n| 透明眼鏡として合格 | 56 / 54 / — | 0 |\n| 顔ペイントとして合格 | 5 / 6 / — | 0 |\n| 横向き、監査abs yaw≥24度 | 137 / 138 / — | 0 |\n| 自然な眼の閉じとして合格 | 5 / 5 / — | 0 |\n| 既存の確認済みウィンク | — / — / 71 | 0 |\n\n旧H084の金色の顔化粧は元のpaintタグ集合には含まれていないため、別の明示対照として確認した。marginは `−0.0027047694`。白塗りの新H083は `−0.0003691316` と0に近い。今回のプロンプトでは写真側が上だったが、モデルや文の変更に対する堅牢性は確認していない。11文は変更していない。\n\n## 6. 実行時間・再現性・具体的制約\n\n| 実行 | 推論対象 | decode+画像推論時間 | 画像推論中央値 | 初期化込み報告時点 |\n|---|---:|---:|---:|---:|\n| smoke | 17 | 2.06秒 | 0.118秒 | 8.09秒 |\n| 固定720 | 720 | 84.01秒 | 0.097秒 | 90.17秒 |\n| 既存wink保護対照 | 71 | 8.46秒 | 0.101秒 | 14.51秒 |\n\nピークRSSは約1.64 GiB。checkpointは約338 MiBだが、CPUのfloat32モデルと実行環境はそれ以上のメモリを使う。専用venvは約1.18 GB、pip cacheは約229 MB、checkpointと公式sourceは約355 MB。既存quality-venvや他agent環境への追加インストールはしていない。[4]\n\nsmokeの17枚×11文＝187 cosineを全720の同じ画像と比較し、最大絶対差は0だった。入力、コード、プロンプトを変えず同じ値になった。\n\n全720の実行は推論・JSON保存を完了した後、最後の情報用stdoutでrelative `--out` をabsolute repoに対して表示しようとしてValueErrorになった。保存済み720件を全件検証し、再推論やスコア変更はしていない。71枚はabsolute `--out` で同じ未変更runnerを呼び、exit0で完了した。この区別は `execution-notes.json` に残した。再実行時は以下のようにabsolute出力を渡す。\n\n```bash\nPYTHONDONTWRITEBYTECODE=1 work/photo-type-diagnostic/venv/bin/python \\\n  work/photo-type-diagnostic/run_clip_diagnostic.py \\\n  --samples /workspace/scratch/d3ea6516fdb8/many-faces-beta/work/photo-type-diagnostic/fixed-samples.json \\\n  --out /workspace/scratch/d3ea6516fdb8/many-faces-beta/work/photo-type-diagnostic/rerun-720-results.json\n```\n\n今ある3つの非写真だけでは、彫刻を含む多様な作品全体の検出率を評価できない。既存サンプルは品質課題を多く含む選び方なので、ここでの誤検出割合を70k全体の不良率や自動除外率へ換算しない。今回確認できたのは、ローカル実行可能性、同じ固定画像上でのscoreの重なり、保護対照の挙動、明確な写真誤検出の存在である。\n\n## 主な成果物\n\n- `all-791-scores.jsonl`: 全791原画像SHAに対応する全cosine・最大値・margin・status、元のvisibility判断。\n- `full-720-results.json` / `wink-71-results.json`: 未変更runnerの生出力、モデル／コード／プロンプト／入力SHAと実測時間。\n- `fixed-samples.json` / `wink-controls.json`: 正確な原画像参照と入力binding。\n- `analysis-plan.json` / `development-frozen-cutoffs.json`: 使用した基準と旧群だけで固定した境界。\n- `evaluation.json` / `cutoff-tables.csv`: 3群別の全表と誤検出ID。\n- `protected-groups-and-distributions.json`: 既存保護タグ別の全表とscore分布。\n- `original-reinspection.json`: 実際に再閲覧した18件だけの記録。\n- `model-provenance.json` / `license-and-source-notes.json` / `execution-notes.json`: 出所と実行上の制約。\n\n## 公式一次資料\n\n[1] OpenAI CLIP公式repositoryとAPI: https://github.com/openai/CLIP\n\n[2] 固定commitのcheckpoint URLとSHA確認処理: https://github.com/openai/CLIP/blob/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/clip.py\n\n[3] 公式model card / MIT原文: https://github.com/openai/CLIP/blob/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/model-card.md / https://github.com/openai/CLIP/blob/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/LICENSE\n\n[4] PyTorch公式CPU配布のバージョン対応: https://pytorch.org/get-started/previous-versions/\n",
+  "runner": {
+    "sha256": "3847bdda08bc3d2aa849311c82bbfbdb24e18ef209e2446180a55c12221373cb",
+    "source": "\"\"\"Pinned CLIP cosine scores for a fixed image-representation taxonomy, not a gate.\"\"\"\nfrom __future__ import annotations\n\nimport argparse\nimport datetime as dt\nimport hashlib\nimport json\nimport math\nfrom pathlib import Path\nimport platform\nimport resource\nimport statistics\nimport sys\nimport time\n\nROOT = Path(__file__).resolve().parent\nREPOSITORY = ROOT.parent.parent\n\n\ndef read_json(path: Path):\n    payload = path.read_bytes()\n    return json.loads(payload), hashlib.sha256(payload).hexdigest()\n\n\ndef file_sha(path: Path):\n    digest = hashlib.sha256()\n    with path.open(\"rb\") as source:\n        while block := source.read(1024 * 1024):\n            digest.update(block)\n    return digest.hexdigest()\n\n\ndef main():\n    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument(\"--samples\", type=Path, default=ROOT / \"smoke-samples.json\")\n    parser.add_argument(\"--out\", type=Path, default=ROOT / \"smoke-results.json\")\n    parser.add_argument(\"--threads\", type=int, default=2)\n    args = parser.parse_args()\n    if not 1 <= args.threads <= 4:\n        parser.error(\"This bounded local diagnostic permits 1..4 CPU threads\")\n    if not args.out.resolve().is_relative_to(ROOT):\n        parser.error(\"All diagnostic outputs must remain under work/photo-type-diagnostic\")\n\n    setup_start = time.perf_counter()\n    provenance, provenance_sha = read_json(ROOT / \"model-provenance.json\")\n    prompts, prompts_sha = read_json(ROOT / \"prompts.json\")\n    samples, samples_sha = read_json(args.samples)\n    assert len(samples[\"samples\"]) == samples[\"count\"]\n    assert len({row[\"encodedSha256\"] for row in samples[\"samples\"]}) == samples[\"count\"]\n    assert prompts[\"frozenBeforeFirstInference\"] is True\n    assert prompts[\"productionThreshold\"] is None\n    assert prompts[\"identityOrDemographicLabels\"] is False\n    assert prompts[\"scoresAreProbabilities\"] is False\n    assert len({row[\"id\"] for row in prompts[\"prompts\"]}) == len(prompts[\"prompts\"])\n    for source in provenance[\"files\"]:\n        path = ROOT / source[\"path\"]\n        assert path.resolve().is_relative_to(ROOT)\n        assert path.stat().st_size == source[\"bytes\"] and file_sha(path) == source[\"sha256\"]\n    for row in samples[\"samples\"]:\n        path = REPOSITORY / row[\"imagePath\"]\n        assert path.resolve().is_relative_to(REPOSITORY / \"work\")\n        assert path.stat().st_size == row[\"byteLength\"]\n        assert file_sha(path) == row[\"encodedSha256\"]\n\n    started_at = dt.datetime.now(dt.timezone.utc).isoformat()\n    import_start = time.perf_counter()\n    sys.path.insert(0, str(ROOT / \"vendor/openai-clip\"))\n    import clip\n    import torch\n    import torchvision\n    from PIL import Image, __version__ as pillow_version\n\n    torch.set_num_threads(args.threads)\n    torch.set_num_interop_threads(1)\n    torch.manual_seed(0)\n    torch.use_deterministic_algorithms(True)\n    assert torch.version.cuda is None, \"Only the CPU distribution is allowed for this diagnostic\"\n    import_seconds = time.perf_counter() - import_start\n    print(json.dumps({\"status\": \"dependencies-ready\", \"torch\": torch.__version__, \"threads\": args.threads}), flush=True)\n\n    load_start = time.perf_counter()\n    model, preprocess = clip.load(str(ROOT / \"models/ViT-B-32.pt\"), device=\"cpu\", jit=False)\n    model.eval()\n    assert model.visual.input_resolution == 224\n    load_seconds = time.perf_counter() - load_start\n    print(json.dumps({\"status\": \"model-loaded\", \"seconds\": load_seconds}), flush=True)\n    rows = prompts[\"prompts\"]\n    photo_indices = [i for i, row in enumerate(rows) if row[\"group\"] == \"photographic_face\"]\n    representation_indices = [i for i, row in enumerate(rows) if row[\"group\"] == \"fixed_representation\"]\n    with torch.inference_mode():\n        text_start = time.perf_counter()\n        tokens = clip.tokenize([row[\"text\"] for row in rows])\n        text_features = model.encode_text(tokens)\n        text_features /= text_features.norm(dim=-1, keepdim=True)\n        assert torch.isfinite(text_features).all().item()\n        text_seconds = time.perf_counter() - text_start\n        warmup_start = time.perf_counter()\n        first_path = REPOSITORY / samples[\"samples\"][0][\"imagePath\"]\n        with Image.open(first_path) as original:\n            warmup_tensor = preprocess(original).unsqueeze(0)\n        for _ in range(3):\n            model.encode_image(warmup_tensor)\n        warmup_seconds = time.perf_counter() - warmup_start\n        print(json.dumps({\"status\": \"prompts-encoded\", \"promptsSha256\": prompts_sha, \"textSeconds\": text_seconds,\n                          \"warmupSeconds\": warmup_seconds}), flush=True)\n        results = []\n        for sample in samples[\"samples\"]:\n            decode_start = time.perf_counter()\n            with Image.open(REPOSITORY / sample[\"imagePath\"]) as original:\n                original_size = list(original.size)\n                image_tensor = preprocess(original).unsqueeze(0)\n            decode_seconds = time.perf_counter() - decode_start\n            inference_start = time.perf_counter()\n            image_features = model.encode_image(image_tensor)\n            image_features /= image_features.norm(dim=-1, keepdim=True)\n            cosines = (image_features @ text_features.T)[0].tolist()\n            inference_seconds = time.perf_counter() - inference_start\n            assert all(math.isfinite(value) and -1.00001 <= value <= 1.00001 for value in cosines)\n            photo_best = max(photo_indices, key=cosines.__getitem__)\n            representation_best = max(representation_indices, key=cosines.__getitem__)\n            top = max(range(len(cosines)), key=cosines.__getitem__)\n            result = {\n                \"key\": sample[\"key\"], \"split\": sample[\"split\"], \"sample\": sample[\"sample\"],\n                \"imagePath\": sample[\"imagePath\"], \"encodedSha256\": sample[\"encodedSha256\"],\n                \"sourceCatalogId\": sample[\"sourceCatalogId\"], \"sourceId\": sample[\"sourceId\"],\n                \"originalImageSize\": original_size, \"modelInputSize\": [224, 224],\n                \"topPrompt\": rows[top][\"id\"],\n                \"bestPhotographicPrompt\": rows[photo_best][\"id\"],\n                \"bestRepresentationPrompt\": rows[representation_best][\"id\"],\n                \"maxPhotographicCosine\": cosines[photo_best],\n                \"maxRepresentationCosine\": cosines[representation_best],\n                \"representationMinusPhotoMargin\": cosines[representation_best] - cosines[photo_best],\n                \"cosines\": {row[\"id\"]: value for row, value in zip(rows, cosines)},\n                \"decodeAndPreprocessSeconds\": decode_seconds,\n                \"inferenceSeconds\": inference_seconds,\n            }\n            results.append(result)\n            if len(samples[\"samples\"]) <= 20 or len(results) % 60 == 0:\n                print(json.dumps({\"scored\": len(results), \"key\": sample[\"key\"], \"topPrompt\": result[\"topPrompt\"],\n                                  \"margin\": result[\"representationMinusPhotoMargin\"], \"inferenceSeconds\": inference_seconds}), flush=True)\n\n    timings = [row[\"inferenceSeconds\"] for row in results]\n    measured_image_seconds = sum(row[\"inferenceSeconds\"] + row[\"decodeAndPreprocessSeconds\"] for row in results)\n    report = {\n        \"schemaVersion\": 1, \"documentKind\": \"many-faces-photo-type-clip-diagnostic\",\n        \"status\": \"complete\", \"startedAt\": started_at, \"completedAt\": dt.datetime.now(dt.timezone.utc).isoformat(),\n        \"model\": provenance[\"model\"], \"codeCommit\": provenance[\"codeCommit\"],\n        \"checkpointSha256\": provenance[\"checkpointSha256\"], \"modelProvenanceSha256\": provenance_sha,\n        \"promptsPath\": \"work/photo-type-diagnostic/prompts.json\", \"promptsSha256\": prompts_sha,\n        \"samplesPath\": str(args.samples.resolve().relative_to(REPOSITORY)), \"samplesSha256\": samples_sha,\n        \"runnerSha256\": file_sha(Path(__file__)),\n        \"runtime\": {\"python\": platform.python_version(), \"torch\": torch.__version__,\n                    \"torchvision\": torchvision.__version__, \"Pillow\": pillow_version, \"device\": \"cpu\",\n                    \"threads\": args.threads, \"interOpThreads\": 1, \"cudaRuntime\": torch.version.cuda,\n                    \"deterministicAlgorithms\": True, \"preprocess\": repr(preprocess)},\n        \"timing\": {\"dependencyImportSeconds\": import_seconds, \"modelLoadSeconds\": load_seconds,\n                   \"textEncodingSeconds\": text_seconds, \"warmupImageCount\": 3, \"warmupSeconds\": warmup_seconds,\n                   \"scoredImageCount\": len(results), \"imageTotalSeconds\": measured_image_seconds,\n                   \"medianImageInferenceSeconds\": statistics.median(timings),\n                   \"minimumImageInferenceSeconds\": min(timings), \"maximumImageInferenceSeconds\": max(timings),\n                   \"estimated720ImageSecondsAtMeasuredMean\": measured_image_seconds / len(results) * 720,\n                   \"totalProcessSeconds\": time.perf_counter() - setup_start},\n        \"peakResidentMemoryKiB\": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,\n        \"scoresAreProbabilities\": False, \"productionThreshold\": None,\n        \"adoptedInGate\": False, \"sourceImagesChanged\": False,\n        \"identityOrDemographicClassification\": False, \"scoredImages\": len(results),\n        \"limitations\": [\n            \"Cosines and the group-maximum margin depend on this exact fixed text taxonomy; no calibrated probability is reported.\",\n            \"A smoke sample selected for known controls cannot establish dataset-wide accuracy or a production threshold.\",\n            \"Real faces with paint or transparent glasses are deliberately represented in the photographic prompt group.\",\n            \"The existing pass/deny/uncertain labels primarily concern visibility and must not be treated as artwork labels.\",\n        ],\n        \"samples\": results,\n    }\n    args.out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + \"\\n\")\n    print(json.dumps({\"output\": str(args.out.relative_to(REPOSITORY)), \"sha256\": file_sha(args.out),\n                      \"scoredImages\": len(results), \"peakResidentMemoryKiB\": report[\"peakResidentMemoryKiB\"],\n                      \"timing\": report[\"timing\"]}), flush=True)\n\n\nif __name__ == \"__main__\":\n    main()\n"
+  },
+  "analyzer": {
+    "sha256": "017a145eb12dd2c20abe0819654861dc076a6f061581b90e284f807fa943ece2",
+    "source": "\"\"\"Freeze cutoff candidates on the first group; report the second group separately.\"\"\"\nfrom __future__ import annotations\n\nimport argparse\nimport collections\nimport csv\nimport datetime as dt\nimport hashlib\nimport json\nimport math\nfrom pathlib import Path\n\nROOT = Path(__file__).resolve().parent\n\n\ndef read_json(name):\n    payload = (ROOT / name).read_bytes()\n    return json.loads(payload), hashlib.sha256(payload).hexdigest()\n\n\ndef write_json(name, value):\n    path = ROOT / name\n    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + \"\\n\")\n    return hashlib.sha256(path.read_bytes()).hexdigest()\n\n\ndef counts(rows, positives, threshold):\n    tp = [row for row in rows if row[\"key\"] in positives and row[\"representationMinusPhotoMargin\"] >= threshold]\n    fn = [row for row in rows if row[\"key\"] in positives and row[\"representationMinusPhotoMargin\"] < threshold]\n    fp = [row for row in rows if row[\"key\"] not in positives and row[\"representationMinusPhotoMargin\"] >= threshold]\n    tn = [row for row in rows if row[\"key\"] not in positives and row[\"representationMinusPhotoMargin\"] < threshold]\n    assert len(tp) + len(fn) + len(fp) + len(tn) == len(rows)\n    return {\n        \"threshold\": threshold, \"truePositives\": len(tp), \"falseNegatives\": len(fn),\n        \"falsePositives\": len(fp), \"trueNegatives\": len(tn),\n        \"referenceNonPhotos\": len(tp) + len(fn), \"referencePhotoControls\": len(fp) + len(tn),\n        \"referenceRecall\": len(tp) / (len(tp) + len(fn)) if tp or fn else None,\n        \"referenceFalsePositiveFraction\": len(fp) / (len(fp) + len(tn)) if fp or tn else None,\n        \"detectedNonPhotoKeys\": [row[\"key\"] for row in tp],\n        \"missedNonPhotoKeys\": [row[\"key\"] for row in fn],\n        \"falsePositiveKeys\": [row[\"key\"] for row in sorted(fp, key=lambda r: r[\"representationMinusPhotoMargin\"], reverse=True)],\n    }\n\n\ndef validate_report(report, expected):\n    assert report[\"status\"] == \"complete\" and report[\"productionThreshold\"] is None\n    assert report[\"adoptedInGate\"] is False and report[\"scoresAreProbabilities\"] is False\n    assert report[\"scoredImages\"] == len(report[\"samples\"]) == len(expected)\n    actual = {row[\"encodedSha256\"]: row for row in report[\"samples\"]}\n    assert len(actual) == len(expected)\n    assert set(actual) == {row[\"encodedSha256\"] for row in expected}\n    for source in expected:\n        row = actual[source[\"encodedSha256\"]]\n        for key in (\"key\", \"split\", \"sample\", \"imagePath\", \"sourceCatalogId\", \"sourceId\"):\n            assert row[key] == source[key]\n        assert len(row[\"cosines\"]) == 11\n        assert all(math.isfinite(value) for value in row[\"cosines\"].values())\n        assert math.isfinite(row[\"representationMinusPhotoMargin\"])\n        assert row[\"representationMinusPhotoMargin\"] == row[\"maxRepresentationCosine\"] - row[\"maxPhotographicCosine\"]\n\n\ndef freeze_development():\n    plan, plan_sha = read_json(\"analysis-plan.json\")\n    report, report_sha = read_json(\"full-720-results.json\")\n    inputs, inputs_sha = read_json(\"fixed-samples.json\")\n    validate_report(report, inputs[\"samples\"])\n    rows = [row for row in report[\"samples\"] if row[\"split\"] == \"development\"]\n    assert len(rows) == 360\n    positives = {row[\"key\"] for row in plan[\"referenceNonPhotoExamples\"] if row[\"key\"].startswith(\"development-\")}\n    assert len(positives) == 2\n    positive_rows = [row for row in rows if row[\"key\"] in positives]\n    negative_rows = [row for row in rows if row[\"key\"] not in positives]\n    retaining = min(row[\"representationMinusPhotoMargin\"] for row in positive_rows)\n    max_negative = max(row[\"representationMinusPhotoMargin\"] for row in negative_rows)\n    zero_fp = math.nextafter(max_negative, math.inf)\n    choices = [{\"id\": f\"fixed-{i}\", \"basis\": \"fixed diagnostic grid\", \"threshold\": value}\n               for i, value in enumerate(plan[\"candidateCutoffs\"][\"fixedDiagnosticGrid\"])]\n    choices += [\n        {\"id\": \"development-retain-both\", \"basis\": \"minimum among the two development reference positives\", \"threshold\": retaining},\n        {\"id\": \"development-zero-observed-fp\", \"basis\": \"nextafter(maximum development reference negative, +infinity)\", \"threshold\": zero_fp},\n    ]\n    receipt = {\n        \"schemaVersion\": 1, \"documentKind\": \"many-faces-photo-type-diagnostic-cutoffs\",\n        \"frozenAt\": dt.datetime.now(dt.timezone.utc).isoformat(),\n        \"derivedFromSplitOnly\": \"development\", \"secondGroupDistributionUsedToChooseCutoffs\": False,\n        \"secondGroupSomeSmokeScoresPreviouslyObserved\": True,\n        \"analysisPlanSha256\": plan_sha, \"raw720ReportSha256\": report_sha, \"fixedInputsSha256\": inputs_sha,\n        \"promptsSha256\": report[\"promptsSha256\"], \"runnerSha256\": report[\"runnerSha256\"],\n        \"productionThreshold\": None, \"adoptedInGate\": False,\n        \"score\": \"maxRepresentationCosine - maxPhotographicCosine\", \"predicate\": \">=\",\n        \"developmentReferencePositives\": [row[\"key\"] for row in positive_rows],\n        \"developmentReferenceNegativeCount\": len(negative_rows), \"cutoffs\": choices,\n        \"developmentTable\": [{**choice, **counts(rows, positives, choice[\"threshold\"])} for choice in choices],\n    }\n    sha = write_json(\"development-frozen-cutoffs.json\", receipt)\n    print(json.dumps({\"frozenCutoffsSha256\": sha, \"developmentTable\": [\n        {k: row[k] for k in (\"id\", \"threshold\", \"truePositives\", \"falseNegatives\", \"falsePositives\", \"trueNegatives\")}\n        for row in receipt[\"developmentTable\"]\n    ]}, indent=2))\n\n\ndef evaluate():\n    cutoffs, cutoffs_sha = read_json(\"development-frozen-cutoffs.json\")\n    plan, plan_sha = read_json(\"analysis-plan.json\")\n    main, main_sha = read_json(\"full-720-results.json\")\n    winks, winks_sha = read_json(\"wink-71-results.json\")\n    inputs, inputs_sha = read_json(\"fixed-samples.json\")\n    wink_inputs, wink_inputs_sha = read_json(\"wink-controls.json\")\n    assert cutoffs[\"analysisPlanSha256\"] == plan_sha\n    assert cutoffs[\"raw720ReportSha256\"] == main_sha\n    assert cutoffs[\"fixedInputsSha256\"] == inputs_sha\n    validate_report(main, inputs[\"samples\"])\n    validate_report(winks, wink_inputs[\"samples\"])\n    for key in (\"promptsSha256\", \"runnerSha256\", \"checkpointSha256\", \"modelProvenanceSha256\", \"codeCommit\"):\n        assert main[key] == winks[key], key\n    all_rows = main[\"samples\"] + winks[\"samples\"]\n    assert len(all_rows) == len({row[\"encodedSha256\"] for row in all_rows}) == 791\n    references = inputs[\"samples\"] + wink_inputs[\"samples\"]\n    by_key = {row[\"key\"]: row for row in references}\n    positive_list = plan[\"referenceNonPhotoExamples\"]\n    positives = {row[\"key\"] for row in positive_list}\n    for row in positive_list:\n        assert by_key[row[\"key\"]][\"encodedSha256\"] == row[\"encodedSha256\"]\n    reports = []\n    for split in (\"development\", \"validation\", \"protected-seen-controls\"):\n        rows = [row for row in all_rows if row[\"split\"] == split]\n        table = [{**choice, **counts(rows, positives, choice[\"threshold\"])} for choice in cutoffs[\"cutoffs\"]]\n        top_negative = sorted((row for row in rows if row[\"key\"] not in positives),\n                              key=lambda row: row[\"representationMinusPhotoMargin\"], reverse=True)[:15]\n        reports.append({\n            \"split\": split, \"count\": len(rows), \"cutoffTable\": table,\n            \"knownNonPhotos\": [{\"key\": row[\"key\"], \"encodedSha256\": row[\"encodedSha256\"], \"topPrompt\": row[\"topPrompt\"],\n                                \"margin\": row[\"representationMinusPhotoMargin\"]} for row in rows if row[\"key\"] in positives],\n            \"leadingFalsePositiveCandidates\": [{\n                \"key\": row[\"key\"], \"encodedSha256\": row[\"encodedSha256\"], \"imagePath\": row[\"imagePath\"],\n                \"topPrompt\": row[\"topPrompt\"], \"margin\": row[\"representationMinusPhotoMargin\"],\n                \"priorVisibilityDecision\": by_key[row[\"key\"]].get(\"visibilityReviewDecision\", \"prior-confirmed-wink\"),\n                \"priorVisibilityReason\": by_key[row[\"key\"]].get(\"visibilityReviewReason\"),\n            } for row in top_negative],\n        })\n\n    raw_path = ROOT / \"all-791-scores.jsonl\"\n    with raw_path.open(\"w\") as output:\n        for row in all_rows:\n            source = by_key[row[\"key\"]]\n            output.write(json.dumps({\n                **row, \"status\": \"scored\", \"referencePhotoType\": \"fixed_representation\" if row[\"key\"] in positives else \"photographic_face\",\n                \"referenceBasis\": \"Existing assistant visual review with three explicitly identified non-photo images; remaining controls retained\",\n                \"priorVisibilityDecision\": source.get(\"visibilityReviewDecision\", \"prior-confirmed-wink\"),\n                \"priorVisibilityReason\": source.get(\"visibilityReviewReason\"),\n                \"humanVerified\": False, \"promptsSha256\": main[\"promptsSha256\"],\n                \"checkpointSha256\": main[\"checkpointSha256\"], \"scoresAreProbabilities\": False,\n                \"adoptedInGate\": False,\n            }, ensure_ascii=False) + \"\\n\")\n    with (ROOT / \"cutoff-tables.csv\").open(\"w\", newline=\"\") as output:\n        fields = [\"split\", \"id\", \"threshold\", \"truePositives\", \"falseNegatives\", \"falsePositives\", \"trueNegatives\",\n                  \"referenceRecall\", \"referenceFalsePositiveFraction\"]\n        writer = csv.DictWriter(output, fieldnames=fields)\n        writer.writeheader()\n        for split_report in reports:\n            for row in split_report[\"cutoffTable\"]:\n                writer.writerow({\"split\": split_report[\"split\"], **{field: row[field] for field in fields if field != \"split\"}})\n    result = {\n        \"schemaVersion\": 1, \"documentKind\": \"many-faces-photo-type-diagnostic-evaluation\", \"status\": \"complete\",\n        \"developmentFrozenCutoffsSha256\": cutoffs_sha, \"analysisPlanSha256\": plan_sha,\n        \"raw720ReportSha256\": main_sha, \"raw71WinkReportSha256\": winks_sha,\n        \"fixed720InputsSha256\": inputs_sha, \"fixed71WinkInputsSha256\": wink_inputs_sha,\n        \"raw791ScoresSha256\": hashlib.sha256(raw_path.read_bytes()).hexdigest(),\n        \"scoredImages\": 791, \"uniqueEncodedImages\": 791, \"referenceNonPhotoCount\": 3,\n        \"referencePhotoControlCount\": 788, \"secondGroupIsCompletelyUnseen\": False,\n        \"productionThreshold\": None, \"adoptedInGate\": False, \"humanVerified\": False,\n        \"splits\": reports, \"limitations\": plan[\"claimLimits\"],\n    }\n    sha = write_json(\"evaluation.json\", result)\n    print(json.dumps({\"evaluationSha256\": sha, \"scoredImages\": 791,\n                      \"tables\": [{\"split\": entry[\"split\"], \"rows\": [\n                          {key: row[key] for key in (\"id\", \"threshold\", \"truePositives\", \"falseNegatives\", \"falsePositives\", \"trueNegatives\")}\n                          for row in entry[\"cutoffTable\"]]} for entry in reports]}, indent=2))\n\n\nif __name__ == \"__main__\":\n    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument(\"mode\", choices=(\"freeze-development\", \"evaluate\"))\n    args = parser.parse_args()\n    if args.mode == \"freeze-development\":\n        freeze_development()\n    else:\n        evaluate()\n"
+  }
+}

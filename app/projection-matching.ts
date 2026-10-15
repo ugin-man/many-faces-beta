@@ -52,6 +52,8 @@ export type ProjectionChoice<T extends ProjectionCandidate> = SequenceChoice<T> 
 };
 
 export type ProjectionSequenceOptions = {
+  /** Preserve the closest face when distinct identities would reduce fidelity. */
+  allowRepeats?: boolean;
   cooldown?: number;
   beamWidth?: number;
   qualityThreshold?: number;
@@ -392,7 +394,7 @@ export function projectionError(
   const yaw = (Number(frame.feature[0] ?? 0) - Number(candidate.feature[0] ?? 0)) * 90;
   const pitch = (Number(frame.feature[1] ?? 0) - Number(candidate.feature[1] ?? 0)) * 90;
   const roll = (Number(frame.feature[2] ?? 0) - Number(candidate.feature[2] ?? 0)) * 90;
-  const poseDegrees = Math.hypot(yaw, pitch, roll * 0.35);
+  const poseDegrees = Math.hypot(yaw, pitch, frame.compensateRoll ? 0 : roll * 0.35);
   const poseUnit = poseDegrees / 90;
   const pitchUnit = Math.abs(pitch) / 90;
   const shapeGate = contour * 0.62 + nose * 0.2 + poseUnit * 0.08 + pitchUnit * 0.1;
@@ -506,7 +508,7 @@ function quickProjectionMeasures(frame: SequenceFrame, candidate: ProjectionCand
   );
   const yaw = Math.abs(Number(frame.feature[0] ?? 0) - Number(candidate.feature[0] ?? 0));
   const pitch = Math.abs(Number(frame.feature[1] ?? 0) - Number(candidate.feature[1] ?? 0));
-  const roll = Math.abs(Number(frame.feature[2] ?? 0) - Number(candidate.feature[2] ?? 0));
+  const roll = frame.compensateRoll ? 0 : Math.abs(Number(frame.feature[2] ?? 0) - Number(candidate.feature[2] ?? 0));
   const pose = yaw * 0.8 + pitch * 1.15 + roll * 0.15;
   const action = fastActionDistance(frame.feature, candidate.feature);
   const mouthShape = mouthShapeGeometryDistance(
@@ -695,7 +697,7 @@ type PathState<T extends ProjectionCandidate> = {
   previous: PathState<T> | null;
 };
 
-/** Selects a different identity every frame; shape continuity is the only continuity signal. */
+/** Distinct by default; review can admit repeated identities to preserve fidelity. */
 export function optimizeDistinctProjectionSequence<T extends ProjectionCandidate>(
   frames: SequenceFrame[],
   rankedBeams: Array<Array<{ candidate: T; error: ProjectionError }>>,
@@ -738,7 +740,7 @@ export function optimizeDistinctProjectionSequence<T extends ProjectionCandidate
     const next: PathState<T>[] = [];
     for (const path of paths) {
       for (const { candidate, error } of rankedBeams[frameIndex]) {
-        if (path.history.includes(candidate.id)) continue;
+        if (!options.allowRepeats && path.history.includes(candidate.id)) continue;
         const continuity = residualMotionAtIndexes(
           frames[frameIndex - 1], path.choice.candidate,
           frames[frameIndex], candidate,
@@ -770,7 +772,7 @@ export function optimizeDistinctProjectionSequence<T extends ProjectionCandidate
     if (!next.length) {
       for (const path of paths) {
         for (const { candidate, error } of rankedBeams[frameIndex]) {
-          if (path.choice.candidate.id === candidate.id) continue;
+          if (!options.allowRepeats && path.choice.candidate.id === candidate.id) continue;
           next.push({
             cost: path.cost + error.total,
             history: [candidate.id],
@@ -784,7 +786,14 @@ export function optimizeDistinctProjectionSequence<T extends ProjectionCandidate
         }
       }
     }
-    paths = next.sort((left, right) => left.cost - right.cost).slice(0, beamWidth);
+    const ordered = next.sort((left, right) => left.cost - right.cost);
+    if (options.allowRepeats) {
+      // Without the identity cooldown, only the last candidate affects the next
+      // transition. Keep its cheapest history, not many copies of the same state.
+      const bestByCandidate = new Map<string, PathState<T>>();
+      for (const path of ordered) if (!bestByCandidate.has(path.choice.candidate.id)) bestByCandidate.set(path.choice.candidate.id, path);
+      paths = [...bestByCandidate.values()].slice(0, beamWidth);
+    } else paths = ordered.slice(0, beamWidth);
     if (!paths.length) return [];
   }
   const choices: ProjectionChoice<T>[] = [];

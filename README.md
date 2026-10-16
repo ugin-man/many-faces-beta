@@ -57,3 +57,9 @@ npm run lint
 ソフトウェアは [MIT License](LICENSE)、写真カタログは別の [データライセンス](data/LICENSE.md) に従います。FFHQ由来のデータにはCC BY-NC-SA 4.0と元画像のライセンスが適用されます。非商用の創作・実験向けで、商用利用や人物の識別・認証用には使えません。補助画像の出典はアプリの設定内から確認できます。
 
 入力動画の扱い、保存内容、過去版の削除状況は [プライバシーと配布](docs/PRIVACY.md) にまとめています。
+
+### Display language / 表示言語
+
+The interface starts in English, regardless of browser language. Open **Settings → Language / 言語** to select English or 日本語. The choice is remembered on this browser when local storage is available. Switching language keeps the current video and playback position.
+
+初期表示は英語です。**Settings → Language / 言語** から日本語に切り替えられます。選択は同じブラウザに保存されます。

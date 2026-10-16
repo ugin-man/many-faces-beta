@@ -1,7 +1,9 @@
 "use client";
+import { useLanguage } from "./language";
 import { useEffect, useState } from "react";
 import { runtimeIdentity } from "./runtime-identity";
 export default function RuntimeCheck() {
+  const { t } = useLanguage();
   const [server, setServer] = useState("確認中");
   useEffect(() => {
     const cancellation = new AbortController();
@@ -12,5 +14,5 @@ export default function RuntimeCheck() {
     }).catch(() => { if (!cancellation.signal.aborted) setServer("確認できません。旧版または配信経路の問題です"); });
     return () => cancellation.abort();
   }, []);
-  return <p data-testid="runtime-identity">{runtimeIdentity.version}<br />画面 {runtimeIdentity.build}<br />配信 {server}<br />Git {runtimeIdentity.revision}</p>;
+  return <p data-testid="runtime-identity">{runtimeIdentity.version}<br />{t("画面 ")}{runtimeIdentity.build}<br />{t("配信 ")}{t(server)}<br />Git {runtimeIdentity.revision}</p>;
 }

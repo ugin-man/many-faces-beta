@@ -1,3 +1,4 @@
+import { translate, normalizeLanguage } from "./translations.ts";
 import { alignmentTransform, objectFitCoverLayout, type FaceGeometry } from "./offline-matching.ts";
 import { screenRoll, shortestAngle } from "./live/video-motion.ts";
 
@@ -64,7 +65,7 @@ function drawProtectedFallback(canvas: HTMLCanvasElement, ctx: CanvasRenderingCo
   ctx.fillStyle = "#e2e8f0";
   ctx.font = `${Math.max(16, Math.round(canvas.width * .025))}px sans-serif`;
   ctx.textAlign = "center";
-  ctx.fillText("顔を保護しています", canvas.width / 2, canvas.height / 2);
+  ctx.fillText(translate("顔を保護しています", normalizeLanguage(typeof document === "undefined" ? "en" : document.documentElement?.lang)), canvas.width / 2, canvas.height / 2);
 }
 
 function rememberProtectedFrame(canvas: HTMLCanvasElement) {

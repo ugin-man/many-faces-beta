@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from "../../language";
 
 import RuntimeCheck from "../../runtime-check";
 import CallStage, { type StudioClientProps } from "../../call-stage";
@@ -42,6 +43,7 @@ const initialSnapshot = (): Snapshot => ({
 declare global { interface Window { __MANY_FACES_REALTIME__?: Snapshot; } }
 
 export default function AstraRealtimeClient({ onModeChange }: StudioClientProps = {}) {
+  const { t } = useLanguage();
   const [snapshot, setSnapshot] = useState(initialSnapshot);
   const [mirror, setMirror] = useState(true);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
@@ -330,27 +332,27 @@ export default function AstraRealtimeClient({ onModeChange }: StudioClientProps 
   const leave = () => { stop(); const canvas = canvasRef.current; if (canvas) canvas.width = 512; dataRef.current = initialSnapshot(); publish(); };
   return <CallStage mode="camera" onModeChange={onModeChange} onBack={leave}
     active={busy} hasOutput={snapshot.outputChanges > 0} sourceVisible={busy}
-    status={snapshot.phase === "starting" ? snapshot.message : snapshot.phase === "running" && !snapshot.face ? "顔を探しています…" : undefined}
-    error={snapshot.phase === "error" ? <>{snapshot.message} {snapshot.errorCode && <span>[{snapshot.errorCode}]</span>}{embedded && directUrl && <a href={directUrl} target="_blank" rel="noopener noreferrer" data-testid="open-direct">サイトを別タブで開く</a>}</> : undefined}
-    empty={<><Icon name="camera" /><span>{snapshot.phase === "running" ? "顔を探しています" : snapshot.phase === "starting" ? "カメラを準備中" : "カメラを開始"}</span></>}
+    status={snapshot.phase === "starting" ? snapshot.message : snapshot.phase === "running" && !snapshot.face ? t("顔を探しています…") : undefined}
+    error={snapshot.phase === "error" ? <>{t(snapshot.message)} {snapshot.errorCode && <span>[{snapshot.errorCode}]</span>}{embedded && directUrl && <a href={directUrl} target="_blank" rel="noopener noreferrer" data-testid="open-direct">{t("サイトを別タブで開く")}</a>}</> : undefined}
+    empty={<><Icon name="camera" /><span>{snapshot.phase === "running" ? t("顔を探しています") : snapshot.phase === "starting" ? t("カメラを準備中") : t("カメラを開始")}</span></>}
     preview={<video ref={videoRef} autoPlay muted playsInline className={presentationClass} data-testid="input-video" />}
     controls={<>
-      {!busy ? <button className={`${styles.tool} ${styles.primary}`} onClick={() => void start("camera")} data-testid="camera-start"><Icon name="camera" /><span>カメラを開始</span></button>
-        : <button className={`${styles.tool} ${styles.danger}`} onClick={leave} data-testid="stop"><Icon name="stop" /><span>停止</span></button>}
+      {!busy ? <button className={`${styles.tool} ${styles.primary}`} onClick={() => void start("camera")} data-testid="camera-start"><Icon name="camera" /><span>{t("カメラを開始")}</span></button>
+        : <button className={`${styles.tool} ${styles.danger}`} onClick={leave} data-testid="stop"><Icon name="stop" /><span>{t("停止")}</span></button>}
     </>}
     settings={<>
-      <label className={styles.settingRow}><span>カメラ</span><select aria-label="使用するカメラ" value={deviceId} disabled={busy} onChange={event => setDeviceId(event.target.value)}><option value="">自動選択</option>{devices.map((device, index) => <option key={device.deviceId || index} value={device.deviceId}>{device.label || `カメラ ${index + 1}`}</option>)}</select></label>
-      <label className={styles.settingRow}><span>鏡表示</span><input type="checkbox" checked={mirror} data-testid="mirror-toggle" onChange={event => { setMirror(event.target.checked); dataRef.current.mirrorPresentation = event.target.checked; publish(); }} /></label>
-      {embedded && directUrl && <a className={styles.settingRow} href={directUrl} target="_blank" rel="noopener noreferrer">サイトを別タブで開く</a>}
+      <label className={styles.settingRow}><span>{t("カメラ")}</span><select aria-label={t("使用するカメラ")} value={deviceId} disabled={busy} onChange={event => setDeviceId(event.target.value)}><option value="">{t("自動選択")}</option>{devices.map((device, index) => <option key={device.deviceId || index} value={device.deviceId}>{device.label || `${t("カメラ")} ${index + 1}`}</option>)}</select></label>
+      <label className={styles.settingRow}><span>{t("鏡表示")}</span><input type="checkbox" checked={mirror} data-testid="mirror-toggle" onChange={event => { setMirror(event.target.checked); dataRef.current.mirrorPresentation = event.target.checked; publish(); }} /></label>
+      {embedded && directUrl && <a className={styles.settingRow} href={directUrl} target="_blank" rel="noopener noreferrer">{t("サイトを別タブで開く")}</a>}
     </>}
     details={<>
-      <RuntimeCheck /><p>解析 {snapshot.workerBuild} / {snapshot.workerStage}</p>
+      <RuntimeCheck /><p>{t("解析 ")}{snapshot.workerBuild} / {snapshot.workerStage}</p>
       <p>{snapshot.currentName}<br />{snapshot.currentSource}</p>
-      <p>解析 {snapshot.detectionFps} fps ／ 出力切替 {snapshot.outputFps} 回/秒<br />取得から表示 P95 {snapshot.latencyP95Ms} ms</p>
-      <p>顔検出 {snapshot.faceFrames} / {snapshot.frames} ／ カタログ {snapshot.catalogTotal.toLocaleString()}枚<br />候補 {snapshot.candidates.toLocaleString()} ／ 画像失敗 {snapshot.imageFailures}</p>
-      <p>段階 {snapshot.stage} ／ {snapshot.frameClock}<br />{snapshot.videoWidth}×{snapshot.videoHeight} ／ {snapshot.delegate}<br />{snapshot.errorCode || snapshot.catalogError || "エラーなし"}</p>
-      <button onClick={downloadDiagnostics}>診断データを保存</button>
+      <p>{t("解析 ")}{snapshot.detectionFps}{t(" fps ／ 出力切替 ")}{snapshot.outputFps}{t(" 回/秒")}<br />{t("取得から表示 P95 ")}{snapshot.latencyP95Ms} ms</p>
+      <p>{t("顔検出 ")}{snapshot.faceFrames} / {snapshot.frames}{t(" ／ カタログ ")}{snapshot.catalogTotal.toLocaleString()}{t("枚")}<br />{t("候補 ")}{snapshot.candidates.toLocaleString()}{t(" ／ 画像失敗 ")}{snapshot.imageFailures}</p>
+      <p>{t("段階 ")}{snapshot.stage} ／ {snapshot.frameClock}<br />{snapshot.videoWidth}×{snapshot.videoHeight} ／ {snapshot.delegate}<br />{snapshot.errorCode || (snapshot.catalogError ? t(snapshot.catalogError) : t("エラーなし"))}</p>
+      <button onClick={downloadDiagnostics}>{t("診断データを保存")}</button>
     </>}>
-    <canvas ref={canvasRef} width={512} height={512} className={presentationClass} data-testid="output-canvas" aria-label="Many Facesの出力" />
+    <canvas ref={canvasRef} width={512} height={512} className={presentationClass} data-testid="output-canvas" aria-label={t("Many Facesの出力")} />
   </CallStage>;
 }

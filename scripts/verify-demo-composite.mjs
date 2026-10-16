@@ -7,13 +7,13 @@ const require=createRequire(import.meta.url);
 const {chromium}=require(path.resolve('.browser-tools/node_modules/playwright'));
 const output='work/demo-evidence';await fs.mkdir(output,{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader']});
-const page=await browser.newPage({acceptDownloads:true,viewport:{width:390,height:844}});
+const page=await browser.newPage({acceptDownloads:true,viewport:{width:390,height:844},locale:"ja-JP"});
 const errors=[],requests=[];
 page.on('pageerror',e=>errors.push(String(e)));page.on('request',r=>requests.push(r.url()));
 const meta=JSON.parse(await fs.readFile('public/demo/sample.json','utf8'));
 const waitReady=()=>page.waitForFunction(()=>document.querySelector('[data-testid="processed-sample-video"]')?.readyState>=2);
 const controlsFit=async(width,height)=>{
- for(const b of await page.locator('[data-testid="mode-camera"], [data-testid="mode-video"], [aria-label="操作"] button').all()){
+ for(const b of await page.locator('[data-testid="mode-camera"], [data-testid="mode-video"], [data-testid="controls"] button').all()){
   const box=await b.boundingBox();assert.ok(box&&box.x>=0&&box.y>=0&&box.x+box.width<=width+1&&box.y+box.height<=height+1,`${await b.textContent()} clipped at ${width}x${height}`);
  }
 };
@@ -27,7 +27,22 @@ const seek=async(time)=>{
 };
 try{
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
+ assert.match(await page.getByTestId('mode-camera').textContent(),/Realtime \(Demo\)/);
+ // English must be the default even when the browser prefers Japanese.
+ assert.equal(await page.locator('html').getAttribute('lang'),'en');
+ await page.getByTestId('settings').click();
+ await page.getByTestId('language-select').selectOption('ja');
+ assert.equal(await page.locator('html').getAttribute('lang'),'ja');
+ await page.getByRole('button',{name:'閉じる',exact:true}).click();
  assert.match(await page.getByTestId('mode-camera').textContent(),/リアルタイム（デモ）/);
+ await page.reload({waitUntil:'networkidle'});
+ await page.waitForFunction(()=>document.documentElement.lang==='ja');
+ await page.getByTestId('settings').click();
+ assert.equal(await page.getByTestId('language-select').inputValue(),'ja');
+ await page.getByTestId('language-select').selectOption('en');
+ await page.getByRole('button',{name:'Close',exact:true}).click();
+ await page.reload({waitUntil:'networkidle'});
+ await page.waitForFunction(()=>document.documentElement.lang==='en');
  const button=await page.getByTestId('sample-video').boundingBox();assert.ok(button.x>250&&button.width<125&&button.y<100);
  await page.screenshot({path:`${output}/home-phone.png`});
  await page.getByTestId('sample-video').click();await waitReady();
@@ -37,9 +52,17 @@ try{
  assert.equal(vm.src,'/demo/many-faces-sample-30fps.mp4');assert.ok(Math.abs(vm.duration-meta.durationSeconds)<.01);assert.equal(vm.width,meta.width);assert.equal(vm.height,meta.height);
  await page.getByTestId('sample-play-pause').click();await page.waitForFunction(()=>document.querySelector('[data-testid="processed-sample-video"]').currentTime>.2);
  await page.getByTestId('sample-play-pause').click();await seek(5);
- await page.getByRole('button',{name:'1フレーム進む',exact:true}).click();
+ const retained=await page.getByTestId('processed-sample-video').evaluate(v=>({src:v.currentSrc,time:v.currentTime}));
+ for(const language of ['ja','en']){
+  await page.getByTestId('settings').click();await page.getByTestId('language-select').selectOption(language);
+  await page.getByRole('button',{name:language==='ja'?'閉じる':'Close',exact:true}).click();
+  assert.deepEqual(await page.getByTestId('processed-sample-video').evaluate(v=>({src:v.currentSrc,time:v.currentTime})),retained,'Language changes must preserve the loaded video and playback position');
+  await page.setViewportSize({width:320,height:568});await controlsFit(320,568);
+ }
+ await page.setViewportSize({width:390,height:844});
+ await page.getByRole('button',{name:'Next frame',exact:true}).click();
  assert.ok(Math.abs(await page.getByTestId('processed-sample-video').evaluate(v=>v.currentTime)-(5+1/30))<.001);
- await page.getByRole('button',{name:'1フレーム戻る',exact:true}).click();await seek(5);
+ await page.getByRole('button',{name:'Previous frame',exact:true}).click();await seek(5);
  for(const [id,name] of [['sample-save-image','many-faces-sample.png'],['sample-save-video','many-faces-sample-30fps.mp4']]){
   const downloaded=page.waitForEvent('download');await page.getByTestId(id).click();const d=await downloaded;assert.equal(d.suggestedFilename(),name);await d.saveAs(`${output}/${name}`);
  }

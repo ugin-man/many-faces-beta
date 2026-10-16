@@ -1,3 +1,3 @@
 import Studio from "../studio";
-export const metadata = { title: "Many Faces — サンプル", description: "顔を差し替えた30fpsのサンプルを、そのまま再生できます。" };
+export const metadata = { title: "Many Faces — Sample", description: "Watch a processed 30 fps sample with replaced faces." };
 export default function DemoPage() { return <Studio initialSample />; }

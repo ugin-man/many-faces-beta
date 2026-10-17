@@ -303,8 +303,10 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
   // Its completion must use the latest committed draw, even before a seek.
   useLayoutEffect(() => { drawReviewAtRef.current = drawReviewAt; }, [drawReviewAt]);
   useEffect(() => {
-    if (phase === "review") drawReviewAt(playbackTime);
-  }, [drawReviewAt, phase, playbackTime]);
+    // Playback/export already draws each frame. Redrawing from React state doubles
+    // compositor work and prevents high-rate capture on slower devices.
+    if (phase === "review" && !playing && !recordingDemo) drawReviewAt(playbackTime);
+  }, [drawReviewAt, phase, playbackTime, playing, recordingDemo]);
 
   const startPlaybackLoop = useCallback(() => {
     if (playbackRafRef.current !== null) cancelAnimationFrame(playbackRafRef.current);
@@ -598,11 +600,12 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
       };
       recorder.start(250);
       await video.play();
+      let lastProgressTime = -1;
       const tick = () => {
         if (completed) return;
         const time = Math.min(video.currentTime, clipDuration);
         drawReviewAtRef.current(time);
-        setPlaybackTime(time);
+        if (time - lastProgressTime >= .25) { setPlaybackTime(time); lastProgressTime = time; }
         if (video.ended || time >= clipDuration - 0.015) { exportSucceeded = true; stop(); return; }
         raf = requestAnimationFrame(tick);
       };

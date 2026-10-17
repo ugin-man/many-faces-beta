@@ -41,7 +41,7 @@ type Phase = "idle" | "waiting" | "analyzing" | "searching" | "optimizing" | "pr
 type Readiness = "loading" | "ready" | "failed";
 type Progress = { done: number; total: number; label: string };
 type VerificationReport = {
-  sourceName: string; plannedFrames: number; faceFrames: number; sequenceFrames: number;
+  sourceName: string; analysisFps: number; plannedFrames: number; faceFrames: number; sequenceFrames: number;
   selectedImages: number; imageFailures: number; outputChanges: number; uniqueFaces: number;
   processingMs: number; phaseTimingsMs: ReviewPhaseTimings; sequenceIds: string[];
   sequenceFingerprint: string; canvasNonBlank: boolean; faceCoverage: number;
@@ -318,7 +318,11 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
     playbackRafRef.current = requestAnimationFrame(tick);
   }, [clipDuration, drawReviewAt]);
 
-  const processRecording = useCallback(async (videoUrl: string, duration: number, inputName: string) => {
+  const processRecording = useCallback(async (videoUrl: string, duration: number, inputName: string, fps = analysisFps) => {
+    stopPlayback();
+    setReplayFps(fps); replayFpsRef.current = fps;
+    setReport(null); window.__MANY_FACES_VERIFY__ = undefined;
+    resetDemoFaceComposite(outputCanvasRef.current);
     const token = ++processingTokenRef.current;
     captureAbortRef.current?.abort();
     const cancellation = new AbortController(); captureAbortRef.current = cancellation;
@@ -341,13 +345,13 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
       const safeDuration = Number.isFinite(video.duration) && video.duration > 0 ? Math.min(duration, video.duration) : duration;
       setClipDuration(safeDuration);
       setSourceAspectRatio(video.videoWidth > 0 && video.videoHeight > 0 ? video.videoWidth / video.videoHeight : 1);
-      const frameCount = Math.max(2, Math.floor(safeDuration * analysisFps));
+      const frameCount = Math.max(2, Math.floor(safeDuration * fps));
       setPlannedFrames(frameCount);
       const detectedFrames: SequenceFrame[] = [];
       phaseStarted = performance.now(); setPhase("analyzing");
       for (let index = 0; index < frameCount; index++) {
         checkCurrent();
-        const time = Math.min(safeDuration - 0.001, index / analysisFps);
+        const time = Math.min(safeDuration - 0.001, index / fps);
         // Capture is atomic: arm before seek, then acquire an actual decoded
         // snapshot. A paused/current frame does not require a future rVFC.
         const captured = await captureVideoFrameAt(video, time, { signal: cancellation.signal });
@@ -371,7 +375,7 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
         }
         setProgress({ done: index + 1, total: frameCount, label: `Face Mesh ${index + 1} / ${frameCount}` }); await nextPaint();
       }
-      const { frames, intervals } = filterVideoProfileIslands(detectedFrames, analysisFps);
+      const { frames, intervals } = filterVideoProfileIslands(detectedFrames, fps);
       uncertainProfilesRef.current = intervals;
       phaseTimings.faceMesh = performance.now() - phaseStarted; setFaceFrames(frames.length);
       if (frames.length < 2) throw new Error("顔を十分に検出できませんでした。明るい場所で撮り直してください");
@@ -422,7 +426,7 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
         protectedFrame.width = outputCanvasRef.current?.width ?? 768;
         protectedFrame.height = outputCanvasRef.current?.height ?? 768;
         const safe = drawDemoFaceComposite(protectedFrame, video, image, anchor.choice,
-          { time: interval.anchorTime, fps: analysisFps, sourceAspectRatio: video.videoWidth / video.videoHeight });
+          { time: interval.anchorTime, fps, sourceAspectRatio: video.videoWidth / video.videoHeight });
         preparedIntervals.push({ ...interval, protectedFrame: safe ? protectedFrame : undefined });
       }
       uncertainProfilesRef.current = preparedIntervals;
@@ -436,7 +440,7 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
       const canvas = outputCanvasRef.current, canvasNonBlank = Boolean(canvas && canvasHasVisiblePixels(canvas));
       const gate = evaluateVerificationGate({ plannedFrames: frameCount, faceFrames: frames.length, sequenceFrames: choices.length, selectedImages: selected.length, imageFailures: failures, outputChanges: changes, canvasNonBlank });
       const nextReport: VerificationReport = {
-        sourceName: inputName, plannedFrames: frameCount, faceFrames: frames.length,
+        sourceName: inputName, analysisFps: fps, plannedFrames: frameCount, faceFrames: frames.length,
         sequenceFrames: choices.length, selectedImages: selected.length, imageFailures: failures,
         outputChanges: changes, uniqueFaces: selected.length, processingMs: elapsed,
         phaseTimingsMs: roundedReviewPhaseTimings(phaseTimings), sequenceIds, sequenceFingerprint,
@@ -458,7 +462,7 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
       console.error("Fixed-video review failed.", caught);
       setError(caught instanceof Error ? caught.message : "処理に失敗しました"); setPhase("error"); setProgress(null);
     } finally { if (captureAbortRef.current === cancellation) captureAbortRef.current = null; }
-  }, [analysisFps, waitUntilPrepared]);
+  }, [analysisFps, stopPlayback, waitUntilPrepared]);
 
   const verifyVideoFile = useCallback(async (file: File | null) => {
     if (!file || busy) return;
@@ -577,8 +581,8 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
       });
       if (completed) return;
       drawReviewAtRef.current(0);
-      const stream = canvas.captureStream(30);
-      recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 3_000_000 });
+      const stream = canvas.captureStream(replayFpsRef.current);
+      recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: replayFpsRef.current === 60 ? 6_000_000 : 3_000_000 });
       const chunks: BlobPart[] = [];
       recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
       recorder.onerror = () => { setError("合成動画の保存に失敗しました。"); stop(); };
@@ -625,7 +629,7 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
     progress={busy && progress ? progressRatio : undefined}
     empty={<><Icon name="video" /><span>{busy ? t("動画を処理しています") : t("動画を選んで顔を合成")}</span></>}
     preview={<video ref={playbackVideoRef} muted playsInline loop preload="auto" className={presentationClass} data-testid="input-video" onSeeked={() => { if (demoComposite && phase === "review") drawReviewAt(playbackVideoRef.current?.currentTime ?? 0); }} onEnded={() => { setPlaying(false); setPlaybackTime(clipDuration); }} />}
-    timeline={phase === "review" ? <><time>{timeLabel(playbackTime)}</time><input type="range" min="0" max={clipDuration} step={1 / analysisFps} value={playbackTime} aria-label={t("再生位置")} data-testid="review-seek" disabled={recordingDemo} onChange={event => seekReview(Number(event.target.value))} /><time>{timeLabel(clipDuration)}</time></> : undefined}
+    timeline={phase === "review" ? <><time>{timeLabel(playbackTime)}</time><input type="range" min="0" max={clipDuration} step={1 / replayFps} value={playbackTime} aria-label={t("再生位置")} data-testid="review-seek" disabled={recordingDemo} onChange={event => seekReview(Number(event.target.value))} /><time>{timeLabel(clipDuration)}</time></> : undefined}
     controls={<>
       <input ref={fileInputRef} type="file" accept="video/*" className={styles.hiddenInput} data-testid="video-input" onChange={event => { const file = event.target.files?.[0] ?? null; event.target.value = ""; void verifyVideoFile(file); }} />
       {busy ? <button className={`${styles.tool} ${styles.danger}`} onClick={reset} data-testid="cancel-analysis"><Icon name="stop" /><span>{t("中止")}</span></button>
@@ -633,16 +637,22 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
           {demoComposite && <button className={styles.tool} onClick={saveDemoImage} disabled={recordingDemo} data-testid="demo-save-image"><Icon name="sample" /><span>{t("画像保存")}</span></button>}
           {demoComposite && <button className={styles.tool} onClick={reportDemoPhoto} disabled={recordingDemo} data-testid="demo-report-photo"><Icon name="info" /><span>{t("誤画像を報告")}</span></button>}
           {demoComposite && <button className={styles.tool} onClick={() => void recordDemoVideo()} disabled={recordingDemo} data-testid="demo-export-video"><Icon name="video" /><span>{recordingDemo ? t("保存中") : t("合成動画保存")}</span></button>}
-          <button className={styles.tool} onClick={() => seekReview(playbackTime - 1 / analysisFps)} disabled={recordingDemo} aria-label={t("1フレーム戻る")} data-testid="step-back"><Icon name="previous" /><span>{t("1コマ戻る")}</span></button>
+          <button className={styles.tool} onClick={() => seekReview(playbackTime - 1 / replayFps)} disabled={recordingDemo} aria-label={t("1フレーム戻る")} data-testid="step-back"><Icon name="previous" /><span>{t("1コマ戻る")}</span></button>
           <button className={`${styles.tool} ${styles.primary}`} onClick={() => void togglePlayback().catch(() => setError("再生できませんでした。もう一度お試しください。"))} aria-label={playing ? t("一時停止") : t("再生")} data-testid="play-pause" disabled={recordingDemo}><Icon name={playing ? "pause" : "play"} /><span>{playing ? t("一時停止") : t("再生")}</span></button>
-          <button className={styles.tool} onClick={() => seekReview(playbackTime + 1 / analysisFps)} aria-label={t("1フレーム進む")} data-testid="step-forward" disabled={recordingDemo}><Icon name="next" /><span>{t("1コマ進む")}</span></button>
+          <button className={styles.tool} onClick={() => seekReview(playbackTime + 1 / replayFps)} aria-label={t("1フレーム進む")} data-testid="step-forward" disabled={recordingDemo}><Icon name="next" /><span>{t("1コマ進む")}</span></button>
           <button className={styles.tool} disabled={recordingDemo} onClick={() => fileInputRef.current?.click()}><Icon name="upload" /><span>{t("動画を変更")}</span></button>
         </> : <>
           <button className={`${styles.tool} ${styles.primary}`} onClick={() => fileInputRef.current?.click()}><Icon name="upload" /><span>{t("動画を選ぶ")}</span></button>
         </>}
     </>}
     settings={<>
-      <label className={styles.settingRow}><span>{t("解析密度")}</span><select aria-label={t("解析密度")} data-testid="analysis-fps" value={analysisFps} disabled={busy} onChange={event => { const value = Number(event.target.value); setAnalysisFps(value); setReplayFps(value); }}><option value={12}>12 fps</option><option value={20}>20 fps</option><option value={30}>30 fps</option></select></label>
+      <label className={styles.settingRow}><span>{t("解析密度")}</span><select aria-label={t("解析密度")} data-testid="analysis-fps" value={analysisFps} disabled={busy || recordingDemo} onChange={event => {
+        const value = Number(event.target.value);
+        if (![12, 20, 30, 60].includes(value) || value === analysisFps || busy || recordingDemo) return;
+        setAnalysisFps(value);
+        if (phase === "review" && recordingUrlRef.current) void processRecording(recordingUrlRef.current, clipDuration, sourceName, value);
+      }}><option value={12}>12 fps</option><option value={20}>20 fps</option><option value={30}>30 fps</option><option value={60}>60 fps</option></select></label>
+      <p className={styles.sampleCaption}>{t("60fpsは60fpsの素材におすすめです。30fpsより処理量が増えます。保存時の実際のフレームレートは端末とブラウザに依存します。")}</p>
       <label className={styles.settingRow}><span>{t("鏡表示")}</span><input type="checkbox" checked={mirror} disabled={recordingDemo} data-testid="mirror-toggle" onChange={event => setMirror(event.target.checked)} /></label>
       <label className={styles.settingRow}><span>{t("顔位置追従")}</span><input type="checkbox" checked={faceTracking} data-testid="face-tracking-toggle" onChange={event => setFaceTracking(event.target.checked)} /></label>
       <label className={styles.settingRow}><span>{t("表示モード")}</span><select aria-label={t("表示モード")} data-testid="face-display-mode" value={demoComposite ? "demo" : faceOnly ? "face" : "normal"} onChange={event => { setDemoComposite(event.target.value === "demo"); setFaceOnly(event.target.value === "face"); }} disabled={recordingDemo}><option value="demo">{t("動画に顔を合成")}</option><option value="face">{t("顔写真のみ（切り抜き）")}</option><option value="normal">{t("顔写真のみ（全体）")}</option></select></label>

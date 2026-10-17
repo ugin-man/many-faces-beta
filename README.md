@@ -63,3 +63,7 @@ npm run lint
 The interface starts in English, regardless of browser language. Open **Settings → Language / 言語** to select English or 日本語. The choice is remembered on this browser when local storage is available. Switching language keeps the current video and playback position.
 
 初期表示は英語です。**Settings → Language / 言語** から日本語に切り替えられます。選択は同じブラウザに保存されます。
+
+### 60 fps video mode
+
+Choose **Settings → Analysis rate → 60 fps** before selecting a video, or change the rate after processing to analyze the current video again. Analysis, timeline stepping and the capture-stream export target use the selected rate. The default remains 30 fps. The 60 fps export target uses 6 Mbps; actual frame delivery depends on browser rendering and encoding performance. A 30 fps source cannot gain new captured motion detail by selecting 60 fps. The prepared sample remains its original 30 fps, and the realtime demo is unchanged.

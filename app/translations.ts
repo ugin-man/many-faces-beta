@@ -1,6 +1,7 @@
 export type Language = "en" | "ja";
 export const LANGUAGE_STORAGE_KEY = "many-faces-language";
 export const english: Record<string, string> = {
+  "60fpsは60fpsの素材におすすめです。30fpsより処理量が増えます。保存時の実際のフレームレートは端末とブラウザに依存します。": "60 fps works best with 60 fps source videos and requires more processing than 30 fps. Actual export frame rate depends on your device and browser.",
   "戻る": "Back",
   "処理済みサンプルを見る": "Watch processed sample",
   "サンプル": "Sample",

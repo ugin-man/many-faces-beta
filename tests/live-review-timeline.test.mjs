@@ -39,3 +39,12 @@ test("camera timestamp gaps report probable missing source frames", () => {
   assert.equal(sourceGapEstimate(0, 1 / 30, 30), 0);
   assert.equal(sourceGapEstimate(0, 4 / 30, 30), 3);
 });
+
+test('60 fps timeline retains half-frame positions instead of quantizing to 30 fps', () => {
+  const items = Array.from({ length: 120 }, (_, i) => ({ time: i / 60 }));
+  for (let i = 0; i < items.length; i++) {
+    const time = quantizeReviewTime(i / 60 + .001, 60, 2);
+    assert.ok(Math.abs(time - i / 60) < 1e-9);
+    assert.equal(reviewItemAtTime(items, time), items[i]);
+  }
+});

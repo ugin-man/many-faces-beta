@@ -4,7 +4,7 @@ on:
   # A PR trigger can test this workflow before it is merged into main.
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened]
     paths:
       - 'app/**'
       - 'worker/**'

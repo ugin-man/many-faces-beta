@@ -19,9 +19,17 @@ const report = {
   purpose: 'Same-input decoder and face-analysis correctness comparison; not an end-to-end speed benchmark',
   fixture, fixtureSha256: createHash('sha256').update(await fs.readFile(fixture)).digest('hex'),
   origin, fps: 30, frameLimit, gpuLimit, timeoutMs, startedAt: new Date().toISOString(), errors: [], passed: false,
-  passCriteria: 'Full requested decoder coverage and dimensions, exact IMAGE/CPU worker versus main arithmetic, and synthetic dimensions/coverage. Decoder pixel identity is reported separately; VIDEO/GPU changes are comparisons, not a quality certification.',
+  passCriteria: 'Full requested decoder coverage, dimensions and encoded PTS, exact IMAGE/CPU worker versus main arithmetic, and synthetic dimensions/coverage/PTS. Decoder pixel identity is reported separately; VIDEO/GPU changes are comparisons, not a quality certification.',
 };
 const run = promisify(execFile);
+const inspectVideo = async file => {
+  const {stdout} = await run('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries',
+    'stream=width,height,time_base:stream_side_data=rotation:frame=best_effort_timestamp', '-of', 'json', file], {timeout: 30000});
+  const data = JSON.parse(stdout), stream = data.streams[0];
+  const [numerator, denominator] = stream.time_base.split('/').map(Number);
+  return {width: stream.width, height: stream.height, rotation: stream.side_data_list?.find(value => Number.isFinite(value.rotation))?.rotation ?? 0,
+    timestamps: data.frames.map(frame => frame.best_effort_timestamp * numerator / denominator)};
+};
 let browser, deadlineTimer;
 let progressWrites = Promise.resolve();
 try {
@@ -30,8 +38,21 @@ try {
   await run('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=96x64:rate=24:duration=1',
     '-vf', 'setpts=if(lt(N\\,12)\\,N/(12*TB)\\,(1+(N-12)/6)/TB)', '-fps_mode', 'vfr', '-c:v', 'libx264', '-pix_fmt', 'yuv420p',
     '-bf', '0', '-g', '12', '-video_track_timescale', '24000', syntheticSource], {timeout: 30000});
-  await run('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-i', syntheticSource, '-c', 'copy', '-metadata:s:v:0', 'rotate=90', syntheticRotated], {timeout: 30000});
-  report.syntheticFixtures = await Promise.all([syntheticSource, syntheticRotated].map(async file => ({file, sha256: createHash('sha256').update(await fs.readFile(file)).digest('hex')})));
+  // Input display_rotation writes real display-matrix side data on FFmpeg 6+;
+  // metadata rotate=90 can be silently ignored by the CI version.
+  await run('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-display_rotation:v:0', '90', '-i', syntheticSource, '-c', 'copy', syntheticRotated], {timeout: 30000});
+  const sourceTiming = await inspectVideo(fixture);
+  const syntheticTiming = {};
+  report.syntheticFixtures = await Promise.all([syntheticSource, syntheticRotated].map(async file => {
+    const timing = await inspectVideo(file); syntheticTiming[path.basename(file)] = timing;
+    return {file, sha256: createHash('sha256').update(await fs.readFile(file)).digest('hex'), ...timing};
+  }));
+  if (Math.abs(syntheticTiming['vfr-rotated.mp4'].rotation) !== 90 || report.syntheticFixtures[0].sha256 === report.syntheticFixtures[1].sha256) {
+    throw new Error('COMPONENT_FIXTURE_ROTATION: FFmpeg did not produce a rotated display matrix');
+  }
+  report.sourceTiming = {width: sourceTiming.width, height: sourceTiming.height, rotation: sourceTiming.rotation, frameCount: sourceTiming.timestamps.length,
+    timestampsSha256: createHash('sha256').update(JSON.stringify(sourceTiming.timestamps)).digest('hex')};
+  report.ffmpegVersion = (await run('ffmpeg', ['-version'])).stdout.split('\n')[0];
   browser = await chromium.launch({executablePath: process.env.CHROME_PATH || '/usr/bin/chromium', headless: true,
     args: ['--no-sandbox', '--disable-dev-shm-usage', '--enable-unsafe-swiftshader']});
   report.browser = browser.version();
@@ -52,10 +73,23 @@ try {
     await page.route(`**/__component_fixtures__/${name}`, async route => route.fulfill({contentType: 'video/mp4', body: await fs.readFile(path.join(out, name))}));
   }
   await page.goto(`${origin}/__video_components__`);
-  const evaluation = page.evaluate(async ({frameLimit, gpuLimit}) => {
+  const evaluation = page.evaluate(async ({frameLimit, gpuLimit, sourceTiming, syntheticTiming}) => {
+    // This blank probe page bypasses Vite's normal HTML transform. Bootstrap
+    // the same define globals that Vite injects into the real page and worker.
+    await import('/@vite/env');
+    const {runtimeIdentity} = await import('/app/runtime-identity.ts');
+    const serverIdentity = await (await fetch('/api/runtime', {cache: 'no-store'})).json();
+    if (runtimeIdentity.build === 'unbundled-source' || runtimeIdentity.build !== serverIdentity.build) {
+      throw new Error(`COMPONENT_IDENTITY_MISMATCH: main=${runtimeIdentity.build}, server=${serverIdentity.build}`);
+    }
     const {decodeReviewFrames} = await import('/app/live/video-decoder.ts');
     const {createReviewFaceAnalyzer} = await import('/app/live/review-face-analyzer.ts');
-    const result = {decoders: {}, analyses: {}, errors: []};
+    const result = {decoders: {}, analyses: {}, errors: [], runtimeIdentity, serverIdentity};
+    const modelResponse = await fetch('/api/mediapipe/face_landmarker.task', {cache: 'no-store'});
+    const modelBytes = await modelResponse.arrayBuffer();
+    result.modelResponse = {status: modelResponse.status, contentType: modelResponse.headers.get('content-type'),
+      contentLength: modelResponse.headers.get('content-length'), internalStaticSignal: modelResponse.headers.get('x-vinext-static-file'), bytes: modelBytes.byteLength};
+    console.log('COMPONENT_IDENTITY ' + JSON.stringify({runtimeIdentity, serverIdentity, modelResponse: result.modelResponse}));
     const source = await (await fetch('/demo/many-faces-sample-30fps.mp4')).blob();
     const sourceUrl = URL.createObjectURL(source);
     const video = document.createElement('video');
@@ -141,8 +175,10 @@ try {
       if (!different) summary.exactFrames++;
       else if (summary.firstDifferences.length < 8) summary.firstDifferences.push({index, time: times[index], differentValues: different, maxAbsoluteError: maximum});
     };
+    const expectedTimestamp = (pts, time) => pts.findLast(value => value <= time + 1e-9) ?? null;
     const decoder = result.decoders = {frames: 0, exactRgbaFrames: 0, changedChannelValues: 0, channelValues: 0, sumAbsoluteError: 0, maxAbsoluteError: 0,
-      dimensionMismatches: 0, knownTimestampComparisons: 0, mediaTimestampMismatches: 0, firstDifferences: [], framesEvidence: [], timingsMs: {webcodecs: 0, videoElement: 0}};
+      dimensionMismatches: 0, knownTimestampComparisons: 0, mediaTimestampMismatches: 0, mediaTimestampDeltaHistogram: {},
+      webcodecsPtsMismatches: 0, videoElementKnownPtsMismatches: 0, firstDifferences: [], framesEvidence: [], timingsMs: {webcodecs: 0, videoElement: 0}};
     const modern = decodeReviewFrames(video, source, times, {backend: 'webcodecs'})[Symbol.asyncIterator]();
     const legacy = decodeReviewFrames(video, source, times, {backend: 'video-element'})[Symbol.asyncIterator]();
     try {
@@ -155,10 +191,15 @@ try {
           decoder.frames++;
           decoder.timingsMs.webcodecs += m.timingsMs.total;
           decoder.timingsMs.videoElement += l.timingsMs.total;
+          const expected = expectedTimestamp(sourceTiming.timestamps, times[index]);
+          if (expected === null || Math.abs(m.mediaTime - expected) > .000001) decoder.webcodecsPtsMismatches++;
           if (m.bitmap.width !== l.bitmap.width || m.bitmap.height !== l.bitmap.height) decoder.dimensionMismatches++;
           if (l.mediaTime !== null) {
             decoder.knownTimestampComparisons++;
             if (Math.abs(l.mediaTime - m.mediaTime) > .00001) decoder.mediaTimestampMismatches++;
+            if (expected === null || Math.abs(l.mediaTime - expected) > .000001) decoder.videoElementKnownPtsMismatches++;
+            const delta = (Math.round((l.mediaTime - m.mediaTime) * 1000000) / 1000000).toFixed(6);
+            decoder.mediaTimestampDeltaHistogram[delta] = (decoder.mediaTimestampDeltaHistogram[delta] || 0) + 1;
           }
           const mp = pixels(m.bitmap), lp = pixels(l.bitmap);
           let changed = 0, sum = 0, maximum = 0;
@@ -172,7 +213,7 @@ try {
           decoder.maxAbsoluteError = Math.max(decoder.maxAbsoluteError, maximum);
           if (changed === 0) decoder.exactRgbaFrames++;
           else if (decoder.firstDifferences.length < 12) decoder.firstDifferences.push({index, time: times[index], webcodecsTime: m.mediaTime, videoElementTime: l.mediaTime, changedChannelValues: changed, maxAbsoluteError: maximum, meanAbsoluteError: sum / mp.length});
-          decoder.framesEvidence.push({index, time: times[index], webcodecsTime: m.mediaTime, videoElementTime: l.mediaTime, webcodecsHash: await hash(mp), videoElementHash: await hash(lp)});
+          decoder.framesEvidence.push({index, time: times[index], expectedTime: expected, webcodecsTime: m.mediaTime, videoElementTime: l.mediaTime, webcodecsHash: await hash(mp), videoElementHash: await hash(lp)});
           let reference = null, referenceResult = null, referenceFaces = 0;
           for (const [name, , delegate] of variants) {
             const analyzer = analyzers.get(name);
@@ -239,8 +280,15 @@ try {
           try {
             a = (await modernFrames.next()).value; b = (await legacyFrames.next()).value;
             if (!a || !b) throw new Error(`missing synthetic frame ${time}`);
-            test.frames.push({time, webcodecsTime: a.mediaTime, videoElementTime: b.mediaTime, webcodecsDimensions: [a.bitmap.width, a.bitmap.height],
-              videoElementDimensions: [b.bitmap.width, b.bitmap.height], webcodecsHash: await hash(pixels(a.bitmap)), videoElementHash: await hash(pixels(b.bitmap))});
+            const actualPixels = pixels(a.bitmap), referencePixels = pixels(b.bitmap);
+            let changedChannels = 0, absoluteSum = 0, maxAbsoluteError = 0;
+            if (actualPixels.length === referencePixels.length) for (let i = 0; i < actualPixels.length; i++) {
+              const error = Math.abs(actualPixels[i] - referencePixels[i]);
+              changedChannels += error !== 0 ? 1 : 0; absoluteSum += error; maxAbsoluteError = Math.max(maxAbsoluteError, error);
+            }
+            test.frames.push({time, expectedTime: expectedTimestamp(syntheticTiming[name].timestamps, time), webcodecsTime: a.mediaTime, videoElementTime: b.mediaTime, webcodecsDimensions: [a.bitmap.width, a.bitmap.height],
+              videoElementDimensions: [b.bitmap.width, b.bitmap.height], changedChannels, maxAbsoluteError, meanAbsoluteError: absoluteSum / actualPixels.length,
+              webcodecsHash: await hash(actualPixels), videoElementHash: await hash(referencePixels)});
           } finally { a?.bitmap.close(); b?.bitmap.close(); }
         }
       } catch (error) { test.errors.push(error.stack || String(error)); }
@@ -250,15 +298,16 @@ try {
     result.referenceWorkerExact = result.analyses.imageCpuWorker.frames === count && result.analyses.imageCpuWorker.againstImageCpuMain?.exactFrames === count;
     result.decoderPixelExact = decoder.frames === count && decoder.exactRgbaFrames === count;
     return result;
-  }, {frameLimit, gpuLimit});
+  }, {frameLimit, gpuLimit, sourceTiming, syntheticTiming});
   const remainingMs = Math.max(1, timeoutMs - (Date.now() - Date.parse(report.startedAt)));
   report.observed = await Promise.race([evaluation, new Promise((_resolve, reject) => {
     deadlineTimer = setTimeout(() => reject(new Error(`COMPONENT_TIMEOUT: component probe exceeded ${timeoutMs} ms; last completed counts are in lastProgress`)), remainingMs);
   })]);
   report.passed = report.errors.length === 0 && report.observed.errors.length === 0 && report.observed.referenceWorkerExact
-    && report.observed.decoders.frames === report.observed.comparedFrames && report.observed.decoders.dimensionMismatches === 0
+    && report.observed.decoders.frames === report.observed.comparedFrames && report.observed.decoders.dimensionMismatches === 0 && report.observed.decoders.webcodecsPtsMismatches === 0
     && report.observed.synthetic.every(test => test.errors.length === 0 && test.frames.length === 18 && test.frames.every(frame =>
-      frame.webcodecsDimensions.join() === test.expectedDimensions.join() && frame.videoElementDimensions.join() === test.expectedDimensions.join()));
+      frame.webcodecsDimensions.join() === test.expectedDimensions.join() && frame.videoElementDimensions.join() === test.expectedDimensions.join()
+      && frame.expectedTime !== null && Math.abs(frame.webcodecsTime - frame.expectedTime) <= .000001));
 } catch (error) { report.errors.push(error.stack || String(error)); }
 finally {
   clearTimeout(deadlineTimer);

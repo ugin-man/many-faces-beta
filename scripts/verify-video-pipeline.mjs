@@ -212,7 +212,13 @@ async function openSession(origin, query = '') {
     if (expectedRevision) assert.equal(session.identity.revision, expectedRevision, 'Production server revision does not match the requested source');
     await page.goto(`${origin}/live${query}`, {waitUntil: 'domcontentloaded', timeout: 120000});
     await page.waitForFunction(() => window.__MANY_FACES_RUNTIME__?.phase === 'idle', null, {timeout: 120000});
+    // CallStage mounts the density control only while its settings sheet is
+    // open. Inspect the real default through the normal UI without changing it.
+    await page.getByTestId('settings').click();
     assert.equal(await page.getByTestId('analysis-fps').inputValue(), '30', 'The normal UI must default to 30 fps');
+    const settings = page.getByRole('dialog');
+    await settings.getByRole('button', {name: /^(?:Close|閉じる)$/}).click();
+    await settings.waitFor({state: 'hidden'});
     return session;
   } catch (error) { await browser.close(); throw error; }
 }

@@ -91,3 +91,41 @@ test('optional CLI build skips a manifest-only checkout but fails a partially in
   await fs.writeFile(path.join(source, 'shards/a.json'), JSON.stringify({ items: [entry()] }));
   await assert.rejects(run(), error => error.code !== 0 && /ENOENT/.test(error.stderr) && /b\.json/.test(error.stderr));
 });
+
+test('active video jobs pin their complete working set, then trim to the warm LRU', () => {
+  const cache = new ReviewShardCache(100, 2);
+  const value = id => [{ id, projection: new Float32Array([.25, -.5]) }];
+  const warm = value('warm'), a = value('a'), b = value('b'), c = value('c');
+  cache.setIdentity('one'); cache.set('warm', warm, 40, 1);
+  cache.beginJob(300, 5);
+  cache.set('a', a, 80, 1); cache.set('b', b, 80, 1); cache.set('c', c, 80, 1);
+  for (let pass = 0; pass < 3; pass++) {
+    assert.strictEqual(cache.get('a'), a); assert.strictEqual(cache.get('b'), b); assert.strictEqual(cache.get('c'), c);
+    assert.strictEqual(cache.get('warm'), warm);
+    assert.strictEqual(cache.get('a')[0].projection, a[0].projection);
+  }
+  assert.equal(cache.stats().bytes, 280); assert.equal(cache.stats().records, 4);
+  assert.equal(cache.stats().evictionsDuringJob, 0);
+  assert.throws(() => cache.beginJob(300, 5), /CATALOG_JOB_ACTIVE/);
+  assert.throws(() => cache.set('overflow', value('overflow'), 30, 1), /CATALOG_WORKING_SET_TOO_LARGE/);
+  assert.throws(() => cache.set('extra-records', value('extra-records'), 0, 2), /CATALOG_WORKING_SET_TOO_LARGE/);
+  assert.throws(() => cache.set('a', value('replacement'), 120, 1), /CATALOG_WORKING_SET_TOO_LARGE/);
+  assert.strictEqual(cache.get('a'), a);
+  assert.equal(cache.stats().bytes, 280); assert.equal(cache.stats().records, 4);
+  // End with warm as most recently used; it is the retained idle subset.
+  assert.strictEqual(cache.get('warm'), warm);
+  cache.endJob();
+  assert.equal(cache.stats().jobActive, 0); assert.equal(cache.stats().jobPinnedBytes, 0);
+  assert.equal(cache.stats().jobPeakBytes, 280); assert.equal(cache.stats().jobPeakRecords, 4);
+  assert.equal(cache.stats().jobPeakShards, 4); assert.equal(cache.stats().evictionsAfterJob, 3);
+  assert.ok(cache.stats().bytes <= 100); assert.ok(cache.stats().records <= 2);
+  assert.strictEqual(cache.get('warm'), warm);
+  cache.endJob(); assert.equal(cache.stats().evictionsAfterJob, 3);
+  cache.beginJob(300, 5); assert.strictEqual(cache.get('warm'), warm);
+  assert.equal(cache.stats().jobPeakBytes, 40); cache.endJob();
+  cache.beginJob(300, 5); cache.set('a', a, 80, 1); cache.clear();
+  assert.equal(cache.stats().jobActive, 0); assert.equal(cache.stats().bytes, 0);
+  assert.equal(cache.get('a'), undefined); assert.equal(cache.get('warm'), undefined);
+  cache.setIdentity('two'); cache.beginJob(300, 5); cache.set('b', b, 80, 1); cache.endJob();
+  assert.strictEqual(cache.get('b'), b);
+});

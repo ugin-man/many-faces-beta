@@ -333,6 +333,24 @@ async function runTrial(session, label, temperature) {
     assert.deepEqual(observed.report.sequenceIds, choices.map(choice => choice.id), 'Displayed sequence differs from worker output');
     assert.equal(observed.report.imageFailures, 0, 'A selected output image failed to load');
     assert.equal(observed.report.canvasNonBlank, true, 'Application reports a blank canvas');
+    // This PR's fixed, healthy compact catalog must not thrash during a job.
+    // These are work-count/lifecycle gates, not single-run latency thresholds.
+    if (session.origin === config.improved) {
+      const metrics = search.performanceMetrics;
+      assert.equal(metrics?.implementation, 'video-compact-cache-v3-job-pinned', 'Expected the job-pinned cache implementation');
+      assert.equal(metrics.compactCatalog, true, 'The fixed compact catalog was not used');
+      assert.equal(metrics.legacyFiles, 0, 'Unexpected legacy shard fallback for the healthy fixture');
+      assert.equal(metrics.compactFallbacks, 0, 'Unexpected compact shard failure for the healthy fixture');
+      for (const field of ['jobActive', 'jobPinnedShards', 'jobPinnedBytes', 'jobPinnedRecords', 'evictionsDuringJob']) {
+        assert.equal(metrics.cache?.[field], 0, `Catalog cache ${field} must be zero when the result is published`);
+      }
+      const traffic = observed.report.searchTraffic;
+      for (const [field, limit] of [['files', 775], ['decoded', 70000]]) {
+        const count = traffic?.[field];
+        assert.ok(Number.isSafeInteger(count) && count >= 0 && count <= limit, `Fixed catalog ${field} must be at most ${limit}; received ${count}`);
+      }
+      assert.equal(metrics.compactFiles, traffic.files, 'Completed shard counts disagree');
+    }
     trial.controls = await checkReviewControls(session.page, observed.duration);
     assert.equal(session.pageErrors.length, 0, `Uncaught page errors: ${JSON.stringify(session.pageErrors)}`);
     trial.passed = true;

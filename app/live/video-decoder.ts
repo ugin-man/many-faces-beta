@@ -16,6 +16,11 @@ type FrameStreamFactory = (times: readonly number[]) => AsyncIterable<ReviewDeco
 const cancelled = () => new DOMException("動画解析を取り消しました", "AbortError");
 function checkAbort(signal?: AbortSignal) { if (signal?.aborted) throw signal.reason ?? cancelled(); }
 
+/** A range flag alone does not declare a YUV matrix, primaries or transfer. */
+export function hasDeclaredVideoColorSpace(colorSpace: VideoColorSpaceInit | undefined): boolean {
+  return Boolean(colorSpace?.primaries || colorSpace?.matrix || colorSpace?.transfer);
+}
+
 /** A decoder/bitmap operation may finish after cancellation. Dispose that late result. */
 function bounded<T>(operation: Promise<T>, signal: AbortSignal | undefined, timeoutMs: number, disposeLate?: (value: T) => void) {
   return new Promise<T>((resolve, reject) => {
@@ -94,7 +99,19 @@ async function* webCodecsFrames(
   try {
     checkAbort(options.signal);
     const track = await bounded(input.getPrimaryVideoTrack(), options.signal, timeoutMs);
-    if (!track || !await bounded(track.canDecode(), options.signal, timeoutMs)) {
+    if (!track) {
+      throw new Error("VIDEO_CODEC_UNSUPPORTED: この動画形式は互換読み出しを使用します");
+    }
+    if (options.backend !== "webcodecs") {
+      const colorSpace = await bounded(track.getColorSpace(), options.signal, timeoutMs);
+      // Mediabunny fills unspecified Chromium color metadata with BT.709.
+      // The video element may choose another matrix (observed for untagged SD).
+      // Preserve its existing rendering when the source provides no color tags.
+      if (!hasDeclaredVideoColorSpace(colorSpace)) {
+        throw new Error("VIDEO_COLORSPACE_UNSPECIFIED: 色空間が未指定の動画は色を保持する互換読み出しを使用します");
+      }
+    }
+    if (!await bounded(track.canDecode(), options.signal, timeoutMs)) {
       throw new Error("VIDEO_CODEC_UNSUPPORTED: この動画形式は互換読み出しを使用します");
     }
     // No resize/rotation overrides: preserve display dimensions, pixel aspect,

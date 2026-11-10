@@ -40,11 +40,21 @@ Each completed trial also requires the application's verification gate, zero fai
 
 The full file is already a processed composite. Its results do not establish behavior on the user's private recording, physical phone, Safari or other video codecs. A single ordered run per configuration is diagnostic evidence. Do not present its timing ratios as a statistically established speedup or independent motion-quality validation. Input/output observation overhead is recorded and included in UI timings.
 
-## Separate component job
+## Cache work-count regression gate
 
-A second job runs on a different hosted runner, so its model work does not compete with the production timing comparisons. It uses only the improved source with a Vite development server on port 4186. The component probe imports the actual TypeScript modules; it is not a production end-to-end timing benchmark.
+For this PR's fixed, healthy compact catalog, every completed improved trial also requires the job-pinned cache implementation, no legacy/compact fallback, zero active or pinned job state when the result is published, and no eviction during the active job. Successful shard decodes must not exceed the catalog's 775 shards, and decoded records must not exceed 70,000. These are deterministic work-count and lifecycle checks for the observed cache-thrashing regression, not timing thresholds. Shard counts are not raw network-request counts; fault-injection tests that deliberately exercise compact-to-legacy recovery are separate.
 
-It compares the full 1,061 CPU samples for IMAGE on the main thread, IMAGE in a worker and VIDEO in a worker. GPU variants are explicitly limited to the first 60 samples. It also generates small synthetic media fixtures with FFmpeg to check decoder timestamps and rotation. The component probe has a ten-minute internal deadline and its job has a fifteen-minute limit. Its report states the actual execution/delegate/fallback choices and distinguishes decoder pixel equality from the CPU main/worker equality acceptance criterion.
+## Component evidence and the focused follow-up
+
+A separate hosted runner uses the improved source with a Vite development server on port 4186. It never competes with the production timing comparisons. The component probe imports the actual TypeScript modules; it is not a production end-to-end timing benchmark.
+
+The full component comparison passed at commit `b79caa06bcac61adc7abe3c7ae69a31d09d192cf` in [run 42831482504](https://github.com/ugin-man/many-faces-beta/actions/runs/42831482504), [artifact 13771333469](https://github.com/ugin-man/many-faces-beta/actions/runs/42831482504/artifacts/13771333469). It compared all 1,061 CPU samples for IMAGE on the main thread, IMAGE in a worker and VIDEO in a worker; GPU variants used the explicitly declared first 60 samples. IMAGE/CPU main-thread and worker results were numerically identical for all 1,061 samples. This is the inference evidence being retained; it was not rerun by the color-only job described below.
+
+The later color metadata change is checked with `COMPONENT_COLOR_GUARD_ONLY=1`. This follow-up runs **nine decoder comparisons and zero face-inference frames**: three times each in the tagged public demo, an untagged synthetic VFR file and a rotated version of that VFR file. It requires the tagged demo to retain the WebCodecs path and exact pixels relative to explicit WebCodecs. The untagged files must select the video-element compatibility path, report the color metadata fallback reason and match that path's pixels exactly. FFmpeg creates the small synthetic media files on the runner.
+
+The workflow is named **Full video pipeline and decoder color guard**, and the separate job is **Decoder color guard only**. Its receipt records `scope: color-guard-only`, actual decoder counts, no repeated inference, and the earlier full proof's commit/run/artifact. Before running, it verifies that the inference implementation, dependency lockfile, model assets and relevant runtime configuration remain unchanged from that proof. The focused probe has a three-minute internal deadline; its job has a ten-minute limit.
+
+This limited follow-up applies to this PR's specific color metadata correction. It is not a substitute for a permanent full inference regression gate. Changes to the protected inference source require a fresh full comparison. The CPU default remains IMAGE; the retained full proof does not certify VIDEO/GPU output quality or claim that legacy seeking and sequential decoding choose identical pixels at every requested time.
 
 ## Evidence and publication
 
@@ -58,7 +68,7 @@ CI uploads only `work/video-pipeline/publish/`:
 - `receipt.json`: the exact step outcomes, including skipped/failed stages.
 - Trial screenshots of the already public composite, after review or on failure where available.
 
-The component job uploads only `work/video-pipeline-components/publish/`, which contains aggregate summaries, progress and its execution receipt. Raw landmark arrays, feature vectors, per-frame choices, private recordings, browser traces and arbitrary work files are not included. Artifact retention is seven days. A failed or incomplete run remains failed; any partial report is diagnostic evidence, not acceptance.
+The focused job uploads only `work/video-pipeline-components/publish/`, under an artifact named `video-decoder-color-guard-<run>-<attempt>`. It contains aggregate summaries, available progress and the explicitly scoped receipt; the earlier full inference result remains linked as separate evidence. Raw landmark arrays, feature vectors, per-frame choices, private recordings, browser traces and arbitrary work files are not included. Artifact retention is seven days. A failed or incomplete run remains failed; any partial report is diagnostic evidence, not acceptance.
 
 ## Local invocation
 
@@ -70,7 +80,9 @@ CHROME_PATH=/usr/bin/google-chrome node scripts/verify-video-pipeline.mjs
 
 Supported options are `--mode all|exact|default|cancellation`, `--baseline`, `--improved`, `--out`, `--timeout-ms`, `--budget-ms` and `--skip-cancel`. The defaults are ports 4185/4183, a fifteen-minute per-trial limit and a thirty-minute total budget. The fixture and 30 fps density are deliberately not configurable. Local diagnostics are retained; use only the `publish` subdirectory when sharing an aggregate result.
 
-The component job's equivalent invocation uses `COMPONENT_ORIGIN=http://127.0.0.1:4186`, `COMPONENT_FRAME_LIMIT=1061`, `COMPONENT_GPU_LIMIT=60` and `COMPONENT_TIMEOUT_MS=600000` with `node scripts/verify-video-components.mjs`.
+The current focused job's equivalent invocation uses `COMPONENT_ORIGIN=http://127.0.0.1:4186`, `COMPONENT_COLOR_GUARD_ONLY=1` and `COMPONENT_TIMEOUT_MS=180000` with `node scripts/verify-video-components.mjs`.
+
+To run a new full component comparison deliberately, omit `COMPONENT_COLOR_GUARD_ONLY` and set `COMPONENT_FRAME_LIMIT=1061`, `COMPONENT_GPU_LIMIT=60` and `COMPONENT_TIMEOUT_MS=600000`. Do not label a color-only result as a new full comparison.
 
 ## Workflow references
 

@@ -12,14 +12,16 @@ const fixture = 'public/demo/many-faces-sample-30fps.mp4';
 const frameLimit = Number(process.env.COMPONENT_FRAME_LIMIT || Number.MAX_SAFE_INTEGER);
 const gpuLimit = Number(process.env.COMPONENT_GPU_LIMIT || Number.MAX_SAFE_INTEGER);
 const timeoutMs = Number(process.env.COMPONENT_TIMEOUT_MS || 600000);
+const colorGuardOnly = process.env.COMPONENT_COLOR_GUARD_ONLY === '1';
 await fs.mkdir(out, {recursive: true});
 const publish = path.join(out, 'publish');
 await fs.mkdir(publish, {recursive: true});
 const report = {
   purpose: 'Same-input decoder and face-analysis correctness comparison; not an end-to-end speed benchmark',
   fixture, fixtureSha256: createHash('sha256').update(await fs.readFile(fixture)).digest('hex'),
-  origin, fps: 30, frameLimit, gpuLimit, timeoutMs, startedAt: new Date().toISOString(), errors: [], passed: false,
-  passCriteria: 'Full requested decoder coverage, dimensions and encoded PTS, exact IMAGE/CPU worker versus main arithmetic, and synthetic dimensions/coverage/PTS. Decoder pixel identity is reported separately; VIDEO/GPU changes are comparisons, not a quality certification.',
+  origin, fps: 30, frameLimit, gpuLimit, timeoutMs, scope: colorGuardOnly ? 'color-guard-only' : 'full-component-comparison', startedAt: new Date().toISOString(), errors: [], passed: false,
+  passCriteria: colorGuardOnly ? 'Auto selects compatibility with identical pixels for untagged VFR/rotated VFR, and selects WebCodecs with identical pixels to explicit WebCodecs for the tagged demo.'
+    : 'Full requested decoder coverage, dimensions and encoded PTS, exact IMAGE/CPU worker versus main arithmetic, synthetic dimensions/coverage/PTS, and auto color fallback. Decoder pixel identity is reported separately; VIDEO/GPU changes are comparisons, not a quality certification.',
 };
 const run = promisify(execFile);
 const inspectVideo = async file => {
@@ -73,7 +75,7 @@ try {
     await page.route(`**/__component_fixtures__/${name}`, async route => route.fulfill({contentType: 'video/mp4', body: await fs.readFile(path.join(out, name))}));
   }
   await page.goto(`${origin}/__video_components__`);
-  const evaluation = page.evaluate(async ({frameLimit, gpuLimit, sourceTiming, syntheticTiming}) => {
+  const evaluation = page.evaluate(async ({frameLimit, gpuLimit, sourceTiming, syntheticTiming, colorGuardOnly}) => {
     // This blank probe page bypasses Vite's normal HTML transform. Bootstrap
     // the same define globals that Vite injects into the real page and worker.
     await import('/@vite/env');
@@ -102,7 +104,7 @@ try {
     result.duration = video.duration;
     result.width = video.videoWidth; result.height = video.videoHeight;
     const fullCount = Math.max(2, Math.floor(video.duration * 30));
-    const count = Math.min(fullCount, frameLimit);
+    const count = colorGuardOnly ? 0 : Math.min(fullCount, frameLimit);
     const times = Array.from({length: count}, (_, i) => Math.max(0, Math.min(video.duration - .001, i / 30)));
     result.plannedFrames = fullCount; result.comparedFrames = count;
     const graphics = document.createElement('canvas').getContext('webgl2');
@@ -118,7 +120,7 @@ try {
     ];
     const analyzers = new Map();
     const zeroDiff = () => ({compared: 0, exactFrames: 0, differentValues: 0, values: 0, maxAbsoluteError: 0, sumAbsoluteError: 0, shapeMismatches: 0, faceCountMismatches: 0, firstDifferences: []});
-    for (const [name, mode, delegate, execution] of variants) {
+    for (const [name, mode, delegate, execution] of colorGuardOnly ? [] : variants) {
       const started = performance.now();
       try {
         const analyzer = await createReviewFaceAnalyzer({mode, delegate, execution});
@@ -262,7 +264,7 @@ try {
       }
     }
     result.synthetic = [];
-    for (const name of ['vfr.mp4', 'vfr-rotated.mp4']) {
+    for (const name of colorGuardOnly ? [] : ['vfr.mp4', 'vfr-rotated.mp4']) {
       const blob = await (await fetch(`/__component_fixtures__/${name}`)).blob();
       const url = URL.createObjectURL(blob);
       const player = document.createElement('video'); player.src = url; player.muted = true; document.body.append(player);
@@ -295,19 +297,49 @@ try {
       finally { await modernFrames.return(); await legacyFrames.return(); player.removeAttribute('src'); player.load(); player.remove(); URL.revokeObjectURL(url); }
       result.synthetic.push(test);
     }
-    result.referenceWorkerExact = result.analyses.imageCpuWorker.frames === count && result.analyses.imageCpuWorker.againstImageCpuMain?.exactFrames === count;
-    result.decoderPixelExact = decoder.frames === count && decoder.exactRgbaFrames === count;
+    result.automaticDecoderChecks = [];
+    for (const [name, expectedBackend] of [['demo', 'webcodecs'], ['vfr.mp4', 'video-element'], ['vfr-rotated.mp4', 'video-element']]) {
+      const blob = name === 'demo' ? source : await (await fetch(`/__component_fixtures__/${name}`)).blob();
+      const url = URL.createObjectURL(blob);
+      const player = document.createElement('video'); player.src = url; player.muted = true; document.body.append(player);
+      await new Promise((resolve, reject) => { player.addEventListener('loadeddata', resolve, {once: true}); player.addEventListener('error', reject, {once: true}); });
+      const check = {name, expectedBackend, events: [], frames: [], errors: []};
+      const sampleTimes = [0, .5, 1.25];
+      const automatic = decodeReviewFrames(player, blob, sampleTimes, {backend: 'auto', onBackend: event => check.events.push(event)})[Symbol.asyncIterator]();
+      const reference = decodeReviewFrames(player, blob, sampleTimes, {backend: expectedBackend})[Symbol.asyncIterator]();
+      try {
+        for (const time of sampleTimes) {
+          let actual, expected;
+          try {
+            actual = (await automatic.next()).value; expected = (await reference.next()).value;
+            if (!actual || !expected) throw new Error(`missing auto color-guard frame ${time}`);
+            check.frames.push({time, backend: actual.backend, requestedTime: actual.requestedTime, dimensions: [actual.bitmap.width, actual.bitmap.height],
+              actualHash: await hash(pixels(actual.bitmap)), referenceHash: await hash(pixels(expected.bitmap))});
+          } finally { actual?.bitmap.close(); expected?.bitmap.close(); }
+        }
+      } catch (error) { check.errors.push(error.stack || String(error)); }
+      finally { await automatic.return(); await reference.return(); player.removeAttribute('src'); player.load(); player.remove(); URL.revokeObjectURL(url); }
+      check.passed = check.errors.length === 0 && check.frames.length === sampleTimes.length
+        && check.frames.every(frame => frame.backend === expectedBackend && frame.actualHash === frame.referenceHash && frame.time === frame.requestedTime)
+        && (expectedBackend === 'webcodecs' ? check.events.every(event => !event.fallbackReason)
+          : check.events.some(event => event.fallbackReason?.startsWith('VIDEO_COLORSPACE_UNSPECIFIED:')));
+      result.automaticDecoderChecks.push(check);
+    }
+    result.referenceWorkerExact = colorGuardOnly ? null : result.analyses.imageCpuWorker?.frames === count && result.analyses.imageCpuWorker.againstImageCpuMain?.exactFrames === count;
+    result.decoderPixelExact = colorGuardOnly ? null : decoder.frames === count && decoder.exactRgbaFrames === count;
     return result;
-  }, {frameLimit, gpuLimit, sourceTiming, syntheticTiming});
+  }, {frameLimit, gpuLimit, sourceTiming, syntheticTiming, colorGuardOnly});
   const remainingMs = Math.max(1, timeoutMs - (Date.now() - Date.parse(report.startedAt)));
   report.observed = await Promise.race([evaluation, new Promise((_resolve, reject) => {
     deadlineTimer = setTimeout(() => reject(new Error(`COMPONENT_TIMEOUT: component probe exceeded ${timeoutMs} ms; last completed counts are in lastProgress`)), remainingMs);
   })]);
-  report.passed = report.errors.length === 0 && report.observed.errors.length === 0 && report.observed.referenceWorkerExact
+  const autoChecksPassed = report.observed.automaticDecoderChecks.length === 3 && report.observed.automaticDecoderChecks.every(check => check.passed);
+  const fullChecksPassed = report.observed.referenceWorkerExact
     && report.observed.decoders.frames === report.observed.comparedFrames && report.observed.decoders.dimensionMismatches === 0 && report.observed.decoders.webcodecsPtsMismatches === 0
     && report.observed.synthetic.every(test => test.errors.length === 0 && test.frames.length === 18 && test.frames.every(frame =>
       frame.webcodecsDimensions.join() === test.expectedDimensions.join() && frame.videoElementDimensions.join() === test.expectedDimensions.join()
       && frame.expectedTime !== null && Math.abs(frame.webcodecsTime - frame.expectedTime) <= .000001));
+  report.passed = report.errors.length === 0 && report.observed.errors.length === 0 && autoChecksPassed && (colorGuardOnly || fullChecksPassed);
 } catch (error) { report.errors.push(error.stack || String(error)); }
 finally {
   clearTimeout(deadlineTimer);

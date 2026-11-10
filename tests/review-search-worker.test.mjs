@@ -64,6 +64,9 @@ test('real search worker reuses decoded data, rejects stale compact identity and
     assert.equal(reply.type, 'result', reply.message); return reply;
   };
   const first = await search(1);
+  assert.equal(first.performanceMetrics.cache.jobActive, 0);
+  assert.equal(first.performanceMetrics.cache.jobPinnedBytes, 0);
+  assert.equal(first.performanceMetrics.cache.evictionsDuringJob, 0);
   assert.equal(first.performanceMetrics.compactFiles, 1); assert.equal(legacyReads, 0);
   const second = await search(2);
   assert.equal(compactReads, 1); assert.equal(second.performanceMetrics.cachedFiles, 1);
@@ -83,6 +86,9 @@ test('real search worker reuses decoded data, rejects stale compact identity and
   await reachedBlockedRequest;
   worker.postMessage({ type: 'cancel', jobId: 5 });
   const recovered = await search(6);
+  assert.equal(recovered.performanceMetrics.cache.jobActive, 0);
+  assert.equal(recovered.performanceMetrics.cache.jobPinnedBytes, 0);
+  assert.equal(recovered.performanceMetrics.cache.evictionsDuringJob, 0);
   assert.equal(recovered.choices.length, frames.length);
   assert.equal(messages.some(message => message.jobId === 5 && ['result', 'error'].includes(message.type)), false);
 });

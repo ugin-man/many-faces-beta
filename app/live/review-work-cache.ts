@@ -64,8 +64,11 @@ export class ReviewWindowCache<T> {
   stats() { return { windows: this.windows.size, references: this.references, hits: this.hits, misses: this.misses }; }
 }
 
-/** Bounded decoded static-shard LRU. Eviction never truncates a result: callers
- * retain the complete current window and can reload a missing shard later. */
+/** Static decoded catalog. During a job every acquired shard stays pinned, so
+ * overlapping pose windows never refetch or decode the same shard. The complete
+ * 70k catalog is about 366 MiB by the payload estimate; 512 MiB bounds active
+ * retention. Between jobs, trim to the smaller warm LRU. These limits measure
+ * estimated decoded payload, not total browser RSS. */
 export class ReviewShardCache<T> {
   private identity = "";
   private items = new Map<string, { value: T; bytes: number; records: number }>();
@@ -73,6 +76,15 @@ export class ReviewShardCache<T> {
   private records = 0;
   private readonly maxBytes: number;
   private readonly maxRecords: number;
+  private jobActive = false;
+  private jobMaxBytes = 512 * 1024 * 1024;
+  private jobMaxRecords = 70000;
+  private jobPeakBytes = 0;
+  private jobPeakRecords = 0;
+  private jobPeakShards = 0;
+  private jobStartEvictions = 0;
+  private evictionsDuringJob = 0;
+  private evictionsAfterJob = 0;
   hits = 0;
   misses = 0;
   evictions = 0;
@@ -83,6 +95,29 @@ export class ReviewShardCache<T> {
   setIdentity(identity: string) {
     if (identity !== this.identity) { this.clear(); this.identity = identity; }
   }
+  beginJob(maxBytes = 512 * 1024 * 1024, maxRecords = 70000) {
+    if (this.jobActive) throw new Error("CATALOG_JOB_ACTIVE: Previous search has not released its catalog");
+    if (!Number.isSafeInteger(maxBytes) || maxBytes < 0 || !Number.isSafeInteger(maxRecords) || maxRecords < 0)
+      throw new RangeError("Invalid active catalog limit");
+    if (this.bytes > maxBytes || this.records > maxRecords)
+      throw new RangeError("CATALOG_WORKING_SET_TOO_LARGE: Warm catalog exceeds active limit");
+    this.jobActive = true; this.jobMaxBytes = maxBytes; this.jobMaxRecords = maxRecords;
+    this.jobPeakBytes = this.bytes; this.jobPeakRecords = this.records; this.jobPeakShards = this.items.size;
+    this.jobStartEvictions = this.evictions; this.evictionsDuringJob = 0; this.evictionsAfterJob = 0;
+  }
+  endJob() {
+    if (!this.jobActive) return;
+    this.evictionsDuringJob = this.evictions - this.jobStartEvictions;
+    this.jobActive = false;
+    const before = this.evictions;
+    while (this.items.size && (this.bytes > this.maxBytes || this.records > this.maxRecords)) this.evictOldest();
+    this.evictionsAfterJob = this.evictions - before;
+  }
+  private evictOldest() {
+    const oldest = this.items.keys().next().value!;
+    const removed = this.items.get(oldest)!;
+    this.bytes -= removed.bytes; this.records -= removed.records; this.items.delete(oldest); this.evictions++;
+  }
   get(key: string): T | undefined {
     const item = this.items.get(key);
     if (!item) { this.misses++; return undefined; }
@@ -91,15 +126,40 @@ export class ReviewShardCache<T> {
   set(key: string, value: T, bytes: number, records: number) {
     if (!Number.isSafeInteger(bytes) || bytes < 0 || !Number.isSafeInteger(records) || records < 0) throw new RangeError("Invalid shard cache weight");
     const old = this.items.get(key);
+    const nextBytes = this.bytes - (old?.bytes ?? 0) + bytes;
+    const nextRecords = this.records - (old?.records ?? 0) + records;
+    // Never turn a too-large active catalog into an eviction/refetch loop.
+    // Check before mutation so an unsuccessful insertion leaves existing pins intact.
+    if (this.jobActive && (nextBytes > this.jobMaxBytes || nextRecords > this.jobMaxRecords))
+      throw new RangeError("CATALOG_WORKING_SET_TOO_LARGE: Decoded catalog exceeds the active byte/record limit");
     if (old) { this.bytes -= old.bytes; this.records -= old.records; this.items.delete(key); }
-    if (bytes > this.maxBytes || records > this.maxRecords) return;
-    while (this.items.size && (this.bytes + bytes > this.maxBytes || this.records + records > this.maxRecords)) {
-      const oldest = this.items.keys().next().value!;
-      const removed = this.items.get(oldest)!;
-      this.bytes -= removed.bytes; this.records -= removed.records; this.items.delete(oldest); this.evictions++;
+    if (!this.jobActive) {
+      if (bytes > this.maxBytes || records > this.maxRecords) return;
+      while (this.items.size && (this.bytes + bytes > this.maxBytes || this.records + records > this.maxRecords)) this.evictOldest();
     }
     this.items.set(key, { value, bytes, records }); this.bytes += bytes; this.records += records;
+    if (this.jobActive) {
+      this.jobPeakBytes = Math.max(this.jobPeakBytes, this.bytes);
+      this.jobPeakRecords = Math.max(this.jobPeakRecords, this.records);
+      this.jobPeakShards = Math.max(this.jobPeakShards, this.items.size);
+    }
   }
-  clear() { this.items.clear(); this.bytes = 0; this.records = 0; this.hits = 0; this.misses = 0; this.evictions = 0; }
-  stats() { return { shards: this.items.size, bytes: this.bytes, records: this.records, hits: this.hits, misses: this.misses, evictions: this.evictions, maxBytes: this.maxBytes, maxRecords: this.maxRecords }; }
+  clear() {
+    this.items.clear(); this.bytes = 0; this.records = 0; this.hits = 0; this.misses = 0; this.evictions = 0;
+    this.jobActive = false; this.jobPeakBytes = 0; this.jobPeakRecords = 0; this.jobPeakShards = 0;
+    this.jobStartEvictions = 0; this.evictionsDuringJob = 0; this.evictionsAfterJob = 0;
+  }
+  stats() {
+    return {
+      shards: this.items.size, bytes: this.bytes, records: this.records, hits: this.hits, misses: this.misses, evictions: this.evictions,
+      maxBytes: this.maxBytes, maxRecords: this.maxRecords,
+      jobActive: Number(this.jobActive), jobMaxBytes: this.jobMaxBytes, jobMaxRecords: this.jobMaxRecords,
+      jobPinnedShards: this.jobActive ? this.items.size : 0,
+      jobPinnedBytes: this.jobActive ? this.bytes : 0,
+      jobPinnedRecords: this.jobActive ? this.records : 0,
+      jobPeakShards: this.jobPeakShards, jobPeakBytes: this.jobPeakBytes, jobPeakRecords: this.jobPeakRecords,
+      evictionsDuringJob: this.jobActive ? this.evictions - this.jobStartEvictions : this.evictionsDuringJob,
+      evictionsAfterJob: this.evictionsAfterJob,
+    };
+  }
 }

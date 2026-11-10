@@ -66,6 +66,7 @@ async function run({ frames, origin, build }: SearchRequest, job: Job) {
     const manifestSha256 = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", manifestBytes)), byte => byte.toString(16).padStart(2, "0")).join("");
     check(); decoded.setIdentity(`${origin}|${build}|${manifestSha256}`);
     const cacheBefore = decoded.stats();
+    decoded.beginJob();
     let compact: ReviewCompactManifest | null = null;
     try {
       const payload = await readAssetJson<unknown>(new URL(`/api/catalog/review-manifest?source=seed&catalog=${manifestSha256}`, origin).href, { signal, idleMs: 3000, maxMs: 6000, maxBytes: 2 * 1024 * 1024, onBytes: bytes });
@@ -207,13 +208,14 @@ async function run({ frames, origin, build }: SearchRequest, job: Job) {
     });
     check();
     if (choices.length !== frames.length) throw new Error("SEARCH_INCOMPLETE: 解析したフレーム数と結果が一致しません。");
+    decoded.endJob();
     const cache = decoded.stats();
     scope.postMessage({ type: "result", jobId: job.id, choices, candidateSearchMs, pathOptimizationMs: performance.now() - pathStarted, build: runtimeIdentity.build,
-      performanceMetrics: { implementation: "video-compact-cache-v2", catalogPreparationMs, ...measurements, ...cooperative.stats, compactCatalog: Boolean(compact),
+      performanceMetrics: { implementation: "video-compact-cache-v3-job-pinned", catalogPreparationMs, ...measurements, ...cooperative.stats, compactCatalog: Boolean(compact),
         cache: { ...cache, hits: cache.hits - cacheBefore.hits, misses: cache.misses - cacheBefore.misses, evictions: cache.evictions - cacheBefore.evictions },
         windowStats, rankStats, wink: winkMetrics, qualityExcluded: qualityExclusions.size } });
   } finally {
-    job.controller.abort(); await Promise.allSettled(pending.values());
+    job.controller.abort(); await Promise.allSettled(pending.values()); decoded.endJob();
     pending.clear(); windows.clear(); ranker.clear(); support = []; cooperative.close();
   }
 }

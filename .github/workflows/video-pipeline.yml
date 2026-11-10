@@ -1,4 +1,4 @@
-name: Full video pipeline comparison
+name: Full video pipeline and decoder color guard
 
 on:
   # A PR trigger can test this workflow before it is merged into main.
@@ -250,8 +250,10 @@ jobs:
           retention-days: 7
 
   components:
-    # This is a separate hosted runner: its models/decoder never compete with
-    # the production before/after timings above.
+    name: Decoder color guard only
+    # This PR's full inference comparison already passed at b79caa0. Its source
+    # is checked below; this separate runner verifies only the subsequent color
+    # fallback change, and never competes with the production timings above.
     if: >-
       (github.event_name == 'pull_request' &&
        github.event.pull_request.head.repo.full_name == github.repository &&
@@ -259,13 +261,13 @@ jobs:
       (github.event_name == 'workflow_dispatch' &&
        github.ref == 'refs/heads/improve/video-pipeline-20261110')
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     env:
       CI: 'true'
       COMPONENT_ORIGIN: http://127.0.0.1:4186
-      COMPONENT_FRAME_LIMIT: '1061'
-      COMPONENT_GPU_LIMIT: '60'
-      COMPONENT_TIMEOUT_MS: '600000'
+      COMPONENT_COLOR_GUARD_ONLY: '1'
+      COMPONENT_TIMEOUT_MS: '180000'
+      COMPONENT_FULL_PROOF_SHA: b79caa06bcac61adc7abe3c7ae69a31d09d192cf
     steps:
       - uses: actions/checkout@v4
         with:
@@ -280,8 +282,19 @@ jobs:
         with:
           node-version: 22.16.0
           cache: npm
+      - id: proof
+        name: Confirm inference source is unchanged since the full component proof
+        timeout-minutes: 2
+        run: |
+          git fetch --no-tags --filter=blob:none --depth=1 origin "$COMPONENT_FULL_PROOF_SHA"
+          git diff --exit-code "$COMPONENT_FULL_PROOF_SHA" HEAD -- \
+            app/live/face-analysis-core.ts app/live/face-analysis-engine.ts \
+            app/live/face-analysis.worker.ts app/live/review-face-analyzer.ts \
+            app/live/stable-landmarker.ts app/live/asset-reader.ts \
+            app/live/review-processing-options.ts app/runtime-identity.ts \
+            worker build vite.config.ts package.json package-lock.json public/mediapipe
       - id: install
-        name: Install the component runner without the full catalog
+        name: Install the focused decoder runner without the full catalog
         timeout-minutes: 4
         run: |
           mkdir -p work/video-pipeline-components/publish
@@ -307,13 +320,14 @@ jobs:
           tail -n 60 work/video-pipeline-components/server.log
           exit 1
       - id: probe
-        name: Compare every CPU input and the declared 60-frame GPU prefix
-        timeout-minutes: 11
-        run: timeout --signal=TERM --kill-after=10s 650s node scripts/verify-video-components.mjs
-      - name: Record component execution independently
+        name: Check nine decoder frames and fallback reasons without face inference
+        timeout-minutes: 4
+        run: timeout --signal=TERM --kill-after=10s 210s node scripts/verify-video-components.mjs
+      - name: Record color-only scope and reference the earlier full inference proof
         if: always()
         env:
           TESTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          PROOF_OUTCOME: ${{ steps.proof.outcome }}
           INSTALL_OUTCOME: ${{ steps.install.outcome }}
           SERVER_OUTCOME: ${{ steps.server.outcome }}
           PROBE_OUTCOME: ${{ steps.probe.outcome }}
@@ -322,17 +336,31 @@ jobs:
           import json, os
           from pathlib import Path
           out = Path('work/video-pipeline-components/publish'); out.mkdir(parents=True, exist_ok=True)
-          outcomes = {key.lower(): os.environ[key + '_OUTCOME'] for key in ['INSTALL', 'SERVER', 'PROBE']}
+          outcomes = {key.lower(): os.environ[key + '_OUTCOME'] for key in ['PROOF', 'INSTALL', 'SERVER', 'PROBE']}
+          summary = json.loads((out / 'summary.json').read_text()) if (out / 'summary.json').exists() else {}
+          observed = summary.get('observed', {})
+          checked_frames = sum(len(check.get('frames', [])) for check in observed.get('automaticDecoderChecks', []))
           (out / 'receipt.json').write_text(json.dumps({'testedCommit': os.environ['TESTED_SHA'],
-              'outcomes': outcomes, 'passed': all(value == 'success' for value in outcomes.values()),
-              'cpuFrameLimit': 1061, 'gpuFrameLimit': 60, 'timeoutMs': 600000,
+              'scope': 'color-guard-only', 'outcomes': outcomes,
+              'passed': all(value == 'success' for value in outcomes.values()) and summary.get('passed') is True
+                  and summary.get('scope') == 'color-guard-only' and observed.get('comparedFrames') == 0 and checked_frames == 9,
+              'requestedDecoderFrames': 9, 'observedDecoderFrames': checked_frames,
+              'faceInferenceExecuted': False, 'faceInferenceFrames': observed.get('comparedFrames'), 'timeoutMs': 180000,
+              'previousFullInferenceProof': {'commit': os.environ['COMPONENT_FULL_PROOF_SHA'],
+                  'runId': 42831482504, 'artifactId': 13771333469, 'cpuFrames': 1061, 'gpuPrefixFrames': 60,
+                  'url': 'https://github.com/ugin-man/many-faces-beta/actions/runs/42831482504/artifacts/13771333469'},
+              'scopeReason': 'PR-specific follow-up for the color metadata guard; not a replacement for a permanent full inference regression gate.',
               'endToEndTimingClaim': False, 'rawFaceDataUploaded': False, 'privateInputUsed': False}, indent=2) + '\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              output.write('\n## Decoder color guard only\n\n')
+              output.write(f'Checked {checked_frames}/9 decoder frames across the public demo, untagged VFR and rotated VFR. No face inference was repeated.\n\n')
+              output.write('The full 1,061-frame CPU / 60-frame GPU comparison is prior evidence from [run 42831482504](https://github.com/ugin-man/many-faces-beta/actions/runs/42831482504), commit b79caa0.\n')
           PY
           if test -f work/video-pipeline-components/server.pid; then kill "$(cat work/video-pipeline-components/server.pid)" 2>/dev/null || true; fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: video-pipeline-components-${{ github.run_id }}-${{ github.run_attempt }}
+          name: video-decoder-color-guard-${{ github.run_id }}-${{ github.run_attempt }}
           path: work/video-pipeline-components/publish/
           if-no-files-found: error
           retention-days: 7

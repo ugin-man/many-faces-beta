@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {continueWithFrameFallback, decodeReviewFrames} from '../app/live/video-decoder.ts';
+import {continueWithFrameFallback, decodeReviewFrames, hasDeclaredVideoColorSpace} from '../app/live/video-decoder.ts';
 
 function frame(time, counters, backend='webcodecs') {
  return {bitmap:{width:16,height:9,close(){counters.closed++;}},requestedTime:time,mediaTime:time,evidence:backend==='webcodecs'?'webcodecs':'decoded-paused-readback',backend,timingsMs:{position:0,paint:0,bitmap:0,total:0}};
@@ -58,4 +58,12 @@ test('invalid and pre-cancelled requests do not open either decoder',async()=>{
 test('forced WebCodecs comparison does not silently become a legacy comparison',async()=>{
  if(typeof VideoDecoder!=='undefined')return;
  await assert.rejects(collect(decodeReviewFrames({},new Blob(),[0],{backend:'webcodecs'})),/VIDEO_DECODER_UNAVAILABLE/);
+});
+
+test('unspecified colors including a range-only tag require compatibility, while declared color information is retained', () => {
+  for (const color of [undefined, {}, {fullRange:false}, {fullRange:true},
+    {matrix:null, primaries:null, transfer:null, fullRange:false}])
+    assert.equal(hasDeclaredVideoColorSpace(color), false);
+  for (const color of [{matrix:'smpte170m', fullRange:false}, {primaries:'bt709'}, {transfer:'iec61966-2-1'}])
+    assert.equal(hasDeclaredVideoColorSpace(color), true);
 });

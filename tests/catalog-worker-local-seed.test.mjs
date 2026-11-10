@@ -157,3 +157,23 @@ test("catalog upload is rejected when no persistent bucket exists", async () => 
   );
   assert.equal(response.status, 403);
 });
+
+test("video compact metadata uses immutable manifest identity and validates paths", async () => {
+  const worker = await loadWorker("compact-video-catalog");
+  const hash = "a".repeat(64);
+  const assets = new Map([
+    [`/video-catalog/v1/${hash}/manifest.json`, JSON.stringify({ schema: "many-faces-review-catalog-v1" })],
+    [`/video-catalog/v1/${hash}/shards/s.json`, JSON.stringify({ items: [{ id: "compact" }] })],
+  ]);
+  const env = { ASSETS: { fetch: assetFetcher(assets) } };
+  const manifest = await worker.fetch(new Request(`http://localhost/api/catalog/review-manifest?source=seed&catalog=${hash}`), env, context());
+  assert.equal(manifest.status, 200);
+  assert.match(manifest.headers.get("cache-control"), /immutable/);
+  const shard = await worker.fetch(new Request(`http://localhost/api/catalog/review-shard?source=seed&catalog=${hash}&file=s.json`), env, context());
+  assert.equal((await shard.json()).items[0].id, "compact");
+  const missing = await worker.fetch(new Request(`http://localhost/api/catalog/review-shard?source=seed&catalog=${hash}&file=missing.json`), env, context());
+  assert.equal(missing.status, 404);
+  for (const query of [`source=seed&catalog=bad&file=s.json`, `source=remote&catalog=${hash}&file=s.json`, `source=seed&catalog=${hash}&file=../s.json`]) {
+    assert.equal((await worker.fetch(new Request(`http://localhost/api/catalog/review-shard?${query}`), env, context())).status, 400);
+  }
+});

@@ -1,13 +1,14 @@
 import type { NumericVector, SequenceFrame } from "../offline-matching.ts";
 import { FACE_ACTION_FEATURE_INDEX } from "../face-actions.ts";
+import { TopK } from "./astra/top-k.ts";
 import {
   BROWS, FACE_OVAL, LEFT_EYE, NOSE, OUTER_LIPS, RIGHT_EYE,
-  mouthShapeDescriptor, projectionError,
+  mouthShapeDescriptor, projectionError, ProjectionDescriptorCache,
   type ProjectionCandidate, type ProjectionError,
 } from "../projection-matching.ts";
 
-// Video-only specialization. The unchanged multi-mode ranker is the independent
-// numerical oracle. Candidate admission order, stable ties, all detailed error
+// Video-only specialization. The frozen baseline multi-mode ranker in tests is
+// the independent numerical oracle. Candidate admission order, stable ties, all detailed error
 // fields and sequence math must remain identical to its .strict result.
 const FAST_INDEXES = [...new Set([
   ...FACE_OVAL.filter((_, index) => index % 2 === 0),
@@ -79,6 +80,20 @@ function coarseRms(a: NumericVector, b: NumericVector) {
 }
 export type ReviewRanked<T extends ProjectionCandidate> = { candidate: T; error: ProjectionError };
 
+/** Preserve stable full-sort order, including specialist admission ties. Small
+ * pools, full selections, and non-finite scores retain the native sort path.
+ */
+function selectTop<T>(items: T[], count: number, score: (item: T) => number): T[] {
+  if (count >= items.length || items.length < 128) return [...items].sort((a, b) => score(a) - score(b)).slice(0, count);
+  const heap = new TopK(count);
+  for (let i = 0; i < items.length; i++) {
+    const value = score(items[i]);
+    if (!Number.isFinite(value)) return [...items].sort((a, b) => score(a) - score(b)).slice(0, count);
+    heap.offer(i, value);
+  }
+  return heap.sorted().map(({ i }) => items[i]);
+}
+
 /** One instance per search worker. Parsed candidate geometry is immutable for
  * its lifetime; never reuse this instance across in-place geometry edits.
  * Keys are projection objects, NOT IDs: different records may share an ID.
@@ -86,9 +101,10 @@ export type ReviewRanked<T extends ProjectionCandidate> = { candidate: T; error:
  */
 export class ReviewStrictRanker {
   private mouthShapes = new WeakMap<NumericVector, number[]>();
+  private detailedDescriptors = new ProjectionDescriptorCache();
   private counts = { queries: 0, coarseCandidates: 0, detailedCandidates: 0, descriptorBuilds: 0, descriptorHits: 0 };
-  stats() { return { ...this.counts }; }
-  clear() { this.mouthShapes = new WeakMap(); }
+  stats() { return { ...this.counts, detailedDescriptors: this.detailedDescriptors.stats() }; }
+  clear() { this.mouthShapes = new WeakMap(); this.detailedDescriptors.clear(); }
   private candidateShape(projection: NumericVector) {
     const known = this.mouthShapes.get(projection);
     if (known) { this.counts.descriptorHits++; return known; }
@@ -100,6 +116,9 @@ export class ReviewStrictRanker {
   rank<T extends ProjectionCandidate>(frame: SequenceFrame, candidates: T[], limit = 64, detailedPoolLimit = 1024): ReviewRanked<T>[] {
     if (!Number.isSafeInteger(limit) || limit < 1 || !Number.isSafeInteger(detailedPoolLimit) || detailedPoolLimit < 0) throw new RangeError("Invalid review ranking limits");
     this.counts.queries++;
+    // Query landmark buffers may be reused by a caller. Only catalog geometry
+    // is immutable across queries; always prepare the current query afresh.
+    this.detailedDescriptors.invalidate(frame.geometry.projection);
     let selected = candidates;
     if (candidates.length > detailedPoolLimit) {
       const sourceShape = mouthShapeDescriptor(frame.geometry.projection);
@@ -121,7 +140,7 @@ export class ReviewStrictRanker {
       this.counts.coarseCandidates += candidates.length;
       const admitted = new Map<string, T>();
       const admit = (key: "score" | "pose" | "action" | "mouth", count: number) => {
-        for (const item of [...measured].sort((a, b) => a.quick[key] - b.quick[key]).slice(0, count)) admitted.set(item.candidate.id, item.candidate);
+        for (const item of selectTop(measured, count, item => item.quick[key])) admitted.set(item.candidate.id, item.candidate);
       };
       admit("score", Math.max(limit * 8, Math.floor(detailedPoolLimit * 0.66)));
       admit("pose", Math.max(limit * 2, Math.floor(detailedPoolLimit * 0.2)));
@@ -129,20 +148,20 @@ export class ReviewStrictRanker {
       admit("mouth", Math.max(limit * 3, Math.floor(detailedPoolLimit * 0.24)));
       selected = [...admitted.values()];
     }
-    // Keep the shared detailed formulas byte-for-byte. Only the five unused
-    // sorted output lists are omitted; every diagnostic error stays present.
-    const measured = selected.map(candidate => ({ candidate, error: projectionError(frame, candidate) }));
+    // Prepared descriptors reuse the same formulas and arithmetic order. All
+    // diagnostic errors remain present, including the five unused mode totals.
+    const measured = selected.map(candidate => ({ candidate, error: projectionError(frame, candidate, this.detailedDescriptors) }));
     this.counts.detailedCandidates += measured.length;
     const gateLimit = Math.max(limit, Math.min(selected.length, limit * 20));
-    const shapePool = [...measured].sort((a, b) => a.error.shapeGate - b.error.shapeGate).slice(0, gateLimit);
+    const shapePool = selectTop(measured, gateLimit, item => item.error.shapeGate);
     const specialistLimit = Math.min(selected.length, Math.max(limit * 4, 128));
     const specialists = [
-      ...[...measured].sort((a, b) => Math.abs(a.error.pitchDegrees) - Math.abs(b.error.pitchDegrees)).slice(0, specialistLimit),
-      ...[...measured].sort((a, b) => a.error.mouthShape - b.error.mouthShape).slice(0, specialistLimit),
-      ...(Math.abs(wink(frame.feature)) > 0.14 ? [...measured].sort((a, b) => a.error.wink - b.error.wink).slice(0, specialistLimit) : []),
+      ...selectTop(measured, specialistLimit, item => Math.abs(item.error.pitchDegrees)),
+      ...selectTop(measured, specialistLimit, item => item.error.mouthShape),
+      ...(Math.abs(wink(frame.feature)) > 0.14 ? selectTop(measured, specialistLimit, item => item.error.wink) : []),
     ];
     const pool = [...new Map([...shapePool, ...specialists].map(item => [item.candidate.id, item])).values()];
-    return pool.sort((a, b) => a.error.strictTotal - b.error.strictTotal).slice(0, limit)
+    return selectTop(pool, limit, item => item.error.strictTotal)
       .map(({ candidate, error }) => ({ candidate, error: { ...error, total: error.strictTotal } }));
   }
 }

@@ -5,6 +5,7 @@ import { screenRoll, shortestAngle } from "./live/video-motion.ts";
 export type DemoFrame = { time: number; geometry: FaceGeometry; feature?: number[] };
 export type DemoCandidate = { geometry: FaceGeometry; feature?: number[] };
 export type DemoChoice = { frame: DemoFrame; candidate: DemoCandidate };
+export type DecodedDemoSource = { image: CanvasImageSource; width: number; height: number; time: number };
 
 export const DEMO_BACKGROUND = "#0a0c10";
 
@@ -91,7 +92,7 @@ function rememberProtectedFrame(canvas: HTMLCanvasElement) {
  */
 export function drawDemoFaceComposite(
   canvas: HTMLCanvasElement,
-  video: HTMLVideoElement | null,
+  video: HTMLVideoElement | DecodedDemoSource | null,
   replacement: (CanvasImageSource & { width: number; height: number }) | undefined,
   choice: DemoChoice | null,
   options: { time: number; fps: number; sourceAspectRatio: number; mirror?: boolean; protectedFrame?: HTMLCanvasElement },
@@ -111,10 +112,18 @@ export function drawDemoFaceComposite(
     return false;
   }
 
-  if (!video || !replacement || !choice ||
-      !demoFrameIsSafe(video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && !video.seeking,
-        video.currentTime, options.time, choice.frame.time, options.fps) ||
-      !video.videoWidth || !video.videoHeight) {
+  // A captured bitmap carries its own decoded timestamp. Batch processing does
+  // not need to seek the playback element or wait for a display paint to draw it.
+  const decoded = video && "image" in video ? video : null;
+  const element = video && "videoWidth" in video ? video : null;
+  const source = decoded?.image ?? element;
+  const sourceWidth = decoded?.width ?? element?.videoWidth ?? 0;
+  const sourceHeight = decoded?.height ?? element?.videoHeight ?? 0;
+  const ready = Boolean(decoded || (element && element.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && !element.seeking));
+  const sourceTime = decoded?.time ?? element?.currentTime ?? Number.NaN;
+  if (!source || !replacement || !choice ||
+      !demoFrameIsSafe(ready, sourceTime, options.time, choice.frame.time, options.fps) ||
+      !(sourceWidth > 0) || !(sourceHeight > 0)) {
     drawProtectedFallback(canvas, ctx);
     ctx.restore();
     return false;
@@ -124,7 +133,7 @@ export function drawDemoFaceComposite(
   const target = objectFitCoverLayout(choice.frame.geometry.layout, options.sourceAspectRatio);
   const cover = objectFitCoverLayout(choice.frame.geometry.protectionLayout ?? choice.frame.geometry.layout, options.sourceAspectRatio);
   const targetMask = demoMaskGeometry(cover);
-  drawCover(ctx, video, video.videoWidth, video.videoHeight, width, height);
+  drawCover(ctx, source, sourceWidth, sourceHeight, width, height);
 
   // Opaque backing must extend beyond the feathered replacement boundary.
   // A fade directly over the source video would expose the original face.

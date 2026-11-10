@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {ReviewStrictRanker} from '../app/live/review-strict-ranker.ts';
-import {rankProjectionCandidateModesTwoStage as reference} from '../app/projection-matching.ts';
+import {rankProjectionCandidateModesTwoStage as reference} from './helpers/projection-matching-baseline.ts';
 import {FACE_ACTION_FEATURE_INDEX as F} from '../app/face-actions.ts';
 let seed=92817;
 const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};

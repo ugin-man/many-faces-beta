@@ -1,0 +1,366 @@
+name: Full video pipeline and decoder color guard
+
+on:
+  # A PR trigger can test this workflow before it is merged into main.
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'app/**'
+      - 'worker/**'
+      - 'build/**'
+      - 'package*.json'
+      - 'tsconfig*.json'
+      - 'vite.config.ts'
+      - 'scripts/**'
+      - 'tools/build-review-catalog.mjs'
+      - 'public/demo/**'
+      - 'public/mediapipe/**'
+      - 'public/seed-catalog/**'
+      - 'tests/**'
+      - '.github/workflows/video-pipeline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: video-pipeline-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  full-video:
+    # Bound this relatively expensive investigation to its explicitly named PR.
+    # No pull_request_target, repository secrets, deployment or write permission.
+    if: >-
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
+       github.head_ref == 'improve/video-pipeline-20261110') ||
+      (github.event_name == 'workflow_dispatch' &&
+       github.ref == 'refs/heads/improve/video-pipeline-20261110')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      CI: 'true'
+      VIDEO_PIPELINE_BASELINE_SHA: 00ef55256144c87e6dd642e1815a8f4071372c0e
+      VIDEO_PIPELINE_IMPROVED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      PLAYWRIGHT_VERSION: 1.56.1
+    steps:
+      - name: Reserve time for the final evidence
+        run: echo "MF_PIPELINE_STARTED_EPOCH=$(date +%s)" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - id: source
+        name: Prepare the unchanged baseline without duplicating public assets
+        timeout-minutes: 3
+        run: |
+          mkdir -p work/video-pipeline/publish
+          git fetch --no-tags --depth=1 origin "$VIDEO_PIPELINE_BASELINE_SHA"
+          test "$(git rev-parse HEAD)" = "$VIDEO_PIPELINE_IMPROVED_SHA"
+          # The new decoder's license notice is the sole permitted public
+          # addition. Every pre-existing model, catalog and fixture stays exact.
+          test "$(git diff --name-status "$VIDEO_PIPELINE_BASELINE_SHA" HEAD -- public/licenses/mediabunny.txt)" = $'A\tpublic/licenses/mediabunny.txt'
+          git diff --exit-code "$VIDEO_PIPELINE_BASELINE_SHA" HEAD -- public ':(exclude)public/licenses/mediabunny.txt'
+          mf_baseline_dir="$RUNNER_TEMP/many-faces-video-baseline"
+          git worktree add --detach --no-checkout "$mf_baseline_dir" "$VIDEO_PIPELINE_BASELINE_SHA"
+          git -C "$mf_baseline_dir" sparse-checkout set --no-cone '/*' '!/public/'
+          git -C "$mf_baseline_dir" checkout --detach "$VIDEO_PIPELINE_BASELINE_SHA"
+          mkdir -p "$mf_baseline_dir/public"
+          # Only baseline-tracked entries are linked. The new video-catalog
+          # directory is generated for the improved build and is not linked.
+          while IFS= read -r -d '' entry; do
+            ln -s "$GITHUB_WORKSPACE/public/$entry" "$mf_baseline_dir/public/$entry"
+          done < <(git ls-tree -z --name-only "$VIDEO_PIPELINE_BASELINE_SHA:public")
+          echo "MF_BASELINE_DIR=$mf_baseline_dir" >> "$GITHUB_ENV"
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs';
+          import {createHash} from 'node:crypto';
+          const hash = bytes => createHash('sha256').update(bytes).digest('hex');
+          const sample = JSON.parse(fs.readFileSync('public/demo/sample.json'));
+          const bytes = fs.readFileSync('public/demo/many-faces-sample-30fps.mp4');
+          assert.equal(hash(bytes), '78751af233f949f0559f315f2c6efd001cb5981a294e081c7530ccf68f3dac26');
+          assert.equal(hash(bytes), sample.sha256);
+          assert.equal(sample.frames, 1061); assert.equal(sample.fps, 30);
+          const manifest = fs.readFileSync('public/seed-catalog/manifest.json');
+          const catalog = JSON.parse(manifest);
+          assert.equal(catalog.totalFaces, 70000);
+          fs.writeFileSync('work/video-pipeline/publish/input-metadata.json', JSON.stringify({
+            fixture: sample, sourceManifestSha256: hash(manifest), catalogId: catalog.catalogId,
+            totalFaces: catalog.totalFaces, searchableFaces: catalog.searchableFaces,
+            baseline: process.env.VIDEO_PIPELINE_BASELINE_SHA,
+            improved: process.env.VIDEO_PIPELINE_IMPROVED_SHA,
+            modelSha256: hash(fs.readFileSync('public/mediapipe/face_landmarker.task')),
+            originalAssetsUnchanged: true, additionalPublicFiles: ['public/licenses/mediabunny.txt'],
+          }, null, 2));
+          NODE
+      - id: install
+        name: Install each lockfile and the isolated browser driver
+        timeout-minutes: 8
+        run: |
+          npm ci --registry=https://registry.npmjs.org --no-audit --no-fund
+          npm --prefix "$MF_BASELINE_DIR" ci --registry=https://registry.npmjs.org --no-audit --no-fund
+          mf_browser_tools="$RUNNER_TEMP/many-faces-browser-tools"
+          npm install --prefix "$mf_browser_tools" --no-save --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund "playwright@$PLAYWRIGHT_VERSION"
+          echo "NODE_PATH=$mf_browser_tools/node_modules" >> "$GITHUB_ENV"
+          # The normal hosted runner supplies branded Chrome, including its MP4
+          # codec support. Both versions use exactly this executable. Its actual
+          # version is recorded, rather than assumed constant across CI runs.
+          mf_chrome_path="$(command -v google-chrome || command -v chromium)"
+          test -x "$mf_chrome_path"
+          echo "CHROME_PATH=$mf_chrome_path" >> "$GITHUB_ENV"
+          "$mf_chrome_path" --version
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk
+      - id: build
+        name: Build both production applications sequentially
+        timeout-minutes: 10
+        env:
+          SITES_BUILD_TIMEOUT: 4m
+        run: |
+          (
+            cd "$MF_BASELINE_DIR"
+            npm run build
+          ) > work/video-pipeline/baseline-build.log 2>&1 || { tail -n 100 work/video-pipeline/baseline-build.log; exit 1; }
+          npm run build > work/video-pipeline/improved-build.log 2>&1 || { tail -n 100 work/video-pipeline/improved-build.log; exit 1; }
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs';
+          import path from 'node:path';
+          const metadataPath = 'work/video-pipeline/publish/input-metadata.json';
+          const metadata = JSON.parse(fs.readFileSync(metadataPath));
+          const compact = JSON.parse(fs.readFileSync(path.join('public/video-catalog/v1', metadata.sourceManifestSha256, 'manifest.json')));
+          assert.equal(compact.sourceManifestSha256, metadata.sourceManifestSha256);
+          assert.equal(compact.catalogId, metadata.catalogId); assert.equal(compact.records, 70000);
+          metadata.compact = {schema: compact.schema, records: compact.records, shards: Object.keys(compact.shards).length,
+            bytes: Object.values(compact.shards).reduce((sum, shard) => sum + shard.bytes, 0)};
+          fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
+          NODE
+      - id: checks
+        name: Check source invariants and the built worker before the browser run
+        timeout-minutes: 3
+        run: |
+          # Several integration tests import dist/server/index.js directly.
+          # Keep this after the production build even on a fresh checkout.
+          node --check scripts/verify-video-pipeline.mjs
+          node --experimental-strip-types --test tests/*.test.mjs
+          ./node_modules/.bin/eslint scripts/verify-video-pipeline.mjs
+      - id: servers
+        name: Start both production servers and verify their identities
+        timeout-minutes: 3
+        run: |
+          nohup env NODE_ENV=production ./node_modules/.bin/vinext start --hostname 127.0.0.1 --port 4183 > work/video-pipeline/improved-server.log 2>&1 &
+          echo "$!" > work/video-pipeline/improved-server.pid
+          pushd "$MF_BASELINE_DIR" > /dev/null
+          nohup env NODE_ENV=production ./node_modules/.bin/vinext start --hostname 127.0.0.1 --port 4185 > "$GITHUB_WORKSPACE/work/video-pipeline/baseline-server.log" 2>&1 &
+          echo "$!" > "$GITHUB_WORKSPACE/work/video-pipeline/baseline-server.pid"
+          popd > /dev/null
+          for port in 4183 4185; do
+            for attempt in $(seq 1 60); do
+              if curl -fsS --max-time 2 "http://127.0.0.1:$port/api/runtime" > "work/video-pipeline/publish/identity-$port.json" 2>/dev/null; then break; fi
+              sleep 1
+            done
+            curl -fsS --max-time 15 "http://127.0.0.1:$port/live" > /dev/null
+          done
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs';
+          for (const [port, expected] of [[4183, process.env.VIDEO_PIPELINE_IMPROVED_SHA], [4185, process.env.VIDEO_PIPELINE_BASELINE_SHA]]) {
+            const identity = JSON.parse(fs.readFileSync(`work/video-pipeline/publish/identity-${port}.json`));
+            assert.equal(identity.revision, expected); assert.notEqual(identity.build, 'unbundled-source');
+          }
+          NODE
+      - id: browser
+        name: Full video exact comparison, default cold/warm, then cancellation/retry
+        timeout-minutes: 26
+        run: |
+          # Reserve five minutes of the job for stopping servers and artifacts.
+          # The harness stops itself first and preserves a partial failed report.
+          mf_remaining_ms=$(( (MF_PIPELINE_STARTED_EPOCH + 40 * 60 - $(date +%s)) * 1000 ))
+          mf_budget_ms=$(( mf_remaining_ms < 24 * 60 * 1000 ? mf_remaining_ms : 24 * 60 * 1000 ))
+          test "$mf_budget_ms" -gt 60000
+          timeout --signal=TERM --kill-after=15s 25m node scripts/verify-video-pipeline.mjs --mode all --timeout-ms 480000 --budget-ms "$mf_budget_ms"
+      - id: unchanged
+        name: Confirm that verification did not rewrite either application
+        if: always()
+        run: |
+          git diff --exit-code -- app worker build scripts tests tools package.json package-lock.json vite.config.ts public
+          if test -n "${MF_BASELINE_DIR:-}"; then
+            git -C "$MF_BASELINE_DIR" diff --exit-code -- app worker build scripts package.json package-lock.json vite.config.ts
+            test "$(git -C "$MF_BASELINE_DIR" rev-parse HEAD)" = "$VIDEO_PIPELINE_BASELINE_SHA"
+          fi
+      - name: Write an honest run receipt and job summary
+        if: always()
+        env:
+          SOURCE_OUTCOME: ${{ steps.source.outcome }}
+          INSTALL_OUTCOME: ${{ steps.install.outcome }}
+          CHECKS_OUTCOME: ${{ steps.checks.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          SERVERS_OUTCOME: ${{ steps.servers.outcome }}
+          BROWSER_OUTCOME: ${{ steps.browser.outcome }}
+          UNCHANGED_OUTCOME: ${{ steps.unchanged.outcome }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          out = Path('work/video-pipeline/publish'); out.mkdir(parents=True, exist_ok=True)
+          outcomes = {key.lower(): os.environ[key + '_OUTCOME'] for key in ['SOURCE', 'INSTALL', 'CHECKS', 'BUILD', 'SERVERS', 'BROWSER', 'UNCHANGED']}
+          result = json.loads((out / 'summary.json').read_text()) if (out / 'summary.json').exists() else {}
+          receipt = {'runId': os.environ['GITHUB_RUN_ID'], 'runAttempt': os.environ['GITHUB_RUN_ATTEMPT'],
+                     'baseline': os.environ['VIDEO_PIPELINE_BASELINE_SHA'], 'improved': os.environ['VIDEO_PIPELINE_IMPROVED_SHA'],
+                     'outcomes': outcomes, 'passed': all(value == 'success' for value in outcomes.values()) and result.get('passed') is True,
+                     'rawFaceDataUploaded': False, 'privateInputUsed': False, 'physicalDeviceVerified': False,
+                     'browserExecution': 'Production UI on a GitHub-hosted Linux runner, one trial at a time'}
+          (out / 'receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          lines = ['## Full video pipeline', '', f"Passed: **{receipt['passed']}**", '',
+                   'Fixed public 35.37-second composite, full duration at 30 fps; 70,000 catalog entries.', '',
+                   '| Trial | Passed | Wall time (s) | Processing (s) |', '| --- | --- | ---: | ---: |']
+          for trial in result.get('trials', []):
+              wall = trial.get('wallMs'); processing = trial.get('verification', {}).get('processingMs')
+              wall_text = f'{wall / 1000:.3f}' if wall is not None else '—'
+              processing_text = f'{processing / 1000:.3f}' if processing is not None else '—'
+              lines.append(f"| {trial['label']} | {trial['passed']} | {wall_text} | {processing_text} |")
+          lines += ['', 'One ordered run per configuration is diagnostic evidence, not a statistical speed claim.',
+                    'See summary.json for exact-input/decision equality, decoder drift, phase metrics and cancellation.',
+                    'Artifacts contain aggregates, hashes, identities and public-composite screenshots only.']
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output: output.write('\n'.join(lines) + '\n')
+          PY
+      - name: Stop only this job's two servers
+        if: always()
+        run: |
+          for name in baseline improved; do
+            mf_pid_file="work/video-pipeline/$name-server.pid"
+            if test -f "$mf_pid_file"; then kill "$(cat "$mf_pid_file")" 2>/dev/null || true; fi
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: video-pipeline-${{ github.run_id }}-${{ github.run_attempt }}
+          # Do not broaden this to work/video-pipeline: it holds raw local-only
+          # descriptor and choice JSON used for the equality checks.
+          path: work/video-pipeline/publish/
+          if-no-files-found: error
+          retention-days: 7
+
+  components:
+    name: Decoder color guard only
+    # This PR's full inference comparison already passed at b79caa0. Its source
+    # is checked below; this separate runner verifies only the subsequent color
+    # fallback change, and never competes with the production timings above.
+    if: >-
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
+       github.head_ref == 'improve/video-pipeline-20261110') ||
+      (github.event_name == 'workflow_dispatch' &&
+       github.ref == 'refs/heads/improve/video-pipeline-20261110')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      CI: 'true'
+      COMPONENT_ORIGIN: http://127.0.0.1:4186
+      COMPONENT_COLOR_GUARD_ONLY: '1'
+      COMPONENT_TIMEOUT_MS: '180000'
+      COMPONENT_FULL_PROOF_SHA: b79caa06bcac61adc7abe3c7ae69a31d09d192cf
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            /*
+            !/public/seed-catalog/*
+            /public/seed-catalog/manifest.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - id: proof
+        name: Confirm inference source is unchanged since the full component proof
+        timeout-minutes: 2
+        run: |
+          git fetch --no-tags --filter=blob:none --depth=1 origin "$COMPONENT_FULL_PROOF_SHA"
+          git diff --exit-code "$COMPONENT_FULL_PROOF_SHA" HEAD -- \
+            app/live/face-analysis-core.ts app/live/face-analysis-engine.ts \
+            app/live/face-analysis.worker.ts app/live/review-face-analyzer.ts \
+            app/live/stable-landmarker.ts app/live/asset-reader.ts \
+            app/live/review-processing-options.ts app/runtime-identity.ts \
+            worker build vite.config.ts package.json package-lock.json public/mediapipe
+      - id: install
+        name: Install the focused decoder runner without the full catalog
+        timeout-minutes: 4
+        run: |
+          mkdir -p work/video-pipeline-components/publish
+          npm ci --registry=https://registry.npmjs.org --no-audit --no-fund
+          mf_browser_tools="$RUNNER_TEMP/many-faces-browser-tools"
+          npm install --prefix "$mf_browser_tools" --no-save --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund playwright@1.56.1
+          echo "NODE_PATH=$mf_browser_tools/node_modules" >> "$GITHUB_ENV"
+          mf_chrome_path="$(command -v google-chrome || command -v chromium)"
+          test -x "$mf_chrome_path"
+          echo "CHROME_PATH=$mf_chrome_path" >> "$GITHUB_ENV"
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg
+      - id: server
+        name: Start the improved component modules
+        timeout-minutes: 2
+        run: |
+          nohup ./node_modules/.bin/vite --host 127.0.0.1 --port 4186 > work/video-pipeline-components/server.log 2>&1 &
+          echo "$!" > work/video-pipeline-components/server.pid
+          for attempt in $(seq 1 60); do
+            if curl -fsS --max-time 2 http://127.0.0.1:4186/api/runtime > work/video-pipeline-components/publish/identity.json 2>/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -n 60 work/video-pipeline-components/server.log
+          exit 1
+      - id: probe
+        name: Check nine decoder frames and fallback reasons without face inference
+        timeout-minutes: 4
+        run: timeout --signal=TERM --kill-after=10s 210s node scripts/verify-video-components.mjs
+      - name: Record color-only scope and reference the earlier full inference proof
+        if: always()
+        env:
+          TESTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          PROOF_OUTCOME: ${{ steps.proof.outcome }}
+          INSTALL_OUTCOME: ${{ steps.install.outcome }}
+          SERVER_OUTCOME: ${{ steps.server.outcome }}
+          PROBE_OUTCOME: ${{ steps.probe.outcome }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          out = Path('work/video-pipeline-components/publish'); out.mkdir(parents=True, exist_ok=True)
+          outcomes = {key.lower(): os.environ[key + '_OUTCOME'] for key in ['PROOF', 'INSTALL', 'SERVER', 'PROBE']}
+          summary = json.loads((out / 'summary.json').read_text()) if (out / 'summary.json').exists() else {}
+          observed = summary.get('observed', {})
+          checked_frames = sum(len(check.get('frames', [])) for check in observed.get('automaticDecoderChecks', []))
+          (out / 'receipt.json').write_text(json.dumps({'testedCommit': os.environ['TESTED_SHA'],
+              'scope': 'color-guard-only', 'outcomes': outcomes,
+              'passed': all(value == 'success' for value in outcomes.values()) and summary.get('passed') is True
+                  and summary.get('scope') == 'color-guard-only' and observed.get('comparedFrames') == 0 and checked_frames == 9,
+              'requestedDecoderFrames': 9, 'observedDecoderFrames': checked_frames,
+              'faceInferenceExecuted': False, 'faceInferenceFrames': observed.get('comparedFrames'), 'timeoutMs': 180000,
+              'previousFullInferenceProof': {'commit': os.environ['COMPONENT_FULL_PROOF_SHA'],
+                  'runId': 42831482504, 'artifactId': 13771333469, 'cpuFrames': 1061, 'gpuPrefixFrames': 60,
+                  'url': 'https://github.com/ugin-man/many-faces-beta/actions/runs/42831482504/artifacts/13771333469'},
+              'scopeReason': 'PR-specific follow-up for the color metadata guard; not a replacement for a permanent full inference regression gate.',
+              'endToEndTimingClaim': False, 'rawFaceDataUploaded': False, 'privateInputUsed': False}, indent=2) + '\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              output.write('\n## Decoder color guard only\n\n')
+              output.write(f'Checked {checked_frames}/9 decoder frames across the public demo, untagged VFR and rotated VFR. No face inference was repeated.\n\n')
+              output.write('The full 1,061-frame CPU / 60-frame GPU comparison is prior evidence from [run 42831482504](https://github.com/ugin-man/many-faces-beta/actions/runs/42831482504), commit b79caa0.\n')
+          PY
+          if test -f work/video-pipeline-components/server.pid; then kill "$(cat work/video-pipeline-components/server.pid)" 2>/dev/null || true; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: video-decoder-color-guard-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/video-pipeline-components/publish/
+          if-no-files-found: error
+          retention-days: 7

@@ -44,6 +44,8 @@ next-env.d.ts
 # Private inputs and local browser tooling must never ship.
 /private-inputs/
 /public/test-fixtures/
+/public/video-catalog/
+*.tsbuildinfo
 /.browser-tools/
 /artifacts/
 

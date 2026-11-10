@@ -5,21 +5,22 @@ import CallStage, { type StudioClientProps } from "../call-stage";
 import { Icon } from "../studio-icons";
 import { timeLabel } from "../studio-controls";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import type { FaceLandmarker } from "@mediapipe/tasks-vision";
 import { catalogFeatureFromResult as featureFromResult } from "../catalog-feature";
 import { faceGeometryFromLandmarks, type FaceGeometry, type SequenceFrame } from "../offline-matching";
 import { drawFacePresentation } from "../face-presentation";
-import { drawDemoFaceComposite, resetDemoFaceComposite } from "../demo-face-composite";
+import { drawDemoFaceComposite, resetDemoFaceComposite, type DecodedDemoSource } from "../demo-face-composite";
 import type { ProjectionChoice, ProjectionError } from "../projection-matching";
-import { searchReviewFrames } from "./review-search";
-import { createStableLandmarker } from "./stable-landmarker";
+import { searchReviewFrames, disposeReviewSearch, type ReviewSearchMetrics } from "./review-search";
+import { createReviewFaceAnalyzer, type ReviewFaceAnalyzer } from "./review-face-analyzer";
+import { decodeReviewFrames, type ReviewDecodedFrame } from "./video-decoder";
+import { createReviewYield } from "./review-work-cache";
+import { reviewProcessingOptions } from "./review-processing-options";
 import { runtimeIdentity } from "../runtime-identity";
 import { type ReviewCatalogManifest } from "./review-local-catalog";
 import { processingSecondsPerOutputSecond, quantizeReviewTime, reviewItemAtTime } from "./review-timeline";
 import { evaluateVerificationGate } from "./verification-gate";
 import { emptyReviewPhaseTimings, reviewSequenceFingerprint, roundedReviewPhaseTimings, type ReviewPhaseTimings } from "./review-sequence-metrics";
 import { OPERATION_STALL_TIMEOUT_MS, operationIsStalled, preparationFailureReason, progressSignature } from "./runtime-liveness";
-import { captureVideoFrameAt } from "./video-frame";
 import { motionChoiceAtTime } from "./video-motion";
 import { filterVideoProfileIslands, uncertainProfileAtTime, type UncertainProfileInterval } from "./video-pose-continuity";
 import styles from "../studio.module.css";
@@ -46,7 +47,14 @@ type VerificationReport = {
   processingMs: number; phaseTimingsMs: ReviewPhaseTimings; sequenceIds: string[];
   sequenceFingerprint: string; canvasNonBlank: boolean; faceCoverage: number;
   passed: boolean; reasons: string[];
-  frameEvidence: { presentationCallbacks: number; decodedPausedReadbacks: number };
+  frameEvidence: { presentationCallbacks: number; decodedPausedReadbacks: number; webcodecs?: number };
+  analysisMetrics?: {
+    captureMs: number; positionMs: number; paintMs: number; bitmapMs: number;
+    copyMs: number; inferenceMs: number; featureMs: number; yieldMs: number;
+    engine: ReviewFaceAnalyzer["info"] | null;
+    decoderEvents: Array<{ stage: "analysis" | "preview"; backend: "webcodecs" | "video-element"; fallbackReason?: string }>;
+  };
+  searchMetrics?: ReviewSearchMetrics;
   poseContinuity?: { rejectedFrames: number; intervals: UncertainProfileInterval[] };
   inputBuild: string;
   build: string;
@@ -75,7 +83,6 @@ function waitForVideoMetadata(video: HTMLVideoElement, signal?: AbortSignal) {
     signal?.addEventListener("abort", abort, { once: true });
   });
 }
-function nextPaint() { return new Promise<void>(resolve => requestAnimationFrame(() => resolve())); }
 async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit = {}, timeoutMs = 20000) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -95,14 +102,6 @@ function loadCandidateImage(candidate: Candidate) {
     image.onload = () => finish(true); image.onerror = () => finish(false); image.src = candidate.url;
     void image.decode?.().then(() => finish(true)).catch(() => undefined);
   });
-}
-function drawContained(canvas: HTMLCanvasElement, image: CanvasImageSource & { width: number; height: number }) {
-  const context = canvas.getContext("2d", { alpha: false });
-  if (!context) return;
-  const width = Math.max(1, image.width), height = Math.max(1, image.height);
-  const scale = Math.min(canvas.width / width, canvas.height / height);
-  context.fillStyle = "#0a0c10"; context.fillRect(0, 0, canvas.width, canvas.height);
-  context.drawImage(image, (canvas.width - width * scale) / 2, (canvas.height - height * scale) / 2, width * scale, height * scale);
 }
 function canvasHasVisiblePixels(canvas: HTMLCanvasElement) {
   const scratch = document.createElement("canvas");
@@ -132,7 +131,6 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
   const [mirror, setMirror] = useState(false);
-  const [engineRequested, setEngineRequested] = useState(false);
   const [faceTracking, setFaceTracking] = useState(true);
   const [faceOnly, setFaceOnly] = useState(false);
   const [demoComposite, setDemoComposite] = useState(true);
@@ -141,10 +139,10 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
   const [sourceAspectRatio, setSourceAspectRatio] = useState(1);
   const playbackVideoRef = useRef<HTMLVideoElement | null>(null);
   const outputCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const analysisCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const recordingUrlRef = useRef<string | null>(null);
+  const recordingSourceRef = useRef<Blob | null>(null);
   const manifestRef = useRef<CatalogManifest | null>(null);
-  const landmarkerRef = useRef<FaceLandmarker | null>(null);
+  const analyzerRef = useRef<ReviewFaceAnalyzer | null>(null);
   const outputImagesRef = useRef(new Map<string, HTMLImageElement>());
   const sequenceRef = useRef<ReviewTimelineItem[]>([]);
   const uncertainProfilesRef = useRef<Array<UncertainProfileInterval & { protectedFrame?: HTMLCanvasElement }>>([]);
@@ -221,11 +219,13 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
   const clearReview = useCallback(() => {
     stopPlayback(); processingTokenRef.current += 1;
     captureAbortRef.current?.abort(); captureAbortRef.current = null;
+    analyzerRef.current?.close(); analyzerRef.current = null;
     outputImagesRef.current.clear(); sequenceRef.current = []; uncertainProfilesRef.current = [];
     resetDemoFaceComposite(outputCanvasRef.current);
     lastOutputIdRef.current = null; setReport(null); window.__MANY_FACES_VERIFY__ = undefined;
     if (recordingUrlRef.current) URL.revokeObjectURL(recordingUrlRef.current);
     recordingUrlRef.current = null;
+    recordingSourceRef.current = null;
     const video = playbackVideoRef.current;
     if (video) { video.removeAttribute("src"); video.load(); }
   }, [stopPlayback]);
@@ -245,53 +245,32 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
       } catch (caught) { console.error("Review manifest setup failed.", caught); if (!disposed) { manifestStateRef.current = "failed"; setManifestState("failed"); } }
     }
     void prepareManifest();
-    return () => { disposed = true; preparationAbort.abort(); clearReview(); };
+    return () => { disposed = true; preparationAbort.abort(); clearReview(); disposeReviewSearch(); };
   }, [clearReview]);
-
-  useEffect(() => {
-    if (!engineRequested) return;
-    let disposed = false;
-    const preparationAbort = new AbortController();
-    modelStateRef.current = "loading";
-    async function prepareModel() {
-      try {
-        const landmarker = await createStableLandmarker("IMAGE", event => {
-          if (disposed) return;
-          modelProgressAtRef.current = Date.now();
-          lastProgressAtRef.current = Date.now();
-          const stage = event.stage.includes("download") ? "解析エンジンを受信中" : "解析エンジンを準備中";
-          if (window.__MANY_FACES_RUNTIME__?.phase === "waiting") setProgress({ done: 0, total: 0, label: `${stage} ${(event.bytes / 1048576).toFixed(1)} MB` });
-        }, preparationAbort.signal);
-        if (disposed) { landmarker.close(); return; }
-        landmarkerRef.current = landmarker; modelStateRef.current = "ready"; setModelState("ready");
-      } catch (caught) { console.error("Review model setup failed.", caught); if (!disposed) { modelStateRef.current = "failed"; setModelState("failed"); } }
-    }
-    void prepareModel();
-    return () => { disposed = true; preparationAbort.abort(); landmarkerRef.current?.close(); landmarkerRef.current = null; };
-  }, [engineRequested]);
 
   const waitUntilPrepared = useCallback(async (token: number) => {
     const startedAt = Date.now();
-    while (processingTokenRef.current === token && (!manifestRef.current || !landmarkerRef.current)) {
-      const reason = preparationFailureReason(modelStateRef.current, manifestStateRef.current, Date.now() - Math.max(startedAt, modelProgressAtRef.current));
+    while (processingTokenRef.current === token && !manifestRef.current) {
+      const reason = preparationFailureReason("ready", manifestStateRef.current, Date.now() - startedAt);
       if (reason) throw new Error(reason);
       await new Promise<void>(resolve => setTimeout(resolve, 100));
     }
     if (processingTokenRef.current !== token) throw cancelled();
   }, []);
-  const drawReviewAt = useCallback((time: number) => {
+  const drawReviewAt = useCallback((time: number, decodedSource?: DecodedDemoSource) => {
     const canvas = outputCanvasRef.current;
     if (!canvas) return;
+    const aspectRatio = decodedSource ? decodedSource.width / decodedSource.height : sourceAspectRatio;
     const item = reviewItemAtTime(sequenceRef.current, quantizeReviewTime(time, replayFpsRef.current, clipDuration));
     if (demoComposite) {
       const uncertain = uncertainProfileAtTime(uncertainProfilesRef.current, time);
       const motion = uncertain ? null : motionChoiceAtTime(sequenceRef.current, time, replayFpsRef.current);
       const image = motion ? outputImagesRef.current.get(motion.candidate.id) : undefined;
-      drawDemoFaceComposite(canvas, playbackVideoRef.current, image, motion,
-        { time, fps: replayFpsRef.current, sourceAspectRatio, mirror, protectedFrame: uncertain?.protectedFrame });
+      drawDemoFaceComposite(canvas, decodedSource ?? playbackVideoRef.current, image, motion,
+        { time, fps: replayFpsRef.current, sourceAspectRatio: aspectRatio, mirror, protectedFrame: uncertain?.protectedFrame });
     } else if (item) {
       const image = outputImagesRef.current.get(item.choice.candidate.id);
-      if (image) drawFacePresentation(canvas, image, item.choice, { sourceAspectRatio, trackFace: faceTracking, faceOnly, background: "#0a0c10" });
+      if (image) drawFacePresentation(canvas, image, item.choice, { sourceAspectRatio: aspectRatio, trackFace: faceTracking, faceOnly, background: "#0a0c10" });
     }
     if (item && lastOutputIdRef.current !== item.choice.candidate.id) {
       lastOutputIdRef.current = item.choice.candidate.id; setCurrentOutputName(item.choice.candidate.name);
@@ -313,12 +292,12 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
     const tick = () => {
       const video = playbackVideoRef.current;
       if (!video || video.paused || video.ended) { playbackRafRef.current = null; setPlaying(false); return; }
-      if (video.currentTime >= clipDuration) { video.currentTime = 0; drawReviewAt(0); setPlaybackTime(0); }
-      else { drawReviewAt(video.currentTime); setPlaybackTime(video.currentTime); }
+      if (video.currentTime >= clipDuration) { video.currentTime = 0; drawReviewAtRef.current(0); setPlaybackTime(0); }
+      else { drawReviewAtRef.current(video.currentTime); setPlaybackTime(video.currentTime); }
       playbackRafRef.current = requestAnimationFrame(tick);
     };
     playbackRafRef.current = requestAnimationFrame(tick);
-  }, [clipDuration, drawReviewAt]);
+  }, [clipDuration]);
 
   const processRecording = useCallback(async (videoUrl: string, duration: number, inputName: string, fps = analysisFps) => {
     stopPlayback();
@@ -330,7 +309,15 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
     const cancellation = new AbortController(); captureAbortRef.current = cancellation;
     const checkCurrent = () => { if (processingTokenRef.current !== token || cancellation.signal.aborted) throw cancelled(); };
     const started = performance.now(), phaseTimings = emptyReviewPhaseTimings();
-    const frameEvidence = { presentationCallbacks: 0, decodedPausedReadbacks: 0 };
+    const frameEvidence = { presentationCallbacks: 0, decodedPausedReadbacks: 0, webcodecs: 0 };
+    const analysisMetrics: NonNullable<VerificationReport["analysisMetrics"]> = {
+      captureMs: 0, positionMs: 0, paintMs: 0, bitmapMs: 0,
+      copyMs: 0, inferenceMs: 0, featureMs: 0, yieldMs: 0, engine: null, decoderEvents: [],
+    };
+    const processingOptions = reviewProcessingOptions(location.search);
+    const cooperative = createReviewYield(20);
+    let analyzer: ReviewFaceAnalyzer | null = null;
+    let initialCapture: ReviewDecodedFrame | null = null;
     let phaseStarted = started;
     lastProgressAtRef.current = Date.now(); searchTrafficRef.current = { bytes: 0, files: 0, decoded: 0 };
     setError(null); setProgress(null); setFaceFrames(0); setLoadedShards(0); setPeakCandidates(0);
@@ -338,10 +325,25 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
     outputImagesRef.current.clear(); sequenceRef.current = []; uncertainProfilesRef.current = [];
     lastOutputIdRef.current = null;
     try {
-      setPhase("waiting"); await waitUntilPrepared(token);
+      setPhase("waiting");
+      modelStateRef.current = "loading"; setModelState("loading");
+      await waitUntilPrepared(token); checkCurrent();
+      analyzer = await createReviewFaceAnalyzer({
+        mode: processingOptions.mode, delegate: processingOptions.delegate,
+        execution: processingOptions.execution, signal: cancellation.signal,
+        onProgress: event => {
+          if (processingTokenRef.current !== token || cancellation.signal.aborted) return;
+          modelProgressAtRef.current = Date.now(); lastProgressAtRef.current = Date.now();
+          const stage = event.stage.includes("download") ? "解析エンジンを受信中" : "解析エンジンを準備中";
+          setProgress({ done: 0, total: 0, label: `${stage} ${(event.bytes / 1048576).toFixed(1)} MB` });
+        },
+      });
+      checkCurrent(); analyzerRef.current = analyzer;
+      modelStateRef.current = "ready"; setModelState("ready");
+      analysisMetrics.engine = analyzer.info;
       phaseTimings.preparation = performance.now() - phaseStarted;
-      const video = playbackVideoRef.current, landmarker = landmarkerRef.current;
-      if (!video || !landmarker) throw new Error("解析エンジンがありません");
+      const video = playbackVideoRef.current;
+      if (!video) throw new Error("解析用の動画がありません");
       video.src = videoUrl; video.load();
       await waitForVideoMetadata(video, cancellation.signal); video.pause(); checkCurrent();
       const safeDuration = Number.isFinite(video.duration) && video.duration > 0 ? Math.min(duration, video.duration) : duration;
@@ -351,32 +353,44 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
       setPlannedFrames(frameCount);
       const detectedFrames: SequenceFrame[] = [];
       phaseStarted = performance.now(); setPhase("analyzing");
-      for (let index = 0; index < frameCount; index++) {
-        checkCurrent();
-        const time = Math.min(safeDuration - 0.001, index / fps);
-        // Capture is atomic: arm before seek, then acquire an actual decoded
-        // snapshot. A paused/current frame does not require a future rVFC.
-        const captured = await captureVideoFrameAt(video, time, { signal: cancellation.signal });
-        const canvas = analysisCanvasRef.current ?? document.createElement("canvas");
-        analysisCanvasRef.current = canvas;
+      const sampleTimes = Array.from({ length: frameCount }, (_, index) => Math.max(0, Math.min(safeDuration - 0.001, index / fps)));
+      let index = 0, lastUiUpdate = 0;
+      for await (const captured of decodeReviewFrames(video, recordingSourceRef.current ?? videoUrl, sampleTimes,
+        { signal: cancellation.signal, backend: processingOptions.decoder,
+          onBackend: event => analysisMetrics.decoderEvents.push({ stage: "analysis", ...event }) })) {
+        const time = sampleTimes[index];
         const sourceWidth = captured.bitmap.width, sourceHeight = captured.bitmap.height;
-        try {
-          checkCurrent();
-          if (canvas.width !== sourceWidth || canvas.height !== sourceHeight) { canvas.width = sourceWidth; canvas.height = sourceHeight; }
-          const context = canvas.getContext("2d", { alpha: false });
-          if (!context) throw new Error("解析用キャンバスを準備できませんでした");
-          context.drawImage(captured.bitmap, 0, 0, sourceWidth, sourceHeight);
-        } finally { captured.bitmap.close(); }
-        if (captured.evidence === "presentation-callback") frameEvidence.presentationCallbacks++;
+        try { checkCurrent(); } catch (caught) { captured.bitmap.close(); throw caught; }
+        analysisMetrics.captureMs += captured.timingsMs.total;
+        analysisMetrics.positionMs += captured.timingsMs.position;
+        analysisMetrics.paintMs += captured.timingsMs.paint;
+        analysisMetrics.bitmapMs += captured.timingsMs.bitmap;
+        if (captured.evidence === "webcodecs") frameEvidence.webcodecs++;
+        else if (captured.evidence === "presentation-callback") frameEvidence.presentationCallbacks++;
         else frameEvidence.decodedPausedReadbacks++;
-        const result = landmarker.detect(canvas);
+        // analyze owns the bitmap, including cancellation and failure paths.
+        const observed = await analyzer.analyze(captured.bitmap, time);
+        checkCurrent();
+        analysisMetrics.copyMs += observed.timingsMs.copy;
+        analysisMetrics.inferenceMs += observed.timingsMs.inference;
+        const result = observed.result, featureStarted = performance.now();
         const landmarks = result.faceLandmarks[0];
         if (landmarks && result.faceBlendshapes.length) {
           const geometry = faceGeometryFromLandmarks(landmarks, sourceWidth / sourceHeight);
           if (geometry) detectedFrames.push({ time, feature: featureFromResult(result), geometry, compensateRoll: true });
         }
-        setProgress({ done: index + 1, total: frameCount, label: `Face Mesh ${index + 1} / ${frameCount}` }); await nextPaint();
+        analysisMetrics.featureMs += performance.now() - featureStarted;
+        index++; lastProgressAtRef.current = Date.now();
+        if (performance.now() - lastUiUpdate >= 75 || index === frameCount) {
+          setProgress({ done: index, total: frameCount, label: `Face Mesh ${index} / ${frameCount}` });
+          lastUiUpdate = performance.now();
+        }
+        const pause = cooperative.checkpoint(); if (pause) await pause;
       }
+      checkCurrent();
+      if (index !== frameCount) throw new Error("VIDEO_FRAME_INCOMPLETE: 予定した全フレームを取得できませんでした");
+      analysisMetrics.yieldMs = cooperative.stats.waitMs;
+      analyzer.close(); if (analyzerRef.current === analyzer) analyzerRef.current = null;
       const { frames, intervals } = filterVideoProfileIslands(detectedFrames, fps);
       uncertainProfilesRef.current = intervals;
       phaseTimings.faceMesh = performance.now() - phaseStarted; setFaceFrames(frames.length);
@@ -417,29 +431,53 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
       // Build a complete protected neighbour for each uncertain interval. A seek
       // straight into the gap must show that neighbour, not whichever unrelated
       // frame happened to be displayed before the seek.
-      const preparedIntervals: Array<UncertainProfileInterval & { protectedFrame?: HTMLCanvasElement }> = [];
+      const protectedFrames = new Map<UncertainProfileInterval, HTMLCanvasElement>();
+      const anchors = new Map<number, Array<{ interval: UncertainProfileInterval; anchor: ReviewTimelineItem; image: HTMLImageElement }>>();
       for (const interval of intervals) {
         const anchor = reviewItemAtTime(sequenceRef.current, interval.anchorTime);
         const image = anchor && outputImagesRef.current.get(anchor.choice.candidate.id);
-        if (!anchor || !image) { preparedIntervals.push(interval); continue; }
-        const captured = await captureVideoFrameAt(video, interval.anchorTime, { signal: cancellation.signal });
-        captured.bitmap.close(); checkCurrent();
-        const protectedFrame = document.createElement("canvas");
-        protectedFrame.width = outputCanvasRef.current?.width ?? 768;
-        protectedFrame.height = outputCanvasRef.current?.height ?? 768;
-        const safe = drawDemoFaceComposite(protectedFrame, video, image, anchor.choice,
-          { time: interval.anchorTime, fps, sourceAspectRatio: video.videoWidth / video.videoHeight });
-        preparedIntervals.push({ ...interval, protectedFrame: safe ? protectedFrame : undefined });
+        if (!anchor || !image) continue;
+        const group = anchors.get(interval.anchorTime) ?? [];
+        group.push({ interval, anchor, image }); anchors.set(interval.anchorTime, group);
       }
-      uncertainProfilesRef.current = preparedIntervals;
+      const previewTimes = [...new Set([0, ...anchors.keys()])].sort((a, b) => a - b);
+      let preparedCount = 0;
+      for await (const captured of decodeReviewFrames(video, recordingSourceRef.current ?? videoUrl, previewTimes,
+        { signal: cancellation.signal, backend: processingOptions.decoder,
+          onBackend: event => analysisMetrics.decoderEvents.push({ stage: "preview", ...event }) })) {
+        try {
+          checkCurrent();
+          const source = { image: captured.bitmap, width: captured.bitmap.width, height: captured.bitmap.height,
+            time: captured.mediaTime ?? captured.requestedTime };
+          for (const { interval, anchor, image } of anchors.get(captured.requestedTime) ?? []) {
+            const protectedFrame = document.createElement("canvas");
+            protectedFrame.width = outputCanvasRef.current?.width ?? 768;
+            protectedFrame.height = outputCanvasRef.current?.height ?? 768;
+            const safe = drawDemoFaceComposite(protectedFrame, source, image, anchor.choice,
+              { time: interval.anchorTime, fps, sourceAspectRatio: source.width / source.height });
+            if (safe) protectedFrames.set(interval, protectedFrame);
+          }
+          if (captured.requestedTime === 0) initialCapture = captured;
+          preparedCount++; lastProgressAtRef.current = Date.now();
+          setProgress({ done: preparedCount, total: previewTimes.length, label: `画面を準備中 ${preparedCount} / ${previewTimes.length}` });
+        } finally { if (initialCapture !== captured) captured.bitmap.close(); }
+      }
+      checkCurrent();
+      uncertainProfilesRef.current = intervals.map(interval => ({ ...interval, protectedFrame: protectedFrames.get(interval) }));
+      const canvas = outputCanvasRef.current;
+      if (canvas && initialCapture) {
+        drawReviewAtRef.current(0, { image: initialCapture.bitmap, width: initialCapture.bitmap.width,
+          height: initialCapture.bitmap.height, time: initialCapture.mediaTime ?? initialCapture.requestedTime });
+      }
+      initialCapture?.bitmap.close(); initialCapture = null;
       phaseTimings.imagePreload = performance.now() - phaseStarted; setImageFailures(failures);
       const sequenceIds = choices.map(choice => choice.candidate.id), sequenceFingerprint = reviewSequenceFingerprint(sequenceIds);
       const changes = choices.reduce((count, choice, index) => index > 0 && choices[index - 1].candidate.id !== choice.candidate.id ? count + 1 : count, 0);
       setOutputChanges(changes); setUniqueFaces(selected.length);
       const elapsed = performance.now() - started;
       setProcessingMs(elapsed); setProgress(null); setPlaybackTime(0); setPhase("review"); video.currentTime = 0;
-      await nextPaint(); checkCurrent(); drawReviewAtRef.current(0); await nextPaint(); checkCurrent();
-      const canvas = outputCanvasRef.current, canvasNonBlank = Boolean(canvas && canvasHasVisiblePixels(canvas));
+      checkCurrent();
+      const canvasNonBlank = Boolean(canvas && canvasHasVisiblePixels(canvas));
       const gate = evaluateVerificationGate({ plannedFrames: frameCount, faceFrames: frames.length, sequenceFrames: choices.length, selectedImages: selected.length, imageFailures: failures, outputChanges: changes, canvasNonBlank });
       const nextReport: VerificationReport = {
         sourceName: inputName, analysisFps: fps, plannedFrames: frameCount, faceFrames: frames.length,
@@ -448,6 +486,7 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
         phaseTimingsMs: roundedReviewPhaseTimings(phaseTimings), sequenceIds, sequenceFingerprint,
         canvasNonBlank, faceCoverage: gate.faceCoverage, passed: gate.passed, reasons: gate.reasons,
         frameEvidence, inputBuild: runtimeIdentity.version, build: runtimeIdentity.build, searchTraffic: { ...searchTrafficRef.current },
+        analysisMetrics, searchMetrics: searched.performanceMetrics,
         poseContinuity: { rejectedFrames: detectedFrames.length - frames.length,
           intervals: intervals.map(({ start, end, anchorTime, rejectedTimes }) => ({ start, end, anchorTime, rejectedTimes })) },
         matching: {
@@ -461,16 +500,21 @@ export default function DemoVideoClient({ onModeChange, onOpenSample }: StudioCl
       setReport(nextReport); window.__MANY_FACES_VERIFY__ = nextReport;
     } catch (caught) {
       if (processingTokenRef.current !== token || (caught instanceof DOMException && caught.name === "AbortError")) return;
+      if (modelStateRef.current === "loading") { modelStateRef.current = "failed"; setModelState("failed"); }
       console.error("Fixed-video review failed.", caught);
       setError(caught instanceof Error ? caught.message : "処理に失敗しました"); setPhase("error"); setProgress(null);
-    } finally { if (captureAbortRef.current === cancellation) captureAbortRef.current = null; }
+    } finally {
+      cooperative.close(); analyzer?.close(); initialCapture?.bitmap.close();
+      if (analyzerRef.current === analyzer) analyzerRef.current = null;
+      if (captureAbortRef.current === cancellation) captureAbortRef.current = null;
+    }
   }, [analysisFps, stopPlayback, waitUntilPrepared]);
 
   const verifyVideoFile = useCallback(async (file: File | null) => {
     if (!file || busy) return;
     if (file.size === 0) { setError("空の動画ファイルです。別の動画を選んでください。"); setPhase("error"); return; }
-    setEngineRequested(true);
     clearReview(); setError(null); setSourceName(file.name); setPhase("waiting"); lastProgressAtRef.current = Date.now();
+    recordingSourceRef.current = file;
     const token = processingTokenRef.current;
     const cancellation = new AbortController(); captureAbortRef.current = cancellation;
     try {

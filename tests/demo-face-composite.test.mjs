@@ -77,6 +77,17 @@ test("one or three missing frames reuse a complete protected frame, never the ra
       { time: 5, fps: 20, sourceAspectRatio: 1, protectedFrame: preparedNeighbour }), false);
     assert.deepEqual(draws.slice(beforePrepared), [preparedNeighbour],
       "a direct seek into an uncertain profile uses the prepared safe neighbour, even if a fresh but unreliable mesh exists");
+    const bitmap = { width: 100, height: 100 };
+    const decoded = { image: bitmap, width: 100, height: 100, time: 1 };
+    assert.equal(drawDemoFaceComposite(canvas, decoded, photo, choice,
+      { time: 1, fps: 20, sourceAspectRatio: 1 }), true,
+    "a decoded bitmap can build a protected preview without a playback paint");
+    assert.equal(draws.filter(x => x === bitmap).length, 1);
+    for (const time of [.7, 1.3, Number.NaN]) {
+      assert.equal(drawDemoFaceComposite(canvas, { ...decoded, time }, photo, choice,
+        { time: 1, fps: 20, sourceAspectRatio: 1 }), false);
+      assert.equal(draws.filter(x => x === bitmap).length, 1, "stale or invalid decoded time cannot expose source pixels");
+    }
     resetDemoFaceComposite(canvas);
     assert.equal(drawDemoFaceComposite(canvas, video, undefined, null,
       { time: 1.5, fps: 20, sourceAspectRatio: 1 }), false);

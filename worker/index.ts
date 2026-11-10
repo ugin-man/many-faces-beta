@@ -419,6 +419,25 @@ async function handleCatalog(request: Request, env: Env | undefined, url: URL) {
   try {
     const source = requestedCatalogSource(url);
 
+    // Immutable, build-derived video metadata. Other catalog consumers retain
+    // the complete original geometry and the remote catalog selection policy.
+    if (request.method === "GET" && (url.pathname === "/api/catalog/review-manifest" || url.pathname === "/api/catalog/review-shard")) {
+      const catalog = url.searchParams.get("catalog") ?? "";
+      const file = url.searchParams.get("file") ?? "";
+      if (source !== "seed" || !/^[a-f0-9]{64}$/.test(catalog) ||
+        (url.pathname.endsWith("review-shard") && !/^[a-z0-9_.+-]+\.json$/i.test(file))) {
+        return catalogJson({ error: "Invalid review catalog request" }, 400);
+      }
+      const path = url.pathname.endsWith("review-manifest") ? "manifest.json" : `shards/${file}`;
+      const response = await fetchBundledAsset(request, env, `/video-catalog/v1/${catalog}/${path}`);
+      if (!response.ok || !response.body) return catalogJson({ error: "Review catalog is not installed" }, 404);
+      const headers = new Headers(response.headers);
+      headers.set("content-type", "application/json; charset=utf-8");
+      headers.set("cache-control", "private, max-age=31536000, immutable");
+      headers.set("x-content-type-options", "nosniff");
+      return new Response(response.body, { headers });
+    }
+
     if (request.method === "GET" && url.pathname === "/api/catalog/manifest") {
       return catalogManifestRead(request, env, source);
     }

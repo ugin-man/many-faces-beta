@@ -63,3 +63,43 @@ export class ReviewWindowCache<T> {
   clear() { this.windows.clear(); this.references = 0; }
   stats() { return { windows: this.windows.size, references: this.references, hits: this.hits, misses: this.misses }; }
 }
+
+/** Bounded decoded static-shard LRU. Eviction never truncates a result: callers
+ * retain the complete current window and can reload a missing shard later. */
+export class ReviewShardCache<T> {
+  private identity = "";
+  private items = new Map<string, { value: T; bytes: number; records: number }>();
+  private bytes = 0;
+  private records = 0;
+  private readonly maxBytes: number;
+  private readonly maxRecords: number;
+  hits = 0;
+  misses = 0;
+  evictions = 0;
+  constructor(maxBytes = 96 * 1024 * 1024, maxRecords = 30000) {
+    this.maxBytes = Math.max(0, Math.floor(maxBytes));
+    this.maxRecords = Math.max(0, Math.floor(maxRecords));
+  }
+  setIdentity(identity: string) {
+    if (identity !== this.identity) { this.clear(); this.identity = identity; }
+  }
+  get(key: string): T | undefined {
+    const item = this.items.get(key);
+    if (!item) { this.misses++; return undefined; }
+    this.hits++; this.items.delete(key); this.items.set(key, item); return item.value;
+  }
+  set(key: string, value: T, bytes: number, records: number) {
+    if (!Number.isSafeInteger(bytes) || bytes < 0 || !Number.isSafeInteger(records) || records < 0) throw new RangeError("Invalid shard cache weight");
+    const old = this.items.get(key);
+    if (old) { this.bytes -= old.bytes; this.records -= old.records; this.items.delete(key); }
+    if (bytes > this.maxBytes || records > this.maxRecords) return;
+    while (this.items.size && (this.bytes + bytes > this.maxBytes || this.records + records > this.maxRecords)) {
+      const oldest = this.items.keys().next().value!;
+      const removed = this.items.get(oldest)!;
+      this.bytes -= removed.bytes; this.records -= removed.records; this.items.delete(oldest); this.evictions++;
+    }
+    this.items.set(key, { value, bytes, records }); this.bytes += bytes; this.records += records;
+  }
+  clear() { this.items.clear(); this.bytes = 0; this.records = 0; this.hits = 0; this.misses = 0; this.evictions = 0; }
+  stats() { return { shards: this.items.size, bytes: this.bytes, records: this.records, hits: this.hits, misses: this.misses, evictions: this.evictions, maxBytes: this.maxBytes, maxRecords: this.maxRecords }; }
+}

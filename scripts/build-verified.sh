@@ -18,6 +18,9 @@ if [[ ! -x "${vinext}" ]]; then
   exit 69
 fi
 
+echo "Preparing the normal-video catalog..."
+node --experimental-strip-types "${SITES_PROJECT_ROOT}/tools/build-review-catalog.mjs" --if-present
+
 echo "Running bounded vinext build..."
 timeout \
   --signal=TERM \

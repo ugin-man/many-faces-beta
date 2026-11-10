@@ -104,8 +104,10 @@ test('search is cancellable off-thread and camera ready follows CPU warmup', asy
   const worker = await readFile(new URL('../app/live/astra/processor.worker.ts', import.meta.url), 'utf8');
   const engine = await readFile(new URL('../app/live/stable-landmarker.ts', import.meta.url), 'utf8');
   const search = await readFile(new URL('../app/live/review-search.ts', import.meta.url), 'utf8');
+  const controller = await readFile(new URL('../app/live/review-search-controller.ts', import.meta.url), 'utf8');
   assert.match(review, /searchReviewFrames\(frames, cancellation.signal/);
-  assert.match(search, /worker.terminate\(\)/); assert.match(search, /deadline.observe/);
-  assert.match(engine, /delegate: "CPU"/); assert.doesNotMatch(worker, /probeCpuIfSlow|createEngine/);
+  assert.match(search, /ReviewSearchController/);
+  assert.match(controller, /worker.terminate\(\)/); assert.match(controller, /deadline.observe/);
+  assert.match(engine, /delegate: options\.delegate \?\? "CPU"/); assert.doesNotMatch(worker, /probeCpuIfSlow|createEngine/);
   assert.ok(worker.indexOf('landmarker.detectForVideo(warmCanvas, 0)') < worker.indexOf('type: "ready"'));
 });

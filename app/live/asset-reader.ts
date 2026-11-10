@@ -1,4 +1,5 @@
 export type AssetReadOptions = {
+  cache?: RequestCache;
   signal?: AbortSignal;
   idleMs?: number;
   maxMs?: number;
@@ -30,7 +31,7 @@ export async function readAssetBytes(url: string, options: AssetReadOptions = {}
   const chunks: Uint8Array[] = [];
   let received = 0;
   try {
-    const response = await Promise.race([fetch(url, { signal: controller.signal, cache: "force-cache" }), abortPromise]);
+    const response = await Promise.race([fetch(url, { signal: controller.signal, cache: options.cache ?? "force-cache" }), abortPromise]);
     if (!response.ok) throw fail(`ASSET_HTTP_${response.status}`);
     if (!response.body) throw fail("ASSET_EMPTY_BODY");
     const maxBytes = options.maxBytes ?? 32 * 1024 * 1024;

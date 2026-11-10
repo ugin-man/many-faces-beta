@@ -215,12 +215,46 @@ export function mouthShapeDescriptor(vector: NumericVector) {
   ];
 }
 
-function mouthShapeGeometryDistance(left: NumericVector, right: NumericVector) {
-  const a = mouthShapeDescriptor(left);
-  const b = mouthShapeDescriptor(right);
+type ProjectionDescriptors = { expression: readonly number[]; mouth: readonly number[] };
+
+function prepareProjectionDescriptors(vector: NumericVector): ProjectionDescriptors {
+  return { expression: expressionDescriptor(vector), mouth: mouthShapeDescriptor(vector) };
+}
+
+/** Optional, explicitly owned cache for immutable catalog projections. It never
+ * changes the behavior of uncached callers using mutable landmark arrays.
+ * Clear/invalidate when geometry is edited or a catalog is replaced.
+ */
+export class ProjectionDescriptorCache {
+  private descriptors = new WeakMap<NumericVector, ProjectionDescriptors>();
+  private builds = 0;
+  private hits = 0;
+  get(vector: NumericVector): ProjectionDescriptors {
+    const known = this.descriptors.get(vector);
+    if (known) { this.hits++; return known; }
+    const prepared = prepareProjectionDescriptors(vector);
+    this.descriptors.set(vector, prepared);
+    this.builds++;
+    return prepared;
+  }
+  invalidate(vector: NumericVector) { this.descriptors.delete(vector); }
+  clear() { this.descriptors = new WeakMap(); }
+  stats() { return { builds: this.builds, hits: this.hits }; }
+}
+
+const MOUTH_SHAPE_WEIGHTS = [2.2, 2.8, 4.2, 1.8, 4.4, 1.5, 2.2, 2.2] as const;
+const EXPRESSION_WEIGHTS = [2.6, 1.8, 0.7, 2.4, 1.5, 1.5, 0.7, 0.7] as const;
+const MOUTH_DESCRIPTOR_INDEXES = [0, 1, 2, 3] as const;
+const MOUTH_DESCRIPTOR_WEIGHTS = [2.6, 1.8, 0.7, 2.4] as const;
+const EYE_DESCRIPTOR_INDEXES = [4, 5] as const;
+const EYE_DESCRIPTOR_WEIGHTS = [1.5, 1.5] as const;
+const BROW_DESCRIPTOR_INDEXES = [6, 7] as const;
+const BROW_DESCRIPTOR_WEIGHTS = [1, 1] as const;
+
+function mouthShapeDistance(a: readonly number[], b: readonly number[]) {
   // Aperture and roundness carry the vowel; absolute width and corner height
   // keep a naturally narrow mouth from masquerading as a puckered one.
-  const weights = [2.2, 2.8, 4.2, 1.8, 4.4, 1.5, 2.2, 2.2];
+  const weights = MOUTH_SHAPE_WEIGHTS;
   let total = 0;
   let weightTotal = 0;
   for (let index = 0; index < a.length; index += 1) {
@@ -230,10 +264,12 @@ function mouthShapeGeometryDistance(left: NumericVector, right: NumericVector) {
   return Math.sqrt(total / weightTotal);
 }
 
-function descriptorDistance(left: NumericVector, right: NumericVector) {
-  const a = expressionDescriptor(left);
-  const b = expressionDescriptor(right);
-  const weights = [2.6, 1.8, 0.7, 2.4, 1.5, 1.5, 0.7, 0.7];
+function mouthShapeGeometryDistance(left: NumericVector, right: NumericVector) {
+  return mouthShapeDistance(mouthShapeDescriptor(left), mouthShapeDescriptor(right));
+}
+
+function descriptorDistance(a: readonly number[], b: readonly number[]) {
+  const weights = EXPRESSION_WEIGHTS;
   let total = 0;
   let weightTotal = 0;
   for (let index = 0; index < a.length; index += 1) {
@@ -244,13 +280,11 @@ function descriptorDistance(left: NumericVector, right: NumericVector) {
 }
 
 function descriptorSliceDistance(
-  left: NumericVector,
-  right: NumericVector,
+  a: readonly number[],
+  b: readonly number[],
   indexes: readonly number[],
   weights: readonly number[],
 ) {
-  const a = expressionDescriptor(left);
-  const b = expressionDescriptor(right);
   let total = 0;
   let weightTotal = 0;
   indexes.forEach((descriptorIndex, index) => {
@@ -261,42 +295,42 @@ function descriptorSliceDistance(
   return weightTotal ? Math.sqrt(total / weightTotal) : 0;
 }
 
+const BLENDSHAPE_ACTION_WEIGHTS: Partial<Record<typeof FACE_ACTION_KEYS[number], number>> = {
+  jawOpen: 2.8,
+  mouthClose: 0.5,
+  mouthFunnel: 0.9,
+  mouthPucker: 1,
+  mouthSmileLeft: 3.1,
+  mouthSmileRight: 3.1,
+  mouthFrownLeft: 1.4,
+  mouthFrownRight: 1.4,
+  mouthStretchLeft: 0.8,
+  mouthStretchRight: 0.8,
+  eyeBlinkLeft: 2.7,
+  eyeBlinkRight: 2.7,
+  eyeSquintLeft: 1.1,
+  eyeSquintRight: 1.1,
+  eyeWideLeft: 2.2,
+  eyeWideRight: 2.2,
+  eyeLookUpLeft: 1.35,
+  eyeLookUpRight: 1.35,
+  eyeLookDownLeft: 1.35,
+  eyeLookDownRight: 1.35,
+  browInnerUp: 1.35,
+  browDownLeft: 1,
+  browDownRight: 1,
+  browOuterUpLeft: 1,
+  browOuterUpRight: 1,
+  noseSneerLeft: 0.85,
+  noseSneerRight: 0.85,
+};
+const BLENDSHAPE_ACTION_TERMS = FACE_ACTION_KEYS.filter(key => key !== "_neutral").map(key =>
+  [FACE_ACTION_FEATURE_INDEX[key], BLENDSHAPE_ACTION_WEIGHTS[key] ?? 0.35] as const);
+
 function blendshapeExpressionDistance(left: number[], right: number[]) {
-  const importantWeights: Partial<Record<typeof FACE_ACTION_KEYS[number], number>> = {
-    jawOpen: 2.8,
-    mouthClose: 0.5,
-    mouthFunnel: 0.9,
-    mouthPucker: 1,
-    mouthSmileLeft: 3.1,
-    mouthSmileRight: 3.1,
-    mouthFrownLeft: 1.4,
-    mouthFrownRight: 1.4,
-    mouthStretchLeft: 0.8,
-    mouthStretchRight: 0.8,
-    eyeBlinkLeft: 2.7,
-    eyeBlinkRight: 2.7,
-    eyeSquintLeft: 1.1,
-    eyeSquintRight: 1.1,
-    eyeWideLeft: 2.2,
-    eyeWideRight: 2.2,
-    eyeLookUpLeft: 1.35,
-    eyeLookUpRight: 1.35,
-    eyeLookDownLeft: 1.35,
-    eyeLookDownRight: 1.35,
-    browInnerUp: 1.35,
-    browDownLeft: 1,
-    browDownRight: 1,
-    browOuterUpLeft: 1,
-    browOuterUpRight: 1,
-    noseSneerLeft: 0.85,
-    noseSneerRight: 0.85,
-  };
   let total = 0;
   let weightTotal = 0;
-  for (const key of FACE_ACTION_KEYS) {
-    if (key === "_neutral") continue;
-    const weight = importantWeights[key] ?? 0.35;
-    const index = FACE_ACTION_FEATURE_INDEX[key];
+  for (const [index, weight] of BLENDSHAPE_ACTION_TERMS) {
     const delta = Number(left[index] ?? 0) - Number(right[index] ?? 0);
     total += delta * delta * weight;
     weightTotal += weight;
@@ -331,11 +365,13 @@ const MOUTH_ACTION_WEIGHTS: Partial<Record<typeof FACE_ACTION_KEYS[number], numb
   mouthUpperUpRight: 1.5,
 };
 
+const MOUTH_ACTION_TERMS = Object.entries(MOUTH_ACTION_WEIGHTS).map(([key, weight]) =>
+  [FACE_ACTION_FEATURE_INDEX[key as keyof typeof FACE_ACTION_FEATURE_INDEX], Number(weight)] as const);
+
 function mouthActionDistance(left: number[], right: number[]) {
   let total = 0;
   let weightTotal = 0;
-  for (const [key, weight] of Object.entries(MOUTH_ACTION_WEIGHTS)) {
-    const index = FACE_ACTION_FEATURE_INDEX[key as keyof typeof FACE_ACTION_FEATURE_INDEX];
+  for (const [index, weight] of MOUTH_ACTION_TERMS) {
     const delta = Number(left[index] ?? 0) - Number(right[index] ?? 0);
     total += delta * delta * Number(weight);
     weightTotal += Number(weight);
@@ -368,9 +404,12 @@ function clamp01(value: number) {
 export function projectionError(
   frame: SequenceFrame,
   candidate: ProjectionCandidate,
+  descriptors?: ProjectionDescriptorCache,
 ): ProjectionError {
   const left = frame.geometry.projection;
   const right = candidate.geometry.projection;
+  const preparedLeft = descriptors?.get(left) ?? prepareProjectionDescriptors(left);
+  const preparedRight = descriptors?.get(right) ?? prepareProjectionDescriptors(right);
   const contour = rmsAtIndexes(left, right, FACE_OVAL);
   const balancedFeatures = rmsAtIndexes(left, right, FEATURE_INDEXES);
   const mouth = rmsAtIndexes(left, right, MOUTH_INDEXES);
@@ -381,12 +420,12 @@ export function projectionError(
   const brows = rmsAtIndexes(left, right, BROWS);
   const nose = rmsAtIndexes(left, right, NOSE);
   const features = mouth * 0.56 + eyes * 0.27 + brows * 0.17;
-  const descriptor = descriptorDistance(left, right);
-  const mouthDescriptor = descriptorSliceDistance(left, right, [0, 1, 2, 3], [2.6, 1.8, 0.7, 2.4]);
+  const descriptor = descriptorDistance(preparedLeft.expression, preparedRight.expression);
+  const mouthDescriptor = descriptorSliceDistance(preparedLeft.expression, preparedRight.expression, MOUTH_DESCRIPTOR_INDEXES, MOUTH_DESCRIPTOR_WEIGHTS);
   const mouthAction = mouthActionDistance(frame.feature, candidate.feature);
-  const mouthShape = mouthShapeGeometryDistance(left, right) * 0.62 + mouthAction * 0.38;
-  const eyeDescriptor = descriptorSliceDistance(left, right, [4, 5], [1.5, 1.5]);
-  const browDescriptor = descriptorSliceDistance(left, right, [6, 7], [1, 1]);
+  const mouthShape = mouthShapeDistance(preparedLeft.mouth, preparedRight.mouth) * 0.62 + mouthAction * 0.38;
+  const eyeDescriptor = descriptorSliceDistance(preparedLeft.expression, preparedRight.expression, EYE_DESCRIPTOR_INDEXES, EYE_DESCRIPTOR_WEIGHTS);
+  const browDescriptor = descriptorSliceDistance(preparedLeft.expression, preparedRight.expression, BROW_DESCRIPTOR_INDEXES, BROW_DESCRIPTOR_WEIGHTS);
   const blendshape = blendshapeExpressionDistance(frame.feature, candidate.feature);
   const eyeAction = eyeActionDistance(frame.feature, candidate.feature);
   const expression = descriptor * 0.78 + blendshape * 0.22;
@@ -697,12 +736,12 @@ type PathState<T extends ProjectionCandidate> = {
   previous: PathState<T> | null;
 };
 
-/** Distinct by default; review can admit repeated identities to preserve fidelity. */
-export function optimizeDistinctProjectionSequence<T extends ProjectionCandidate>(
+/** One shared implementation for the sync API and cooperative video worker. */
+function* projectionSequenceSteps<T extends ProjectionCandidate>(
   frames: SequenceFrame[],
   rankedBeams: Array<Array<{ candidate: T; error: ProjectionError }>>,
   options: ProjectionSequenceOptions = {},
-): ProjectionChoice<T>[] {
+): Generator<number, ProjectionChoice<T>[], void> {
   if (!frames.length || frames.length !== rankedBeams.length || rankedBeams.some((beam) => !beam.length)) {
     return [];
   }
@@ -727,7 +766,7 @@ export function optimizeDistinctProjectionSequence<T extends ProjectionCandidate
 
   let paths: PathState<T>[] = rankedBeams[0].slice(0, beamWidth).map(({ candidate, error }) => ({
     cost: error.total + rareActionPenalty(frames[0], error),
-    history: [candidate.id],
+    history: options.allowRepeats ? [] : [candidate.id],
     choice: {
       frame: frames[0], candidate, emission: error.total, error,
       accepted: error.total <= qualityThreshold,
@@ -735,66 +774,81 @@ export function optimizeDistinctProjectionSequence<T extends ProjectionCandidate
     },
     previous: null,
   }));
+  yield 1;
 
   for (let frameIndex = 1; frameIndex < frames.length; frameIndex += 1) {
-    const next: PathState<T>[] = [];
-    for (const path of paths) {
-      for (const { candidate, error } of rankedBeams[frameIndex]) {
-        if (!options.allowRepeats && path.history.includes(candidate.id)) continue;
-        const continuity = residualMotionAtIndexes(
-          frames[frameIndex - 1], path.choice.candidate,
-          frames[frameIndex], candidate,
-          COARSE_INDEXES,
-        );
-        const expressionMotion = expressionResidualMotion(
-          frames[frameIndex - 1], path.choice.candidate,
-          frames[frameIndex], candidate,
-          normalizedMotionWeights,
-        );
-        const activity = sourceExpressionActivity(
-          frames[frameIndex - 1], frames[frameIndex],
-        );
-        const activityBoost = Math.min(1.8, activity / 0.012);
-        next.push({
-          cost: path.cost + error.total + rareActionPenalty(frames[frameIndex], error) +
-            continuity * residualCoherence * 0.35 +
-            expressionMotion * expressionMotionWeight * (0.45 + activityBoost),
-          history: [...path.history, candidate.id].slice(-cooldown),
-          choice: {
-            frame: frames[frameIndex], candidate, emission: error.total, error,
-            accepted: error.total <= qualityThreshold,
-            expressionMotion,
-          },
+    const frame = frames[frameIndex];
+    const beam = rankedBeams[frameIndex];
+    const activity = sourceExpressionActivity(frames[frameIndex - 1], frame);
+    const activityBoost = Math.min(1.8, activity / 0.012);
+    const rarePenalties = beam.map(({ error }) => rareActionPenalty(frame, error));
+
+    const collect = (groupByCandidate: boolean): PathState<T>[] | null => {
+      const next: PathState<T>[] = [];
+      const bestByCandidate = new Map<string, { state: PathState<T>; order: number }>();
+      let order = 0, admitted = 0;
+      const admit = (path: PathState<T>, candidate: T, error: ProjectionError, cost: number, expressionMotion: number, fallback: boolean) => {
+        const index = order++;
+        admitted++;
+        if (groupByCandidate) {
+          // NaN is not a total ordering. Preserve native stable-sort behavior
+          // for malformed inputs by rerunning this rare step without pruning.
+          if (Number.isNaN(cost)) return false;
+          const best = bestByCandidate.get(candidate.id);
+          if (best && !(cost < best.state.cost)) return true;
+        }
+        const state: PathState<T> = {
+          cost,
+          history: options.allowRepeats ? [] : fallback ? [candidate.id] : [...path.history, candidate.id].slice(-cooldown),
+          choice: { frame, candidate, emission: error.total, error,
+            accepted: error.total <= qualityThreshold, expressionMotion },
           previous: path,
-        });
-      }
-    }
-    if (!next.length) {
+        };
+        if (groupByCandidate) bestByCandidate.set(candidate.id, { state, order: index });
+        else next.push(state);
+        return true;
+      };
+
       for (const path of paths) {
-        for (const { candidate, error } of rankedBeams[frameIndex]) {
-          if (!options.allowRepeats && path.choice.candidate.id === candidate.id) continue;
-          next.push({
-            cost: path.cost + error.total,
-            history: [candidate.id],
-            choice: {
-              frame: frames[frameIndex], candidate, emission: error.total, error,
-              accepted: error.total <= qualityThreshold,
-              expressionMotion: 0,
-            },
-            previous: path,
-          });
+        for (let index = 0; index < beam.length; index++) {
+          const { candidate, error } = beam[index];
+          if (!options.allowRepeats && path.history.includes(candidate.id)) continue;
+          const continuity = residualMotionAtIndexes(
+            frames[frameIndex - 1], path.choice.candidate, frame, candidate, COARSE_INDEXES,
+          );
+          const expressionMotion = expressionResidualMotion(
+            frames[frameIndex - 1], path.choice.candidate, frame, candidate, normalizedMotionWeights,
+          );
+          const cost = path.cost + error.total + rarePenalties[index] +
+            continuity * residualCoherence * 0.35 +
+            expressionMotion * expressionMotionWeight * (0.45 + activityBoost);
+          if (!admit(path, candidate, error, cost, expressionMotion, false)) return null;
         }
       }
-    }
-    const ordered = next.sort((left, right) => left.cost - right.cost);
-    if (options.allowRepeats) {
-      // Without the identity cooldown, only the last candidate affects the next
-      // transition. Keep its cheapest history, not many copies of the same state.
-      const bestByCandidate = new Map<string, PathState<T>>();
-      for (const path of ordered) if (!bestByCandidate.has(path.choice.candidate.id)) bestByCandidate.set(path.choice.candidate.id, path);
-      paths = [...bestByCandidate.values()].slice(0, beamWidth);
-    } else paths = ordered.slice(0, beamWidth);
+      if (!admitted) {
+        for (const path of paths) {
+          for (const { candidate, error } of beam) {
+            if (!options.allowRepeats && path.choice.candidate.id === candidate.id) continue;
+            if (!admit(path, candidate, error, path.cost + error.total, 0, true)) return null;
+          }
+        }
+      }
+      if (groupByCandidate) {
+        // The winning transition may replace an earlier insertion for this ID.
+        // Explicit generation order retains full stable-sort ties after replacement.
+        return [...bestByCandidate.values()]
+          .sort((a, b) => a.state.cost - b.state.cost || a.order - b.order)
+          .slice(0, beamWidth).map(({ state }) => state);
+      }
+      const ordered = next.sort((a, b) => a.cost - b.cost);
+      if (!options.allowRepeats) return ordered.slice(0, beamWidth);
+      const unique = new Map<string, PathState<T>>();
+      for (const state of ordered) if (!unique.has(state.choice.candidate.id)) unique.set(state.choice.candidate.id, state);
+      return [...unique.values()].slice(0, beamWidth);
+    };
+    paths = collect(Boolean(options.allowRepeats)) ?? collect(false)!;
     if (!paths.length) return [];
+    yield frameIndex + 1;
   }
   const choices: ProjectionChoice<T>[] = [];
   let cursor: PathState<T> | null = paths[0];
@@ -803,4 +857,59 @@ export function optimizeDistinctProjectionSequence<T extends ProjectionCandidate
     cursor = cursor.previous;
   }
   return choices.reverse();
+}
+
+/** Distinct by default; review can admit repeated identities to preserve fidelity. */
+export function optimizeDistinctProjectionSequence<T extends ProjectionCandidate>(
+  frames: SequenceFrame[],
+  rankedBeams: Array<Array<{ candidate: T; error: ProjectionError }>>,
+  options: ProjectionSequenceOptions = {},
+): ProjectionChoice<T>[] {
+  const steps = projectionSequenceSteps(frames, rankedBeams, options);
+  let step = steps.next();
+  while (!step.done) step = steps.next();
+  return step.value;
+}
+
+export type ProjectionSequenceControl = {
+  signal?: AbortSignal;
+  onProgress?: (completed: number, total: number) => void;
+  checkpoint?: () => Promise<void> | void | null;
+  budgetMs?: number;
+};
+
+/** Same decisions as the synchronous API, with real per-frame progress and
+ * cooperative yields between completed frames. The caller may supply a worker
+ * MessageChannel yield; the time budget is checked at frame boundaries.
+ */
+export async function optimizeDistinctProjectionSequenceAsync<T extends ProjectionCandidate>(
+  frames: SequenceFrame[],
+  rankedBeams: Array<Array<{ candidate: T; error: ProjectionError }>>,
+  options: ProjectionSequenceOptions = {},
+  control: ProjectionSequenceControl = {},
+): Promise<ProjectionChoice<T>[]> {
+  const check = () => {
+    if (control.signal?.aborted) throw control.signal.reason ?? new DOMException("Sequence optimization cancelled", "AbortError");
+  };
+  const budgetMs = Math.max(0, Number.isFinite(control.budgetMs) ? control.budgetMs! : 8);
+  const checkpoint = control.checkpoint ?? (() => new Promise<void>(resolve => setTimeout(resolve, 0)));
+  const steps = projectionSequenceSteps(frames, rankedBeams, options);
+  let lastYield = performance.now();
+  try {
+    check();
+    let step = steps.next();
+    while (!step.done) {
+      control.onProgress?.(step.value, frames.length);
+      check();
+      if (performance.now() - lastYield >= budgetMs) {
+        await checkpoint();
+        check();
+        lastYield = performance.now();
+      }
+      step = steps.next();
+    }
+    return step.value;
+  } finally {
+    steps.return([]);
+  }
 }

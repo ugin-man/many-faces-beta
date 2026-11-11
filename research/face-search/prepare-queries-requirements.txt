@@ -1,0 +1,5 @@
+# Native fallback input generation, separate from timed retrieval dependencies.
+# OpenCV contributes both VideoCapture and its FFmpeg backend.
+mediapipe==0.10.32
+opencv-contrib-python==5.0.0.93
+numpy==2.5.4

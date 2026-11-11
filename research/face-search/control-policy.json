@@ -1,0 +1,74 @@
+{
+  "schema_version": 2,
+  "implementation": "New connector-authored recovery implementation; not claimed byte-identical to files in the unavailable cloud environment.",
+  "reason": "Post-observation diagnostic for predecessor/cache confounding in cyclic interleaved timing; not preregistration.",
+  "base_commit": "53850572afbc4278c686a9434089d3ae2eb76358",
+  "production_source_commit": "ec97e233003e272cc203580953a180377945228d",
+  "primary_protocol_sha256": "c7294b075da00cd5b1f3a6baecb5e81ca7bf64f58d4008deb66004c41d9bc4ca",
+  "primary_code_sha256": {
+    "benchmark.py": "cd1dbdc0097c4ca17aa83002979c33c2e75236667c4f1261ca5535f450d75383",
+    "engines.py": "edb09911191fe3c727d24b6c07674d56b90bbc079269260df00833960cb46557",
+    "strict_metric.py": "8d15329ea4848511b051bf3709647b097408e33c13bda20b55e50e35ad47346b",
+    "temporal_exact.py": "ab60ba2e797ce4fa23b36c587794c96c3fadfdbf419d130903ae59eb6a370b2e"
+  },
+  "candidates": 70000,
+  "queries_per_pass": 1011,
+  "k": 64,
+  "threads": 1,
+  "hardware_policy": "Use the successful new main execution's one-CPU affinity and observed runtime; never pool old interrupted-host observations.",
+  "freeze_policy": "After all three new main repetitions succeed, freeze their input/verification hashes, identical saved oracle, runtime, source hashes and numeric evidence into lock.json. Detect changes throughout all six workers.",
+  "schedule": [
+    {
+      "pass": 0,
+      "order": "original",
+      "method": "exhaustive_strict",
+      "repeat": 0
+    },
+    {
+      "pass": 1,
+      "order": "original",
+      "method": "temporal_exact",
+      "repeat": 0
+    },
+    {
+      "pass": 2,
+      "order": "original",
+      "method": "temporal_exact",
+      "repeat": 1
+    },
+    {
+      "pass": 3,
+      "order": "original",
+      "method": "exhaustive_strict",
+      "repeat": 1
+    },
+    {
+      "pass": 4,
+      "order": "shuffled",
+      "method": "temporal_exact",
+      "repeat": 0
+    },
+    {
+      "pass": 5,
+      "order": "shuffled",
+      "method": "exhaustive_strict",
+      "repeat": 0
+    }
+  ],
+  "repeats_by_order": {
+    "original": 2,
+    "shuffled": 1
+  },
+  "process_policy": "One new subprocess, one engine, one measured complete-video pass. No ANN index is constructed.",
+  "warmup": "Prepare the same immutable candidate descriptors; use only first, middle and last catalog records as three warmup queries, then reset.",
+  "timed": [
+    "query descriptor preparation",
+    "engine search, top-k and history maintenance",
+    "returned indexes and scores converted to Python lists"
+  ],
+  "oracle_policy": "Only the frozen saved new-main oracle is used for validation, after each query timer. No competing engine is run to grade the measured engine.",
+  "absolute_score_tolerance": 2e-12,
+  "relative_score_tolerance": 0,
+  "publication": "Publish numeric summaries/CSV/report only. Per-query JSONL contains no candidate ID or score arrays; raw matches remain in a separate NPZ. Print compact numeric CONTROL_SUMMARY_BEGIN/END in logs.",
+  "interpretation": "Two original-order repetitions per engine; one shuffled-order supplementary repetition. One existing composited clip. No confidence intervals, significance claims or cross-video generalization. Keep new-main interleaved and isolated results separate."
+}

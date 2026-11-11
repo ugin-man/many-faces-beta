@@ -1,0 +1,138 @@
+name: Face search research
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/face-search-research.yml'
+      - 'research/face-search/*.py'
+      - 'research/face-search/*.mjs'
+      - 'research/face-search/*.json'
+      - 'research/face-search/*requirements.txt'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: face-search-research-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  measurement:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.head_ref, 'research/face-search-engine-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            app
+            research/face-search
+            public/demo
+            public/mediapipe
+            public/seed-catalog
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12.14'
+      - name: Prepare fixed dependencies and source history
+        run: |
+          git fetch --no-tags --depth=1 origin ec97e233003e272cc203580953a180377945228d
+          python -m venv work/query-venv
+          work/query-venv/bin/python -m pip install --disable-pip-version-check -r research/face-search/prepare-queries-requirements.txt
+          python -m venv work/search-venv
+          work/search-venv/bin/python -m pip install --disable-pip-version-check -r research/face-search/requirements.txt
+          python -m compileall -q research/face-search
+          work/search-venv/bin/python research/face-search/summarize_remote.py --self-test
+          work/search-venv/bin/python -c "import sys; sys.path.insert(0, 'research/face-search'); import isolated_control; isolated_control.policy_and_sources()"
+      - name: Prepare the full catalog and every video frame
+        run: |
+          node research/face-search/export-data.mjs --catalog public/seed-catalog --out work/face-search
+          work/query-venv/bin/python research/face-search/prepare-queries-native.py --video public/demo/many-faces-sample-30fps.mp4 --model public/mediapipe/face_landmarker.task --out work/face-search
+          node research/face-search/prepare-queries-native.mjs --out work/face-search
+      - name: Verify score parity and enforce the original input lock
+        run: |
+          work/search-venv/bin/python research/face-search/verify_strict_metric.py --catalog public/seed-catalog --out work/face-search/strict-metric-verification.json
+          work/search-venv/bin/python research/face-search/benchmark.py --data work/face-search --output work/face-search/preflight-actions-v1 --prepare-only
+          work/search-venv/bin/python research/face-search/verify_temporal_exact.py --data work/face-search --out work/face-search/temporal-exact-verification.json
+          node research/face-search/benchmark-current.mjs --self-test
+      - name: Preserve preparation diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: face-search-input-diagnostics-${{ github.run_id }}
+          retention-days: 90
+          if-no-files-found: warn
+          path: |
+            work/face-search/catalog.manifest.json
+            work/face-search/queries.manifest.json
+            work/face-search/queries.native-extraction.json
+            work/face-search/strict-metric-verification.json
+            work/face-search/temporal-exact-verification.json
+            work/face-search/preflight-actions-v1/manifest.json
+      - name: Run all three sequential repetitions
+        run: work/search-venv/bin/python research/face-search/run-experiment.py --data work/face-search --output work/face-search/experiment-actions-v1
+      - name: Validate and summarize the complete main experiment
+        run: work/search-venv/bin/python research/face-search/summarize_remote.py --experiment work/face-search/experiment-actions-v1 --data work/face-search --output research/face-search/results/actions-v1
+      - name: Run the standalone exact-search control
+        run: work/search-venv/bin/python research/face-search/isolated_control.py --experiment work/face-search/experiment-actions-v1 --data work/face-search --output work/face-search/isolated-actions-v1 --publish research/face-search/results/actions-v1/isolated
+      - name: Emit the validated report bundle for review
+        if: always() && hashFiles('research/face-search/results/actions-v1/summary.json') != ''
+        run: |
+          python - <<'PY'
+          import base64
+          import hashlib
+          import json
+          from pathlib import Path
+          root = Path('research/face-search/results/actions-v1')
+          for directory in (root, root / 'isolated'):
+              summary = directory / 'summary.json'
+              if not summary.is_file():
+                  continue
+              if json.loads(summary.read_text()).get('status') != 'complete_validated':
+                  continue
+              for name in ('summary.json', 'REPORT.md', 'RUN_REPORT.md', 'per-query-metrics.csv.gz'):
+                  path = directory / name
+                  if not path.is_file():
+                      continue
+                  data = path.read_bytes()
+                  if len(data) > 8 * 1024 * 1024:
+                      raise ValueError('Unexpectedly large public report')
+                  print('PUBLIC_FILE_BEGIN ' + json.dumps({'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}))
+                  encoded = base64.b64encode(data).decode('ascii')
+                  for start in range(0, len(encoded), 4000):
+                      print('PUBLIC_FILE_DATA ' + encoded[start:start+4000])
+                  print('PUBLIC_FILE_END')
+          PY
+      - name: Preserve numerical measurements and failure records
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: face-search-measurements-${{ github.run_id }}
+          retention-days: 90
+          if-no-files-found: warn
+          path: |
+            research/face-search/results/actions-v1
+            work/face-search/experiment-actions-v1/execution.json
+            work/face-search/experiment-actions-v1/*.log
+            work/face-search/experiment-actions-v1/python-*/manifest.json
+            work/face-search/experiment-actions-v1/python-*/construction.json
+            work/face-search/experiment-actions-v1/python-*/summary.json
+            work/face-search/experiment-actions-v1/python-*/*.jsonl
+            work/face-search/experiment-actions-v1/python-*/failure.json
+            work/face-search/isolated-actions-v1/control-execution.json
+            work/face-search/isolated-actions-v1/lock.json
+            work/face-search/isolated-actions-v1/pass-*.log
+            work/face-search/isolated-actions-v1/failure.json
+            work/face-search/isolated-actions-v1/pass-*/manifest.json
+            work/face-search/isolated-actions-v1/pass-*/construction.json
+            work/face-search/isolated-actions-v1/pass-*/summary.json
+            work/face-search/isolated-actions-v1/pass-*/observations.jsonl
+            work/face-search/isolated-actions-v1/pass-*/failure.json

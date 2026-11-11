@@ -1,0 +1,68 @@
+{
+  "version": 2,
+  "name": "Stronger exact baselines for the fixed Many Faces strict-score search task",
+  "parent_protocol": "protocol.json",
+  "parent_protocol_sha256": "c7294b075da00cd5b1f3a6baecb5e81ca7bf64f58d4008deb66004c41d9bc4ca",
+  "parent_publication_commit": "1394ee003adca3872a2316755819534995fe338e",
+  "question": "Does temporal candidate pruning remain useful when exhaustive and pruned searches share one fused native scorer, and how does it compare with fixed database-derived reference points?",
+  "inputs": "Exactly the seven byte-locked input files of protocol.json; all 70,000 candidates and all 1,011 valid queries from the existing already-composited video",
+  "methods": ["numpy_exhaustive", "numpy_temporal", "native_exhaustive", "native_temporal", "native_pivot8", "native_pivot32"],
+  "k": 64,
+  "orders": ["original", "shuffled"],
+  "shuffle_seed": 20261111,
+  "shuffle_generator": "NumPy PCG64",
+  "repetitions": 3,
+  "expected_passes": 36,
+  "expected_query_timings": 36396,
+  "numpy_version": "2.3.5",
+  "threads": 1,
+  "cpu_affinity": "One available logical CPU, selected and recorded before oracle preparation; identical for all children",
+  "process_isolation": "One method/order/repetition per fresh child process; serial child execution; no oracle rescoring between measured queries",
+  "method_order": {
+    "base_indexes": [0, 1, 5, 2, 4, 3],
+    "rule": "For block index b, add b modulo six to each base index. Each method occupies every position once across the six blocks; within-order positions are not fully balanced.",
+    "blocks": [
+      {"repeat": 0, "order": "original"},
+      {"repeat": 0, "order": "shuffled"},
+      {"repeat": 1, "order": "shuffled"},
+      {"repeat": 1, "order": "original"},
+      {"repeat": 2, "order": "original"},
+      {"repeat": 2, "order": "shuffled"}
+    ]
+  },
+  "warmup": "Database records at canonical indexes 0, N//2, N-1; reset the engine after all three; no measured query is a warmup",
+  "scoring": {
+    "reference": "Unchanged strict_metric.py / production projectionError.strictTotal",
+    "native": "Fused float64 C++ scoring routine shared by exhaustive, temporal and fixed-pivot methods; Python controller and NumPy candidate masks remain",
+    "flags": ["-O3", "-std=c++17", "-shared", "-fPIC", "-march=native", "-fno-fast-math", "-ffp-contract=off", "-Wall", "-Wextra", "-Werror"],
+    "canonical_ties": "Stable score then canonical candidate index",
+    "exactness_gate": "Every returned top-64 ID and rank must equal the saved NumPy exhaustive oracle; all returned scores must have absolute error <=2e-12 and relative tolerance zero",
+    "native_optimality": "A stronger fused baseline, not a claim that this compiler output is the fastest attainable native implementation"
+  },
+  "temporal": {
+    "fallback_fraction": 0.6,
+    "floating_margin_scale": 1e-10,
+    "history": "One past fully scored query; empty at each pass; same query-change bound and 60% refresh rule as v1",
+    "future_query_access": false
+  },
+  "pivots": {
+    "counts": [8, 32],
+    "selection": "Farthest-first traversal over unchanged engines.embedding database descriptors (371-dimensional float32), starting at canonical index N//2; squared L2 distances accumulated in float64; ties choose smallest canonical index",
+    "prefix": "The eight selected pivots must be the prefix of the 32-pivot selection",
+    "query_access_during_selection": false,
+    "score_tables": "S(pivot,candidate), separately precomputed for both compensate_roll policies; never reversed",
+    "seed": "Choose the pivot minimizing its saved kth score plus the current query-change bound; ties use pivot selection order; rescore that pivot's saved top-64 to obtain U",
+    "retain": "Keep c if every pivot j satisfies S(p_j,c)<=U+L(q,p_j)+epsilon_j; retain all seed candidates explicitly and retain bound equality",
+    "epsilon": "1e-10*max(1,max(abs(S(p_j,:))),abs(L(q,p_j)),abs(U))",
+    "fallback_fraction": 0.6,
+    "updates": "None after construction",
+    "interpretation": "System configurations with different seeds and memory/build costs; candidate counts need not improve monotonically from 8 to 32"
+  },
+  "timed": ["query descriptor preparation", "native query binding when applicable", "bounds and seed choice", "candidate mask construction", "strict scoring", "top-k selection", "history update", "conversion of returned IDs/scores to Python lists"],
+  "separately_reported": ["input validation and reading", "database descriptor preparation", "native compilation", "native library loading", "pivot selection and score-table construction", "descriptor bytes", "index/state bytes", "process peak RSS"],
+  "metrics": ["per-query elapsed time", "mean", "median", "p95", "maximum", "total", "each repetition", "strict candidate score evaluations", "bound pair evaluations", "full scans", "build time", "memory", "rank mismatches", "score error"],
+  "freeze": "Save protocol/source/input/oracle/native-binary hashes before performance passes; fail if any locked file changes; retain each pass and failed attempt",
+  "failure_policy": "Correctness mismatch or changed locks aborts the run. Preserve the failed evidence; do not relax tolerance or silently discard a run.",
+  "interpretation": "Compare native exhaustive and native temporal within this new run. Do not form speed ratios between new native timings and v1 Faiss/NumPy timings on a different host. One composited clip does not establish generalization, human similarity quality, video quality, or end-to-end application speed.",
+  "registration": "Internal fixed protocol written before v2 performance measurement; not an externally registered experiment"
+}

@@ -2,15 +2,17 @@
 
 動画から連続して得られる顔の特徴を入力として、大量の顔画像から近い顔を返す検索エンジンを研究する。Many Faces は、そのエンジンの応用システムとして位置付ける。
 
-> 本書は、2026年11月11日の実行環境停止後、GitHubに保存済みの研究coreとCLIを確認して新たに再構成した文書である。停止前のREADMEをバイト単位で復旧したものではない。現在の実行状態、run URL、artifactの所在は [STATUS.md](STATUS.md) を参照する。
+## 完了した実験と結果
 
-## 現在の到達点と復旧方針
+**2026年11月11日、全70,000候補・全1,011有効queryの主実験3反復と、独立実行6 passが完了した。** [日本語の実測レポート](REPORT_JA.md)に全設定・不利な条件・初期化費用をまとめた。[Actions実行](https://github.com/ugin-man/many-faces-beta/actions/runs/43021151993)の全ステップも成功している。
 
-元の実行環境は利用できなくなり、完全な3反復の結果を回収・検証できていない。停止前の最後の観測は2反復の終了と3反復目の途中だった。これはチェックポイントであり、完了済みの公開ベンチマークとして扱わない。本書は、未完了の測定から速度の優位性を断定しない。
+- 同じglobal strict top-64を返す独立実行では、動画順の平均検索時間が **54.88 → 23.30 ms/query**。NumPy全件採点に対して **約2.36倍**、測定時間57.54%削減だった。
+- 同じqueryのシャッフルでは **55.02 → 54.72 ms/query**でほぼ同速。元順でもp95は58.27 → 57.28 msで、遅いqueryの待ち時間はほぼ残った。
+- 主実験のFaiss HNSW 512は **2.35 ms/query**、今回の1,011 queryでRecall@1は100%、平均Recall@64は93.34%だった。近い顔を1枚選ぶ用途では既存OSSが有力であり、自作方式が最速という結果ではない。
 
-復旧では、[GitHub Actions workflow](../../.github/workflows/face-search-research.yml) で入力の準備とpreflightを行い、同じ固定入力を再現できた場合に全3反復を新しく実行する。[Actionsの実行一覧](https://github.com/ugin-man/many-faces-beta/actions/workflows/face-search-research.yml) と [STATUS.md](STATUS.md) で進行を確認する。
+主実験と独立実行は条件が異なるため、値を混ぜずに報告する。1本の合成済み動画とサーバーCPU上の検索coreの結果であり、未知動画での品質・本人識別・本番アプリ全体の速度・アルゴリズムの新規性を確立したものではない。研究成果の範囲と次の検証課題はレポートに明記した。
 
-**元の環境の途中結果と、別ハードウェアのActionsで得た結果を合算しない。** 新しいrunは独立した一組の実測として、CPU・ランタイム・入力hash・全反復の完了を記録する。再抽出した入力のhashが一致しない場合は停止し、プロトコルを自動で書き換えて通さない。
+最初のローカル実験は環境停止で未完了となり、完全な元記録を回収できなかった。Actionsでは元の入力hashを完全に再現し、別ハードウェアの新しい一組として最初から測定した。**中断前の部分結果は合算していない。** 実行履歴は[STATUS.md](STATUS.md)を参照する。
 
 ## 研究課題と参照結果
 
@@ -197,23 +199,30 @@ v1のPython方式群は、同じqueryに対して各方式を交互に実行す�
 
 途中の診断で、Temporalが全件検索の直後に走る機会が多いことが分かった。直前の処理によるメモリやcacheの状態などが計時へ影響する可能性があり、候補を十分に除外できていない場合の速度差も、そのまま手法固有の高速化とは解釈できない。
 
-このため、exactな全件検索とTemporalの性能結論には、方式ごとに別プロセスで動画全体を処理する独立実行controlを優先する。controlはv1の観測後に設計する追加診断であり、最初から登録済みの実験、独立した別動画、完全な順序均衡の証明として扱わない。停止した元環境ではcontrolはまだ実行していない。
+このため、exactな全件検索とTemporalの性能結論には、方式ごとに別プロセスで動画全体を処理する独立実行controlを優先する。controlはv1の観測後に設計する追加診断であり、最初から登録済みの実験、独立した別動画、完全な順序均衡の証明として扱わない。停止した元環境ではcontrolを実行しておらず、新しいActions環境で6 passを完了した。
 
 v1の全結果は「循環シフトを伴う交互実行という条件下の観測」として残し、controlの値と混ぜて平均しない。不利な反復を捨てたり、元の結果をcontrolで置き換えたりしない。1本の動画の1,011フレームを、1,011本の独立した動画のように統計処理しない。
 
-## Actionsのartifactと公開
+## Actionsのartifactと公開結果
 
-復旧用workflowとrunごとの成功・失敗の記録は [STATUS.md](STATUS.md) を参照する。予定する保存先は次の通り。**これらのパスを記載していることは、結果が既に生成・検証済みであることを意味しない。**
+2026年11月11日の[run 43021151993](https://github.com/ugin-man/many-faces-beta/actions/runs/43021151993)は全ステップ成功。元の結果ファイルを回収し、ログ中のファイルmanifestに対してbyte数とSHA256の一致を確認した上で、数値summary・全queryの圧縮CSV・自動レポートをgitにも保存した。
 
 | 区分 | 保存先 |
 | --- | --- |
-| Actionsのmain実測 | `work/face-search/experiment-actions-v1/` |
-| mainの公開用集計 | `research/face-search/results/actions-v1/` |
-| 独立実行controlの作業結果 | `work/face-search/isolated-actions-v1/` |
-| controlの公開用集計 | `research/face-search/results/actions-v1/isolated/` |
+| 日本語の実測と解釈 | [REPORT_JA.md](REPORT_JA.md) |
+| 主実験の公開結果 | [results/actions-v1/](results/actions-v1/) |
+| 独立実行の公開結果 | [results/actions-v1/isolated/](results/actions-v1/isolated/) |
+| 公開ファイルのhashと来歴 | [PUBLIC_MANIFEST.json](results/actions-v1/PUBLIC_MANIFEST.json) |
+| 実行・中断記録 | [STATUS.md](STATUS.md) |
 
-workflowで生成した結果はartifactとして保存する。公開用summaryも自動でgitへcommitせず、回収後に完了状態・入力とコードのhash・全反復・全設定の網羅を確認してから必要なものを保存する。未完了・入力不一致・検証失敗のrunは、その状態を明記し、成功したベンチマークに混ぜない。
+入力・検証の詳細は[診断artifact](https://github.com/ugin-man/many-faces-beta/actions/runs/43021151993/artifacts/13855361109)、数値計測ファイル群は[計測artifact](https://github.com/ugin-man/many-faces-beta/actions/runs/43021151993/artifacts/13857236753)にもある。artifactの期限は2027年2月9日であり、gitに保存した結果はその期限に依存しない。生の特徴、landmark、候補IDを含む返却配列、oracle、matches NPZは公開artifactに含めない。runner内workディレクトリの永続性は保証せず、固定した公開入力とコードからの再現を基本とする。
 
-生の特徴、landmark、候補IDを含む照合結果、`oracle.json`、`matches-*.npz` はignoredの `work/` に保存し、公開artifactには含めない。公開対象はコード、プロトコル、数式、入力hash、集計、測定条件と制約、およびquery番号と数値指標だけのJSONL・CSVである。公開する測定行に候補IDや顔特徴を含めない。
+公開するqueryごとの測定行には、query番号と数値指標だけを含む。未完了・入力不一致・検証失敗のrunは成功したベンチマークへ混ぜない。本番アプリへの研究エンジンの統合やスマートフォン上のend-to-end評価は、このPRの完了範囲には含まれない。
+
+## Actionsでの今後の再計測
+
+長時間の研究workflowは、結果保存後の自動再実行を避けるため、手動の `workflow_dispatch` で起動する。既存の通常CIはそのまま自動実行する。今後の公開用作業出力はrun IDとrun attemptで分けた `work/face-search/` 内の新規ディレクトリへ生成し、gitに保存した今回の `results/actions-v1/` を上書きしない。新しい計測値を今回のsummaryへ追記・合算する処理も行わない。
+
+GitHubの[workflow_dispatchの仕様](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch)では、workflowファイルがdefault branchに存在することが必要になる。マージ前の再現には上記のローカル手順を使える。今回成功したrunとその測定commitは、workflowの手動化前のものとして保持する。
 
 元のソフトウェアとカタログの利用条件は、リポジトリの `LICENSE`、`DATA_LICENSE.md` と該当するデータのライセンスを参照する。

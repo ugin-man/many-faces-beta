@@ -14,6 +14,13 @@ Zhengrong Yao, Like Gao, and Xiaoyang Sean Wang, *Using Triangle Inequality to E
 
 Axel-Cyrille Ngonga Ngomo and Sören Auer, [*LIMES — A Time-Efficient Approach for Large-Scale Link Discovery on the Web of Data*](https://www.ijcai.org/Proceedings/11/Papers/385.pdf), IJCAI 2011, provides an accessible account of reference-point bounds and safe exclusion in a different application. It also cites the 2003 work. It is mathematical background, not a measured face-search competitor.
 
+
+## Exact baselines beyond exhaustive scoring
+
+Francisco Moreno-Seco, Luisa Micó, and José Oncina, [*Extending LAESA Fast Nearest Neighbour Algorithm to Find the k Nearest Neighbours*](https://grfia.dlsi.ua.es/repositori/grfia/pubs/17/Extending%20LAESA.pdf), SSPR&SPR 2002, LNCS 2396, pp. 718–724, precomputes distances to fixed reference prototypes and uses their lower bounds to eliminate candidates in exact k-NN search. Its distance assumptions include symmetry and the triangle inequality.
+
+This makes fixed/multiple-reference exact search a relevant future comparison category, not a measured competitor here. The Many Faces full score has query-dependent coefficients, so the metric algorithm cannot simply be assumed valid for it. Adapting reference-point bounds would require a proof for this score and a separate evaluation of preprocessing, memory, pruning and time. A speedup over the present exhaustive implementation alone does not establish superiority over such exact-search alternatives.
+
 ## What is specific to this artifact
 
 The bound in [PROOF.md](PROOF.md) is derived component by component for the unchanged Many Faces score: weighted RMS/descriptor distances, maxima, and query-dependent wink coefficients. The full score is not assumed to be a metric.

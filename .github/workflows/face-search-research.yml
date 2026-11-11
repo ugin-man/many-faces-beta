@@ -2,27 +2,21 @@ name: Face search research
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - '.github/workflows/face-search-research.yml'
-      - 'research/face-search/*.py'
-      - 'research/face-search/*.mjs'
-      - 'research/face-search/*.json'
-      - 'research/face-search/*requirements.txt'
 
 permissions:
   contents: read
 
 concurrency:
-  group: face-search-research-${{ github.event.pull_request.number || github.ref }}
+  group: face-search-research-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   measurement:
-    if: github.event_name == 'workflow_dispatch' || startsWith(github.head_ref, 'research/face-search-engine-')
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
+      FACE_SEARCH_PUBLIC_ROOT: work/face-search/public-actions-${{ github.run_id }}-${{ github.run_attempt }}
+      FACE_SEARCH_PUBLISH_DESTINATION: research/face-search/results/actions-${{ github.run_id }}-${{ github.run_attempt }}
       OMP_NUM_THREADS: '1'
       OPENBLAS_NUM_THREADS: '1'
       MKL_NUM_THREADS: '1'
@@ -67,7 +61,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: face-search-input-diagnostics-${{ github.run_id }}
+          name: face-search-input-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 90
           if-no-files-found: warn
           path: |
@@ -80,18 +74,20 @@ jobs:
       - name: Run all three sequential repetitions
         run: work/search-venv/bin/python research/face-search/run-experiment.py --data work/face-search --output work/face-search/experiment-actions-v1
       - name: Validate and summarize the complete main experiment
-        run: work/search-venv/bin/python research/face-search/summarize_remote.py --experiment work/face-search/experiment-actions-v1 --data work/face-search --output research/face-search/results/actions-v1
+        run: work/search-venv/bin/python research/face-search/summarize_remote.py --experiment work/face-search/experiment-actions-v1 --data work/face-search --output "$FACE_SEARCH_PUBLIC_ROOT"
       - name: Run the standalone exact-search control
-        run: work/search-venv/bin/python research/face-search/isolated_control.py --experiment work/face-search/experiment-actions-v1 --data work/face-search --output work/face-search/isolated-actions-v1 --publish research/face-search/results/actions-v1/isolated
+        run: work/search-venv/bin/python research/face-search/isolated_control.py --experiment work/face-search/experiment-actions-v1 --data work/face-search --output work/face-search/isolated-actions-v1 --publish "${FACE_SEARCH_PUBLIC_ROOT}/isolated"
       - name: Emit the validated report bundle for review
-        if: always() && hashFiles('research/face-search/results/actions-v1/summary.json') != ''
+        if: always()
         run: |
           python - <<'PY'
           import base64
           import hashlib
           import json
+          import os
           from pathlib import Path
-          root = Path('research/face-search/results/actions-v1')
+          root = Path(os.environ['FACE_SEARCH_PUBLIC_ROOT'])
+          destination = Path(os.environ['FACE_SEARCH_PUBLISH_DESTINATION'])
           for directory in (root, root / 'isolated'):
               summary = directory / 'summary.json'
               if not summary.is_file():
@@ -105,7 +101,8 @@ jobs:
                   data = path.read_bytes()
                   if len(data) > 8 * 1024 * 1024:
                       raise ValueError('Unexpectedly large public report')
-                  print('PUBLIC_FILE_BEGIN ' + json.dumps({'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}))
+                  logical_path = destination / path.relative_to(root)
+                  print('PUBLIC_FILE_BEGIN ' + json.dumps({'path': str(logical_path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}))
                   encoded = base64.b64encode(data).decode('ascii')
                   for start in range(0, len(encoded), 4000):
                       print('PUBLIC_FILE_DATA ' + encoded[start:start+4000])
@@ -115,11 +112,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: face-search-measurements-${{ github.run_id }}
+          name: face-search-measurements-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 90
           if-no-files-found: warn
           path: |
-            research/face-search/results/actions-v1
+            ${{ env.FACE_SEARCH_PUBLIC_ROOT }}
             work/face-search/experiment-actions-v1/execution.json
             work/face-search/experiment-actions-v1/*.log
             work/face-search/experiment-actions-v1/python-*/manifest.json

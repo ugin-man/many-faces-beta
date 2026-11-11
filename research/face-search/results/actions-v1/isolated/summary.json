@@ -1,0 +1,884 @@
+{
+  "schema_version": 2,
+  "status": "complete_validated",
+  "implementation": "New connector-authored recovery implementation; not claimed byte-identical to files in the unavailable cloud environment.",
+  "design": "Post-observation diagnostic for predecessor/cache confounding in cyclic interleaved timing; not preregistration.",
+  "methods": [
+    "exhaustive_strict",
+    "temporal_exact"
+  ],
+  "schedule": [
+    {
+      "pass": 0,
+      "order": "original",
+      "method": "exhaustive_strict",
+      "repeat": 0
+    },
+    {
+      "pass": 1,
+      "order": "original",
+      "method": "temporal_exact",
+      "repeat": 0
+    },
+    {
+      "pass": 2,
+      "order": "original",
+      "method": "temporal_exact",
+      "repeat": 1
+    },
+    {
+      "pass": 3,
+      "order": "original",
+      "method": "exhaustive_strict",
+      "repeat": 1
+    },
+    {
+      "pass": 4,
+      "order": "shuffled",
+      "method": "temporal_exact",
+      "repeat": 0
+    },
+    {
+      "pass": 5,
+      "order": "shuffled",
+      "method": "exhaustive_strict",
+      "repeat": 0
+    }
+  ],
+  "input": {
+    "candidates": 70000,
+    "queries": 1011,
+    "k": 64,
+    "input_sha256": {
+      "candidate-ids.json": "7486ec9fe1f720b9c600e1d08de88fb589748558ed5c5409be1d1519bffa2226",
+      "candidate-shards.json": "0274141eb6c81807f3e066f6bcdd393b3ec54bc5e1004aed1dfdbd323f166a0d",
+      "candidates.features.f64": "59abe2b9882bdb4ec2f1af2e04d6c4453c3ccd77a00ae53496e06bb78d8e3f08",
+      "candidates.projections.f64": "efb29d931320cd37967e5743a5aa55c5617fb0a000ef4f8d7417da56a16cce46",
+      "queries.features.f64": "e9ec0fb453908f5ecf4ed06bfc22d41fad05886389386f9dba147d5a05fea8ff",
+      "queries.projections.f64": "698bdb1d0102ec41684a02e6cd89d3c87eb426e71151b91875c827c5532a8724",
+      "queries.json": "628737ca1c05abc331ebe46094c7a535ce705396bcdceaf56c272daa3be89de4",
+      "queries.manifest.json": "e3129d09ea1bd070a3f9600a6cc6b1e27012a07c09924965d2590b775988d54a",
+      "catalog.manifest.json": "727c27026c0f8521558347a23310a14db041fc4c8cf32a728e435fc2e35af213",
+      "orders.json": "efb39be7e0cfb2a3503847be1f93b493f87d22b659e1af47d9f4a94d49b6e823",
+      "strict-metric-verification.json": "c97ab6beb8867b005bbbb4044ebe930e68c6d8edc83ae8ffd2255335fec4d8d1"
+    }
+  },
+  "environment": {
+    "measurement_affinity": [
+      0
+    ],
+    "runtime": {
+      "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+      "python": "3.12.14 (main, Aug 13 2026, 02:45:55) [GCC 15.2.0]",
+      "numpy": "2.3.5",
+      "faiss": "1.13.2",
+      "faiss_compile": "OPTIMIZE AVX512 ",
+      "cpu_count": 4,
+      "faiss_threads": 1,
+      "cpu_affinity": [
+        0
+      ],
+      "cpu_model": "AMD EPYC 9V45 96-Core Processor"
+    },
+    "threads": 1,
+    "primary_experiment_commit": "8f5d19abc5c2089fceab6a0b8678562a7552fdb2"
+  },
+  "source": {
+    "base_commit": "53850572afbc4278c686a9434089d3ae2eb76358",
+    "production_source_commit": "ec97e233003e272cc203580953a180377945228d",
+    "sha256": {
+      "research/face-search/benchmark.py": "cd1dbdc0097c4ca17aa83002979c33c2e75236667c4f1261ca5535f450d75383",
+      "research/face-search/engines.py": "edb09911191fe3c727d24b6c07674d56b90bbc079269260df00833960cb46557",
+      "research/face-search/strict_metric.py": "8d15329ea4848511b051bf3709647b097408e33c13bda20b55e50e35ad47346b",
+      "research/face-search/temporal_exact.py": "ab60ba2e797ce4fa23b36c587794c96c3fadfdbf419d130903ae59eb6a370b2e",
+      "research/face-search/protocol.json": "c7294b075da00cd5b1f3a6baecb5e81ca7bf64f58d4008deb66004c41d9bc4ca",
+      "research/face-search/isolated_control.py": "8879b616c493bb507588451f76be3b47afc600c1170cbee4ce72cf21298f7e7e",
+      "research/face-search/control-policy.json": "838cde207296fd7f6867bac306188d97609bbda0ab9bb479e1641a9d7ec5fadd",
+      "app/projection-matching.ts": "8d0ee35ed6beb0cdaa290ff91680bdbb1f0bb40a852950d19863952a4fc7ffce",
+      "app/face-actions.ts": "e63bce1c9350d6381f6cba88aac49c0cdf14a2f72c88071547ea1607e9439d7c"
+    },
+    "primary_protocol_sha256": "c7294b075da00cd5b1f3a6baecb5e81ca7bf64f58d4008deb66004c41d9bc4ca"
+  },
+  "validation": {
+    "complete_passes": 6,
+    "observations": 6066,
+    "ordered_top64_equal": true,
+    "absolute_score_tolerance": 2e-12,
+    "relative_score_tolerance": 0,
+    "max_absolute_score_error": 0.0,
+    "all_scheduled_passes_retained": true,
+    "first_query_history_empty": true,
+    "oracle_sha256": "18b3d6d77b3209c567395e8ceaf0045dbc378a6b7000014737717971b954d339",
+    "lock_sha256": "fdbe6cc826ad85b6b5efd9704160c2b50a90c3a945b85e6b627e3442ea32cfb1",
+    "raw_manifest_sha256": {
+      "pass-0/manifest.json": "f287c85628e3acaef8544b91030e113be7ee56a540526215d93c6b0681d133e0",
+      "pass-1/manifest.json": "a57665450d3f3e06452b8c407c067ac6f3d34ae5409412bd1e37d0629ed4d0b0",
+      "pass-2/manifest.json": "6e6a26f695d272971d07c859cd28a240dac6a759b0f3160b19807ea3ad291a30",
+      "pass-3/manifest.json": "a4fd914d5ca2992870c2a304014b6c528ee463125a5cc5cd31f7ecb10fbab798",
+      "pass-4/manifest.json": "2186637198131ea20c328ddf5463d54e5340102184085b5be6c83a79e49a006e",
+      "pass-5/manifest.json": "9f4606b398d40c4017c93affa0538a1a0edc2d81d732c50c884eaff98be14d69"
+    },
+    "primary_evidence_sha256": {
+      "execution.json": "b186fe60a56bd57b9185e2241dc31369d5bdcbba237e36deb94421a84b5375c8",
+      "python-0/manifest.json": "998f6c5dc3d8d6ccec3eb0c356725e386bf82db81fbfc34f2c59c74184fa876d",
+      "python-0/oracle.json": "18b3d6d77b3209c567395e8ceaf0045dbc378a6b7000014737717971b954d339",
+      "python-0/original.jsonl": "629c8a1578fee519da7250bc088580ac22a5936f61116df1bb5d77add0c0ed25",
+      "python-0/shuffled.jsonl": "d1da75e22e14f913178d17ff970d339835702adeddd209c6ad6413da8190d8dd",
+      "python-0/summary.json": "22510e76f407c86ed2fe07c76b2fcf212d9d154225be160f03a24c5a461597c1",
+      "python-0/construction.json": "33c5d58652d564f817b440df6ecc55705e4e9d8ff4578f5842a879b3828fefc3",
+      "current-0.json": "e3181354c91830ecea1359cae72ed96c464589c0c45775eabaf4287b17a3493f",
+      "python-1/manifest.json": "d2d39f3b561ca73a12a84d2bc385ea5f8fd1a71dd49c686b3494ab648eb8dc48",
+      "python-1/oracle.json": "18b3d6d77b3209c567395e8ceaf0045dbc378a6b7000014737717971b954d339",
+      "python-1/original.jsonl": "09d7ad7115303ebaa5d39e712a7c7569a13312f3824644e3c311bea97d2ec7c9",
+      "python-1/shuffled.jsonl": "de13be10a1f5c206cc787f7ec97a10a9c34d89b621627caf3ec739206c4de88c",
+      "python-1/summary.json": "4099a8fef43dfbd1076b21bfb9fb564c08a06a7ff627eafb3aab332ee1ffd6e6",
+      "python-1/construction.json": "90c115fdc42756ec0c0d8d8cd286a2c4e99eaa2d64521136d5add0ef024ae5fa",
+      "current-1.json": "b29e4b64721897f0c6971637c66353980dbbb17dcac423153f3f667702f848ee",
+      "python-2/manifest.json": "a8c201324688d025b075bef74f93ceb21216792d54555865989388cdb99f2f58",
+      "python-2/oracle.json": "18b3d6d77b3209c567395e8ceaf0045dbc378a6b7000014737717971b954d339",
+      "python-2/original.jsonl": "abba7429c33e68c74fecff8fc53547ab642f080bfd49c16069e4227ad2bfda15",
+      "python-2/shuffled.jsonl": "ca0fbc17f77cd5070b80374a4d48aa877ab9f5ed04ae0ededa04b73f50fe8641",
+      "python-2/summary.json": "990295a55aff2cb3ff2c5a0536d83cd9ed089c6a746b977699ffc46d962c9202",
+      "python-2/construction.json": "f45d40e8398262885fc9fb735a3f4c97cb5607ddd5774bb10649cfeb922903cb",
+      "current-2.json": "74c1034560127950ba1f2a6019c57ef27db18a274de7ba420ced662ed3359d1d"
+    }
+  },
+  "orders": {
+    "original": {
+      "exhaustive_strict": {
+        "observations": 2022,
+        "distinct_queries": 1011,
+        "total_ms": 110972.574861,
+        "mean_ms": 54.882579060830864,
+        "p50_ms": 54.278504999999996,
+        "p95_ms": 58.2709171,
+        "max_ms": 107.452582,
+        "mean_recall1": 1.0,
+        "mean_recall10": 1.0,
+        "mean_recall64": 1.0,
+        "min_recall64": 1.0,
+        "missed_frames": 0,
+        "mean_top1_gap": 0.0,
+        "max_top1_gap": 0.0,
+        "mean_scored": 70000.0,
+        "total_scored": 141540000,
+        "full_scans": 2022,
+        "passes": [
+          {
+            "pass": 0,
+            "order": "original",
+            "method": "exhaustive_strict",
+            "repeat": 0,
+            "observations": 1011,
+            "distinct_queries": 1011,
+            "total_ms": 55153.636848,
+            "mean_ms": 54.55354782195846,
+            "p50_ms": 54.210405,
+            "p95_ms": 57.8602025,
+            "max_ms": 101.939558,
+            "mean_recall1": 1.0,
+            "mean_recall10": 1.0,
+            "mean_recall64": 1.0,
+            "min_recall64": 1.0,
+            "missed_frames": 0,
+            "mean_top1_gap": 0.0,
+            "max_top1_gap": 0.0,
+            "mean_scored": 70000.0,
+            "total_scored": 70770000,
+            "full_scans": 1011,
+            "construction": {
+              "input_read_seconds": 0.32619642899999235,
+              "descriptor_seconds": 0.20856339800002388,
+              "engine_construct_seconds": 4.486000079850783e-06,
+              "warmup_seconds": 0.16761741100003746,
+              "descriptor_payload_bytes": 194320000,
+              "warmup_catalog_indices": [
+                0,
+                35000,
+                69999
+              ],
+              "warmup_count": 3,
+              "reset_after_warmup": true,
+              "ann_indexes_constructed": 0,
+              "note": "Only the measured engine exists; competing ANN indexes are not allocated."
+            },
+            "peak_rss_bytes": 969924608,
+            "max_absolute_score_error": 0.0,
+            "pid": 3532
+          },
+          {
+            "pass": 3,
+            "order": "original",
+            "method": "exhaustive_strict",
+            "repeat": 1,
+            "observations": 1011,
+            "distinct_queries": 1011,
+            "total_ms": 55818.938013,
+            "mean_ms": 55.21161029970326,
+            "p50_ms": 54.335082,
+            "p95_ms": 58.721405000000004,
+            "max_ms": 107.452582,
+            "mean_recall1": 1.0,
+            "mean_recall10": 1.0,
+            "mean_recall64": 1.0,
+            "min_recall64": 1.0,
+            "missed_frames": 0,
+            "mean_top1_gap": 0.0,
+            "max_top1_gap": 0.0,
+            "mean_scored": 70000.0,
+            "total_scored": 70770000,
+            "full_scans": 1011,
+            "construction": {
+              "input_read_seconds": 0.3314566920000743,
+              "descriptor_seconds": 0.2135465750000094,
+              "engine_construct_seconds": 5.127999884280143e-06,
+              "warmup_seconds": 0.16798132899998564,
+              "descriptor_payload_bytes": 194320000,
+              "warmup_catalog_indices": [
+                0,
+                35000,
+                69999
+              ],
+              "warmup_count": 3,
+              "reset_after_warmup": true,
+              "ann_indexes_constructed": 0,
+              "note": "Only the measured engine exists; competing ANN indexes are not allocated."
+            },
+            "peak_rss_bytes": 969863168,
+            "max_absolute_score_error": 0.0,
+            "pid": 3554
+          }
+        ],
+        "pass_totals_ms": [
+          55153.636848,
+          55818.938013
+        ],
+        "mean_pass_total_ms": 55486.2874305
+      },
+      "temporal_exact": {
+        "observations": 2022,
+        "distinct_queries": 1011,
+        "total_ms": 47117.783447,
+        "mean_ms": 23.302563524727994,
+        "p50_ms": 16.085873,
+        "p95_ms": 57.28183575,
+        "max_ms": 102.77733,
+        "mean_recall1": 1.0,
+        "mean_recall10": 1.0,
+        "mean_recall64": 1.0,
+        "min_recall64": 1.0,
+        "missed_frames": 0,
+        "mean_top1_gap": 0.0,
+        "max_top1_gap": 0.0,
+        "mean_scored": 24920.621167161225,
+        "total_scored": 50389496,
+        "full_scans": 472,
+        "passes": [
+          {
+            "pass": 1,
+            "order": "original",
+            "method": "temporal_exact",
+            "repeat": 0,
+            "observations": 1011,
+            "distinct_queries": 1011,
+            "total_ms": 23678.19845,
+            "mean_ms": 23.420572156280908,
+            "p50_ms": 16.216703,
+            "p95_ms": 57.718689,
+            "max_ms": 67.87299,
+            "mean_recall1": 1.0,
+            "mean_recall10": 1.0,
+            "mean_recall64": 1.0,
+            "min_recall64": 1.0,
+            "missed_frames": 0,
+            "mean_top1_gap": 0.0,
+            "max_top1_gap": 0.0,
+            "mean_scored": 24920.621167161225,
+            "total_scored": 25194748,
+            "full_scans": 236,
+            "construction": {
+              "input_read_seconds": 0.33348097399994003,
+              "descriptor_seconds": 0.20872214399992117,
+              "engine_construct_seconds": 1.7156000012619188e-05,
+              "warmup_seconds": 0.17163315799984957,
+              "descriptor_payload_bytes": 194320000,
+              "warmup_catalog_indices": [
+                0,
+                35000,
+                69999
+              ],
+              "warmup_count": 3,
+              "reset_after_warmup": true,
+              "ann_indexes_constructed": 0,
+              "note": "Only the measured engine exists; competing ANN indexes are not allocated."
+            },
+            "peak_rss_bytes": 978165760,
+            "max_absolute_score_error": 0.0,
+            "pid": 3543
+          },
+          {
+            "pass": 2,
+            "order": "original",
+            "method": "temporal_exact",
+            "repeat": 1,
+            "observations": 1011,
+            "distinct_queries": 1011,
+            "total_ms": 23439.584997,
+            "mean_ms": 23.184554893175076,
+            "p50_ms": 16.064763,
+            "p95_ms": 56.132944,
+            "max_ms": 102.77733,
+            "mean_recall1": 1.0,
+            "mean_recall10": 1.0,
+            "mean_recall64": 1.0,
+            "min_recall64": 1.0,
+            "missed_frames": 0,
+            "mean_top1_gap": 0.0,
+            "max_top1_gap": 0.0,
+            "mean_scored": 24920.621167161225,
+            "total_scored": 25194748,
+            "full_scans": 236,
+            "construction": {
+              "input_read_seconds": 0.3326653569999962,
+              "descriptor_seconds": 0.21356701000013345,
+              "engine_construct_seconds": 2.0781000102942926e-05,
+              "warmup_seconds": 0.17142783500003134,
+              "descriptor_payload_bytes": 194320000,
+              "warmup_catalog_indices": [
+                0,
+                35000,
+                69999
+              ],
+              "warmup_count": 3,
+              "reset_after_warmup": true,
+              "ann_indexes_constructed": 0,
+              "note": "Only the measured engine exists; competing ANN indexes are not allocated."
+            },
+            "peak_rss_bytes": 977920000,
+            "max_absolute_score_error": 0.0,
+            "pid": 3548
+          }
+        ],
+        "pass_totals_ms": [
+          23678.19845,
+          23439.584997
+        ],
+        "mean_pass_total_ms": 23558.8917235
+      }
+    },
+    "shuffled": {
+      "exhaustive_strict": {
+        "observations": 1011,
+        "distinct_queries": 1011,
+        "total_ms": 55620.993958,
+        "mean_ms": 55.01581993867458,
+        "p50_ms": 54.270271,
+        "p95_ms": 58.5348835,
+        "max_ms": 103.512525,
+        "mean_recall1": 1.0,
+        "mean_recall10": 1.0,
+        "mean_recall64": 1.0,
+        "min_recall64": 1.0,
+        "missed_frames": 0,
+        "mean_top1_gap": 0.0,
+        "max_top1_gap": 0.0,
+        "mean_scored": 70000.0,
+        "total_scored": 70770000,
+        "full_scans": 1011,
+        "passes": [
+          {
+            "pass": 5,
+            "order": "shuffled",
+            "method": "exhaustive_strict",
+            "repeat": 0,
+            "observations": 1011,
+            "distinct_queries": 1011,
+            "total_ms": 55620.993958,
+            "mean_ms": 55.01581993867458,
+            "p50_ms": 54.270271,
+            "p95_ms": 58.5348835,
+            "max_ms": 103.512525,
+            "mean_recall1": 1.0,
+            "mean_recall10": 1.0,
+            "mean_recall64": 1.0,
+            "min_recall64": 1.0,
+            "missed_frames": 0,
+            "mean_top1_gap": 0.0,
+            "max_top1_gap": 0.0,
+            "mean_scored": 70000.0,
+            "total_scored": 70770000,
+            "full_scans": 1011,
+            "construction": {
+              "input_read_seconds": 0.34108755900001597,
+              "descriptor_seconds": 0.20994784799995614,
+              "engine_construct_seconds": 5.237999857854447e-06,
+              "warmup_seconds": 0.1676396189998286,
+              "descriptor_payload_bytes": 194320000,
+              "warmup_catalog_indices": [
+                0,
+                35000,
+                69999
+              ],
+              "warmup_count": 3,
+              "reset_after_warmup": true,
+              "ann_indexes_constructed": 0,
+              "note": "Only the measured engine exists; competing ANN indexes are not allocated."
+            },
+            "peak_rss_bytes": 969887744,
+            "max_absolute_score_error": 0.0,
+            "pid": 3574
+          }
+        ],
+        "pass_totals_ms": [
+          55620.993958
+        ],
+        "mean_pass_total_ms": 55620.993958
+      },
+      "temporal_exact": {
+        "observations": 1011,
+        "distinct_queries": 1011,
+        "total_ms": 55319.446456,
+        "mean_ms": 54.71755336894164,
+        "p50_ms": 56.15989,
+        "p95_ms": 59.5740695,
+        "max_ms": 111.197185,
+        "mean_recall1": 1.0,
+        "mean_recall10": 1.0,
+        "mean_recall64": 1.0,
+        "min_recall64": 1.0,
+        "missed_frames": 0,
+        "mean_top1_gap": 0.0,
+        "max_top1_gap": 0.0,
+        "mean_scored": 67132.44015825915,
+        "total_scored": 67870897,
+        "full_scans": 944,
+        "passes": [
+          {
+            "pass": 4,
+            "order": "shuffled",
+            "method": "temporal_exact",
+            "repeat": 0,
+            "observations": 1011,
+            "distinct_queries": 1011,
+            "total_ms": 55319.446456,
+            "mean_ms": 54.71755336894164,
+            "p50_ms": 56.15989,
+            "p95_ms": 59.5740695,
+            "max_ms": 111.197185,
+            "mean_recall1": 1.0,
+            "mean_recall10": 1.0,
+            "mean_recall64": 1.0,
+            "min_recall64": 1.0,
+            "missed_frames": 0,
+            "mean_top1_gap": 0.0,
+            "max_top1_gap": 0.0,
+            "mean_scored": 67132.44015825915,
+            "total_scored": 67870897,
+            "full_scans": 944,
+            "construction": {
+              "input_read_seconds": 0.33512183000016194,
+              "descriptor_seconds": 0.20945616399990286,
+              "engine_construct_seconds": 2.037099989138369e-05,
+              "warmup_seconds": 0.1688961019999624,
+              "descriptor_payload_bytes": 194320000,
+              "warmup_catalog_indices": [
+                0,
+                35000,
+                69999
+              ],
+              "warmup_count": 3,
+              "reset_after_warmup": true,
+              "ann_indexes_constructed": 0,
+              "note": "Only the measured engine exists; competing ANN indexes are not allocated."
+            },
+            "peak_rss_bytes": 977661952,
+            "max_absolute_score_error": 0.0,
+            "pid": 3566
+          }
+        ],
+        "pass_totals_ms": [
+          55319.446456
+        ],
+        "mean_pass_total_ms": 55319.446456
+      }
+    }
+  },
+  "passes": [
+    {
+      "pass": 0,
+      "order": "original",
+      "method": "exhaustive_strict",
+      "repeat": 0,
+      "observations": 1011,
+      "distinct_queries": 1011,
+      "total_ms": 55153.636848,
+      "mean_ms": 54.55354782195846,
+      "p50_ms": 54.210405,
+      "p95_ms": 57.8602025,
+      "max_ms": 101.939558,
+      "mean_recall1": 1.0,
+      "mean_recall10": 1.0,
+      "mean_recall64": 1.0,
+      "min_recall64": 1.0,
+      "missed_frames": 0,
+      "mean_top1_gap": 0.0,
+      "max_top1_gap": 0.0,
+      "mean_scored": 70000.0,
+      "total_scored": 70770000,
+      "full_scans": 1011,
+      "construction": {
+        "input_read_seconds": 0.32619642899999235,
+        "descriptor_seconds": 0.20856339800002388,
+        "engine_construct_seconds": 4.486000079850783e-06,
+        "warmup_seconds": 0.16761741100003746,
+        "descriptor_payload_bytes": 194320000,
+        "warmup_catalog_indices": [
+          0,
+          35000,
+          69999
+        ],
+        "warmup_count": 3,
+        "reset_after_warmup": true,
+        "ann_indexes_constructed": 0,
+        "note": "Only the measured engine exists; competing ANN indexes are not allocated."
+      },
+      "peak_rss_bytes": 969924608,
+      "max_absolute_score_error": 0.0,
+      "pid": 3532
+    },
+    {
+      "pass": 1,
+      "order": "original",
+      "method": "temporal_exact",
+      "repeat": 0,
+      "observations": 1011,
+      "distinct_queries": 1011,
+      "total_ms": 23678.19845,
+      "mean_ms": 23.420572156280908,
+      "p50_ms": 16.216703,
+      "p95_ms": 57.718689,
+      "max_ms": 67.87299,
+      "mean_recall1": 1.0,
+      "mean_recall10": 1.0,
+      "mean_recall64": 1.0,
+      "min_recall64": 1.0,
+      "missed_frames": 0,
+      "mean_top1_gap": 0.0,
+      "max_top1_gap": 0.0,
+      "mean_scored": 24920.621167161225,
+      "total_scored": 25194748,
+      "full_scans": 236,
+      "construction": {
+        "input_read_seconds": 0.33348097399994003,
+        "descriptor_seconds": 0.20872214399992117,
+        "engine_construct_seconds": 1.7156000012619188e-05,
+        "warmup_seconds": 0.17163315799984957,
+        "descriptor_payload_bytes": 194320000,
+        "warmup_catalog_indices": [
+          0,
+          35000,
+          69999
+        ],
+        "warmup_count": 3,
+        "reset_after_warmup": true,
+        "ann_indexes_constructed": 0,
+        "note": "Only the measured engine exists; competing ANN indexes are not allocated."
+      },
+      "peak_rss_bytes": 978165760,
+      "max_absolute_score_error": 0.0,
+      "pid": 3543
+    },
+    {
+      "pass": 2,
+      "order": "original",
+      "method": "temporal_exact",
+      "repeat": 1,
+      "observations": 1011,
+      "distinct_queries": 1011,
+      "total_ms": 23439.584997,
+      "mean_ms": 23.184554893175076,
+      "p50_ms": 16.064763,
+      "p95_ms": 56.132944,
+      "max_ms": 102.77733,
+      "mean_recall1": 1.0,
+      "mean_recall10": 1.0,
+      "mean_recall64": 1.0,
+      "min_recall64": 1.0,
+      "missed_frames": 0,
+      "mean_top1_gap": 0.0,
+      "max_top1_gap": 0.0,
+      "mean_scored": 24920.621167161225,
+      "total_scored": 25194748,
+      "full_scans": 236,
+      "construction": {
+        "input_read_seconds": 0.3326653569999962,
+        "descriptor_seconds": 0.21356701000013345,
+        "engine_construct_seconds": 2.0781000102942926e-05,
+        "warmup_seconds": 0.17142783500003134,
+        "descriptor_payload_bytes": 194320000,
+        "warmup_catalog_indices": [
+          0,
+          35000,
+          69999
+        ],
+        "warmup_count": 3,
+        "reset_after_warmup": true,
+        "ann_indexes_constructed": 0,
+        "note": "Only the measured engine exists; competing ANN indexes are not allocated."
+      },
+      "peak_rss_bytes": 977920000,
+      "max_absolute_score_error": 0.0,
+      "pid": 3548
+    },
+    {
+      "pass": 3,
+      "order": "original",
+      "method": "exhaustive_strict",
+      "repeat": 1,
+      "observations": 1011,
+      "distinct_queries": 1011,
+      "total_ms": 55818.938013,
+      "mean_ms": 55.21161029970326,
+      "p50_ms": 54.335082,
+      "p95_ms": 58.721405000000004,
+      "max_ms": 107.452582,
+      "mean_recall1": 1.0,
+      "mean_recall10": 1.0,
+      "mean_recall64": 1.0,
+      "min_recall64": 1.0,
+      "missed_frames": 0,
+      "mean_top1_gap": 0.0,
+      "max_top1_gap": 0.0,
+      "mean_scored": 70000.0,
+      "total_scored": 70770000,
+      "full_scans": 1011,
+      "construction": {
+        "input_read_seconds": 0.3314566920000743,
+        "descriptor_seconds": 0.2135465750000094,
+        "engine_construct_seconds": 5.127999884280143e-06,
+        "warmup_seconds": 0.16798132899998564,
+        "descriptor_payload_bytes": 194320000,
+        "warmup_catalog_indices": [
+          0,
+          35000,
+          69999
+        ],
+        "warmup_count": 3,
+        "reset_after_warmup": true,
+        "ann_indexes_constructed": 0,
+        "note": "Only the measured engine exists; competing ANN indexes are not allocated."
+      },
+      "peak_rss_bytes": 969863168,
+      "max_absolute_score_error": 0.0,
+      "pid": 3554
+    },
+    {
+      "pass": 4,
+      "order": "shuffled",
+      "method": "temporal_exact",
+      "repeat": 0,
+      "observations": 1011,
+      "distinct_queries": 1011,
+      "total_ms": 55319.446456,
+      "mean_ms": 54.71755336894164,
+      "p50_ms": 56.15989,
+      "p95_ms": 59.5740695,
+      "max_ms": 111.197185,
+      "mean_recall1": 1.0,
+      "mean_recall10": 1.0,
+      "mean_recall64": 1.0,
+      "min_recall64": 1.0,
+      "missed_frames": 0,
+      "mean_top1_gap": 0.0,
+      "max_top1_gap": 0.0,
+      "mean_scored": 67132.44015825915,
+      "total_scored": 67870897,
+      "full_scans": 944,
+      "construction": {
+        "input_read_seconds": 0.33512183000016194,
+        "descriptor_seconds": 0.20945616399990286,
+        "engine_construct_seconds": 2.037099989138369e-05,
+        "warmup_seconds": 0.1688961019999624,
+        "descriptor_payload_bytes": 194320000,
+        "warmup_catalog_indices": [
+          0,
+          35000,
+          69999
+        ],
+        "warmup_count": 3,
+        "reset_after_warmup": true,
+        "ann_indexes_constructed": 0,
+        "note": "Only the measured engine exists; competing ANN indexes are not allocated."
+      },
+      "peak_rss_bytes": 977661952,
+      "max_absolute_score_error": 0.0,
+      "pid": 3566
+    },
+    {
+      "pass": 5,
+      "order": "shuffled",
+      "method": "exhaustive_strict",
+      "repeat": 0,
+      "observations": 1011,
+      "distinct_queries": 1011,
+      "total_ms": 55620.993958,
+      "mean_ms": 55.01581993867458,
+      "p50_ms": 54.270271,
+      "p95_ms": 58.5348835,
+      "max_ms": 103.512525,
+      "mean_recall1": 1.0,
+      "mean_recall10": 1.0,
+      "mean_recall64": 1.0,
+      "min_recall64": 1.0,
+      "missed_frames": 0,
+      "mean_top1_gap": 0.0,
+      "max_top1_gap": 0.0,
+      "mean_scored": 70000.0,
+      "total_scored": 70770000,
+      "full_scans": 1011,
+      "construction": {
+        "input_read_seconds": 0.34108755900001597,
+        "descriptor_seconds": 0.20994784799995614,
+        "engine_construct_seconds": 5.237999857854447e-06,
+        "warmup_seconds": 0.1676396189998286,
+        "descriptor_payload_bytes": 194320000,
+        "warmup_catalog_indices": [
+          0,
+          35000,
+          69999
+        ],
+        "warmup_count": 3,
+        "reset_after_warmup": true,
+        "ann_indexes_constructed": 0,
+        "note": "Only the measured engine exists; competing ANN indexes are not allocated."
+      },
+      "peak_rss_bytes": 969887744,
+      "max_absolute_score_error": 0.0,
+      "pid": 3574
+    }
+  ],
+  "comparisons": {
+    "exact_vs_temporal": {
+      "original": {
+        "ratio_of_total_times_exhaustive_over_temporal": 2.355216369331687,
+        "time_reduction_fraction": 0.5754105597169576,
+        "repetitions_per_engine": 2,
+        "per_repeat": [
+          {
+            "repeat": 0,
+            "ratio_of_total_times_exhaustive_over_temporal": 2.3293003884761343
+          },
+          {
+            "repeat": 1,
+            "ratio_of_total_times_exhaustive_over_temporal": 2.3813961731892515
+          }
+        ],
+        "qualification": "Descriptive ratio for this isolated process condition and this one clip; no confidence interval."
+      },
+      "shuffled": {
+        "ratio_of_total_times_exhaustive_over_temporal": 1.0054510216807726,
+        "time_reduction_fraction": 0.00542146913497632,
+        "repetitions_per_engine": 1,
+        "per_repeat": [
+          {
+            "repeat": 0,
+            "ratio_of_total_times_exhaustive_over_temporal": 1.0054510216807726
+          }
+        ],
+        "qualification": "Descriptive ratio for this isolated process condition and this one clip; no confidence interval."
+      }
+    }
+  },
+  "primary_predecessor_diagnostic": {
+    "basis": "Successful new-hardware primary run only; these observations are not pooled with isolated control.",
+    "qualification": "Cyclic rotation changes positions but preserves most exhaustive-to-temporal adjacency. Strata contain different queries and are observational, not a causal estimate. Standalone control also removes competing ANN allocations; it does not isolate cache effects alone.",
+    "orders": {
+      "original": {
+        "primary_repetitions": 3,
+        "strata": [
+          {
+            "previous_method_in_same_query_group": "exhaustive_strict",
+            "temporal_full_scan": false,
+            "observations": 2087,
+            "exhaustive_mean_ms": 56.06323457402971,
+            "temporal_mean_ms": 13.35599156492573,
+            "ratio_of_paired_total_times_exhaustive_over_temporal": 4.197609312756515
+          },
+          {
+            "previous_method_in_same_query_group": "exhaustive_strict",
+            "temporal_full_scan": true,
+            "observations": 642,
+            "exhaustive_mean_ms": 56.22925658722741,
+            "temporal_mean_ms": 57.381332373831775,
+            "ratio_of_paired_total_times_exhaustive_over_temporal": 0.979922463649001
+          },
+          {
+            "previous_method_in_same_query_group": "first_in_query_group",
+            "temporal_full_scan": false,
+            "observations": 238,
+            "exhaustive_mean_ms": 56.01385907983193,
+            "temporal_mean_ms": 13.199862109243696,
+            "ratio_of_paired_total_times_exhaustive_over_temporal": 4.243518501652084
+          },
+          {
+            "previous_method_in_same_query_group": "first_in_query_group",
+            "temporal_full_scan": true,
+            "observations": 66,
+            "exhaustive_mean_ms": 55.674946954545455,
+            "temporal_mean_ms": 56.77645753030303,
+            "ratio_of_paired_total_times_exhaustive_over_temporal": 0.9805991669140388
+          }
+        ],
+        "interleaved_exhaustive_mean_ms": 56.08605283382789,
+        "interleaved_temporal_mean_ms": 23.607511757006264,
+        "interleaved_ratio_of_total_times_exhaustive_over_temporal": 2.375771466774028
+      },
+      "shuffled": {
+        "primary_repetitions": 3,
+        "strata": [
+          {
+            "previous_method_in_same_query_group": "exhaustive_strict",
+            "temporal_full_scan": false,
+            "observations": 174,
+            "exhaustive_mean_ms": 55.58538172413793,
+            "temporal_mean_ms": 28.95919011494253,
+            "ratio_of_paired_total_times_exhaustive_over_temporal": 1.9194384063750687
+          },
+          {
+            "previous_method_in_same_query_group": "exhaustive_strict",
+            "temporal_full_scan": true,
+            "observations": 2555,
+            "exhaustive_mean_ms": 55.63210562074364,
+            "temporal_mean_ms": 56.436734094324855,
+            "ratio_of_paired_total_times_exhaustive_over_temporal": 0.9857428235971909
+          },
+          {
+            "previous_method_in_same_query_group": "first_in_query_group",
+            "temporal_full_scan": false,
+            "observations": 27,
+            "exhaustive_mean_ms": 54.85171296296296,
+            "temporal_mean_ms": 31.342100814814813,
+            "ratio_of_paired_total_times_exhaustive_over_temporal": 1.750096883647174
+          },
+          {
+            "previous_method_in_same_query_group": "first_in_query_group",
+            "temporal_full_scan": true,
+            "observations": 277,
+            "exhaustive_mean_ms": 55.602181191335745,
+            "temporal_mean_ms": 56.11072059205777,
+            "ratio_of_paired_total_times_exhaustive_over_temporal": 0.9909368584941324
+          }
+        ],
+        "interleaved_exhaustive_mean_ms": 55.619745044840094,
+        "interleaved_temporal_mean_ms": 54.60720772073854,
+        "interleaved_ratio_of_total_times_exhaustive_over_temporal": 1.018542191889387
+      }
+    }
+  },
+  "limitations": [
+    "Two original-order repetitions per engine; one shuffled-order supplementary repetition. One existing composited clip. No confidence intervals, significance claims or cross-video generalization. Keep new-main interleaved and isolated results separate.",
+    "Isolated processes have no competing ANN allocations; differences from interleaved timing are not attributable solely to cache predecessor.",
+    "Frame recall is agreement with the frozen production score, not identity or perceptual ground truth.",
+    "No old interrupted-host observations are pooled with this successful new-hardware run."
+  ]
+}

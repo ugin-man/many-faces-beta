@@ -1,0 +1,49 @@
+{
+  "status": "pass",
+  "purpose": "numerical-port-validation",
+  "sourceHashes": {
+    "../../app/projection-matching.ts": "8d0ee35ed6beb0cdaa290ff91680bdbb1f0bb40a852950d19863952a4fc7ffce",
+    "../../app/face-actions.ts": "e63bce1c9350d6381f6cba88aac49c0cdf14a2f72c88071547ea1607e9439d7c"
+  },
+  "pythonPortSha256": "8d15329ea4848511b051bf3709647b097408e33c13bda20b55e50e35ad47346b",
+  "fixtureSha256": "9bb4c1772efb57a3792c50d6a0f86d99f154dd92d83e24a1539b7d7d48db75d5",
+  "realCatalogRecords": 96,
+  "syntheticBoundaryRecords": 8,
+  "queries": 24,
+  "compensateRollValues": [
+    false,
+    true
+  ],
+  "pairScoresCompared": 4992,
+  "componentScalarsCompared": 109824,
+  "absoluteTolerance": 2e-12,
+  "relativeTolerance": 2e-12,
+  "maximumAbsoluteErrorByField": {
+    "strictTotal": 4.440892098500626e-16,
+    "total": 4.440892098500626e-16,
+    "contour": 0.0,
+    "mouth": 0.0,
+    "leftEye": 0.0,
+    "rightEye": 0.0,
+    "eyes": 0.0,
+    "brows": 0.0,
+    "mouthDescriptor": 2.220446049250313e-16,
+    "mouthAction": 5.551115123125783e-17,
+    "mouthShape": 4.440892098500626e-16,
+    "eyeDescriptor": 8.881784197001252e-16,
+    "browDescriptor": 1.7763568394002505e-15,
+    "blendshape": 4.440892098500626e-16,
+    "wink": 0.0,
+    "blink": 0.0,
+    "shapeGate": 4.440892098500626e-16,
+    "worstLocal": 6.661338147750939e-16,
+    "poseDegrees": 2.842170943040401e-14,
+    "yawDegrees": 0.0,
+    "pitchDegrees": 0.0,
+    "rollDegrees": 0.0
+  },
+  "rankMismatches": 0,
+  "subsetChecks": 48,
+  "boundaryTieChecks": 3,
+  "limitation": "Fixed finite sample validates the numerical port; it is not a mathematical proof for every floating-point input. The full score is query-asymmetric and not assumed to obey a triangle inequality."
+}

@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "status": "complete_validated",
+  "measured_at": "2026-11-11",
+  "workflow_run": 43021151993,
+  "workflow_job": 130524380371,
+  "workflow_url": "https://github.com/ugin-man/many-faces-beta/actions/runs/43021151993",
+  "measured_checkout": "8f5d19abc5c2089fceab6a0b8678562a7552fdb2",
+  "branch_source_head": "e9b4daa5cef5f490eecc57f1812c8b1ee16cf876",
+  "production_source_commit": "ec97e233003e272cc203580953a180377945228d",
+  "transfer": "Six public files recovered from timestamped Actions log base64 frames; bytes and SHA256 verified before Git blob creation.",
+  "public_files": [
+    {
+      "path": "research/face-search/results/actions-v1/summary.json",
+      "bytes": 80401,
+      "sha256": "bb1dea872e11098179c81b0663fbd79661d44e9efc5dfda7cb255aee3a8a9b34"
+    },
+    {
+      "path": "research/face-search/results/actions-v1/REPORT.md",
+      "bytes": 4826,
+      "sha256": "6094901a54082deefef904101b85984238fe50be398541ac0b3eeeb39f39b1d1"
+    },
+    {
+      "path": "research/face-search/results/actions-v1/per-query-metrics.csv.gz",
+      "bytes": 710714,
+      "sha256": "a5a5e6528986671e4015cfe64772678c4f0ab3f6ecbfcfb677f3725b0e5ff22a"
+    },
+    {
+      "path": "research/face-search/results/actions-v1/isolated/summary.json",
+      "bytes": 32914,
+      "sha256": "6c2a2503745a36a6f96cc254851663d20fb10f438d11af660a70ea8ea7809870"
+    },
+    {
+      "path": "research/face-search/results/actions-v1/isolated/RUN_REPORT.md",
+      "bytes": 5925,
+      "sha256": "d85aebdc7343337ea4a35e5c8480c26694c230755897b14eca3feb1d0dcd7391"
+    },
+    {
+      "path": "research/face-search/results/actions-v1/isolated/per-query-metrics.csv.gz",
+      "bytes": 53769,
+      "sha256": "f3ea9beda25fcd8dbfb83a0282c5395859e4a5e7298dc8d8fa7f54196555d4a0"
+    }
+  ],
+  "diagnostics_from_log": [
+    {
+      "path": "research/face-search/results/actions-v1/strict-metric-verification.json",
+      "bytes": 1740,
+      "sha256": "c97ab6beb8867b005bbbb4044ebe930e68c6d8edc83ae8ffd2255335fec4d8d1",
+      "verification": "Matches the original verification-file SHA256 in main summary"
+    },
+    {
+      "path": "research/face-search/results/actions-v1/temporal-exact-verification.json",
+      "bytes": 1698,
+      "sha256": "5513aff6cfcc149163bc8347137d1b819e1bfb58b705dff0d218413f7c3dc7e3",
+      "verification": "Verbatim JSON stdout report from the successful verification step; no source-file byte hash independently available"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 13857236753,
+      "name": "face-search-measurements-43021151993",
+      "size_in_bytes": 2020628,
+      "url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/13857236753",
+      "archive_download_url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/13857236753/zip",
+      "expired": false,
+      "created_at": "2026-11-11T13:02:47Z",
+      "expires_at": "2027-02-09T12:32:00Z",
+      "updated_at": "2026-11-11T13:02:47Z",
+      "digest": "sha256:004acf2bd81663a723fd7d4d2883a7bfda72db4d19c862276681f9667b32419c",
+      "workflow_run": {
+        "id": 43021151993,
+        "repository_id": 1340833640,
+        "head_repository_id": 1340833640,
+        "head_branch": "research/face-search-engine-20261111",
+        "head_sha": "e9b4daa5cef5f490eecc57f1812c8b1ee16cf876"
+      }
+    },
+    {
+      "id": 13855361109,
+      "name": "face-search-input-diagnostics-43021151993",
+      "size_in_bytes": 87851,
+      "url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/13855361109",
+      "archive_download_url": "https://api.github.com/repos/ugin-man/many-faces-beta/actions/artifacts/13855361109/zip",
+      "expired": false,
+      "created_at": "2026-11-11T12:33:07Z",
+      "expires_at": "2027-02-09T12:32:00Z",
+      "updated_at": "2026-11-11T12:33:07Z",
+      "digest": "sha256:ed0fa73bfbe113a753ad3e42c75cae570564bb2f8786430e4a0f1de5503661fe",
+      "workflow_run": {
+        "id": 43021151993,
+        "repository_id": 1340833640,
+        "head_repository_id": 1340833640,
+        "head_branch": "research/face-search-engine-20261111",
+        "head_sha": "e9b4daa5cef5f490eecc57f1812c8b1ee16cf876"
+      }
+    }
+  ],
+  "main_observations": 66726,
+  "isolated_observations": 6066,
+  "notes": [
+    "Main interleaved measurements and isolated fresh-process control are kept separate.",
+    "The interrupted local hardware run is excluded.",
+    "Public result CSVs contain numerical measurements, not face landmarks or returned candidate IDs.",
+    "Raw work arrays are not public artifacts and their persistence on the runner is not guaranteed."
+  ]
+}
